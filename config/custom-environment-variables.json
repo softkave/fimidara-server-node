@@ -30,6 +30,7 @@
   "pubSubProvider": "PUB_SUB_PROVIDER",
   "cacheProvider": "CACHE_PROVIDER",
   "redlockProvider": "REDLOCK_PROVIDER",
+  "dsetProvider": "DSET_PROVIDER",
   "redisURL": "REDIS_URL",
   "redisDatabase": "REDIS_DATABASE"
 }

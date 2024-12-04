@@ -1,7 +1,6 @@
 import {sampleSize} from 'lodash-es';
 import {getRandomInt} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {FilePersistenceUploadPartResult} from '../../../contexts/file/types.js';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -14,7 +13,10 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {stringifyFilenamepath} from '../utils.js';
-import {writePartMetas} from '../utils/partMeta.js';
+import {
+  FilePartMeta,
+  writeMultipartUploadPartMetas,
+} from '../utils/multipartUploadMeta.js';
 import getPartDetails from './handler.js';
 import {GetPartDetailsEndpointParams} from './types.js';
 
@@ -41,7 +43,7 @@ describe('getPartDetails', () => {
           .file()
           .updateOneById(
             file.resourceId,
-            {partLength, clientMultipartId, internalMultipartId},
+            {clientMultipartId, internalMultipartId},
             txn
           );
       });
@@ -58,7 +60,7 @@ describe('getPartDetails', () => {
         : possiblePartNums;
       const parts = partNums
         .sort((num1, num2) => num1 - num2)
-        .map((part: number): FilePersistenceUploadPartResult => {
+        .map((part: number): FilePartMeta => {
           return {
             part,
             multipartId: clientMultipartId,
@@ -66,7 +68,10 @@ describe('getPartDetails', () => {
             partId: part.toString(),
           };
         });
-      await writePartMetas({parts, multipartId: internalMultipartId});
+      await writeMultipartUploadPartMetas({
+        parts,
+        multipartId: internalMultipartId,
+      });
 
       const pageSize = 5;
       const page01Req =
@@ -81,14 +86,14 @@ describe('getPartDetails', () => {
       expect(page01.details).toEqual(
         parts.slice(0, Math.min(pageSize, partLength))
       );
-      expect(page01.partLength).toEqual(partLength);
+      expect(page01.continuationToken).toBeDefined();
 
       const page02Req =
         RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             pageSize,
-            fromPart: pageSize,
+            continuationToken: page01.continuationToken,
             filepath: stringifyFilenamepath(file, workspace.rootname),
           }
         );
@@ -97,13 +102,14 @@ describe('getPartDetails', () => {
       assertEndpointResultOk(page02);
       expect(page02.clientMultipartId).toEqual(clientMultipartId);
       expect(page02.details).toEqual(parts.slice(pageSize, pageSize * 2));
-      expect(page02.partLength).toEqual(partLength);
+      expect(page02.continuationToken).toBeDefined();
+
       const page03Req =
         RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
           mockExpressRequestWithAgentToken(userToken),
           {
             pageSize,
-            fromPart: pageSize * 2,
+            continuationToken: page02.continuationToken,
             filepath: stringifyFilenamepath(file, workspace.rootname),
           }
         );
@@ -112,7 +118,6 @@ describe('getPartDetails', () => {
       assertEndpointResultOk(page03);
       expect(page03.clientMultipartId).toEqual(clientMultipartId);
       expect(page03.details).toEqual(parts.slice(pageSize * 2, pageSize * 3));
-      expect(page03.partLength).toEqual(partLength);
     }
   );
 });

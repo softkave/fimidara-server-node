@@ -4,6 +4,7 @@
   "FLAG_waitlistNewSignups": false,
   "fileBackend": "fs",
   "localFsDir": "./test-local-fs",
+  "localPartsFsDir": "./test-local-parts-fs",
   "addFolderTimeoutMs": 10000,
   "addFolderQueuePrefix": "test_addFolderQueue",
   "addFolderPubSubChannelPrefix": "test_addFolderPubSub"

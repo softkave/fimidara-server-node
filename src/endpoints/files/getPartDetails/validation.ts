@@ -8,6 +8,6 @@ export const getPartDetailsJoiSchema =
     .keys({
       ...fileValidationSchemas.fileMatcherParts,
       pageSize: endpointValidationSchemas.paginationParts.pageSize,
-      fromPart: endpointValidationSchemas.paginationParts.page,
+      continuationToken: endpointValidationSchemas.continuationToken,
     })
     .required();

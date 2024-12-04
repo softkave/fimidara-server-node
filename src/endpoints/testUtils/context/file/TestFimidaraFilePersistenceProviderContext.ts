@@ -21,6 +21,8 @@ export default class TestFimidaraFilePersistenceProviderContext
   describeFolderContent: TestFilePersistenceProviderContext['describeFolderContent'];
   supportsFeature: TestFilePersistenceProviderContext['supportsFeature'];
   dispose: TestFilePersistenceProviderContext['dispose'];
+  deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
+  startMultipartUpload: TestFilePersistenceProviderContext['startMultipartUpload'];
 
   constructor() {
     this.client = new FimidaraFilePersistenceProvider();
@@ -55,6 +57,12 @@ export default class TestFimidaraFilePersistenceProviderContext
     this.supportsFeature = vi
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
+    this.deleteMultipartUploadPart = vi
+      .fn(this.client.deleteMultipartUploadPart)
+      .mockName('deleteMultipartUploadPart');
+    this.startMultipartUpload = vi
+      .fn(this.client.startMultipartUpload)
+      .mockName('startMultipartUpload');
 
     mockWith(this.client, this);
   }

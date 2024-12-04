@@ -5,6 +5,7 @@ import {
   FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
@@ -41,6 +42,12 @@ export default class NoopFilePersistenceProviderContext
   dispose = noopAsync;
   cleanupMultipartUpload = noopAsync;
   completeMultipartUpload = noopAsync;
+  deleteMultipartUploadPart = noopAsync;
+
+  startMultipartUpload =
+    async (): Promise<FilePersistenceStartMultipartUploadResult> => {
+      return {multipartId: ''};
+    };
 
   describeFile = async (): Promise<PersistedFileDescription | undefined> => {
     return undefined;

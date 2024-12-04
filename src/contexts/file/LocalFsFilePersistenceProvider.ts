@@ -1,6 +1,5 @@
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
-import {kLoopAsyncSettlementType, loopAsync} from 'softkave-js-utils';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
@@ -10,6 +9,7 @@ import {
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDeleteMultipartUploadPartParams,
   FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -18,9 +18,12 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -62,10 +65,19 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     }
   };
 
-  uploadFile = async (params: FilePersistenceUploadFileParams) => {
-    if (isNumber(params.part)) {
+  uploadFile = async (
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> => {
+    if (params.multipartId) {
       await this.writeStreamToPartsFile(params);
-      return {filepath: params.filepath, raw: undefined};
+      appAssert(isNumber(params.part));
+      return {
+        multipartId: params.multipartId,
+        part: params.part,
+        partId: params.part.toString(),
+        filepath: params.filepath,
+        raw: undefined,
+      };
     } else {
       const {mount, filepath} = params;
       const {nativePath} = this.toNativePath({
@@ -88,6 +100,25 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     params: FilePersistenceCleanupMultipartUploadParams
   ) {
     await this.cleanupPartsFile(params);
+  }
+
+  async startMultipartUpload(
+    params: FilePersistenceStartMultipartUploadParams
+  ): Promise<FilePersistenceStartMultipartUploadResult> {
+    return {multipartId: params.fileId};
+  }
+
+  async deleteMultipartUploadPart(
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) {
+    const {multipartId, part} = params;
+    const partPath = pathJoin(
+      this.partsNamepath,
+      params.filepath,
+      multipartId,
+      part.toString()
+    );
+    await fse.promises.rm(partPath, {force: true});
   }
 
   readFile = async (
@@ -349,9 +380,11 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     params: FilePersistenceUploadFileParams
   ) {
     appAssert(isNumber(params.part));
+    appAssert(params.multipartId);
     const partPath = pathJoin(
       this.partsNamepath,
       params.filepath,
+      params.multipartId,
       params.part.toString()
     );
 
@@ -361,52 +394,49 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   protected async cleanupPartsFile(
     params: FilePersistenceCleanupMultipartUploadParams
   ) {
-    await loopAsync(
-      async i => {
-        const partPath = pathJoin(
-          this.partsNamepath,
-          params.filepath,
-          i.toString()
-        );
-        await fse.promises.rm(partPath, {force: true});
-      },
-      params.partLength,
-      kLoopAsyncSettlementType.all
+    const partsDir = pathJoin(
+      this.partsNamepath,
+      params.filepath,
+      params.multipartId
     );
+    await fse.promises.rm(partsDir, {recursive: true, force: true});
   }
 
   protected async completePartsFile(
     params: FilePersistenceCompleteMultipartUploadParams
   ) {
-    appAssert(isNumber(params.partLength));
     const {nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-
+    await fse.ensureFile(nativePath);
     const writeStream = fse.createWriteStream(nativePath, {
       autoClose: true,
       emitClose: true,
     });
 
-    const promises: Promise<void>[] = [];
-    for (let i = 0; i < params.partLength; i++) {
-      const partPath = pathJoin(
-        this.partsNamepath,
-        params.filepath,
-        i.toString()
-      );
+    const partsDir = pathJoin(
+      this.partsNamepath,
+      params.filepath,
+      params.multipartId
+    );
+
+    // TODO: this is not efficient because it reads the entire directory into
+    // memory. Also, it writes the parts in order, which I think prolly there's a
+    // better way to do this.
+    for (const entry of await fse.promises.readdir(partsDir)) {
+      const partPath = pathJoin(partsDir, entry);
       const partStream = fse.createReadStream(partPath, {autoClose: true});
       partStream.pipe(writeStream, {end: false});
-      promises.push(
-        new Promise<void>((resolve, reject) => {
-          partStream.on('end', resolve);
-          partStream.on('error', reject);
-        })
-      );
+      const promise = new Promise<void>((resolve, reject) => {
+        partStream.on('end', resolve);
+        partStream.on('error', reject);
+      });
+
+      // Wait for the part to finish writing to avoid a race condition
+      await promise;
     }
 
-    await Promise.all(promises);
     kUtilsInjectables.promises().forget(this.cleanupPartsFile(params));
   }
 }

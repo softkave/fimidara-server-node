@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {InvalidStateError} from '../../../endpoints/errors.js';
+import {ResourceLockedError as FimidaraResourceLockedError} from '../../../endpoints/errors.js';
 import {MemoryRedlockProvider} from '../MemoryRedlockProvider.js';
 
 describe('MemoryRedlockProvider', () => {
@@ -16,6 +16,6 @@ describe('MemoryRedlockProvider', () => {
     await expect(
       // attempt to acquire the lock again should throw
       provider.using('test', 1000, async () => 'test')
-    ).rejects.toThrow(InvalidStateError);
+    ).rejects.toThrow(FimidaraResourceLockedError);
   });
 });

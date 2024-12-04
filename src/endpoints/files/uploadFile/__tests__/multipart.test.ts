@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {isNil, last} from 'lodash-es';
+import {isNil, last, uniq} from 'lodash-es';
 import {waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
@@ -24,7 +24,7 @@ import {
 } from '../../../testUtils/testUtils.js';
 import {stringifyFilenamepath} from '../../utils.js';
 import {getNextMultipartTimeout} from '../../utils/getNextMultipartTimeout.js';
-import {getPartMeta} from '../../utils/partMeta.js';
+import {getMultipartUploadPartMeta} from '../../utils/multipartUploadMeta.js';
 import {
   multipartFileUpload,
   singleFileUpload,
@@ -117,12 +117,9 @@ describe('multipart.uploadFile', () => {
     const dbFile = await kSemanticModels.file().getOneById(rf01.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
     expect(dbFile?.isReadAvailable).toBeTruthy();
-    expect(dbFile?.uploadedParts).toBeNull();
-    expect(dbFile?.uploadedSize).toBeNull();
     expect(dbFile?.multipartTimeout).toBeNull();
     expect(dbFile?.internalMultipartId).toBeNull();
     expect(dbFile?.clientMultipartId).toBeNull();
-    expect(dbFile?.partLength).toBeNull();
   });
 
   test('overwrite part', async () => {
@@ -134,12 +131,11 @@ describe('multipart.uploadFile', () => {
       data: Readable.from(buf01),
       size: buf01.byteLength,
       clientMultipartId: '1',
-      partLength: 3,
     });
 
     assert.ok(rf01);
     assert.ok(rf01.internalMultipartId);
-    const partMeta = await getPartMeta({
+    const partMeta = await getMultipartUploadPartMeta({
       multipartId: rf01.internalMultipartId,
       part: 0,
     });
@@ -153,12 +149,11 @@ describe('multipart.uploadFile', () => {
       data: Readable.from(buf02),
       size: buf02.byteLength,
       clientMultipartId: '1',
-      partLength: 3,
     });
 
     assert.ok(rf02);
     assert.ok(rf02.internalMultipartId);
-    const partMeta2 = await getPartMeta({
+    const partMeta2 = await getMultipartUploadPartMeta({
       multipartId: rf02.internalMultipartId,
       part: 0,
     });
@@ -199,20 +194,18 @@ describe('multipart.uploadFile', () => {
     const dbFile = await kSemanticModels.file().getOneById(rf01.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
     expect(dbFile?.isReadAvailable).toBeTruthy();
-    expect(dbFile?.uploadedParts).toBeNull();
-    expect(dbFile?.uploadedSize).toBeNull();
     expect(dbFile?.multipartTimeout).toBeNull();
     expect(dbFile?.internalMultipartId).toBeNull();
     expect(dbFile?.clientMultipartId).toBeNull();
-    expect(dbFile?.partLength).toBeNull();
   });
 
-  test('uploaded parts and size counted correctly', async () => {
+  test('single internal multipart ID created', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
     const {runNext} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
+      partLength: 3,
     });
 
     async function wrapOrCatch(fn: () => Promise<unknown>) {
@@ -226,14 +219,14 @@ describe('multipart.uploadFile', () => {
     const results01 = await Promise.all([
       wrapOrCatch(() => runNext({part: 0, forceRun: true})),
       wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 2, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
     ]);
     // run again
     const results02 = await Promise.all([
       wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
+      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
     ]);
     const results = results01.concat(results02);
     const successResults = results.filter(
@@ -245,10 +238,8 @@ describe('multipart.uploadFile', () => {
       } => r.status === 'success' && !isNil(r.result)
     );
     assert.ok(successResults.length);
-    const rf = successResults[0].result.rawFile;
-    assert.ok(rf);
-    const dbFile = await kSemanticModels.file().getOneById(rf.resourceId);
-    expect(dbFile?.uploadedParts).toBe(1);
-    expect(dbFile?.uploadedSize).toBe(rf.size);
+    const rfList = successResults.map(r => r.result.rawFile);
+    const multipartIds = rfList.map(rf => rf.internalMultipartId);
+    expect(uniq(multipartIds).length).toBe(1);
   });
 });

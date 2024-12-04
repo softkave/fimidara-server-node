@@ -1,8 +1,5 @@
 import {isNumber, pick} from 'lodash-es';
-import {
-  FilePersistenceUploadFileResult,
-  FilePersistenceUploadPartResult,
-} from '../../../contexts/file/types.js';
+import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
@@ -19,11 +16,10 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData, pathExtract} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
-import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
+import {getCleanupMultipartFileUpdate} from '../deleteFile/deleteMultipartUpload.js';
 import {assertFile} from '../utils.js';
 import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
-import {writePartMetas} from '../utils/partMeta.js';
-import {getCleanupMultipartFileUpdate} from './clean.js';
+import {writeMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 import {UploadFileEndpointParams} from './types.js';
 
 export async function setFileWritable(fileId: string) {
@@ -73,7 +69,7 @@ export async function insertFileMountEntry(params: {
   kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts);
 }
 
-export async function updateFile(params: {
+export async function completeUploadFile(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
@@ -113,18 +109,19 @@ export async function updateFile(params: {
 
 export async function saveFilePartData(params: {
   pMountData: FilePersistenceUploadFileResult<unknown>;
+  size: number;
 }) {
-  const {pMountData} = params;
+  const {pMountData, size} = params;
   appAssert(isNumber(pMountData.part));
-  appAssert(pMountData.multipartId && pMountData.partId && pMountData.size);
-  await writePartMetas({
+  appAssert(pMountData.multipartId && pMountData.partId);
+  await writeMultipartUploadPartMetas({
     multipartId: pMountData.multipartId,
     parts: [
       {
+        size,
         part: pMountData.part,
         multipartId: pMountData.multipartId,
         partId: pMountData.partId,
-        size: pMountData.size,
       },
     ],
   });
@@ -135,53 +132,26 @@ export function getFileUpdate(params: {
   file: File;
   data: UploadFileEndpointParams;
   isMultipart: boolean;
-  hasPart: boolean;
-  part?: FilePersistenceUploadPartResult | null;
+  isLastPart?: boolean;
   persistedMountData: FilePersistenceUploadFileResult<unknown>;
-  bytesCounterStream: ByteCounterPassThroughStream;
-}): {update: Partial<File>; isLastPart: boolean} {
-  const {
-    agent,
-    file,
-    data,
-    isMultipart,
-    hasPart,
-    part,
-    persistedMountData,
-    bytesCounterStream,
-  } = params;
+  size: number;
+}) {
+  const {agent, file, data, isMultipart, persistedMountData, size, isLastPart} =
+    params;
   const update: Partial<File> = {
     lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     lastUpdatedAt: getTimestamp(),
   };
 
-  if (isMultipart && !hasPart) {
-    update.uploadedParts = (file.uploadedParts || 0) + 1;
-  }
-
-  const isLastPart = isMultipart && file.partLength === update.uploadedParts;
   if (isMultipart && !isLastPart) {
     update.internalMultipartId = persistedMountData.multipartId;
     update.isWriteAvailable = false;
     update.multipartTimeout = getNextMultipartTimeout();
-    update.uploadedSize =
-      (file.uploadedSize || 0) + bytesCounterStream.contentLength;
-
-    if (hasPart) {
-      appAssert(part);
-      update.uploadedSize -= part.size;
-    }
   } else {
     update.isWriteAvailable = true;
     update.isReadAvailable = true;
     update.version = file.version + 1;
-
-    if (isMultipart) {
-      appAssert(isNumber(file.uploadedSize));
-      update.size = file.uploadedSize + bytesCounterStream.contentLength;
-    } else {
-      update.size = bytesCounterStream.contentLength;
-    }
+    update.size = size;
 
     mergeData(update, getCleanupMultipartFileUpdate());
   }
@@ -190,5 +160,5 @@ export function getFileUpdate(params: {
     arrayUpdateStrategy: 'replace',
   });
 
-  return {update, isLastPart};
+  return update;
 }

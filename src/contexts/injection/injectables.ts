@@ -82,6 +82,7 @@ import {
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kInjectionKeys} from './keys.js';
+import {IDSetContext} from '../dset/types.js';
 
 export const kSemanticModels = {
   user: () =>
@@ -270,4 +271,5 @@ export const kUtilsInjectables = {
       kInjectionKeys.redis
     ),
   ioredis: () => container.resolve<[Redis, ...Redis[]]>(kInjectionKeys.ioredis),
+  dset: () => container.resolve<IDSetContext>(kInjectionKeys.dset),
 };

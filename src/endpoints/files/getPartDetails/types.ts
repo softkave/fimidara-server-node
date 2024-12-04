@@ -1,21 +1,19 @@
-import {FilePersistenceUploadPartResult} from '../../../contexts/file/types.js';
 import {FileMatcher} from '../../../definitions/file.js';
 import {Endpoint, PaginationQuery} from '../../types.js';
+import {FilePartMeta} from '../utils/multipartUploadMeta.js';
 
 export interface GetPartDetailsEndpointParams
   extends FileMatcher,
     Pick<PaginationQuery, 'pageSize'> {
-  fromPart?: number;
+  continuationToken?: string;
 }
 
-export type PublicPartDetails = Pick<
-  FilePersistenceUploadPartResult,
-  'part' | 'size'
->;
+export type PublicPartDetails = Pick<FilePartMeta, 'part' | 'size'>;
 
 export interface GetPartDetailsEndpointResult {
   clientMultipartId?: string;
-  partLength?: number;
+  continuationToken?: string;
+  isDone?: boolean;
   details: PublicPartDetails[];
 }
 

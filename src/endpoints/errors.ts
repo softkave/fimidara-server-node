@@ -27,6 +27,18 @@ export class InvalidStateError extends OperationError {
   }
 }
 
+export class ResourceLockedError extends InvalidStateError {
+  name = 'ResourceLockedError';
+
+  constructor(props?: OperationErrorParameters | string) {
+    super(props);
+    this.message = getErrorMessageFromParams(
+      props,
+      'Resource is locked by another consumer'
+    );
+  }
+}
+
 export class RateLimitError extends OperationError {
   name = 'RateLimitError';
   statusCode = kEndpointConstants.httpStatusCode.tooManyRequests;

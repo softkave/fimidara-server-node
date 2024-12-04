@@ -5,7 +5,7 @@ import {
 } from '@sesamecare-oss/redlock';
 import Redis from 'ioredis';
 import {convertToArray} from 'softkave-js-utils';
-import {InvalidStateError} from '../../endpoints/errors.js';
+import {ResourceLockedError as FimidaraResourceLockedError} from '../../endpoints/errors.js';
 import {IAcquireLockOptions, IRedlockContext} from './types.js';
 
 export class RedisRedlockProvider implements IRedlockContext {
@@ -35,7 +35,7 @@ export class RedisRedlockProvider implements IRedlockContext {
       );
     } catch (error) {
       if (error instanceof ResourceLockedError) {
-        throw new InvalidStateError('Resource not available');
+        throw new FimidaraResourceLockedError();
       } else if (error instanceof ExecutionError) {
         const attempts = await Promise.all(error.attempts);
         const votesAgainst = attempts.map(attempt => attempt.votesAgainst);
@@ -47,15 +47,11 @@ export class RedisRedlockProvider implements IRedlockContext {
         );
 
         if (hasResourceLockedError) {
-          throw new InvalidStateError('Resource not available');
+          throw new FimidaraResourceLockedError();
         }
       }
 
       throw error;
     }
-  }
-
-  async dispose(): Promise<void> {
-    await Promise.all(convertToArray(this.redis).map(redis => redis.quit()));
   }
 }

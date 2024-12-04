@@ -20,12 +20,12 @@ import {
 } from '../../../endpoints/testUtils/generate/utils.js';
 import {expectContainsExactly} from '../../../endpoints/testUtils/helpers/assertion.js';
 import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kSemanticModels} from '../../injection/injectables.js';
 import {DataSemanticPermission} from './model.js';
+import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 
 const model = new DataSemanticPermission();
 

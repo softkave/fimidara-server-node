@@ -100,7 +100,7 @@ export const multipartFileUpload = async (params: {
       data: Readable.from(partData),
       size: partData.byteLength,
       clientMultipartId: clientMultipartIdOrDefault,
-      partLength: partLengthOrDefault,
+      isLastPart: part === partLengthOrDefault - 1,
     });
   };
 

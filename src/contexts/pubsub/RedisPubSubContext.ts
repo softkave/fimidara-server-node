@@ -3,7 +3,7 @@ import {
   BasePubSubContext,
   IBasePubSubContextClient,
 } from './BasePubSubContext.js';
-import {IPubSubContext, QueueContextSubscribeFn} from './types.js';
+import {IPubSubContext} from './types.js';
 
 class RedisPubSubClient implements IBasePubSubContextClient {
   constructor(
@@ -11,13 +11,16 @@ class RedisPubSubClient implements IBasePubSubContextClient {
     protected subscriberRedis: RedisClientType
   ) {}
 
-  async subscribe(channel: string, fn: QueueContextSubscribeFn): Promise<void> {
-    await this.subscriberRedis.subscribe(channel, fn);
+  async subscribe(
+    channel: string,
+    fn: (message: string | Buffer, channel: string) => void
+  ) {
+    return await this.subscriberRedis.subscribe(channel, fn);
   }
 
   async unsubscribe(
     channel?: string,
-    fn?: QueueContextSubscribeFn
+    fn?: (message: string | Buffer, channel: string) => void
   ): Promise<void> {
     await this.subscriberRedis.unsubscribe(channel, fn);
   }
@@ -37,11 +40,4 @@ export class RedisPubSubContext
   ) {
     super(new RedisPubSubClient(publisherRedis, subscriberRedis));
   }
-
-  dispose = async () => {
-    await Promise.all([
-      this.publisherRedis.quit(),
-      this.subscriberRedis.quit(),
-    ]);
-  };
 }

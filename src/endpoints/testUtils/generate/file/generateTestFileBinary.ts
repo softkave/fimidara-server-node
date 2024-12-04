@@ -1,7 +1,10 @@
 import {ValueOf} from 'type-fest';
 import {UploadFileEndpointParams} from '../../../files/uploadFile/types.js';
 import {generateTestImage, IGenerateImageProps} from './generateTestImage.js';
-import {generateTestTextFile} from './generateTestTextFile.js';
+import {
+  generateTestTextFile,
+  IGenerateTestTextFileParams,
+} from './generateTestTextFile.js';
 
 export const kGenerateTestFileType = {
   png: 'png',
@@ -13,8 +16,9 @@ export type GenerateTestFileType = ValueOf<typeof kGenerateTestFileType>;
 export async function generateTestFileBinary(props: {
   type?: GenerateTestFileType;
   imageProps?: IGenerateImageProps;
+  textFileParams?: IGenerateTestTextFileParams;
 }) {
-  const {type = 'png', imageProps} = props;
+  const {type = 'png', imageProps, textFileParams} = props;
   if (type === 'png') {
     const {dataBuffer, getStream} = await generateTestImage(imageProps);
     return {
@@ -27,7 +31,7 @@ export async function generateTestFileBinary(props: {
       }),
     };
   } else {
-    const {dataBuffer, getStream} = generateTestTextFile();
+    const {dataBuffer, getStream} = generateTestTextFile(textFileParams);
     return {
       dataBuffer,
       getStream,

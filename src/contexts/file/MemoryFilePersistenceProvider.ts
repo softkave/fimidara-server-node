@@ -9,6 +9,7 @@ import {
   FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDeleteMultipartUploadPartParams,
   FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -18,9 +19,13 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
+  FilePersistenceUploadPartResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -52,7 +57,10 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   > = {};
   protected parts: Record<
     /** workspaceId */ string,
-    Record</** nativePath */ string, MemoryFilePersistenceProviderFilePart[]>
+    Record<
+      /** multipartId */ string,
+      Record</** part */ string, MemoryFilePersistenceProviderFilePart>
+    >
   > = {};
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -69,12 +77,15 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     }
   };
 
-  async uploadFile(params: FilePersistenceUploadFileParams) {
+  async uploadFile(
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> {
     const {mount, filepath} = params;
     const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
     const body = await streamToBuffer(params.body);
 
-    if (isNumber(params.part)) {
+    if (params.multipartId) {
+      appAssert(isNumber(params.part));
       this.addMemoryFilePart(params, {
         body,
         nativePath,
@@ -84,7 +95,13 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
         mimetype: params.mimetype,
         encoding: params.encoding,
       });
-      return {filepath, raw: undefined};
+
+      const part: FilePersistenceUploadPartResult = {
+        part: params.part,
+        multipartId: params.multipartId,
+        partId: params.fileId,
+      };
+      return {filepath, raw: undefined, ...part};
     } else {
       this.setMemoryFile(params, {
         body,
@@ -103,18 +120,27 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   async completeMultipartUpload(
     params: FilePersistenceCompleteMultipartUploadParams
   ) {
-    const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
-    this.completeMemoryFile(params, nativePath);
+    this.completeMemoryFile(params);
   }
 
   async cleanupMultipartUpload(
     params: FilePersistenceCleanupMultipartUploadParams
   ) {
-    const {mount, filepath} = params;
-    const {nativePath} = this.toNativePath({mount, fimidaraPath: filepath});
-    const map = this.getWorkspaceFileParts(params);
-    delete map[nativePath];
+    await this.internalCleanupMultipartUpload(params);
+  }
+
+  async startMultipartUpload(
+    params: FilePersistenceStartMultipartUploadParams
+  ): Promise<FilePersistenceStartMultipartUploadResult> {
+    return {multipartId: params.fileId};
+  }
+
+  async deleteMultipartUploadPart(
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) {
+    const {part} = params;
+    const parts = this.getMemoryFileParts(params);
+    delete parts[part];
   }
 
   readFile = async (
@@ -286,6 +312,28 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     return map;
   };
 
+  protected getMemoryFileParts = (params: {
+    workspaceId: string;
+    multipartId: string;
+  }) => {
+    const map = this.getWorkspaceFileParts(params);
+    let parts = map[params.multipartId];
+    if (!parts) {
+      parts = map[params.multipartId] = {};
+    }
+
+    return parts;
+  };
+
+  protected internalCleanupMultipartUpload = (params: {
+    workspaceId: string;
+    multipartId: string;
+  }) => {
+    const {multipartId} = params;
+    const map = this.getWorkspaceFileParts(params);
+    delete map[multipartId];
+  };
+
   protected setMemoryFile = (
     params: {workspaceId: string},
     file: MemoryFilePersistenceProviderFile
@@ -299,20 +347,26 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     file: MemoryFilePersistenceProviderFile
   ) => {
     appAssert(isNumber(params.part));
-    const map = this.getWorkspaceFileParts(params);
-    const parts = map[file.nativePath] || (map[file.nativePath] = []);
-    parts.push({
+    appAssert(params.multipartId);
+    const parts = this.getMemoryFileParts({
+      workspaceId: params.workspaceId,
+      multipartId: params.multipartId,
+    });
+    parts[params.part] = {
       ...file,
       part: params.part,
-    });
+    };
   };
 
   protected completeMemoryFile = (
-    params: Pick<FilePersistenceUploadFileParams, 'workspaceId'>,
-    nativePath: string
+    params: Pick<FilePersistenceUploadFileParams, 'workspaceId' | 'multipartId'>
   ) => {
-    const map = this.getWorkspaceFileParts(params);
-    const parts = map[nativePath].sort((a, b) => a.part - b.part);
+    appAssert(params.multipartId);
+    const partsMap = this.getMemoryFileParts({
+      workspaceId: params.workspaceId,
+      multipartId: params.multipartId,
+    });
+    const parts = Object.values(partsMap).sort((a, b) => a.part - b.part);
     const assembled = parts.reduce(
       (acc, part): MemoryFilePersistenceProviderFile => {
         return {
@@ -331,6 +385,9 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
     const file = assembled as MemoryFilePersistenceProviderFile;
     this.setMemoryFile(params, file as MemoryFilePersistenceProviderFile);
-    delete map[file.nativePath];
+    this.internalCleanupMultipartUpload({
+      workspaceId: params.workspaceId,
+      multipartId: params.multipartId,
+    });
   };
 }

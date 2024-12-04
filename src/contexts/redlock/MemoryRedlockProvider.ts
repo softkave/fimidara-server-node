@@ -1,5 +1,5 @@
 import {LockStore} from 'softkave-js-utils';
-import {InvalidStateError} from '../../endpoints/errors.js';
+import {ResourceLockedError as FimidaraResourceLockedError} from '../../endpoints/errors.js';
 import {IRedlockContext} from './types.js';
 
 /** NOTE: This is not a real implementation of Redlock. It is a simple in-memory
@@ -13,7 +13,7 @@ export class MemoryRedlockProvider implements IRedlockContext {
     fn: (signal: AbortSignal) => Promise<T>
   ): Promise<T> {
     if (this.lockStore.has(key)) {
-      throw new InvalidStateError('Resource not available');
+      throw new FimidaraResourceLockedError();
     }
 
     return this.lockStore.run(key, () => fn(new AbortController().signal));

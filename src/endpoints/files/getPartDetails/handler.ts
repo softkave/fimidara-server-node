@@ -9,7 +9,7 @@ import {getFields} from '../../../utils/extract.js';
 import {validate} from '../../../utils/validate.js';
 import {applyDefaultEndpointPaginationOptions} from '../../pagination.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
-import {getPartMetas} from '../utils/partMeta.js';
+import {getMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 import {GetPartDetailsEndpoint, PublicPartDetails} from './types.js';
 import {getPartDetailsJoiSchema} from './validation.js';
 
@@ -44,24 +44,20 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   );
 
   const pagination = applyDefaultEndpointPaginationOptions(data);
-  if (!file.partLength || !file.internalMultipartId) {
-    return {
-      page: pagination.page,
-      details: [],
-    };
+  if (!file.internalMultipartId) {
+    return {details: []};
   }
 
-  const parts = await getPartMetas({
+  const {parts, continuationToken, isDone} = await getMultipartUploadPartMetas({
     multipartId: file.internalMultipartId,
-    fromPart: data.fromPart,
     pageSize: pagination.pageSize,
-    partLength: file.partLength,
+    cursor: data.continuationToken ? parseInt(data.continuationToken) : null,
   });
 
   return {
-    page: pagination.page,
+    isDone,
+    continuationToken: continuationToken?.toString() || undefined,
     clientMultipartId: file.clientMultipartId || undefined,
-    partLength: file.partLength,
     details: partDetailsListExtractor(parts),
   };
 };

@@ -243,7 +243,7 @@ export function createNewFile(
   parentFolder: Folder | null,
   data: Pick<
     File,
-    'description' | 'encoding' | 'mimetype' | 'partLength' | 'clientMultipartId'
+    'description' | 'encoding' | 'mimetype' | 'clientMultipartId'
   >,
   seed: Partial<File> = {}
 ) {
@@ -269,7 +269,6 @@ export function createNewFile(
       description: data.description,
       encoding: data.encoding,
       mimetype: data.mimetype,
-      partLength: data.partLength,
       clientMultipartId: data.clientMultipartId,
       ...seed,
     }
@@ -284,7 +283,7 @@ export async function createNewFileAndEnsureFolders(
   pathinfo: FilepathInfo,
   data: Pick<
     File,
-    'description' | 'encoding' | 'mimetype' | 'partLength' | 'clientMultipartId'
+    'description' | 'encoding' | 'mimetype' | 'clientMultipartId'
   >,
   seed: Partial<File> = {},
   parentFolder: Folder | null

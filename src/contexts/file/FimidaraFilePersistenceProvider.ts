@@ -26,6 +26,7 @@ import {
   FilePersistenceDefaultParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDeleteMultipartUploadPartParams,
   FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -37,9 +38,12 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -91,10 +95,24 @@ export class FimidaraFilePersistenceProvider
     }
   };
 
-  uploadFile = async (params: FilePersistenceUploadFileParams) => {
+  uploadFile = async (
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> => {
     const preparedParams = this.prepareParams(params);
-    await this.backend.uploadFile(preparedParams);
-    return {filepath: params.filepath, raw: undefined};
+    const result = await this.backend.uploadFile(preparedParams);
+    return result;
+  };
+
+  startMultipartUpload = async (
+    params: FilePersistenceStartMultipartUploadParams
+  ): Promise<FilePersistenceStartMultipartUploadResult> => {
+    return this.backend.startMultipartUpload(params);
+  };
+
+  deleteMultipartUploadPart = async (
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) => {
+    return this.backend.deleteMultipartUploadPart(params);
   };
 
   completeMultipartUpload = async (

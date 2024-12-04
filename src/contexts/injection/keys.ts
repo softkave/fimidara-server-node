@@ -92,4 +92,5 @@ export const kInjectionKeys = {
   redlock: 'redlock',
   redis: 'redis',
   ioredis: 'ioredis',
+  dset: 'dset',
 };

@@ -123,6 +123,7 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types.js';
+import {IDSetContext} from '../dset/types.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {getEmailProvider} from '../email/utils.js';
 import {FileProviderResolver} from '../file/types.js';
@@ -196,6 +197,7 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
+import {getDSetContext} from '../dset/utils.js';
 
 function registerToken(
   token: string,
@@ -351,6 +353,7 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.redis, item),
   ioredis: (item: [Redis, ...Redis[]]) =>
     registerToken(kInjectionKeys.ioredis, item),
+  dset: (item: IDSetContext) => registerToken(kInjectionKeys.dset, item),
 };
 
 export function registerDataModelInjectables() {
@@ -585,6 +588,7 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.pubsub(await getPubSubContext(suppliedConfig));
   kRegisterUtilsInjectables.cache(await getCacheContext(suppliedConfig));
   kRegisterUtilsInjectables.redlock(await getRedlockContext(suppliedConfig));
+  kRegisterUtilsInjectables.dset(await getDSetContext(suppliedConfig));
 }
 
 export async function registerInjectables(

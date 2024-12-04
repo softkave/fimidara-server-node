@@ -1,6 +1,6 @@
 import {getDeferredPromise, waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {InvalidStateError} from '../../../endpoints/errors.js';
+import {ResourceLockedError as FimidaraResourceLockedError} from '../../../endpoints/errors.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
@@ -34,7 +34,7 @@ describe('RedisRedlockProvider', () => {
     await expect(
       // attempt to acquire the lock again should throw
       provider.using(key, 1000, async () => 'test', {retryCount: 0})
-    ).rejects.toThrow(InvalidStateError);
+    ).rejects.toThrow(FimidaraResourceLockedError);
     p.resolve();
   });
 });

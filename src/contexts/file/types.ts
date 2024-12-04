@@ -34,7 +34,6 @@ export interface FilePersistenceUploadPartResult {
   part: number;
   multipartId: string;
   partId: string;
-  size: number;
 }
 
 export interface FilePersistenceUploadFileParams
@@ -46,7 +45,6 @@ export interface FilePersistenceUploadFileParams
   encoding?: string;
   fileId: string;
   part?: number;
-  partLength?: number | null;
   multipartId?: string | null;
 }
 
@@ -179,7 +177,7 @@ export interface FilePersistenceCompleteMultipartUploadParams
   fileId: string;
   mount: FileBackendMount;
   multipartId: string;
-  partLength: number;
+  parts: FilePersistenceUploadPartResult[];
 }
 
 export interface FilePersistenceCleanupMultipartUploadParams
@@ -188,7 +186,24 @@ export interface FilePersistenceCleanupMultipartUploadParams
   fileId: string;
   mount: FileBackendMount;
   multipartId: string;
-  partLength: number;
+}
+
+export interface FilePersistenceStartMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+}
+
+export interface FilePersistenceStartMultipartUploadResult {
+  multipartId: string;
+}
+
+export interface FilePersistenceDeleteMultipartUploadPartParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  multipartId: string;
+  part: number;
 }
 
 // TODO: implement a better way to specify TRaw
@@ -203,6 +218,12 @@ export interface FilePersistenceProvider extends DisposableResource {
   cleanupMultipartUpload: (
     params: FilePersistenceCleanupMultipartUploadParams
   ) => Promise<void>;
+  deleteMultipartUploadPart: (
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) => Promise<void>;
+  startMultipartUpload: (
+    params: FilePersistenceStartMultipartUploadParams
+  ) => Promise<FilePersistenceStartMultipartUploadResult>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceDescribeFileParams

@@ -15,6 +15,7 @@
   "rootUserLastName": "",
   "fileBackend": "fs",
   "localFsDir": "./dev-local-fs",
+  "localPartsFsDir": "./dev-local-parts-fs",
   "emailProvider": "noop",
   "secretsManagerProvider": "mem",
   "FLAG_waitlistNewSignups": true,
@@ -26,9 +27,6 @@
   "changePasswordLink": "",
   "verifyEmailLink": "",
   "upgradeWaitlistLink": "",
-  "test": {
-    "localFsDir": "./test-local-fs"
-  },
   "loggerType": "console",
   "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js",
   "runnerCount": 2,
@@ -53,5 +51,6 @@
   "addFolderPubSubChannelPrefix": "addFolderPubSub",
   "pubSubProvider": "",
   "redlockProvider": "",
-  "cacheProvider": ""
+  "cacheProvider": "",
+  "dsetProvider": ""
 }

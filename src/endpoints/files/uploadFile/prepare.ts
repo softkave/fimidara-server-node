@@ -1,10 +1,6 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File, FileMatcher} from '../../../definitions/file.js';
-import {
-  FileBackendMount,
-  ResolvedMountEntry,
-} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {SessionAgent} from '../../../definitions/system.js';
@@ -19,32 +15,10 @@ import {
   createNewFileAndEnsureFolders,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
-  stringifyFilenamepath,
 } from '../utils.js';
 import {checkUploadFileAuth} from './auth.js';
-import {cleanupMultipartUpload} from './clean.js';
+import {beginCleanupExpiredMultipartUpload} from './multipart.js';
 import {UploadFileEndpointParams} from './types.js';
-
-export async function prepareFilepath(params: {
-  isNewFile: boolean;
-  primaryMount: FileBackendMount;
-  file: File;
-}) {
-  const {isNewFile, primaryMount, file} = params;
-  let mountEntry: ResolvedMountEntry | null = null;
-
-  if (isNewFile) {
-    mountEntry = await kSemanticModels
-      .resolvedMountEntry()
-      .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
-  }
-
-  return stringifyFilenamepath(
-    mountEntry
-      ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
-      : file
-  );
-}
 
 export async function createAndInsertNewFile(params: {
   agent: SessionAgent;
@@ -52,7 +26,7 @@ export async function createAndInsertNewFile(params: {
   pathinfo: FilepathInfo;
   data: Pick<
     File,
-    'description' | 'encoding' | 'mimetype' | 'partLength' | 'clientMultipartId'
+    'description' | 'encoding' | 'mimetype' | 'clientMultipartId'
   >;
   opts: SemanticProviderMutationParams;
   seed?: Partial<File>;
@@ -82,7 +56,7 @@ export async function checkFileWriteAvailable(params: {
   } else if (file.clientMultipartId === data.clientMultipartId) {
     return;
   } else if (file.multipartTimeout && file.multipartTimeout < Date.now()) {
-    await cleanupMultipartUpload(file, opts);
+    await beginCleanupExpiredMultipartUpload(file, opts);
     return;
   }
 
@@ -131,6 +105,12 @@ export async function prepareNewFile(params: {
     containsRootname: true,
     allowRootFolder: false,
   });
+
+  // it's safe (but a bit costly and confusing) to create parent folders and
+  // file before checking auth. whatsoever queue and handler that's creating the
+  // parent folders will fail if the user doesn't have permission to create
+  // them. lastly, we're creating the file with a transaction, so if the auth
+  // check fails, the transaction will be rolled back.
   const {file, parentFolder} = await createAndInsertNewFile({
     agent,
     workspace,

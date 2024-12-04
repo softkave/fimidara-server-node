@@ -33,9 +33,13 @@ describe('RedisPubSubContext', () => {
     const context01 = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
-    await context01.subscribe(channel, fn);
+    const sub = await context01.subscribe(channel, fn);
     await context01.publish(channel, 'message');
     expect(fn).toHaveBeenCalledWith('message', channel);
+
+    sub.unsubscribe();
+    await context01.publish(channel, 'message');
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('subscribe + publish json', async () => {
@@ -44,10 +48,14 @@ describe('RedisPubSubContext', () => {
     const json = {key: 'value'};
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
-    await context01.subscribeJson(channel, fn);
+    const sub = await context01.subscribeJson(channel, fn);
     await context01.publish(channel, json);
     await waitTimeout(100);
     expect(fn).toHaveBeenCalledWith(json, channel);
+
+    sub.unsubscribe();
+    await context01.publish(channel, json);
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('unsubscribe', async () => {

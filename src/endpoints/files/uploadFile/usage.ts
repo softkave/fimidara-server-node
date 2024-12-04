@@ -15,7 +15,7 @@ export async function handleStorageUsageRecords(params: {
   size: number;
   isNewFile: boolean;
   isMultipart: boolean;
-  isLastPart: boolean;
+  isLastPart?: boolean;
 }) {
   const {reqData, file, size, isNewFile, isMultipart, isLastPart} = params;
   if (!isNewFile) {

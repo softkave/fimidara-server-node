@@ -15,6 +15,6 @@ export async function getCacheContext(config: FimidaraSuppliedConfig) {
     case kFimidaraConfigQueueProvider.memory:
       return new MemoryCacheProvider();
     default:
-      throw new Error(`Unknown queue type: ${config.queueProvider}`);
+      throw new Error(`Unknown cache type: ${config.cacheProvider}`);
   }
 }

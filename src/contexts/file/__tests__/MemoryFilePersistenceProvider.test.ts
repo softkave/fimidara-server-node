@@ -86,6 +86,264 @@ describe('MemoryFilePersistenceProvider', () => {
     expectFileBodyEqual(data, savedFile.body);
   });
 
+  test('startMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      length: mount.namepath.length + 2,
+      parentNamepath: mount.namepath,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = new MemoryFilePersistenceProvider();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+
+    expect(multipartId).toBeTruthy();
+  });
+
+  test('uploadFile, multipart', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const data01 = Buffer.from('Hello world!');
+    const stream01 = Readable.from(data01);
+
+    const backend = new MemoryFilePersistenceProvider();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    const result01 = await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+      body: stream01,
+      part: 1,
+    });
+
+    expect(result01.multipartId).toBe(multipartId);
+    expect(result01.part).toBe(1);
+    expect(result01.partId).toBeTruthy();
+  });
+
+  test('completeMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const data01 = Buffer.from('Hello world!');
+    const stream01 = Readable.from(data01);
+    const data02 = Buffer.from('Hello world!');
+    const stream02 = Readable.from(data02);
+
+    const backend = new MemoryFilePersistenceProvider();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    const [result01, result02] = await Promise.all([
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream01,
+        part: 1,
+      }),
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream02,
+        part: 2,
+      }),
+    ]);
+    assert(result01.partId);
+    assert(result02.partId);
+    await backend.completeMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+      parts: [
+        {
+          part: 1,
+          partId: result01.partId,
+          multipartId,
+        },
+        {
+          part: 2,
+          partId: result02.partId,
+          multipartId,
+        },
+      ],
+    });
+
+    const savedFile = await backend.readFile({
+      filepath,
+      fileId,
+      mount,
+      workspaceId,
+    });
+    assert(savedFile.body);
+    expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
+  });
+
+  test('cleanupMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    class TestMemoryFilePersistenceProvider extends MemoryFilePersistenceProvider {
+      async hasMultipartUpload(params: {
+        multipartId: string;
+        workspaceId: string;
+      }) {
+        const {multipartId} = params;
+        const map = this.getWorkspaceFileParts(params);
+        return !!map[multipartId]?.length;
+      }
+    }
+
+    const backend = new TestMemoryFilePersistenceProvider();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    await backend.cleanupMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+    });
+
+    expect(
+      await backend.hasMultipartUpload({
+        multipartId,
+        workspaceId,
+      })
+    ).toBeFalsy();
+  });
+
+  test('deleteMultipartUploadPart', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
+      workspaceId,
+    });
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const data01 = Buffer.from('Hello world!');
+    const stream01 = Readable.from(data01);
+    const data02 = Buffer.from('Hello world!');
+    const stream02 = Readable.from(data02);
+
+    class TestMemoryFilePersistenceProvider extends MemoryFilePersistenceProvider {
+      async hasMultipartUploadPart(params: {
+        multipartId: string;
+        workspaceId: string;
+        part: number;
+      }) {
+        const {multipartId, part} = params;
+        const map = this.getWorkspaceFileParts(params);
+        return !!map[multipartId]?.[part];
+      }
+    }
+
+    const backend = new TestMemoryFilePersistenceProvider();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    const [result01, result02] = await Promise.all([
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream01,
+        part: 1,
+      }),
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream02,
+        part: 2,
+      }),
+    ]);
+    assert(result01.partId);
+    assert(result02.partId);
+
+    await backend.deleteMultipartUploadPart({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+      part: 1,
+    });
+
+    expect(
+      await backend.hasMultipartUploadPart({
+        multipartId,
+        workspaceId,
+        part: 1,
+      })
+    ).toBeFalsy();
+    expect(
+      await backend.hasMultipartUploadPart({
+        multipartId,
+        workspaceId,
+        part: 2,
+      })
+    ).toBeTruthy();
+  });
+
   test('readFile', async () => {
     const data = Readable.from(['Hello world!']);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);

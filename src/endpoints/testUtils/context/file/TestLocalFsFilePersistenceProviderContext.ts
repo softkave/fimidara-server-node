@@ -21,6 +21,8 @@ export default class TestLocalFsFilePersistenceProviderContext
   describeFolderContent: TestFilePersistenceProviderContext['describeFolderContent'];
   supportsFeature: TestFilePersistenceProviderContext['supportsFeature'];
   dispose: TestFilePersistenceProviderContext['dispose'];
+  deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
+  startMultipartUpload: TestFilePersistenceProviderContext['startMultipartUpload'];
 
   constructor(
     private dir: string,
@@ -58,6 +60,12 @@ export default class TestLocalFsFilePersistenceProviderContext
       .fn(this.client.describeFolderContent)
       .mockName('describeFolderContent');
     this.dispose = vi.fn(this.client.dispose).mockName('close');
+    this.deleteMultipartUploadPart = vi
+      .fn(this.client.deleteMultipartUploadPart)
+      .mockName('deleteMultipartUploadPart');
+    this.startMultipartUpload = vi
+      .fn(this.client.startMultipartUpload)
+      .mockName('startMultipartUpload');
     this.supportsFeature = vi
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');

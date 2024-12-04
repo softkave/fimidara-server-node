@@ -19,9 +19,6 @@ export interface File extends WorkspaceResource {
   version: number;
 
   // multipart uploads
-  partLength?: number | null;
-  uploadedParts?: number | null;
-  uploadedSize?: number | null;
   internalMultipartId?: string | null;
   clientMultipartId?: string | null;
   multipartTimeout?: number | null;
@@ -31,7 +28,6 @@ export interface FileWithRuntimeData extends File {
   // server runtime only state, never stored in DB
   RUNTIME_ONLY_shouldCleanupMultipart?: boolean;
   RUNTIME_ONLY_internalMultipartId?: string | null;
-  RUNTIME_ONLY_partLength?: number | null;
 }
 
 export type PublicFile = PublicWorkspaceResource &

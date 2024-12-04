@@ -84,12 +84,16 @@ const paginationParts: JoiSchemaParts<PaginationQuery> = {
   page,
   pageSize,
 };
+const continuationToken = Joi.string().max(
+  kEndpointConstants.continuationTokenMaxLength
+);
 
 export const endpointValidationSchemas = {
   page,
   pageSize,
   optionalWorkspaceIdParts,
   paginationParts,
+  continuationToken,
   workspaceResourceParts,
   op,
   comparisonOps,

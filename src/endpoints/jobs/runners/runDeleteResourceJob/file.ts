@@ -2,9 +2,12 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../../contexts/injection/injectables.js';
+import {UsageRecordDecrementInput} from '../../../../contexts/logic/UsageRecordLogicProvider.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
+import {kUsageRecordCategory} from '../../../../definitions/usageRecord.js';
+import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
 import {FileQueries} from '../../../files/queries.js';
 import {stringifyFilenamepath} from '../../../files/utils.js';
@@ -26,6 +29,7 @@ interface DeleteFilePreRunMeta {
   >;
   namepath?: string[];
   ext?: string;
+  size?: number;
 }
 
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns<
@@ -73,18 +77,19 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns<
     }),
 };
 
-const deleteResourceFn: DeleteResourceFn<
-  DeleteResourceCascadeFnDefaultArgs,
-  DeleteFilePreRunMeta
-> = async ({args, helpers, preRunMeta}) => {
-  if (!preRunMeta.namepath) {
-    return;
-  }
-
+async function deleteMountFiles(params: {
+  workspaceId: string;
+  namepath: string[];
+  resourceId: string;
+  partialMountEntries: Array<
+    Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>
+  >;
+}) {
   const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    /** file */ {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
+    /** file */ {workspaceId: params.workspaceId, namepath: params.namepath},
     /** init primary backend only */ false
   );
+
   await Promise.all(
     mounts.map(async mount => {
       try {
@@ -94,9 +99,9 @@ const deleteResourceFn: DeleteResourceFn<
         // that support deleting folders?
         await provider?.deleteFiles({
           mount,
-          workspaceId: args.workspaceId,
-          files: preRunMeta.partialMountEntries.map(partialMountEntry => ({
-            fileId: args.resourceId,
+          workspaceId: params.workspaceId,
+          files: params.partialMountEntries.map(partialMountEntry => ({
+            fileId: params.resourceId,
             filepath: stringifyFilenamepath({
               namepath: partialMountEntry.backendNamepath,
               ext: partialMountEntry.backendExt,
@@ -108,6 +113,46 @@ const deleteResourceFn: DeleteResourceFn<
       }
     })
   );
+}
+
+async function decrementStorageUsageRecordForFile(params: {
+  workspaceId: string;
+  size?: number;
+}) {
+  const {workspaceId, size} = params;
+  if (!size) {
+    return;
+  }
+
+  const input: UsageRecordDecrementInput = {
+    workspaceId,
+    category: kUsageRecordCategory.storage,
+    usage: size,
+  };
+
+  await kUtilsInjectables.usageLogic().decrement(kSystemSessionAgent, input);
+}
+
+const deleteResourceFn: DeleteResourceFn<
+  DeleteResourceCascadeFnDefaultArgs,
+  DeleteFilePreRunMeta
+> = async ({args, helpers, preRunMeta}) => {
+  if (!preRunMeta.namepath) {
+    return;
+  }
+
+  await Promise.all([
+    deleteMountFiles({
+      workspaceId: args.workspaceId,
+      namepath: preRunMeta.namepath,
+      resourceId: args.resourceId,
+      partialMountEntries: preRunMeta.partialMountEntries,
+    }),
+    decrementStorageUsageRecordForFile({
+      workspaceId: args.workspaceId,
+      size: preRunMeta.size,
+    }),
+  ]);
 
   await helpers.withTxn(async opts => {
     await kSemanticModels.file().deleteOneById(args.resourceId, opts);
@@ -127,7 +172,12 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
     kSemanticModels.file().getOneById(args.resourceId, {includeDeleted: true}),
   ]);
 
-  return {partialMountEntries, namepath: file?.namepath, ext: file?.ext};
+  return {
+    partialMountEntries,
+    namepath: file?.namepath,
+    ext: file?.ext,
+    size: file?.size,
+  };
 };
 
 export const deleteFileCascadeEntry: DeleteResourceCascadeEntry<

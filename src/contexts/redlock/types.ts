@@ -7,7 +7,7 @@ export interface IAcquireLockOptions {
 export interface IRedlockContext extends DisposableResource {
   using<T>(
     key: string,
-    duration: number,
+    durationMs: number,
     fn: (signal: AbortSignal) => Promise<T>,
     options?: IAcquireLockOptions
   ): Promise<T>;

@@ -17,4 +17,5 @@ export const kEndpointConstants = {
   providedResourceIdMaxLength: 50,
   inputListMax: 1000,
   apiv1: '/v1',
+  continuationTokenMaxLength: 100,
 };

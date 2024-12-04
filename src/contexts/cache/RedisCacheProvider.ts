@@ -52,8 +52,4 @@ export class RedisCacheProvider implements ICacheContext {
   async delete(key: string | string[]): Promise<void> {
     await this.redis.del(convertToArray(key));
   }
-
-  dispose = async () => {
-    await this.redis.quit();
-  };
 }

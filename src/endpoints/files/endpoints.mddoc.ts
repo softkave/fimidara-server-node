@@ -193,7 +193,7 @@ const updateFileDetailsResponseBody = mddocConstruct
 const getFileDetailsParams = mddocConstruct
   .constructFieldObject<GetFileDetailsEndpointParams>()
   .setName('GetFileDetailsEndpointParams')
-  .setFields(fileMatcherParts);
+  .setFields({...fileMatcherParts});
 const getFileDetailsResponseBody = mddocConstruct
   .constructFieldObject<GetFileDetailsEndpointResult>()
   .setName('GetFileDetailsEndpointResult')
@@ -202,7 +202,24 @@ const getFileDetailsResponseBody = mddocConstruct
 const deleteFileParams = mddocConstruct
   .constructFieldObject<DeleteFileEndpointParams>()
   .setName('DeleteFileEndpointParams')
-  .setFields(fileMatcherParts);
+  .setFields({
+    ...fileMatcherParts,
+    clientMultipartId: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldString()
+        .setDescription(
+          'Client generated unique identifier for multipart uploads. ' +
+            'It is used to identify the same multipart upload across multiple requests'
+        )
+    ),
+    part: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct
+        .constructFieldNumber()
+        .setDescription('Part number of the multipart upload')
+    ),
+  });
 
 const readFileParams = mddocConstruct
   .constructFieldObject<ReadFileEndpointParams>()
@@ -330,11 +347,11 @@ const uploadFileSdkParamsDef = mddocConstruct
         .constructFieldNumber()
         .setDescription('Part number of the multipart upload')
     ),
-    partLength: mddocConstruct.constructFieldObjectField(
+    isLastPart: mddocConstruct.constructFieldObjectField(
       false,
       mddocConstruct
-        .constructFieldNumber()
-        .setDescription('Total number of parts in the multipart upload')
+        .constructFieldBoolean()
+        .setDescription('Whether this is the last part of the multipart upload')
     ),
   })
   .setName('UploadFileEndpointParams');
@@ -662,9 +679,13 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
       .setName('GetPartDetailsEndpointParams')
       .setFields({
         ...fileMatcherParts,
-        fromPart: mddocConstruct.constructFieldObjectField(
+        continuationToken: mddocConstruct.constructFieldObjectField(
           false,
-          mddocConstruct.constructFieldNumber()
+          mddocConstruct
+            .constructFieldString()
+            .setDescription(
+              'Continuation token to get the next page of results'
+            )
         ),
         pageSize: mddocConstruct.constructFieldObjectField(
           false,
@@ -714,9 +735,17 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
               })
           )
         ),
-        partLength: mddocConstruct.constructFieldObjectField(
+        continuationToken: mddocConstruct.constructFieldObjectField(
           false,
-          mddocConstruct.constructFieldNumber()
+          mddocConstruct
+            .constructFieldString()
+            .setDescription(
+              'Continuation token to get the next page of results'
+            )
+        ),
+        isDone: mddocConstruct.constructFieldObjectField(
+          false,
+          mddocConstruct.constructFieldBoolean()
         ),
       })
   )

@@ -84,9 +84,13 @@ describe('InMemoryPubSubContext', () => {
   test('subscribe', async () => {
     const context = new InMemoryPubSubContext();
     const fn = vi.fn();
-    await context.subscribe('channel', fn);
+    const sub = await context.subscribe('channel', fn);
     await context.publish('channel', 'message');
     expect(fn).toHaveBeenCalledWith('message', 'channel');
+
+    sub.unsubscribe();
+    await context.publish('channel', 'message');
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('unsubscribe', async () => {
@@ -128,9 +132,13 @@ describe('InMemoryPubSubContext', () => {
   test('subscribeJson', async () => {
     const context = new InMemoryPubSubContext();
     const fn = vi.fn();
-    await context.subscribeJson('channel', fn);
+    const sub = await context.subscribeJson('channel', fn);
     await context.publish('channel', {key: 'value'});
     expect(fn).toHaveBeenCalledWith({key: 'value'}, 'channel');
+
+    sub.unsubscribe();
+    await context.publish('channel', {key: 'value'});
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('subscribeJson with invalid message', async () => {

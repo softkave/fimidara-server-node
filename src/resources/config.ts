@@ -155,6 +155,9 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Redlock
   redlockProvider: FimidaraConfigQueueProvider;
+
+  // Distributed Set
+  dsetProvider: FimidaraConfigQueueProvider;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
