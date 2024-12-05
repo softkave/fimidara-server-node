@@ -1,4 +1,6 @@
 import {
+  FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFoldersParams,
@@ -41,8 +43,16 @@ export default class NoopFilePersistenceProviderContext
   deleteFolders = noopAsync;
   dispose = noopAsync;
   cleanupMultipartUpload = noopAsync;
-  completeMultipartUpload = noopAsync;
   deleteMultipartUploadPart = noopAsync;
+
+  completeMultipartUpload = async (
+    params: FilePersistenceCompleteMultipartUploadParams
+  ): Promise<FilePersistenceCompleteMultipartUploadResult> => {
+    return {
+      filepath: params.filepath,
+      raw: undefined,
+    };
+  };
 
   startMultipartUpload =
     async (): Promise<FilePersistenceStartMultipartUploadResult> => {

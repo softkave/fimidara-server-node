@@ -71,10 +71,16 @@ describe('BasePubSubContext', () => {
     const context = new BasePubSubContext(client);
     const fn = () => {};
     const sub = await context.subscribe('channel', fn);
-    expect(client.subscribe).toHaveBeenCalledWith('channel', fn);
+    expect(client.subscribe).toHaveBeenCalledWith(
+      'channel',
+      expect.any(Function)
+    );
 
     sub.unsubscribe();
-    expect(client.unsubscribe).toHaveBeenCalledWith('channel', fn);
+    expect(client.unsubscribe).toHaveBeenCalledWith(
+      'channel',
+      expect.any(Function)
+    );
   });
 
   test('unsubscribe', async () => {
@@ -129,7 +135,9 @@ describe('BasePubSubContext', () => {
     const message = {key: 'value'};
     const json = JSON.stringify(message);
     context.publish('channel', json);
-    expect(fn).toHaveBeenCalledWith(message, 'channel');
+    expect(fn).toHaveBeenCalledWith(message, 'channel', {
+      unsubscribe: expect.any(Function),
+    });
   });
 
   test('subscribeJson with invalid message', async () => {

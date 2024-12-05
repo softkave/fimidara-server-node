@@ -30,18 +30,18 @@ export async function setFileWritable(fileId: string) {
   });
 }
 
-export async function insertFileMountEntry(params: {
+async function insertFileMountEntry(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
-  persistedMountData: FilePersistenceUploadFileResult<unknown>;
+  filepath: string;
   namepath: string[];
   ext: string;
   opts: SemanticProviderMutationParams;
+  raw: unknown;
 }) {
-  const {agent, file, primaryMount, persistedMountData, namepath, ext, opts} =
+  const {agent, file, primaryMount, filepath, namepath, ext, opts, raw} =
     params;
-
   const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
     agent,
     kFimidaraResourceType.ResolvedMountEntry,
@@ -55,10 +55,10 @@ export async function insertFileMountEntry(params: {
       fimidaraExt: file.ext,
       backendExt: ext,
       persisted: {
-        filepath: persistedMountData.filepath,
+        raw,
+        filepath,
         lastUpdatedAt: file.lastUpdatedAt,
         mountId: primaryMount.resourceId,
-        raw: persistedMountData.raw,
         encoding: file.encoding,
         mimetype: file.mimetype,
         size: file.size,
@@ -73,7 +73,7 @@ export async function completeUploadFile(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
-  persistedMountData: FilePersistenceUploadFileResult<unknown>;
+  pMountData: FilePersistenceUploadFileResult<unknown>;
   update: Partial<File>;
   shouldInsertMountEntry: boolean;
 }) {
@@ -81,13 +81,13 @@ export async function completeUploadFile(params: {
     agent,
     file,
     primaryMount,
-    persistedMountData,
+    pMountData,
     update,
     shouldInsertMountEntry,
   } = params;
 
   return await kSemanticModels.utils().withTxn(async opts => {
-    const {namepath, ext} = pathExtract(persistedMountData.filepath);
+    const {namepath, ext} = pathExtract(pMountData.filepath);
     const [savedFile] = await Promise.all([
       kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
       shouldInsertMountEntry &&
@@ -95,10 +95,11 @@ export async function completeUploadFile(params: {
           agent,
           file,
           primaryMount,
-          persistedMountData,
           namepath,
           ext,
           opts,
+          filepath: pMountData.filepath,
+          raw: pMountData.raw,
         }),
     ]);
 
@@ -133,7 +134,7 @@ export function getFileUpdate(params: {
   data: UploadFileEndpointParams;
   isMultipart: boolean;
   isLastPart?: boolean;
-  persistedMountData: FilePersistenceUploadFileResult<unknown>;
+  persistedMountData?: FilePersistenceUploadFileResult<unknown>;
   size: number;
 }) {
   const {agent, file, data, isMultipart, persistedMountData, size, isLastPart} =
@@ -144,6 +145,7 @@ export function getFileUpdate(params: {
   };
 
   if (isMultipart && !isLastPart) {
+    appAssert(persistedMountData);
     update.internalMultipartId = persistedMountData.multipartId;
     update.isWriteAvailable = false;
     update.multipartTimeout = getNextMultipartTimeout();

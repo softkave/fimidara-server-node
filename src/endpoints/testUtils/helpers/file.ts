@@ -39,5 +39,5 @@ export async function expectFileBodyEqualById(
   });
   assert(body);
 
-  expectFileBodyEqual(body, expectedBody);
+  await expectFileBodyEqual(body, expectedBody);
 }

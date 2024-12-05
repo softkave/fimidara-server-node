@@ -7,6 +7,7 @@ import {streamToBuffer} from '../../utils/fns.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDeleteMultipartUploadPartParams,
@@ -119,8 +120,12 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
   async completeMultipartUpload(
     params: FilePersistenceCompleteMultipartUploadParams
-  ) {
+  ): Promise<FilePersistenceCompleteMultipartUploadResult> {
     this.completeMemoryFile(params);
+    return {
+      filepath: params.filepath,
+      raw: undefined,
+    };
   }
 
   async cleanupMultipartUpload(

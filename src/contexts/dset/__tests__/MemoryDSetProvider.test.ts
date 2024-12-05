@@ -8,11 +8,18 @@ describe('MemoryDSetProvider', () => {
     expect(await dset.getAll('test')).toEqual(['a', 'b', 'c']);
   });
 
-  test('delete', async () => {
+  test('delete, value', async () => {
     const dset = new MemoryDSetProvider();
     await dset.add('test', ['a', 'b', 'c']);
     await dset.delete('test', ['a']);
     expect(await dset.getAll('test')).toEqual(['b', 'c']);
+  });
+
+  test('delete, key', async () => {
+    const dset = new MemoryDSetProvider();
+    await dset.add('test', ['a', 'b', 'c']);
+    await dset.delete('test');
+    expect(await dset.getAll('test')).toEqual([]);
   });
 
   test('has', async () => {

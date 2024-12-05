@@ -113,14 +113,15 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       });
 
       assert(persistedFile);
-      expectFileBodyEqual(dataBuffer, persistedFile.body);
+      assert(dataBuffer);
+      await expectFileBodyEqual(dataBuffer, persistedFile.body);
     });
 
     test('file sized correctly', async () => {
       const {dataBuffer, savedFile} = await uploadFileBaseTest({
         isMultipart,
       });
-
+      assert(dataBuffer);
       expect(dataBuffer.byteLength).toBeGreaterThan(0);
       expect(savedFile.size).toBe(dataBuffer.byteLength);
     });

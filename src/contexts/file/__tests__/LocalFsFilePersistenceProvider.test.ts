@@ -116,7 +116,7 @@ describe('LocalFsFilePersistenceProvider', () => {
 
     const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
     const savedBuffer = await fse.readFile(nativePath);
-    expectFileBodyEqual(data, savedBuffer);
+    await expectFileBodyEqual(data, savedBuffer);
   });
 
   test('startMultipartUpload', async () => {
@@ -262,7 +262,7 @@ describe('LocalFsFilePersistenceProvider', () => {
       workspaceId,
     });
     assert(savedFile.body);
-    expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
+    await expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
   });
 
   test('cleanupMultipartUpload', async () => {
@@ -436,7 +436,7 @@ describe('LocalFsFilePersistenceProvider', () => {
     });
 
     assert(result.body);
-    expectFileBodyEqual(buffer, result.body);
+    await expectFileBodyEqual(buffer, result.body);
   });
 
   test('deleteFiles', async () => {

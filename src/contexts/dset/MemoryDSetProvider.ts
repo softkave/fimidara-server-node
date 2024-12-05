@@ -15,11 +15,15 @@ export class MemoryDSetProvider implements IDSetContext {
     this.dset.set(key, set);
   }
 
-  async delete(key: string, value: OrArray<string | Buffer>): Promise<void> {
-    const values = convertToArray(value);
-    const set = this.dset.get(key);
-    if (set) {
-      values.forEach(value => set.delete(value));
+  async delete(key: string, value?: OrArray<string | Buffer>): Promise<void> {
+    if (value) {
+      const values = convertToArray(value);
+      const set = this.dset.get(key);
+      if (set) {
+        values.forEach(value => set.delete(value));
+      }
+    } else {
+      this.dset.delete(key);
     }
   }
 

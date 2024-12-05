@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import * as argon2 from 'argon2';
 import assert from 'assert';
 import {add} from 'date-fns';
+import {isNumber} from 'lodash-es';
 import {Readable} from 'stream';
 import {globalSetup} from '../../contexts/globalUtils.js';
 import {
@@ -485,7 +486,10 @@ export async function insertFileForTest(
   let dataBuffer: Buffer | undefined = undefined;
 
   if (fileInput.data) {
-    assert(fileInput.size, 'size param must be provided if data param is set');
+    assert(
+      isNumber(fileInput.size),
+      'size param must be provided if data param is set'
+    );
   }
 
   if (!fileInput.data) {
@@ -510,6 +514,5 @@ export async function insertFileForTest(
       EndpointReusableQueries.getByResourceId(result.file.resourceId)
     );
 
-  assert(dataBuffer);
   return {...result, dataBuffer, rawFile, reqData: reqData};
 }

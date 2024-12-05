@@ -10,9 +10,13 @@ export class RedisDSetProvider implements IDSetContext {
     await this.redis.sAdd(key, values);
   }
 
-  async delete(key: string, value: OrArray<string | Buffer>): Promise<void> {
-    const values = convertToArray(value);
-    await this.redis.sRem(key, values);
+  async delete(key: string, value?: OrArray<string | Buffer>): Promise<void> {
+    if (value) {
+      const values = convertToArray(value);
+      await this.redis.sRem(key, values);
+    } else {
+      await this.redis.del(key);
+    }
   }
 
   async has(key: string, value: string | Buffer): Promise<boolean> {

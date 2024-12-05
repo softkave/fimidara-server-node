@@ -351,6 +351,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         const result = await readFile(reqData);
         assertEndpointResultOk(result);
 
+        assert(dataBuffer);
         await expectFileBodyEqual(dataBuffer, result.stream);
       }
 

@@ -282,7 +282,7 @@ describe.each(
       workspaceId,
     });
     assert(savedFile.body);
-    expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
+    await expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
   });
 
   test('cleanupMultipartUpload', async () => {

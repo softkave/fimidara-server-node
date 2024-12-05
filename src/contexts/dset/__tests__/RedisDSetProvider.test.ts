@@ -26,13 +26,22 @@ describe('RedisDSetProvider', () => {
     ]);
   });
 
-  test('delete', async () => {
+  test('delete, value', async () => {
     const [redis] = kUtilsInjectables.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
     await dset.delete(key, ['a', 'b']);
     expect(await dset.getAll(key)).toEqual(['c']);
+  });
+
+  test('delete, key', async () => {
+    const [redis] = kUtilsInjectables.redis();
+    const dset = new RedisDSetProvider(redis);
+    const key = 'test' + Math.random();
+    await dset.add(key, ['a', 'b', 'c']);
+    await dset.delete(key);
+    expect(await dset.getAll(key)).toEqual([]);
   });
 
   test('has', async () => {

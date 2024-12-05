@@ -124,6 +124,7 @@ import {
   WorkspaceDataProvider,
 } from '../data/types.js';
 import {IDSetContext} from '../dset/types.js';
+import {getDSetContext} from '../dset/utils.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {getEmailProvider} from '../email/utils.js';
 import {FileProviderResolver} from '../file/types.js';
@@ -197,7 +198,6 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
-import {getDSetContext} from '../dset/utils.js';
 
 function registerToken(
   token: string,
@@ -578,7 +578,7 @@ export async function registerUtilsInjectables(
 
   const redis = await getRedis();
   const ioRedis = await getIoRedis();
-  const redis2 = redis.duplicate();
+  const redis2 = await getRedis();
   kRegisterUtilsInjectables.redis([redis, redis2]);
   kRegisterUtilsInjectables.ioredis([ioRedis]);
 

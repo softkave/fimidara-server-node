@@ -31,7 +31,7 @@ interface FolderpathMatcher {
 }
 
 export interface FilePersistenceUploadPartResult {
-  part: number;
+  part: number | number;
   multipartId: string;
   partId: string;
 }
@@ -180,6 +180,11 @@ export interface FilePersistenceCompleteMultipartUploadParams
   parts: FilePersistenceUploadPartResult[];
 }
 
+export interface FilePersistenceCompleteMultipartUploadResult {
+  filepath: string;
+  raw: unknown;
+}
+
 export interface FilePersistenceCleanupMultipartUploadParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
@@ -214,7 +219,7 @@ export interface FilePersistenceProvider extends DisposableResource {
   ) => Promise<FilePersistenceUploadFileResult>;
   completeMultipartUpload: (
     params: FilePersistenceCompleteMultipartUploadParams
-  ) => Promise<void>;
+  ) => Promise<FilePersistenceCompleteMultipartUploadResult>;
   cleanupMultipartUpload: (
     params: FilePersistenceCleanupMultipartUploadParams
   ) => Promise<void>;

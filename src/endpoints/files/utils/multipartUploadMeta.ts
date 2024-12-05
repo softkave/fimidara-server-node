@@ -32,13 +32,16 @@ export async function getMultipartUploadPartMetas(
     });
     partNums = partNums.concat(values as string[]);
 
-    if (done || partNums.length >= (pageSize ?? kFileConstants.maxPartLength)) {
-      break;
-    }
-
     cursor = nextCursor;
     iteration++;
     done = isDone;
+
+    if (
+      isDone ||
+      partNums.length >= (pageSize ?? kFileConstants.maxPartLength)
+    ) {
+      break;
+    }
   }
 
   const keys = partNums.map(partNum =>
@@ -113,10 +116,6 @@ export async function deleteMultipartUploadPartMetas(params: {
         cursor: nextCursor,
       } = await kUtilsInjectables.dset().scan(multipartId, {cursor});
 
-      if (done) {
-        break;
-      }
-
       await kUtilsInjectables
         .cache()
         .delete(
@@ -124,6 +123,10 @@ export async function deleteMultipartUploadPartMetas(params: {
             kFileConstants.getPartCacheKey(multipartId, Number(v))
           )
         );
+
+      if (done) {
+        break;
+      }
 
       cursor = nextCursor;
       iteration++;

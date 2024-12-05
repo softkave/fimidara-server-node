@@ -1,4 +1,4 @@
-import {shuffle} from 'lodash-es';
+import {compact, shuffle} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
@@ -21,7 +21,7 @@ afterAll(async () => {
 
 describe('multipartUploadMeta', () => {
   test('writeMultipartUploadPartMetas', async () => {
-    const multipartId = '1';
+    const multipartId = 'multipartId' + Math.random();
     const partNums = [1, 2, 3];
     const parts = await writeMultipartUploadPartMetas({
       multipartId,
@@ -40,90 +40,90 @@ describe('multipartUploadMeta', () => {
     expect(cachedParts).toEqual(parts);
 
     const set = await kUtilsInjectables.dset().getAll(multipartId);
-    expect(set).toEqual(partNums);
+    expect(set).toEqual(partNums.map(partNum => partNum.toString()));
   });
 
   test('deleteMultipartUploadPartMetas, part', async () => {
-    const multipartId = '1';
+    const multipartId = 'multipartId' + Math.random();
     const parts = await writeMultipartUploadPartMetas({
       multipartId,
       parts: [
         {
+          multipartId,
           part: 1,
           size: 100,
-          multipartId,
           partId: '1',
         },
         {
+          multipartId,
           part: 2,
           size: 200,
-          multipartId,
           partId: '2',
         },
         {
+          multipartId,
           part: 3,
           size: 300,
-          multipartId,
           partId: '3',
         },
       ],
     });
 
     await deleteMultipartUploadPartMetas({multipartId, part: 3});
-    const key0 = kFileConstants.getPartCacheKey(multipartId, 0);
-    const key1 = kFileConstants.getPartCacheKey(multipartId, 1);
-    const key2 = kFileConstants.getPartCacheKey(multipartId, 2);
+    const key0 = kFileConstants.getPartCacheKey(multipartId, 1);
+    const key1 = kFileConstants.getPartCacheKey(multipartId, 2);
+    const key2 = kFileConstants.getPartCacheKey(multipartId, 3);
     const cachedParts = await kUtilsInjectables
       .cache()
       .getJsonList([key0, key1, key2]);
     const remainingParts = parts.filter(part => part.part !== 3);
-    expect(cachedParts).toEqual(remainingParts);
+    expect(compact(cachedParts)).toEqual(remainingParts);
 
     const set = await kUtilsInjectables.dset().getAll(multipartId);
-    expect(set).toEqual([1, 2]);
+    expect(set).toEqual(['1', '2']);
   });
 
   test('deleteMultipartUploadPartMetas, full', async () => {
-    const multipartId = '1';
-    const parts = await writeMultipartUploadPartMetas({
+    const multipartId = 'multipartId' + Math.random();
+    await writeMultipartUploadPartMetas({
       multipartId,
       parts: [
         {
+          multipartId,
           part: 1,
           size: 100,
-          multipartId,
           partId: '1',
         },
         {
+          multipartId,
           part: 2,
           size: 200,
-          multipartId,
           partId: '2',
         },
         {
+          multipartId,
           part: 3,
           size: 300,
-          multipartId,
           partId: '3',
         },
       ],
     });
 
     await deleteMultipartUploadPartMetas({multipartId});
-    const key0 = kFileConstants.getPartCacheKey(multipartId, 0);
-    const key1 = kFileConstants.getPartCacheKey(multipartId, 1);
-    const key2 = kFileConstants.getPartCacheKey(multipartId, 2);
+    const key0 = kFileConstants.getPartCacheKey(multipartId, 1);
+    const key1 = kFileConstants.getPartCacheKey(multipartId, 2);
+    const key2 = kFileConstants.getPartCacheKey(multipartId, 3);
     const cachedParts = await kUtilsInjectables
       .cache()
       .getJsonList([key0, key1, key2]);
-    expect(cachedParts).toEqual([]);
+    expect(compact(cachedParts)).toEqual([]);
 
     const set = await kUtilsInjectables.dset().getAll(multipartId);
     expect(set).toEqual([]);
   });
 
   test('getMultipartUploadPartMeta', async () => {
-    const multipartId = '1';
+    const multipartId = 'multipartId' + Math.random();
     let part = await getMultipartUploadPartMeta({multipartId, part: 1});
     expect(part).toBeNull();
 
@@ -144,7 +144,7 @@ describe('multipartUploadMeta', () => {
   });
 
   test('getMultipartUploadPartMetas, not paged', async () => {
-    const multipartId = '1';
+    const multipartId = 'multipartId' + Math.random();
     const prefill = await getMultipartUploadPartMetas({
       multipartId,
     });
@@ -170,7 +170,7 @@ describe('multipartUploadMeta', () => {
   });
 
   test('getMultipartUploadPartMetas, paged', async () => {
-    const multipartId = '1';
+    const multipartId = 'multipartId' + Math.random();
     const prefill = await getMultipartUploadPartMetas({
       multipartId,
       pageSize: 5,

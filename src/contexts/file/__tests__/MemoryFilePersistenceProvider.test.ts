@@ -83,7 +83,7 @@ describe('MemoryFilePersistenceProvider', () => {
       fileId,
     });
     assert(savedFile.body);
-    expectFileBodyEqual(data, savedFile.body);
+    await expectFileBodyEqual(data, savedFile.body);
   });
 
   test('startMultipartUpload', async () => {
@@ -214,7 +214,7 @@ describe('MemoryFilePersistenceProvider', () => {
       workspaceId,
     });
     assert(savedFile.body);
-    expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
+    await expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
   });
 
   test('cleanupMultipartUpload', async () => {
@@ -372,7 +372,7 @@ describe('MemoryFilePersistenceProvider', () => {
     });
 
     assert(result.body);
-    expectFileBodyEqual(data, result.body);
+    await expectFileBodyEqual(data, result.body);
   });
 
   test('deleteFiles', async () => {

@@ -1,12 +1,14 @@
 import {isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kIncludeInProjection} from '../../../contexts/data/types.js';
+import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
+import {appAssert} from '../../../utils/assertion.js';
 import {createOrRetrieve} from '../../../utils/concurrency/createOrRetrieve.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
@@ -45,43 +47,50 @@ async function handleUploadFile(params: {
 
   const isMultipart = isString(data.clientMultipartId);
   try {
-    const filepath = await prepareFilepath({primaryMount, file});
-    const internalMultipartId = await createOrRetrieve<string>({
-      key: `upload-multipart-file-${file.resourceId}`,
-      create: async () => {
-        const startResult = await primaryBackend.startMultipartUpload({
-          filepath,
-          workspaceId: file.workspaceId,
-          fileId: file.resourceId,
-          mount: primaryMount,
-        });
+    const filepath = await prepareFilepath({
+      primaryMount,
+      file,
+    });
+    let internalMultipartId: string | undefined;
 
-        await kSemanticModels.utils().withTxn(async opts => {
-          await kSemanticModels
-            .file()
-            .updateOneById(
-              file.resourceId,
-              {internalMultipartId: startResult.multipartId},
-              opts
-            );
-        });
-
-        return startResult.multipartId;
-      },
-      retrieve: async () => {
-        if (file.internalMultipartId) {
-          return file.internalMultipartId;
-        }
-
-        const dbFile = await kSemanticModels
-          .file()
-          .getOneById(file.resourceId, {
-            projection: {internalMultipartId: kIncludeInProjection},
+    if (isMultipart) {
+      internalMultipartId = await createOrRetrieve<string>({
+        key: `upload-multipart-file-${file.resourceId}`,
+        create: async () => {
+          const startResult = await primaryBackend.startMultipartUpload({
+            filepath,
+            workspaceId: file.workspaceId,
+            fileId: file.resourceId,
+            mount: primaryMount,
           });
 
-        return dbFile?.internalMultipartId ?? undefined;
-      },
-    });
+          await kSemanticModels.utils().withTxn(async opts => {
+            await kSemanticModels
+              .file()
+              .updateOneById(
+                file.resourceId,
+                {internalMultipartId: startResult.multipartId},
+                opts
+              );
+          });
+
+          return startResult.multipartId;
+        },
+        retrieve: async () => {
+          if (file.internalMultipartId) {
+            return file.internalMultipartId;
+          }
+
+          const dbFile = await kSemanticModels
+            .file()
+            .getOneById(file.resourceId, {
+              projection: {internalMultipartId: kIncludeInProjection},
+            });
+
+          return dbFile?.internalMultipartId ?? undefined;
+        },
+      });
+    }
 
     fireAndForgetHandleMultipartCleanup({
       primaryBackend,
@@ -90,33 +99,52 @@ async function handleUploadFile(params: {
       file: file as FileWithRuntimeData,
     });
 
-    // TODO: compare bytecounter and size input to make sure they match or
-    // update usage record
-    const bytesCounterStream = new ByteCounterPassThroughStream();
-    data.data.pipe(bytesCounterStream);
+    const isSilentPart = isMultipart && data.part === -1;
+    let size = 0;
+    let pMountData:
+      | Pick<FilePersistenceUploadFileResult<unknown>, 'filepath' | 'raw'>
+      | undefined;
 
-    const persistedMountData = await primaryBackend.uploadFile({
-      filepath,
-      workspaceId: file.workspaceId,
-      body: bytesCounterStream,
-      fileId: file.resourceId,
-      mount: primaryMount,
-      part: data.part,
-      multipartId: internalMultipartId,
-    });
+    if (isSilentPart) {
+      // avoid memory leak by destroying the stream
+      data.data.destroy();
+    }
 
-    await handleStorageUsageRecords({
-      reqData,
-      file,
-      isNewFile,
-      isMultipart,
-      isLastPart: data.isLastPart,
-      size: bytesCounterStream.contentLength,
-    });
+    if (!isSilentPart) {
+      // TODO: compare bytecounter and size input to make sure they match or
+      // update usage record
+      const bytesCounterStream = new ByteCounterPassThroughStream();
+      data.data.pipe(bytesCounterStream);
 
-    let size = bytesCounterStream.contentLength;
+      pMountData = await primaryBackend.uploadFile({
+        filepath,
+        workspaceId: file.workspaceId,
+        body: bytesCounterStream,
+        fileId: file.resourceId,
+        mount: primaryMount,
+        part: data.part,
+        multipartId: internalMultipartId,
+      });
+
+      file.internalMultipartId = internalMultipartId;
+      await handleStorageUsageRecords({
+        reqData,
+        file,
+        isNewFile,
+        isMultipart,
+        isLastPart: data.isLastPart,
+        size: bytesCounterStream.contentLength,
+      });
+
+      size = bytesCounterStream.contentLength;
+    }
+
     if (isMultipart) {
-      await saveFilePartData({pMountData: persistedMountData, size});
+      if (!isSilentPart) {
+        appAssert(pMountData);
+        await saveFilePartData({pMountData: pMountData, size});
+      }
+
       if (data.isLastPart) {
         const lastPartResult = await handleLastMultipartUpload({
           file,
@@ -125,6 +153,7 @@ async function handleUploadFile(params: {
           filepath,
         });
         size = lastPartResult.size;
+        pMountData = lastPartResult.pMountData;
       }
     }
 
@@ -133,16 +162,17 @@ async function handleUploadFile(params: {
       file,
       data,
       isMultipart,
-      persistedMountData,
+      persistedMountData: pMountData,
       size,
       isLastPart: data.isLastPart,
     });
 
+    appAssert(pMountData);
     file = await completeUploadFile({
       agent,
       file,
       primaryMount,
-      persistedMountData,
+      pMountData,
       update,
       shouldInsertMountEntry: !isMultipart || !!data.isLastPart,
     });

@@ -1,17 +1,17 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File, FileMatcher} from '../../../definitions/file.js';
+import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {appAssert} from '../../../utils/assertion.js';
+import {createOrRetrieve} from '../../../utils/concurrency/createOrRetrieve.js';
 import {ValidationError} from '../../../utils/errors.js';
 import {FileNotWritableError} from '../errors.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {
   FilepathInfo,
-  assertFile,
   createNewFileAndEnsureFolders,
   getFilepathInfo,
   getWorkspaceFromFileOrFilepath,
@@ -68,18 +68,20 @@ export async function prepareExistingFile(params: {
   workspace: Workspace;
   file: File;
   data: UploadFileEndpointParams;
-  presignedPath: PresignedPath | undefined;
+  skipAuth?: boolean;
   opts: SemanticProviderMutationParams;
+  closestExistingFolder?: Folder | null;
 }) {
-  const {agent, workspace, file, data, presignedPath, opts} = params;
+  const {agent, workspace, file, data, skipAuth, opts, closestExistingFolder} =
+    params;
   await checkFileWriteAvailable({file, data, opts});
-  if (!presignedPath) {
-    // Permission is already checked if there's a `presignedPath`
+
+  if (!skipAuth) {
     await checkUploadFileAuth(
       agent,
       workspace,
       file,
-      /** closestExistingFolder */ null,
+      closestExistingFolder || null,
       opts
     );
   }
@@ -93,9 +95,8 @@ export async function prepareNewFile(params: {
   agent: SessionAgent;
   workspace: Workspace;
   data: UploadFileEndpointParams;
-  opts: SemanticProviderMutationParams;
 }) {
-  const {agent, workspace, data, opts} = params;
+  const {agent, workspace, data} = params;
   appAssert(
     data.filepath,
     new ValidationError('Provide a filepath for new files')
@@ -106,33 +107,80 @@ export async function prepareNewFile(params: {
     allowRootFolder: false,
   });
 
-  // it's safe (but a bit costly and confusing) to create parent folders and
-  // file before checking auth. whatsoever queue and handler that's creating the
-  // parent folders will fail if the user doesn't have permission to create
-  // them. lastly, we're creating the file with a transaction, so if the auth
-  // check fails, the transaction will be rolled back.
-  const {file, parentFolder} = await createAndInsertNewFile({
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    opts,
+  const file = await createOrRetrieve<File | undefined>({
+    key: `upload-prepare-file-${data.filepath}`,
+    create: async () => {
+      return await kSemanticModels.utils().withTxn(async opts => {
+        // it's safe (but a bit costly and confusing) to create parent folders and
+        // file before checking auth. whatsoever queue and handler that's creating the
+        // parent folders will fail if the user doesn't have permission to create
+        // them. lastly, we're creating the file with a transaction, so if the auth
+        // check fails, the transaction will be rolled back.
+        const {file, parentFolder} = await createAndInsertNewFile({
+          agent,
+          workspace,
+          pathinfo,
+          data,
+          opts,
+        });
+
+        const preparedFile = await prepareExistingFile({
+          agent,
+          workspace,
+          file,
+          data,
+          opts,
+          closestExistingFolder: parentFolder,
+          skipAuth: false,
+        });
+
+        appAssert(preparedFile);
+        return preparedFile;
+      });
+    },
+    retrieve: async () => {
+      return await kSemanticModels.utils().withTxn(async opts => {
+        const {file} = await tryGetFile(
+          {...data, workspaceId: workspace.resourceId},
+          opts
+        );
+
+        if (file) {
+          appAssert(file);
+          const preparedFile = await prepareExistingFile({
+            agent,
+            workspace,
+            file,
+            data,
+            opts,
+            skipAuth: false,
+          });
+
+          appAssert(preparedFile);
+          return preparedFile;
+        }
+
+        return undefined;
+      });
+    },
+    durationMs: 1000, // 1 second
   });
 
-  await checkUploadFileAuth(agent, workspace, file, parentFolder, opts);
+  appAssert(file);
   return file;
 }
 
 export async function tryGetFile(
-  data: FileMatcher,
+  data: FileMatcher & {workspaceId?: string},
   opts: SemanticProviderMutationParams
 ) {
   const matched = await getFileWithMatcher({
+    opts,
     presignedPathAction: kFimidaraPermissionActions.uploadFile,
     incrementPresignedPathUsageCount: true,
     supportPresignedPath: true,
     matcher: data,
-    opts,
+    workspaceId: data.workspaceId,
   });
 
   return matched;
@@ -142,32 +190,35 @@ export async function prepareFile(
   data: UploadFileEndpointParams,
   agent: SessionAgent
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  const firstAttempt = await kSemanticModels.utils().withTxn(async opts => {
     const {file: existingFile, presignedPath} = await tryGetFile(data, opts);
     const workspace = await getWorkspaceFromFileOrFilepath(
       existingFile,
       data.filepath
     );
 
-    let isNewFile: boolean,
-      file = existingFile;
-
-    if (file) {
-      isNewFile = false;
-      file = await prepareExistingFile({
+    if (existingFile) {
+      const file = await prepareExistingFile({
         agent,
         workspace,
-        file,
         data,
-        presignedPath,
         opts,
+        // Permission is already checked if there's a `presignedPath`
+        skipAuth: !!presignedPath,
+        file: existingFile,
       });
-    } else {
-      isNewFile = true;
-      file = await prepareNewFile({agent, workspace, data, opts});
+
+      return {file, workspace};
     }
 
-    assertFile(file);
-    return {file, workspace, isNewFile};
+    return {workspace, file: undefined};
   });
+
+  if (firstAttempt.file) {
+    return {...firstAttempt, isNewFile: false, file: firstAttempt.file};
+  }
+
+  const {workspace} = firstAttempt;
+  const file = await prepareNewFile({agent, workspace, data});
+  return {file, workspace, isNewFile: true};
 }

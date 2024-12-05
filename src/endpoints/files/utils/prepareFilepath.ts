@@ -12,9 +12,11 @@ export async function prepareFilepath(params: {
     .resolvedMountEntry()
     .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
 
-  return stringifyFilenamepath(
+  const filepath = stringifyFilenamepath(
     mountEntry
       ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
       : file
   );
+
+  return filepath;
 }

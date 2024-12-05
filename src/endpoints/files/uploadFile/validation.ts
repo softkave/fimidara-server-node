@@ -12,7 +12,7 @@ export const uploadFileJoiSchema = Joi.object<UploadFileEndpointParams>()
     mimetype: fileValidationSchemas.mimetype.allow(null, ''),
     encoding: fileValidationSchemas.encoding.allow(null),
     clientMultipartId: Joi.string(),
-    part: Joi.number().integer().min(0),
+    part: Joi.number().integer().min(-1),
     isLastPart: Joi.boolean(),
   })
   .required();

@@ -74,11 +74,11 @@ export async function handleLastMultipartUpload(params: {
     multipartId: file.internalMultipartId,
   });
 
-  await primaryBackend.completeMultipartUpload({
+  const pMountData = await primaryBackend.completeMultipartUpload({
     filepath,
     parts,
     fileId: file.resourceId,
-    multipartId: file.clientMultipartId,
+    multipartId: file.internalMultipartId,
     mount: primaryMount,
     workspaceId: file.workspaceId,
   });
@@ -90,5 +90,5 @@ export async function handleLastMultipartUpload(params: {
   );
 
   const size = parts.reduce((acc, part) => acc + part.size, 0);
-  return {size};
+  return {size, pMountData};
 }

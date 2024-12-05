@@ -24,6 +24,8 @@
     - complete multipart upload should be a job and should release file when done. this is primarily for memory and local fs providers
     - flush redis on complete testing, and use different database
     - enfore minimum multipart upload size of 5mb bcos of s3
+    - add better apis for start, delete part/abort, and end multipart upload
+    - communicate that -1 is used for lastPart
 - byte range download
 - find a solution to redis shutdowns
 - usage revamp

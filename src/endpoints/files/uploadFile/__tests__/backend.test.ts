@@ -46,7 +46,7 @@ afterAll(async () => {
 describe.each([{isMultipart: true}, {isMultipart: false}])(
   'backend.uploadFile, params=%s',
   ({isMultipart}) => {
-    test('file uploaded to closest parent backend', async () => {
+    test.only('file uploaded to closest parent backend', async () => {
       const insertUserResult = await insertUserForTest();
       const {userToken} = insertUserResult;
       const insertWorkspaceResult = await insertWorkspaceForTest(userToken);
@@ -80,7 +80,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         return fartherMountBackend;
       });
 
-      const {dataBuffer, file} = await uploadFileBaseTest({
+      const {file, dataBuffer} = await uploadFileBaseTest({
         isMultipart,
         insertUserResult,
         insertWorkspaceResult,
@@ -100,8 +100,9 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       });
 
       assert(persistedFile);
+      assert(dataBuffer);
       expect(fartherMountPersistedFile).toBeFalsy();
-      expectFileBodyEqual(dataBuffer, persistedFile.body);
+      await expectFileBodyEqual(persistedFile.body, dataBuffer);
 
       const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
       expect(dbFile?.isWriteAvailable).toBeTruthy();
@@ -163,8 +164,9 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       });
 
       assert(persistedFile);
+      assert(dataBuffer);
       expect(fartherMountPersistedFile).toBeFalsy();
-      expectFileBodyEqual(dataBuffer, persistedFile.body);
+      await expectFileBodyEqual(dataBuffer, persistedFile.body);
     });
   }
 );

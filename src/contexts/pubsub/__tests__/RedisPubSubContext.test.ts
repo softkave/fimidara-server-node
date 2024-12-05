@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {waitTimeout} from 'softkave-js-utils';
 import {
   afterAll,
@@ -19,6 +20,8 @@ beforeAll(async () => {
 
 afterEach(async () => {
   const [redis, redis02] = kUtilsInjectables.redis();
+  assert.ok(redis);
+  assert.ok(redis02);
   await redis?.unsubscribe();
   await redis02?.unsubscribe();
 });
@@ -30,12 +33,20 @@ afterAll(async () => {
 describe('RedisPubSubContext', () => {
   test('subscribe + publish', async () => {
     const [redis, redis02] = kUtilsInjectables.redis();
+    assert.ok(redis);
+    assert.ok(redis02);
     const context01 = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
     const sub = await context01.subscribe(channel, fn);
     await context01.publish(channel, 'message');
-    expect(fn).toHaveBeenCalledWith('message', channel);
+
+    // wait for the message to be received
+    await waitTimeout(200);
+    expect(fn).toHaveBeenCalledWith('message', channel, {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
 
     sub.unsubscribe();
     await context01.publish(channel, 'message');
@@ -50,8 +61,13 @@ describe('RedisPubSubContext', () => {
     const channel = 'channel' + Math.random();
     const sub = await context01.subscribeJson(channel, fn);
     await context01.publish(channel, json);
+
+    // wait for the message to be received
     await waitTimeout(100);
-    expect(fn).toHaveBeenCalledWith(json, channel);
+    expect(fn).toHaveBeenCalledWith(json, channel, {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
 
     sub.unsubscribe();
     await context01.publish(channel, json);

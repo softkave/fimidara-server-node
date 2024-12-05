@@ -25,6 +25,7 @@ import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDeleteMultipartUploadPartParams,
@@ -362,7 +363,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
 
   async completeMultipartUpload(
     params: FilePersistenceCompleteMultipartUploadParams
-  ) {
+  ): Promise<FilePersistenceCompleteMultipartUploadResult> {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
@@ -382,7 +383,11 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       MultipartUpload: {Parts: parts},
     });
 
-    await this.s3.send(command);
+    const result = await this.s3.send(command);
+    return {
+      filepath: params.filepath,
+      raw: result,
+    };
   }
 
   async cleanupMultipartUpload(

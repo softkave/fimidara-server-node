@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {compact, isNumber, last} from 'lodash-es';
-import {kLoopAsyncSettlementType, OrPromise} from 'softkave-js-utils';
+import {compact, isNumber, omit} from 'lodash-es';
+import {getNewId, kLoopAsyncSettlementType, OrPromise} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {Workspace} from '../../../../definitions/workspace.js';
@@ -47,7 +47,7 @@ export const singleFileUpload = async (params: {
     const result = await insertFileForTest(
       userToken,
       workspace,
-      fileInput,
+      omit(fileInput, ['part', 'isLastPart', 'clientMultipartId']),
       type,
       imageProps
     );
@@ -61,7 +61,8 @@ export const singleFileUpload = async (params: {
     return compact([result]);
   };
 
-  return {runAll, runNext};
+  const dataBuffer: Buffer | undefined = undefined;
+  return {runAll, runNext, dataBuffer};
 };
 
 export const multipartFileUpload = async (params: {
@@ -88,7 +89,7 @@ export const multipartFileUpload = async (params: {
     imageProps,
   });
   const partLengthOrDefault = partLength ?? 3;
-  const clientMultipartIdOrDefault = clientMultipartId ?? '1';
+  const clientMultipartIdOrDefault = clientMultipartId ?? getNewId();
   const uploadPart = async (part: number) => {
     const partData = dataBuffer.subarray(
       part * (dataBuffer.byteLength / partLengthOrDefault),
@@ -100,7 +101,18 @@ export const multipartFileUpload = async (params: {
       data: Readable.from(partData),
       size: partData.byteLength,
       clientMultipartId: clientMultipartIdOrDefault,
-      isLastPart: part === partLengthOrDefault - 1,
+    });
+  };
+
+  const uploadLast = async () => {
+    const buf = Buffer.alloc(0);
+    return await insertFileForTest(userToken, workspace, {
+      ...fileInput,
+      part: -1,
+      data: Readable.from(buf),
+      size: buf.byteLength,
+      clientMultipartId: clientMultipartIdOrDefault,
+      isLastPart: true,
     });
   };
 
@@ -114,6 +126,14 @@ export const multipartFileUpload = async (params: {
   const runNext: RunNextFn = async runParams => {
     const {afterEach, forceRun} = runParams ?? {};
     const part = runParams?.part ?? getNextPart();
+
+    if (part === -1) {
+      const uploadResult = await uploadLast();
+      const partResult = {...uploadResult, part};
+      await afterEach?.(partResult);
+      return partResult;
+    }
+
     if (
       !isNumber(part) ||
       part >= partLengthOrDefault ||
@@ -140,21 +160,26 @@ export const multipartFileUpload = async (params: {
       faker.helpers.shuffle(runOrder, {inplace: true});
     }
 
-    const results = [];
+    let results: Array<Awaited<ReturnType<RunNextFn>>> = [];
     if (settlementType === kLoopAsyncSettlementType.oneByOne) {
       let partResult = await runNext(runParams);
       while (partResult) {
         results.push(partResult);
         partResult = await runNext();
       }
+
+      results.push(await runNext({part: -1, ...runParams}));
     } else {
-      await Promise.all(runOrder.map(part => runNext({part, ...runParams})));
+      results = await Promise.all(
+        runOrder.map(part => runNext({part, ...runParams}))
+      );
+      results.push(await runNext({part: -1, ...runParams}));
     }
 
-    return results;
+    return compact(results);
   };
 
-  return {runAll, runNext};
+  return {runAll, runNext, dataBuffer};
 };
 
 export const runUpload = async (
@@ -173,14 +198,17 @@ export const simpleRunUpload = async (
   isMultipart: boolean,
   uploadParams: Parameters<typeof singleFileUpload>[0]
 ) => {
-  const {runAll} = await runUpload(
+  const {runAll, dataBuffer} = await runUpload(
     isMultipart,
     /** singleParams */ uploadParams,
     /** multipartParams */ uploadParams
   );
 
   const results = await runAll();
-  const result = last(results);
+  const result =
+    results.length === 1
+      ? results[0]
+      : results.filter(r => r.reqData.data?.isLastPart)[0];
   assert.ok(result);
-  return result;
+  return {...result, dataBuffer: dataBuffer ?? result.dataBuffer};
 };

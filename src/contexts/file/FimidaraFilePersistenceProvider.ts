@@ -119,7 +119,7 @@ export class FimidaraFilePersistenceProvider
     params: FilePersistenceCompleteMultipartUploadParams
   ) => {
     const preparedParams = this.prepareParams(params);
-    await this.backend.completeMultipartUpload(preparedParams);
+    return await this.backend.completeMultipartUpload(preparedParams);
   };
 
   cleanupMultipartUpload = (

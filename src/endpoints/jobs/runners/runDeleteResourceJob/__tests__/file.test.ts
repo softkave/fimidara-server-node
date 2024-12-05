@@ -123,6 +123,7 @@ describe('runDeleteResourceJob, file', () => {
       genResourceFn: () => Promise.resolve(mainResource),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
+        assert(dataBuffer);
         await Promise.all([
           providersMap[mount01.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,

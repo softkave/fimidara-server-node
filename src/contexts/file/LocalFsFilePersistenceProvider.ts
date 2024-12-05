@@ -7,6 +7,7 @@ import {kUtilsInjectables} from '../injection/injectables.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
   FilePersistenceDeleteMultipartUploadPartParams,
@@ -92,8 +93,9 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   async completeMultipartUpload(
     params: FilePersistenceCompleteMultipartUploadParams
-  ) {
+  ): Promise<FilePersistenceCompleteMultipartUploadResult> {
     await this.completePartsFile(params);
+    return {filepath: params.filepath, raw: undefined};
   }
 
   async cleanupMultipartUpload(
