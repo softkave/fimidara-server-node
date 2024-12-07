@@ -52,11 +52,11 @@ export async function getMultipartUploadPartMetas(
     .cache()
     .getJsonList<FilePartMeta>(keys);
 
-  let parts = compact(partsOrNil);
-  parts =
-    isNumber(pageSize) && parts.length > pageSize
-      ? parts.slice(0, pageSize)
-      : parts;
+  const parts = compact(partsOrNil);
+  // parts =
+  //   isNumber(pageSize) && parts.length > pageSize
+  //     ? parts.slice(0, pageSize)
+  //     : parts;
 
   return {parts, continuationToken: done ? null : cursor, isDone: done};
 }

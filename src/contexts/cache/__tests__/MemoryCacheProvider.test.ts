@@ -1,3 +1,4 @@
+import {waitTimeout} from 'softkave-js-utils';
 import {describe, expect, test} from 'vitest';
 import {MemoryCacheProvider} from '../MemoryCacheProvider.js';
 
@@ -17,6 +18,18 @@ describe('MemoryCacheProvider', () => {
     await cache.setJson('test', {test: 'value'});
     const value = await cache.getJson<{test: string}>('test');
     expect(value).toEqual({test: 'value'});
+  });
+
+  test('setJson with ttl', async () => {
+    const cache = new MemoryCacheProvider();
+    const key = 'test' + Math.random();
+    await cache.setJson(key, {test: 'value'}, {ttlMs: 100});
+    const value = await cache.getJson<{test: string}>(key);
+    expect(value).toEqual({test: 'value'});
+
+    await waitTimeout(100);
+    const value2 = await cache.getJson<{test: string}>(key);
+    expect(value2).toBeFalsy();
   });
 
   test('setJsonList', async () => {
@@ -78,6 +91,18 @@ describe('MemoryCacheProvider', () => {
     await cache.set('test', 'value');
     const value = await cache.get('test');
     expect(value).toBe('value');
+  });
+
+  test('set with ttl', async () => {
+    const cache = new MemoryCacheProvider();
+    const key = 'test' + Math.random();
+    await cache.set(key, 'value', {ttlMs: 100});
+    const value = await cache.get(key);
+    expect(value).toBe('value');
+
+    await waitTimeout(100);
+    const value2 = await cache.get(key);
+    expect(value2).toBeFalsy();
   });
 
   test('setList', async () => {

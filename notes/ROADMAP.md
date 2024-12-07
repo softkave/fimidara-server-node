@@ -26,11 +26,13 @@
     - enfore minimum multipart upload size of 5mb bcos of s3
     - add better apis for start, delete part/abort, and end multipart upload
     - communicate that -1 is used for lastPart
+    - usage records
 - byte range download
 - find a solution to redis shutdowns
 - usage revamp
 - redis reconnect
 - one redis client for all contexts
+- check that read available works for all file providers, local, s3, etc.
 
 ## NextJs
 

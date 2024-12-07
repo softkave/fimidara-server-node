@@ -1,4 +1,4 @@
-import {isString} from 'lodash-es';
+import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {kIncludeInProjection} from '../../../contexts/data/types.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
@@ -28,7 +28,6 @@ import {
   saveFilePartData,
   setFileWritable,
 } from './update.js';
-import {handleStorageUsageRecords} from './usage.js';
 import {uploadFileJoiSchema} from './validation.js';
 
 async function handleUploadFile(params: {
@@ -38,7 +37,7 @@ async function handleUploadFile(params: {
   isNewFile: boolean;
   reqData: RequestData<UploadFileEndpointParams>;
 }) {
-  const {data, agent, isNewFile, reqData} = params;
+  const {data, agent} = params;
   let {file} = params;
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
@@ -54,8 +53,11 @@ async function handleUploadFile(params: {
     let internalMultipartId: string | undefined;
 
     if (isMultipart) {
+      appAssert(isNumber(data.part));
+
+      const key = `upload-multipart-file-${file.resourceId}`;
       internalMultipartId = await createOrRetrieve<string>({
-        key: `upload-multipart-file-${file.resourceId}`,
+        key,
         create: async () => {
           const startResult = await primaryBackend.startMultipartUpload({
             filepath,
@@ -96,6 +98,7 @@ async function handleUploadFile(params: {
       primaryBackend,
       primaryMount,
       filepath,
+      data,
       file: file as FileWithRuntimeData,
     });
 
@@ -127,14 +130,14 @@ async function handleUploadFile(params: {
       });
 
       file.internalMultipartId = internalMultipartId;
-      await handleStorageUsageRecords({
-        reqData,
-        file,
-        isNewFile,
-        isMultipart,
-        isLastPart: data.isLastPart,
-        size: bytesCounterStream.contentLength,
-      });
+      // await handleStorageUsageRecords({
+      //   reqData,
+      //   file,
+      //   isNewFile,
+      //   isMultipart,
+      //   isLastPart: data.isLastPart,
+      //   size: bytesCounterStream.contentLength,
+      // });
 
       size = bytesCounterStream.contentLength;
     }
@@ -151,6 +154,7 @@ async function handleUploadFile(params: {
           primaryBackend,
           primaryMount,
           filepath,
+          data,
         });
         size = lastPartResult.size;
         pMountData = lastPartResult.pMountData;

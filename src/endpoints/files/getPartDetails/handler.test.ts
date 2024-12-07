@@ -2,7 +2,11 @@ import {sampleSize} from 'lodash-es';
 import {getRandomInt} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {AgentToken} from '../../../definitions/agentToken.js';
+import {File} from '../../../definitions/file.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import RequestData from '../../RequestData.js';
+import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   assertEndpointResultOk,
@@ -17,7 +21,7 @@ import {
   FilePartMeta,
   writeMultipartUploadPartMetas,
 } from '../utils/multipartUploadMeta.js';
-import getPartDetails from './handler.js';
+import getPartDetails, {partDetailsListExtractor} from './handler.js';
 import {GetPartDetailsEndpointParams} from './types.js';
 
 beforeAll(async () => {
@@ -33,8 +37,8 @@ describe('getPartDetails', () => {
     'file details returned, params=%s',
     async ({spotty}) => {
       const {userToken} = await insertUserForTest();
-      const {workspace} = await insertWorkspaceForTest(userToken);
-      const {file} = await insertFileForTest(userToken, workspace);
+      const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
+      const {rawFile: file} = await insertFileForTest(userToken, workspace);
       const partLength = 10;
       const clientMultipartId = '1';
       const internalMultipartId = '2';
@@ -73,51 +77,64 @@ describe('getPartDetails', () => {
         multipartId: internalMultipartId,
       });
 
-      const pageSize = 5;
-      const page01Req =
-        RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {pageSize, filepath: stringifyFilenamepath(file, workspace.rootname)}
-        );
-      const page01 = await getPartDetails(page01Req);
-
-      assertEndpointResultOk(page01);
-      expect(page01.clientMultipartId).toEqual(clientMultipartId);
-      expect(page01.details).toEqual(
-        parts.slice(0, Math.min(pageSize, partLength))
-      );
-      expect(page01.continuationToken).toBeDefined();
-
-      const page02Req =
-        RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            pageSize,
-            continuationToken: page01.continuationToken,
-            filepath: stringifyFilenamepath(file, workspace.rootname),
-          }
-        );
-      const page02 = await getPartDetails(page02Req);
-
-      assertEndpointResultOk(page02);
-      expect(page02.clientMultipartId).toEqual(clientMultipartId);
-      expect(page02.details).toEqual(parts.slice(pageSize, pageSize * 2));
-      expect(page02.continuationToken).toBeDefined();
-
-      const page03Req =
-        RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
-          mockExpressRequestWithAgentToken(userToken),
-          {
-            pageSize,
-            continuationToken: page02.continuationToken,
-            filepath: stringifyFilenamepath(file, workspace.rootname),
-          }
-        );
-      const page03 = await getPartDetails(page03Req);
-
-      assertEndpointResultOk(page03);
-      expect(page03.clientMultipartId).toEqual(clientMultipartId);
-      expect(page03.details).toEqual(parts.slice(pageSize * 2, pageSize * 3));
+      await callGetParts({
+        userToken,
+        file,
+        workspace,
+        parts,
+        clientMultipartId,
+      });
     }
   );
 });
+
+async function callGetParts(params: {
+  userToken: AgentToken;
+  file: File;
+  workspace: Workspace;
+  parts: FilePartMeta[];
+  clientMultipartId: string;
+  continuationToken?: string;
+}) {
+  const {
+    userToken,
+    file,
+    workspace,
+    parts,
+    clientMultipartId,
+    continuationToken,
+  } = params;
+
+  const page01Req =
+    RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
+      mockExpressRequestWithAgentToken(userToken),
+      {
+        continuationToken,
+        filepath: stringifyFilenamepath(file, workspace.rootname),
+      }
+    );
+  const page01 = await getPartDetails(page01Req);
+  assertEndpointResultOk(page01);
+
+  expect(page01.clientMultipartId).toEqual(clientMultipartId);
+  const pParts = partDetailsListExtractor(parts);
+  expectContainsEveryItemIn(
+    page01.details,
+    pParts,
+    part => part.part.toString() + part.size
+  );
+
+  if (page01.isDone) {
+    expect(page01.continuationToken).toBeUndefined();
+  } else {
+    expect(page01.continuationToken).toBeDefined();
+    await callGetParts({
+      userToken,
+      file,
+      workspace,
+      parts,
+      clientMultipartId,
+      continuationToken: page01.continuationToken,
+    });
+  }
+}

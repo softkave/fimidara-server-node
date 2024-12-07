@@ -82,7 +82,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         length: 4,
       });
 
-      const [file01] = await Promise.all([
+      const results = await Promise.allSettled([
         uploadFileBaseTest({
           isMultipart,
           insertUserResult,
@@ -106,9 +106,13 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         }),
       ]);
 
+      const sResultOuter = results.find(r => r.status === 'fulfilled');
+      assert.ok(sResultOuter?.status === 'fulfilled');
+      const sResult = sResultOuter?.value;
+
       const files = await kSemanticModels
         .file()
-        .getManyByQuery(FileQueries.getByNamepath(file01.savedFile));
+        .getManyByQuery(FileQueries.getByNamepath(sResult.savedFile));
       expect(files.length).toBe(1);
     });
 

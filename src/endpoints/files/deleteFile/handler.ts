@@ -46,7 +46,10 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       file,
       multipartId: file.internalMultipartId,
       part: data.part,
+      shouldCleanupFile: true,
     });
+
+    return {};
   } else {
     const jobs = await beginDeleteFile({
       agent,
@@ -54,10 +57,9 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       resources: [file],
     });
     job = first(jobs);
+    appAssert(job);
+    return {jobId: job.resourceId};
   }
-
-  appAssert(job);
-  return {jobId: job.resourceId};
 };
 
 export default deleteFile;

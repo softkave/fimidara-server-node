@@ -9,28 +9,34 @@ export class RedisCacheProvider implements ICacheContext {
     return this.redis.get(key);
   }
 
-  getJson<T>(key: string): Promise<T | null> {
-    return this.redis
-      .get(key)
-      .then(value => (value ? JSON.parse(value) : null));
+  async getJson<T>(key: string): Promise<T | null> {
+    const value = await this.redis.get(key);
+    return value ? JSON.parse(value) : null;
   }
 
   getList(keys: string[]): Promise<Array<string | null>> {
     return this.redis.mGet(keys);
   }
 
-  getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
-    return this.redis
-      .mGet(keys)
-      .then(values => values.map(value => (value ? JSON.parse(value) : null)));
+  async getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
+    const values = await this.redis.mGet(keys);
+    return values.map(value => (value ? JSON.parse(value) : null));
   }
 
-  async set(key: string, value: string | Buffer): Promise<void> {
-    await this.redis.set(key, value);
+  async set(
+    key: string,
+    value: string | Buffer,
+    opts?: {ttlMs?: number}
+  ): Promise<void> {
+    await this.redis.set(key, value, {PX: opts?.ttlMs});
   }
 
-  async setJson<T>(key: string, value: T): Promise<void> {
-    await this.redis.set(key, JSON.stringify(value));
+  async setJson<T>(
+    key: string,
+    value: T,
+    opts?: {ttlMs?: number}
+  ): Promise<void> {
+    await this.redis.set(key, JSON.stringify(value), {PX: opts?.ttlMs});
   }
 
   async setList(

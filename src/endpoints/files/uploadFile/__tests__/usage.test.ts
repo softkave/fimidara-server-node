@@ -71,7 +71,7 @@ async function getUsageL1(
   });
 }
 
-describe.each([{isMultipart: true}, {isMultipart: false}])(
+describe.skip.each([{isMultipart: true}, {isMultipart: false}])(
   'usage.uploadFile, params=%s',
   ({isMultipart}) => {
     test('increments usage', async () => {

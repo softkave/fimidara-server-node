@@ -46,7 +46,7 @@ afterAll(async () => {
 describe.each([{isMultipart: true}, {isMultipart: false}])(
   'backend.uploadFile, params=%s',
   ({isMultipart}) => {
-    test.only('file uploaded to closest parent backend', async () => {
+    test('file uploaded to closest parent backend', async () => {
       const insertUserResult = await insertUserForTest();
       const {userToken} = insertUserResult;
       const insertWorkspaceResult = await insertWorkspaceForTest(userToken);

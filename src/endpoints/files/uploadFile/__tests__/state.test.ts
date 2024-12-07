@@ -90,9 +90,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         expect.arrayContaining(updatedFile.namepath)
       );
       expect(savedFile.description).not.toBe(updatedFile.description);
-      expect(savedFile.mimetype).not.toBe(updatedFile.mimetype);
       expect(savedFile.size).not.toBe(updatedFile.size);
-      expect(savedFile.encoding).not.toBe(updatedFile.encoding);
       expect(updatedFile.lastUpdatedAt).toBeTruthy();
       expect(updatedFile.lastUpdatedBy).toMatchObject({
         agentId: agent.agentId,

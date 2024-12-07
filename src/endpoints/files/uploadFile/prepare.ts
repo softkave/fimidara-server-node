@@ -47,15 +47,16 @@ export async function createAndInsertNewFile(params: {
 
 export async function checkFileWriteAvailable(params: {
   file: File;
-  data: UploadFileEndpointParams;
+  clientMultipartId: string | undefined;
   opts: SemanticProviderMutationParams;
 }) {
-  const {file, data, opts} = params;
+  const {file, clientMultipartId, opts} = params;
+
   if (file.isWriteAvailable) {
     return;
-  } else if (file.clientMultipartId === data.clientMultipartId) {
+  } else if (file.clientMultipartId === clientMultipartId) {
     return;
-  } else if (file.multipartTimeout && file.multipartTimeout < Date.now()) {
+  } else if (file.multipartTimeout && file.multipartTimeout > Date.now()) {
     await beginCleanupExpiredMultipartUpload(file, opts);
     return;
   }
@@ -74,7 +75,12 @@ export async function prepareExistingFile(params: {
 }) {
   const {agent, workspace, file, data, skipAuth, opts, closestExistingFolder} =
     params;
-  await checkFileWriteAvailable({file, data, opts});
+
+  await checkFileWriteAvailable({
+    file,
+    opts,
+    clientMultipartId: data.clientMultipartId,
+  });
 
   if (!skipAuth) {
     await checkUploadFileAuth(
@@ -88,7 +94,11 @@ export async function prepareExistingFile(params: {
 
   return await kSemanticModels
     .file()
-    .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
+    .getAndUpdateOneById(
+      file.resourceId,
+      {isWriteAvailable: false, clientMultipartId: data.clientMultipartId},
+      opts
+    );
 }
 
 export async function prepareNewFile(params: {
@@ -107,8 +117,9 @@ export async function prepareNewFile(params: {
     allowRootFolder: false,
   });
 
+  const key = `upload-prepare-file-${data.filepath}`;
   const file = await createOrRetrieve<File | undefined>({
-    key: `upload-prepare-file-${data.filepath}`,
+    key,
     create: async () => {
       return await kSemanticModels.utils().withTxn(async opts => {
         // it's safe (but a bit costly and confusing) to create parent folders and

@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
@@ -75,13 +76,18 @@ describe('deleteFile', () => {
     const clientMultipartId = getNewId();
     const data01 = Buffer.from('Hello world!');
     const data02 = Buffer.from('Hello world!');
-    const {file} = await insertFileForTest(userToken, workspace, {
+    const {rawFile: file} = await insertFileForTest(userToken, workspace, {
       clientMultipartId,
       data: Readable.from([data01]),
+      size: data01.byteLength,
+      part: 1,
     });
     await insertFileForTest(userToken, workspace, {
+      fileId: file.resourceId,
       clientMultipartId,
       data: Readable.from([data02]),
+      size: data02.byteLength,
+      part: 2,
     });
 
     const reqData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
@@ -95,8 +101,9 @@ describe('deleteFile', () => {
     const result = await deleteFile(reqData);
     assertEndpointResultOk(result);
 
+    assert.ok(file.internalMultipartId);
     const {parts} = await getMultipartUploadPartMetas({
-      multipartId: clientMultipartId,
+      multipartId: file.internalMultipartId,
     });
     expect(parts.length).toBe(1);
     expect(parts[0].part).toBe(2);
@@ -105,8 +112,12 @@ describe('deleteFile', () => {
     expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
 
     expect(backend.deleteMultipartUploadPart).toHaveBeenCalledWith({
-      multipartId: clientMultipartId,
+      multipartId: file.internalMultipartId,
       part: 1,
+      fileId: file.resourceId,
+      filepath: stringifyFilenamepath(file),
+      mount: expect.anything(),
+      workspaceId: workspace.resourceId,
     });
     expect(backend.cleanupMultipartUpload).not.toHaveBeenCalled();
   });
@@ -120,13 +131,18 @@ describe('deleteFile', () => {
     const clientMultipartId = getNewId();
     const data01 = Buffer.from('Hello world!');
     const data02 = Buffer.from('Hello world!');
-    const {file} = await insertFileForTest(userToken, workspace, {
+    const {rawFile: file} = await insertFileForTest(userToken, workspace, {
       clientMultipartId,
       data: Readable.from([data01]),
+      size: data01.byteLength,
+      part: 1,
     });
     await insertFileForTest(userToken, workspace, {
+      fileId: file.resourceId,
       clientMultipartId,
       data: Readable.from([data02]),
+      size: data02.byteLength,
+      part: 2,
     });
 
     const reqData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
@@ -139,17 +155,22 @@ describe('deleteFile', () => {
     const result = await deleteFile(reqData);
     assertEndpointResultOk(result);
 
+    assert.ok(file.internalMultipartId);
     const {parts} = await getMultipartUploadPartMetas({
-      multipartId: clientMultipartId,
+      multipartId: file.internalMultipartId,
     });
     expect(parts.length).toBe(0);
 
     const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
-    expect(dbFile?.clientMultipartId).toBeUndefined();
+    expect(dbFile?.clientMultipartId).toBeFalsy();
 
     expect(backend.deleteMultipartUploadPart).not.toHaveBeenCalled();
     expect(backend.cleanupMultipartUpload).toHaveBeenCalledWith({
-      multipartId: clientMultipartId,
+      multipartId: file.internalMultipartId,
+      fileId: file.resourceId,
+      filepath: stringifyFilenamepath(file),
+      mount: expect.anything(),
+      workspaceId: workspace.resourceId,
     });
   });
 });

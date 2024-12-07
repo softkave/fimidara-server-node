@@ -84,6 +84,7 @@ describe('single.uploadFile', () => {
       });
     });
 
+    await kUtilsInjectables.promises().flush();
     const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });

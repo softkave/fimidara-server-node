@@ -482,7 +482,6 @@ export async function insertFileForTest(
     data: testStream,
   };
 
-  assert(input.filepath);
   let dataBuffer: Buffer | undefined = undefined;
 
   if (fileInput.data) {

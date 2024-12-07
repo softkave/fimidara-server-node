@@ -687,10 +687,6 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
               'Continuation token to get the next page of results'
             )
         ),
-        pageSize: mddocConstruct.constructFieldObjectField(
-          false,
-          mddocConstruct.constructFieldNumber()
-        ),
       })
   )
   .setRequestHeaders(

@@ -12,26 +12,40 @@ export class MemoryCacheProvider implements ICacheContext {
     return Promise.resolve(this.cache.get(key) ?? null);
   }
 
-  getJson<T>(key: string): Promise<T | null> {
-    return this.get(key).then(value => (value ? JSON.parse(value) : null));
+  async getJson<T>(key: string): Promise<T | null> {
+    const value = await this.get(key);
+    return value ? (value as T) : null;
   }
 
   getList(keys: string[]): Promise<Array<string | null>> {
     return Promise.resolve(keys.map(key => this.cache.get(key) ?? null));
   }
 
-  getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
-    return this.getList(keys).then(values =>
-      values.map(value => (value ? JSON.parse(value) : null))
-    );
+  async getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
+    const values = await this.getList(keys);
+    return values as Array<T | null>;
   }
 
-  async set(key: string, value: string | Buffer): Promise<void> {
+  async set(
+    key: string,
+    value: string | Buffer,
+    opts?: {ttlMs?: number}
+  ): Promise<void> {
     this.cache.set(key, value);
+    if (opts?.ttlMs) {
+      setTimeout(() => this.cache.delete(key), opts.ttlMs);
+    }
   }
 
-  async setJson<T>(key: string, value: T): Promise<void> {
-    await this.set(key, JSON.stringify(value));
+  async setJson<T>(
+    key: string,
+    value: T,
+    opts?: {ttlMs?: number}
+  ): Promise<void> {
+    this.cache.set(key, value);
+    if (opts?.ttlMs) {
+      setTimeout(() => this.cache.delete(key), opts.ttlMs);
+    }
   }
 
   async setList(
@@ -41,9 +55,7 @@ export class MemoryCacheProvider implements ICacheContext {
   }
 
   async setJsonList<T>(list: Array<{key: string; value: T}>): Promise<void> {
-    await this.setList(
-      list.map(({key, value}) => ({key, value: JSON.stringify(value)}))
-    );
+    list.forEach(({key, value}) => this.cache.set(key, value));
   }
 
   async delete(key: string | string[]): Promise<void> {

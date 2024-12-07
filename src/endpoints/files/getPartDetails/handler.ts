@@ -7,7 +7,7 @@ import {
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getFields} from '../../../utils/extract.js';
 import {validate} from '../../../utils/validate.js';
-import {applyDefaultEndpointPaginationOptions} from '../../pagination.js';
+import {kEndpointConstants} from '../../constants.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {getMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 import {GetPartDetailsEndpoint, PublicPartDetails} from './types.js';
@@ -43,14 +43,13 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
     })
   );
 
-  const pagination = applyDefaultEndpointPaginationOptions(data);
   if (!file.internalMultipartId) {
     return {details: []};
   }
 
   const {parts, continuationToken, isDone} = await getMultipartUploadPartMetas({
     multipartId: file.internalMultipartId,
-    pageSize: pagination.pageSize,
+    pageSize: kEndpointConstants.maxPageSize,
     cursor: data.continuationToken ? parseInt(data.continuationToken) : null,
   });
 

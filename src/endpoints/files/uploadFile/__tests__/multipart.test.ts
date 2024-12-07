@@ -149,6 +149,7 @@ describe('multipart.uploadFile', () => {
       data: Readable.from(buf02),
       size: buf02.byteLength,
       clientMultipartId: '1',
+      fileId: rf01.resourceId,
     });
 
     assert.ok(rf02);
@@ -158,16 +159,18 @@ describe('multipart.uploadFile', () => {
       part: 0,
     });
     assert.ok(partMeta2);
+    expect(rf01.internalMultipartId).toBe(rf02.internalMultipartId);
     expect(partMeta2.size).toBe(buf02.byteLength);
     expect(partMeta2.part).toBe(partMeta.part);
+    expect(partMeta2.multipartId).toBe(rf02.internalMultipartId);
     expect(partMeta2.multipartId).toBe(partMeta.multipartId);
   });
 
   test('parts cleaned and file unlocked on timeout', async () => {
-    const timeout = 5;
+    const timeoutSecs = 5;
     kRegisterUtilsInjectables.suppliedConfig({
       ...kUtilsInjectables.suppliedConfig(),
-      multipartLockTimeoutSeconds: timeout,
+      multipartLockTimeoutSeconds: timeoutSecs,
     });
 
     const {userToken} = await insertUserForTest();
@@ -180,7 +183,7 @@ describe('multipart.uploadFile', () => {
     const {rawFile: rf01} = (await runNext()) ?? {};
     assert.ok(rf01);
 
-    await waitTimeout(timeout + 1);
+    await waitTimeout(timeoutSecs + 1);
     const {runNext: runNextSingle} = await singleFileUpload({
       userToken,
       workspace: rawWorkspace,
@@ -208,37 +211,40 @@ describe('multipart.uploadFile', () => {
       partLength: 3,
     });
 
-    async function wrapOrCatch(fn: () => Promise<unknown>) {
-      try {
-        return {status: 'success', result: await fn()};
-      } catch (e) {
-        return {status: 'error', error: e};
-      }
-    }
-
-    const results01 = await Promise.all([
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 2, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
+    const results01 = await Promise.allSettled([
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 1, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 1, forceRun: true}),
+      runNext({part: 1, forceRun: true}),
     ]);
     // run again
-    const results02 = await Promise.all([
-      wrapOrCatch(() => runNext({part: 0, forceRun: true})),
-      wrapOrCatch(() => runNext({part: 1, forceRun: true})),
+    const results02 = await Promise.allSettled([
+      runNext({part: 1, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 1, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 0, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
+      runNext({part: 2, forceRun: true}),
     ]);
     const results = results01.concat(results02);
     const successResults = results.filter(
       (
         r
-      ): r is {
-        status: 'success';
-        result: NonNullable<Awaited<ReturnType<typeof runNext>>>;
-      } => r.status === 'success' && !isNil(r.result)
+      ): r is PromiseFulfilledResult<
+        NonNullable<Awaited<ReturnType<typeof runNext>>>
+      > => r.status === 'fulfilled' && !isNil(r.value)
     );
     assert.ok(successResults.length);
-    const rfList = successResults.map(r => r.result.rawFile);
+    const rfList = successResults.map(r => r.value.rawFile);
     const multipartIds = rfList.map(rf => rf.internalMultipartId);
     expect(uniq(multipartIds).length).toBe(1);
   });

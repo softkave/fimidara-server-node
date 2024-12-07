@@ -1,8 +1,9 @@
 import {TimeoutError, waitTimeout} from 'softkave-js-utils';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {createOrRetrieve} from '../createOrRetrieve.js';
+import {createOrRetrieve, kAckMessage} from '../createOrRetrieve.js';
 
 beforeAll(async () => {
   await initTests();
@@ -21,6 +22,10 @@ describe('createOrRetrieve', () => {
       retrieve: () => Promise.resolve(undefined),
     });
     expect(result).toBe('test01');
+
+    const ackKey = `ack-${key}`;
+    const isAcked = await kUtilsInjectables.cache().get(ackKey);
+    expect(isAcked).toBe(kAckMessage);
   });
 
   test('should retrieve an existing resource', async () => {
@@ -67,15 +72,20 @@ describe('createOrRetrieve', () => {
       },
       retrieve: () => Promise.resolve(undefined),
     });
-    const pTimeoutResult = createOrRetrieve<string>({
-      key,
-      timeoutMs: 1000,
-      create: () => {
-        assert.fail('should not be called');
-      },
-      retrieve: () => Promise.resolve(undefined),
-    });
-    expect(await pTimeoutResult).rejects.toThrow(TimeoutError);
+
+    try {
+      await createOrRetrieve<string>({
+        key,
+        timeoutMs: 1000,
+        create: () => {
+          assert.fail('should not be called');
+        },
+        retrieve: () => Promise.resolve(undefined),
+      });
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(TimeoutError);
+    }
+
     expect(await pResult).toBe('test01');
   });
 

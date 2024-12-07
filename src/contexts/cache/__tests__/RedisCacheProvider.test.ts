@@ -1,3 +1,4 @@
+import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
@@ -46,6 +47,19 @@ describe('RedisCacheProvider', () => {
     expect(value).toBe('value');
   });
 
+  test('set with ttl', async () => {
+    const [redis] = kUtilsInjectables.redis();
+    const cache = new RedisCacheProvider(redis);
+    const key = 'test' + Math.random();
+    await cache.set(key, 'value', {ttlMs: 100});
+    const value = await cache.get(key);
+    expect(value).toBe('value');
+
+    await waitTimeout(100);
+    const value2 = await cache.get(key);
+    expect(value2).toBeFalsy();
+  });
+
   test('setJson', async () => {
     const [redis] = kUtilsInjectables.redis();
     const cache = new RedisCacheProvider(redis);
@@ -53,6 +67,19 @@ describe('RedisCacheProvider', () => {
     await cache.setJson(key, {test: 'value'});
     const value = await redis.get(key);
     expect(value).toBe('{"test":"value"}');
+  });
+
+  test('setJson with ttl', async () => {
+    const [redis] = kUtilsInjectables.redis();
+    const cache = new RedisCacheProvider(redis);
+    const key = 'test' + Math.random();
+    await cache.setJson(key, {test: 'value'}, {ttlMs: 100});
+    const value = await cache.getJson<{test: string}>(key);
+    expect(value).toEqual({test: 'value'});
+
+    await waitTimeout(100);
+    const value2 = await cache.getJson<{test: string}>(key);
+    expect(value2).toBeFalsy();
   });
 
   test('delete', async () => {

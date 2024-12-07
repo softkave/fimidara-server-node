@@ -1,10 +1,17 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {compact, isNumber, omit} from 'lodash-es';
-import {getNewId, kLoopAsyncSettlementType, OrPromise} from 'softkave-js-utils';
+import {compact, isNumber, merge, omit} from 'lodash-es';
+import {
+  getNewId,
+  kLoopAsyncSettlementType,
+  OrPromise,
+  pathJoin,
+} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {Workspace} from '../../../../definitions/workspace.js';
+import {addRootnameToPath} from '../../../folders/utils.js';
+import {generateTestFileName} from '../../../testUtils/generate/file.js';
 import {
   generateTestFileBinary,
   GenerateTestFileType,
@@ -77,12 +84,23 @@ export const multipartFileUpload = async (params: {
   const {
     userToken,
     workspace,
-    fileInput,
     partLength,
     clientMultipartId,
     imageProps,
     type,
   } = params;
+
+  // fill in missing params to avoid insertFileForTest generating the params
+  // internally leading to mismatch when uploading parts
+  const padEmptyParams: Partial<UploadFileEndpointParams> = {
+    filepath: addRootnameToPath(
+      pathJoin({input: [generateTestFileName()]}),
+      workspace.rootname
+    ),
+    description: faker.lorem.paragraph(),
+    mimetype: 'application/octet-stream',
+  };
+  const fileInput = merge(padEmptyParams, params.fileInput);
 
   const {dataBuffer} = await generateTestFileBinary({
     type,
