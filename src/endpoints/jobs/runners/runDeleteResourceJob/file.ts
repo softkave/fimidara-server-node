@@ -2,7 +2,7 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../../contexts/injection/injectables.js';
-import {UsageRecordDecrementInput} from '../../../../contexts/logic/UsageRecordLogicProvider.js';
+import {UsageRecordDecrementInput} from '../../../../contexts/usage/types.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -130,7 +130,7 @@ async function decrementStorageUsageRecordForFile(params: {
     usage: size,
   };
 
-  await kUtilsInjectables.usageLogic().decrement(kSystemSessionAgent, input);
+  await kUtilsInjectables.usage().decrement(kSystemSessionAgent, input);
 }
 
 const deleteResourceFn: DeleteResourceFn<

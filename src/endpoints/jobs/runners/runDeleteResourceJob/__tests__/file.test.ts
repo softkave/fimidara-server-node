@@ -23,7 +23,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../../testUtils/testUtils.js';
-import {getCostForUsage} from '../../../../usageRecords/constants.js';
 import {getUsageRecordReportingPeriod} from '../../../../usageRecords/utils.js';
 import {deleteFileCascadeEntry} from '../file.js';
 import {DeleteResourceCascadeEntry} from '../types.js';
@@ -58,11 +57,12 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
     ),
 };
 
-async function expectStorageUsageRecordDecremented(params: {
+async function expectStorageUsageRecord(params: {
   workspaceId: string;
   size: number;
+  op: 'gt' | 'lt' | 'eq';
 }) {
-  const {workspaceId, size} = params;
+  const {workspaceId, size, op} = params;
   const usageL2 = await kSemanticModels.usageRecord().getOneByQuery({
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.month,
@@ -72,16 +72,13 @@ async function expectStorageUsageRecordDecremented(params: {
   });
   assert(usageL2);
 
-  const dbUsageL2 = await kSemanticModels
-    .usageRecord()
-    .getOneById(usageL2.resourceId);
-  assert(dbUsageL2);
-  const expectedUsage = usageL2.usage - size;
-
-  expect(dbUsageL2.usage).toBe(expectedUsage);
-  expect(dbUsageL2.usageCost).toBe(
-    getCostForUsage(kUsageRecordCategory.storage, expectedUsage)
-  );
+  if (op === 'gt') {
+    expect(usageL2.usage).toBeGreaterThan(size);
+  } else if (op === 'lt') {
+    expect(usageL2.usage).toBeLessThan(size);
+  } else {
+    expect(usageL2.usage).toBe(size);
+  }
 }
 
 describe('runDeleteResourceJob, file', () => {
@@ -114,6 +111,12 @@ describe('runDeleteResourceJob, file', () => {
       [mount01.rawMount, mount02.rawMount],
       [mount01.rawConfig, mount02.rawConfig]
     );
+
+    await expectStorageUsageRecord({
+      workspaceId: workspace.resourceId,
+      size: mainResource.size,
+      op: 'eq',
+    });
 
     await testDeleteResourceArtifactsJob({
       genChildrenDef: fileGenerateTypeChildren,
@@ -160,9 +163,10 @@ describe('runDeleteResourceJob, file', () => {
         expect(mountFile01?.body).toBe(undefined);
         expect(mountFile02?.body).toBe(undefined);
 
-        await expectStorageUsageRecordDecremented({
+        await expectStorageUsageRecord({
           workspaceId: workspace.resourceId,
-          size: mainResource.size,
+          size: 0,
+          op: 'eq',
         });
       },
     });

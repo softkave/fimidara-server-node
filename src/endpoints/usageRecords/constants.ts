@@ -19,9 +19,9 @@ export const kUsageRecordConstants = {
 
 /** Price is in USD per gb */
 export const kUsageCostsPerGb: Record<UsageRecordCategory, number> = {
-  [kUsageRecordCategory.storageEverConsumed]: 0.0001,
-  [kUsageRecordCategory.bandwidthOut]: 0.0001,
-  [kUsageRecordCategory.bandwidthIn]: 0.0001,
+  [kUsageRecordCategory.storageEverConsumed]: 0.001,
+  [kUsageRecordCategory.bandwidthOut]: 0.001,
+  [kUsageRecordCategory.bandwidthIn]: 0.001,
   [kUsageRecordCategory.storage]: 0.018,
   [kUsageRecordCategory.total]: 0,
 };
@@ -48,6 +48,13 @@ export const getCostForUsage = (
   const costPerUnit = kUsageCostsPerByte[catgory];
   return costPerUnit ? costPerUnit * usage : 0;
 };
+
+export function getStringCostForUsage(
+  catgory: UsageRecordCategory,
+  usage: number
+) {
+  return getCostForUsage(catgory, usage).toFixed(2);
+}
 
 export function getUsageForCost(category: UsageRecordCategory, cost: number) {
   const costPerUnit = kUsageCostsPerByte[category];

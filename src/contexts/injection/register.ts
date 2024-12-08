@@ -129,7 +129,6 @@ import {IEmailProviderContext} from '../email/types.js';
 import {getEmailProvider} from '../email/utils.js';
 import {FileProviderResolver} from '../file/types.js';
 import {defaultFileProviderResolver} from '../file/utils.js';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
@@ -196,6 +195,8 @@ import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {DataSemanticProviderUtils} from '../semantic/utils.js';
 import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {UsageProvider} from '../usage/UsageProvider.js';
+import {IUsageContext} from '../usage/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
 
@@ -335,8 +336,6 @@ export const kRegisterUtilsInjectables = {
   locks: (item: LockStore) => registerToken(kInjectionKeys.locks, item),
   disposables: (item: DisposablesStore) =>
     registerToken(kInjectionKeys.disposables, item),
-  usageLogic: (item: UsageRecordLogicProvider) =>
-    registerToken(kInjectionKeys.usageLogic, item),
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
   shardedRunner: (item: ShardedRunner) =>
     registerToken(kInjectionKeys.shardedRunner, item),
@@ -354,6 +353,7 @@ export const kRegisterUtilsInjectables = {
   ioredis: (item: [Redis, ...Redis[]]) =>
     registerToken(kInjectionKeys.ioredis, item),
   dset: (item: IDSetContext) => registerToken(kInjectionKeys.dset, item),
+  usage: (item: IUsageContext) => registerToken(kInjectionKeys.usage, item),
 };
 
 export function registerDataModelInjectables() {
@@ -536,7 +536,6 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.locks(new LockStore());
   kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());
-  kRegisterUtilsInjectables.usageLogic(new UsageRecordLogicProvider());
   kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
 
   const shardedRunner = new ShardedRunner();
@@ -589,6 +588,7 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.cache(await getCacheContext(suppliedConfig));
   kRegisterUtilsInjectables.redlock(await getRedlockContext(suppliedConfig));
   kRegisterUtilsInjectables.dset(await getDSetContext(suppliedConfig));
+  kRegisterUtilsInjectables.usage(new UsageProvider());
 }
 
 export async function registerInjectables(

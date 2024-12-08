@@ -3,7 +3,6 @@ import {OmitFrom} from 'softkave-js-utils';
 import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
 import {
   UsageRecord,
-  UsageRecordArtifact,
   UsageRecordCategory,
   UsageRecordDropReason,
   UsageRecordFulfillmentStatus,
@@ -28,94 +27,95 @@ import {
   getNewIdForResource,
   newWorkspaceResource,
 } from '../../utils/resource.js';
-import {kSemanticModels} from '../injection/injectables.js';
+import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
-
-export interface UsageRecordIncrementInput {
-  usage: number;
-  workspaceId: string;
-  usageResourceId?: string;
-  category: UsageRecordCategory;
-  artifacts?: UsageRecordArtifact[];
-}
-
-export interface UsageRecordDecrementInput {
-  usage: number;
-  workspaceId: string;
-  category: UsageRecordCategory;
-}
-
-export type UsageRecordIncrementStatus =
-  | {permitted: true}
-  | {
-      permitted: false;
-      reason: UsageRecordDropReason;
-      category: UsageRecordCategory | undefined;
-    };
+import {
+  IUsageCheckResult,
+  IUsageContext,
+  UsageRecordDecrementInput,
+  UsageRecordIncrementInput,
+} from './types.js';
 
 // TODO: cache certain things for speed
-export class UsageRecordLogicProvider {
-  // TODO: insert needs to happen one-by-one per workspace, e.g. use sharded
-  // runner
+export class UsageProvider implements IUsageContext {
   increment = async (
     agent: Agent,
     input: UsageRecordIncrementInput
-  ): Promise<UsageRecordIncrementStatus> => {
-    return await kSemanticModels
-      .utils()
-      .withTxn(async (opts): Promise<UsageRecordIncrementStatus> => {
-        const workspace = await kSemanticModels
-          .workspace()
-          .getOneById(input.workspaceId, opts);
-        assertWorkspace(workspace);
+  ): Promise<IUsageCheckResult> => {
+    return await kUtilsInjectables.redlock().using(
+      // only using workspaceId because all usage ops touch the total usage
+      `usage:${input.workspaceId}`,
+      /** 10 seconds */ 10_000,
+      async () => {
+        const result = await kSemanticModels
+          .utils()
+          .withTxn(async (opts): Promise<IUsageCheckResult> => {
+            const workspace = await kSemanticModels
+              .workspace()
+              .getOneById(input.workspaceId, opts);
+            assertWorkspace(workspace);
 
-        const record = this.makeL1Record(agent, input);
-        const overdueBillCheck = await this.checkWorkspaceBillStatus(
-          agent,
-          workspace,
-          record,
-          opts
-        );
+            const record = this.makeL1Record(agent, input);
+            const overdueBillCheck = await this.checkWorkspaceBillStatus(
+              agent,
+              workspace,
+              record,
+              opts
+            );
 
-        if (overdueBillCheck) {
-          return overdueBillCheck;
-        }
+            if (overdueBillCheck) {
+              return overdueBillCheck;
+            }
 
-        const exceedsUsageCheck = await this.checkExceedsRemainingUsage(
-          agent,
-          workspace,
-          record,
-          opts
-        );
+            const exceedsUsageCheck = await this.checkExceedsRemainingUsage(
+              agent,
+              workspace,
+              record,
+              opts
+            );
 
-        if (exceedsUsageCheck) {
-          return exceedsUsageCheck;
-        }
+            if (exceedsUsageCheck) {
+              return exceedsUsageCheck;
+            }
 
-        return {permitted: true};
-      });
+            return {permitted: true};
+          });
+
+        return result;
+      },
+      {retryCount: 10}
+    );
   };
 
   decrement = async (agent: Agent, input: UsageRecordDecrementInput) => {
-    return await kSemanticModels.utils().withTxn(async opts => {
-      const usageL2 = await this.getUsageL2(
-        agent,
-        {
-          workspaceId: input.workspaceId,
-          ...getUsageRecordReportingPeriod(),
-        },
-        input.category,
-        kUsageRecordFulfillmentStatus.fulfilled,
-        opts
-      );
+    return await kUtilsInjectables.redlock().using(
+      `usage:${input.workspaceId}`,
+      /** 10 seconds */ 10_000,
+      async () => {
+        const result = await kSemanticModels.utils().withTxn(async opts => {
+          const usageL2 = await this.getUsageL2(
+            agent,
+            {
+              workspaceId: input.workspaceId,
+              ...getUsageRecordReportingPeriod(),
+            },
+            input.category,
+            kUsageRecordFulfillmentStatus.fulfilled,
+            opts
+          );
 
-      const usage = Math.max(0, usageL2.usage - input.usage);
-      const usageCost = getCostForUsage(input.category, usage);
+          const usage = Math.max(0, usageL2.usage - input.usage);
+          const usageCost = getCostForUsage(input.category, usage);
 
-      await kSemanticModels
-        .usageRecord()
-        .updateOneById(usageL2.resourceId, {usage, usageCost}, opts);
-    });
+          await kSemanticModels
+            .usageRecord()
+            .updateOneById(usageL2.resourceId, {usage, usageCost}, opts);
+        });
+
+        return result;
+      },
+      {retryCount: 10}
+    );
   };
 
   protected makeL1Record = (agent: Agent, input: UsageRecordIncrementInput) => {
@@ -223,7 +223,7 @@ export class UsageRecordLogicProvider {
     workspace: Workspace,
     record: UsageRecord,
     opts: SemanticProviderMutationParams
-  ): Promise<UsageRecordIncrementStatus | undefined> => {
+  ): Promise<IUsageCheckResult | undefined> => {
     if (workspace.billStatus === kWorkspaceBillStatusMap.billOverdue) {
       await this.dropRecord(
         agent,
@@ -248,7 +248,7 @@ export class UsageRecordLogicProvider {
     workspace: Workspace,
     record: UsageRecord,
     opts: SemanticProviderMutationParams
-  ): Promise<UsageRecordIncrementStatus | undefined> => {
+  ): Promise<IUsageCheckResult | undefined> => {
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] =
       await Promise.all([
         this.getUsageL2(

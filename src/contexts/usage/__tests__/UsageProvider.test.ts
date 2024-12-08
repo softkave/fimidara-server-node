@@ -223,7 +223,7 @@ describe('UsageRecordLogicProvider', () => {
         });
 
         const result = await kUtilsInjectables
-          .usageLogic()
+          .usage()
           .increment(kSystemSessionAgent, {
             workspaceId: workspace.resourceId,
             category,
@@ -267,7 +267,7 @@ describe('UsageRecordLogicProvider', () => {
 
           const usage = faker.number.int({min: 5});
           const result = await kUtilsInjectables
-            .usageLogic()
+            .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
               category,
@@ -306,7 +306,7 @@ describe('UsageRecordLogicProvider', () => {
         const {month, year} = getUsageRecordReportingPeriod();
         const usage = faker.number.int({min: 1});
         const result = await kUtilsInjectables
-          .usageLogic()
+          .usage()
           .increment(kSystemSessionAgent, {
             workspaceId: workspace.resourceId,
             category,
@@ -358,7 +358,7 @@ describe('UsageRecordLogicProvider', () => {
 
           const usage = faker.number.int({min: 1, max: usageThreshold - 1});
           const result = await kUtilsInjectables
-            .usageLogic()
+            .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
               category,
@@ -422,7 +422,7 @@ describe('UsageRecordLogicProvider', () => {
 
         const usage = faker.number.int();
         const usageCost = getCostForUsage(category, usage);
-        await kUtilsInjectables.usageLogic().decrement(kSystemSessionAgent, {
+        await kUtilsInjectables.usage().decrement(kSystemSessionAgent, {
           workspaceId: workspace.resourceId,
           category,
           usage,

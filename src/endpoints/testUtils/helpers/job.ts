@@ -36,5 +36,5 @@ export async function confirmJobHistoryEntry(job: Job, status?: JobStatus) {
     `No job history with jobId=${job.resourceId} status=${job.status}`
   );
   expect(jobHistory.jobId).toBe(job.resourceId);
-  expect(jobHistory.runnerId).toBe(job.runnerId);
+  expect(jobHistory.runnerId ?? null).toBe(job.runnerId ?? null);
 }

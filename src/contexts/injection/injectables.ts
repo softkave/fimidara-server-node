@@ -44,9 +44,9 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types.js';
+import {IDSetContext} from '../dset/types.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {FileProviderResolver} from '../file/types.js';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {IQueueContext} from '../queue/types.js';
 import {IRedlockContext} from '../redlock/types.js';
@@ -81,8 +81,8 @@ import {
 } from '../semantic/types.js';
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {IUsageContext} from '../usage/types.js';
 import {kInjectionKeys} from './keys.js';
-import {IDSetContext} from '../dset/types.js';
 
 export const kSemanticModels = {
   user: () =>
@@ -254,8 +254,6 @@ export const kUtilsInjectables = {
   locks: () => container.resolve<LockStore>(kInjectionKeys.locks),
   disposables: () =>
     container.resolve<DisposablesStore>(kInjectionKeys.disposables),
-  usageLogic: () =>
-    container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
   logger: () => container.resolve<Logger>(kInjectionKeys.logger),
   shardedRunner: () =>
     container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
@@ -272,4 +270,5 @@ export const kUtilsInjectables = {
     ),
   ioredis: () => container.resolve<[Redis, ...Redis[]]>(kInjectionKeys.ioredis),
   dset: () => container.resolve<IDSetContext>(kInjectionKeys.dset),
+  usage: () => container.resolve<IUsageContext>(kInjectionKeys.usage),
 };

@@ -96,7 +96,8 @@ describe('LocalFsFilePersistenceProvider', () => {
     assert(testDir);
     assert(testPartsDir);
     const filepath = generateTestFilepathString({length: 3});
-    const data = Readable.from(['Hello world!']);
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
       workspaceId,
@@ -116,7 +117,7 @@ describe('LocalFsFilePersistenceProvider', () => {
 
     const {nativePath} = backend.toNativePath({mount, fimidaraPath: filepath});
     const savedBuffer = await fse.readFile(nativePath);
-    await expectFileBodyEqual(data, savedBuffer);
+    await expectFileBodyEqual(buffer, savedBuffer);
   });
 
   test('startMultipartUpload', async () => {

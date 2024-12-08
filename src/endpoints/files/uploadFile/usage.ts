@@ -1,4 +1,3 @@
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import RequestData from '../../RequestData.js';
@@ -9,19 +8,15 @@ import {
   incrementStorageUsageRecord,
 } from '../../usageRecords/usageFns.js';
 
-export async function handleStorageUsageRecords(params: {
+export async function handleIntermediateStorageUsageRecords(params: {
   reqData: RequestData;
   file: File;
   size: number;
   isNewFile: boolean;
-  isMultipart: boolean;
-  isLastPart?: boolean;
 }) {
-  const {reqData, file, size, isNewFile, isMultipart, isLastPart} = params;
+  const {reqData, file, size, isNewFile} = params;
   if (!isNewFile) {
-    kUtilsInjectables
-      .promises()
-      .forget(decrementStorageUsageRecord(reqData, file));
+    await decrementStorageUsageRecord(reqData, file);
   }
 
   const fileWithSize = {...file, size, resourceId: undefined};
@@ -35,6 +30,17 @@ export async function handleStorageUsageRecords(params: {
     fileWithSize,
     kFimidaraPermissionActions.uploadFile
   );
+}
+
+export async function handleFinalStorageUsageRecords(params: {
+  reqData: RequestData;
+  file: File;
+  size: number;
+  isMultipart: boolean;
+  isLastPart?: boolean;
+}) {
+  const {reqData, file, size, isMultipart, isLastPart} = params;
+  const fileWithSize = {...file, size, resourceId: undefined};
 
   if (!isMultipart || isLastPart) {
     await incrementStorageUsageRecord(

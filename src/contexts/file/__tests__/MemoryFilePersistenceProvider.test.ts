@@ -56,7 +56,8 @@ describe('MemoryFilePersistenceProvider', () => {
   });
 
   test('uploadFile', async () => {
-    const data = Readable.from(['Hello world!']);
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
       workspaceId,
@@ -83,7 +84,7 @@ describe('MemoryFilePersistenceProvider', () => {
       fileId,
     });
     assert(savedFile.body);
-    await expectFileBodyEqual(data, savedFile.body);
+    await expectFileBodyEqual(buffer, savedFile.body);
   });
 
   test('startMultipartUpload', async () => {
@@ -345,7 +346,8 @@ describe('MemoryFilePersistenceProvider', () => {
   });
 
   test('readFile', async () => {
-    const data = Readable.from(['Hello world!']);
+    const buffer = Buffer.from('Hello world!');
+    const data = Readable.from(buffer);
     const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
     const [mount] = await generateAndInsertFileBackendMountListForTest(1, {
       workspaceId,
@@ -372,7 +374,7 @@ describe('MemoryFilePersistenceProvider', () => {
     });
 
     assert(result.body);
-    await expectFileBodyEqual(data, result.body);
+    await expectFileBodyEqual(buffer, result.body);
   });
 
   test('deleteFiles', async () => {

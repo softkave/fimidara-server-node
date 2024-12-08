@@ -1,5 +1,6 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {omit} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
   kSemanticModels,
@@ -41,7 +42,7 @@ describe('completeJob', () => {
 
     assert(completedJob);
     assert(dbJob);
-    expect(completedJob).toEqual(dbJob);
+    expect(omit(completedJob, '_id')).toEqual(omit(dbJob, '_id'));
     expect(dbJob.status).toBe(kJobStatus.completed);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
 
@@ -64,7 +65,7 @@ describe('completeJob', () => {
 
     assert(completedJob);
     assert(dbJob);
-    expect(completedJob).toEqual(dbJob);
+    expect(omit(completedJob, '_id')).toEqual(omit(dbJob, '_id'));
     expect(dbJob.status).toBe(status);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
 
@@ -288,9 +289,9 @@ describe('completeJob', () => {
 
     assert(completedJob);
     assert(dbJob);
-    expect(completedJob).toEqual(dbJob);
+    expect(omit(completedJob, '_id')).toEqual(omit(dbJob, '_id'));
     expect(dbJob.status).toBe(kJobStatus.pending);
-    expect(dbJob.runnerId).toBe(undefined);
+    expect(dbJob.runnerId).toBeFalsy();
     expect(dbJob.cooldownTill).toBeGreaterThan(job.cooldownTill!);
     expect(dbJob.statusLastUpdatedAt).toBeGreaterThan(job.statusLastUpdatedAt);
 

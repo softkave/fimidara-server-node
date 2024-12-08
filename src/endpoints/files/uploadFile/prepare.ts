@@ -120,6 +120,10 @@ export async function prepareNewFile(params: {
   const key = `upload-prepare-file-${data.filepath}`;
   const file = await createOrRetrieve<File | undefined>({
     key,
+    _debug: {
+      clientMultipartId: data.clientMultipartId,
+      part: data.part,
+    },
     create: async () => {
       return await kSemanticModels.utils().withTxn(async opts => {
         // it's safe (but a bit costly and confusing) to create parent folders and

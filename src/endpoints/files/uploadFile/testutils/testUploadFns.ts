@@ -113,23 +113,24 @@ export const multipartFileUpload = async (params: {
       part * (dataBuffer.byteLength / partLengthOrDefault),
       (part + 1) * (dataBuffer.byteLength / partLengthOrDefault)
     );
-    return await insertFileForTest(userToken, workspace, {
+    const result = await insertFileForTest(userToken, workspace, {
+      clientMultipartId: clientMultipartIdOrDefault,
       ...fileInput,
       part,
       data: Readable.from(partData),
       size: partData.byteLength,
-      clientMultipartId: clientMultipartIdOrDefault,
     });
+    return result;
   };
 
   const uploadLast = async () => {
     const buf = Buffer.alloc(0);
     return await insertFileForTest(userToken, workspace, {
+      clientMultipartId: clientMultipartIdOrDefault,
       ...fileInput,
       part: -1,
       data: Readable.from(buf),
       size: buf.byteLength,
-      clientMultipartId: clientMultipartIdOrDefault,
       isLastPart: true,
     });
   };
@@ -189,7 +190,10 @@ export const multipartFileUpload = async (params: {
       results.push(await runNext({part: -1, ...runParams}));
     } else {
       results = await Promise.all(
-        runOrder.map(part => runNext({part, ...runParams}))
+        runOrder.map(async part => {
+          const result = await runNext({part, ...runParams});
+          return result;
+        })
       );
       results.push(await runNext({part: -1, ...runParams}));
     }

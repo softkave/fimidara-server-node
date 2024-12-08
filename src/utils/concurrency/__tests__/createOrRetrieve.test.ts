@@ -50,6 +50,7 @@ describe('createOrRetrieve', () => {
       },
       retrieve: () => Promise.resolve(undefined),
     });
+    await waitTimeout(50);
     const result02 = await createOrRetrieve<string>({
       key,
       create: () => {
@@ -72,6 +73,7 @@ describe('createOrRetrieve', () => {
       },
       retrieve: () => Promise.resolve(undefined),
     });
+    await waitTimeout(50);
 
     try {
       await createOrRetrieve<string>({

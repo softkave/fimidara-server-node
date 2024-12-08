@@ -28,6 +28,10 @@ import {
   saveFilePartData,
   setFileWritable,
 } from './update.js';
+import {
+  handleFinalStorageUsageRecords,
+  handleIntermediateStorageUsageRecords,
+} from './usage.js';
 import {uploadFileJoiSchema} from './validation.js';
 
 async function handleUploadFile(params: {
@@ -37,8 +41,9 @@ async function handleUploadFile(params: {
   isNewFile: boolean;
   reqData: RequestData<UploadFileEndpointParams>;
 }) {
-  const {data, agent} = params;
+  const {data, agent, reqData, isNewFile} = params;
   let {file} = params;
+
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
     /** initPrimaryBackendOnly */ true
@@ -130,14 +135,12 @@ async function handleUploadFile(params: {
       });
 
       file.internalMultipartId = internalMultipartId;
-      // await handleStorageUsageRecords({
-      //   reqData,
-      //   file,
-      //   isNewFile,
-      //   isMultipart,
-      //   isLastPart: data.isLastPart,
-      //   size: bytesCounterStream.contentLength,
-      // });
+      await handleIntermediateStorageUsageRecords({
+        reqData,
+        file,
+        isNewFile,
+        size: bytesCounterStream.contentLength,
+      });
 
       size = bytesCounterStream.contentLength;
     }
@@ -149,17 +152,25 @@ async function handleUploadFile(params: {
       }
 
       if (data.isLastPart) {
-        const lastPartResult = await handleLastMultipartUpload({
+        const completePartResult = await handleLastMultipartUpload({
           file,
           primaryBackend,
           primaryMount,
           filepath,
           data,
         });
-        size = lastPartResult.size;
-        pMountData = lastPartResult.pMountData;
+        size = completePartResult.size;
+        pMountData = completePartResult.pMountData;
       }
     }
+
+    await handleFinalStorageUsageRecords({
+      reqData,
+      file,
+      isMultipart,
+      size,
+      isLastPart: data.isLastPart,
+    });
 
     const update = getFileUpdate({
       agent,
@@ -200,7 +211,6 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-
   // TODO: use a lock on the file using path, because it's still possible to
   // have concurrency issues in the prepare stage. for that, we need to resolve
   // a filepath as quickly as possible and lock on that.
@@ -210,11 +220,12 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {
-    return await kUtilsInjectables.redlock().using(
+    const result = await kUtilsInjectables.redlock().using(
       `upload-file-${file.resourceId}-${data.part}`,
       /** durationMs */ 10 * 60 * 1000, // 10 minutes
       () => handleUploadFile({file, data, agent, isNewFile, reqData})
     );
+    return result;
   } else {
     return handleUploadFile({file, data, agent, isNewFile, reqData});
   }
