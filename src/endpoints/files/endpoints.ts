@@ -1,6 +1,6 @@
 import busboy from 'busboy';
 import {Request, Response} from 'express';
-import {first, isString, last} from 'lodash-es';
+import {first, isBoolean, isNumber, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
@@ -24,6 +24,7 @@ import {
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getFileDetails from './getFileDetails/handler.js';
+import getPartDetails from './getPartDetails/handler.js';
 import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,
@@ -34,7 +35,6 @@ import {FilesExportedEndpoints} from './types.js';
 import updateFileDetails from './updateFileDetails/handler.js';
 import uploadFile from './uploadFile/handler.js';
 import {UploadFileEndpointParams} from './uploadFile/types.js';
-import getPartDetails from './getPartDetails/handler.js';
 
 interface ActiveBusboy {
   _fileStream?: Readable;
@@ -163,6 +163,11 @@ async function extractUploadFileParamsFromReq(
     req.headers[kFileConstants.headers['x-fimidara-file-description']];
   const mimeType =
     req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
+  const clientMultipartId =
+    req.headers[kFileConstants.headers['x-fimidara-multipart-id']];
+  const part = req.headers[kFileConstants.headers['x-fimidara-multipart-part']];
+  const isLastPart =
+    req.headers[kFileConstants.headers['x-fimidara-multipart-is-last-part']];
 
   const bb = busboy({
     limits: kFileConstants.multipartLimits,
@@ -205,6 +210,11 @@ async function extractUploadFileParamsFromReq(
         // TODO: this is safe because there's Joi validation at the endpoint
         // level
         size: contentLength as unknown as number,
+        clientMultipartId: isString(clientMultipartId)
+          ? clientMultipartId
+          : undefined,
+        part: isNumber(part) ? part : undefined,
+        isLastPart: isBoolean(isLastPart) ? isLastPart : undefined,
       });
     });
 
@@ -231,6 +241,11 @@ async function extractUploadFileParamsFromReq(
         // TODO: this is safe because there's Joi validation at the endpoint
         // level
         size: contentLength as unknown as number,
+        part: isNumber(part) ? part : undefined,
+        isLastPart: isBoolean(isLastPart) ? isLastPart : undefined,
+        clientMultipartId: isString(clientMultipartId)
+          ? clientMultipartId
+          : undefined,
       });
     });
   });

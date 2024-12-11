@@ -81,7 +81,7 @@ export const test_updateFileDetails = async () => {
 };
 
 export const test_uploadFile_nodeReadable = async () => {
-  await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
+  return await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
 export const test_uploadFile_string = async () => {

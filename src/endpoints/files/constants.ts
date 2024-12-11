@@ -35,6 +35,9 @@ export const kFileConstants = {
     'x-fimidara-file-description': 'x-fimidara-file-description',
     'x-fimidara-file-mimetype': 'x-fimidara-file-mimetype',
     'x-fimidara-file-size': 'x-fimidara-file-size',
+    'x-fimidara-multipart-id': 'x-fimidara-multipart-id',
+    'x-fimidara-multipart-part': 'x-fimidara-multipart-part',
+    'x-fimidara-multipart-is-last-part': 'x-fimidara-multipart-is-last-part',
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
   maxPartLength: 10_000,

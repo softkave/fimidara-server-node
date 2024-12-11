@@ -139,3 +139,6 @@ testdir/
 
 # Redis
 dump.rdb
+
+# JS SDK tests
+sdk/js-sdk/src/testutils/testdata

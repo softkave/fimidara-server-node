@@ -13,6 +13,10 @@ async function main() {
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
+    redlockProvider: kFimidaraConfigQueueProvider.memory,
+    cacheProvider: kFimidaraConfigQueueProvider.memory,
+    dsetProvider: kFimidaraConfigQueueProvider.memory,
+    redisURL: '',
   });
 
   try {

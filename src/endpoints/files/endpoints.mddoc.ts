@@ -314,6 +314,21 @@ const uploadFileParams = mddocConstruct
       .setName('UploadFileEndpointParams')
   );
 
+const clientMultipartId = mddocConstruct
+  .constructFieldString()
+  .setDescription(
+    'Client generated unique identifier for multipart uploads. ' +
+      'It is used to identify the same multipart upload across multiple requests'
+  );
+const isLastPart = mddocConstruct
+  .constructFieldBoolean()
+  .setDescription('Whether this is the last part of the multipart upload');
+const part = mddocConstruct
+  .constructFieldNumber()
+  .setDescription(
+    'Part number of the multipart upload. -1 can be used to signify the end of a multipart upload.'
+  );
+
 const uploadFileSdkParamsDef = mddocConstruct
   .constructFieldObject<UploadFileEndpointSdkParams>()
   .setFields({
@@ -334,25 +349,10 @@ const uploadFileSdkParamsDef = mddocConstruct
     mimetype: mddocConstruct.constructFieldObjectField(false, mimetype),
     clientMultipartId: mddocConstruct.constructFieldObjectField(
       false,
-      mddocConstruct
-        .constructFieldString()
-        .setDescription(
-          'Client generated unique identifier for multipart uploads. ' +
-            'It is used to identify the same multipart upload across multiple requests'
-        )
+      clientMultipartId
     ),
-    part: mddocConstruct.constructFieldObjectField(
-      false,
-      mddocConstruct
-        .constructFieldNumber()
-        .setDescription('Part number of the multipart upload')
-    ),
-    isLastPart: mddocConstruct.constructFieldObjectField(
-      false,
-      mddocConstruct
-        .constructFieldBoolean()
-        .setDescription('Whether this is the last part of the multipart upload')
-    ),
+    part: mddocConstruct.constructFieldObjectField(false, part),
+    isLastPart: mddocConstruct.constructFieldObjectField(false, isLastPart),
   })
   .setName('UploadFileEndpointParams');
 
@@ -373,15 +373,24 @@ const updloadFileSdkParams = mddocConstruct
           kFileConstants.headers['x-fimidara-file-description'],
         ];
       case 'encoding':
-        return ['header', 'x-fimidara-file-encoding'];
+        return ['header', kFileConstants.headers['x-fimidara-file-encoding']];
       case 'size':
-        return ['header', 'x-fimidara-file-size'];
+        return ['header', kFileConstants.headers['x-fimidara-file-size']];
       case 'filepath':
         return ['path', 'filepathOrId'];
       case 'fileId':
         return ['path', 'filepathOrId'];
       case 'mimetype':
         return ['header', kFileConstants.headers['x-fimidara-file-mimetype']];
+      case 'clientMultipartId':
+        return ['header', kFileConstants.headers['x-fimidara-multipart-id']];
+      case 'part':
+        return ['header', kFileConstants.headers['x-fimidara-multipart-part']];
+      case 'isLastPart':
+        return [
+          'header',
+          kFileConstants.headers['x-fimidara-multipart-is-last-part'],
+        ];
       default:
         throw new Error(`unknown key ${key}`);
     }
@@ -434,6 +443,16 @@ const uploadFileEndpointHTTPHeaders = mddocConstruct
       false,
       size
     ),
+    'x-fimidara-multipart-id': mddocConstruct.constructFieldObjectField(
+      false,
+      clientMultipartId
+    ),
+    'x-fimidara-multipart-part': mddocConstruct.constructFieldObjectField(
+      false,
+      part
+    ),
+    'x-fimidara-multipart-is-last-part':
+      mddocConstruct.constructFieldObjectField(false, isLastPart),
   })
 
   .setName('UploadFileEndpointHTTPHeaders');
@@ -714,7 +733,7 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
           mddocConstruct.constructFieldArray<PublicPartDetails>().setType(
             mddocConstruct
               .constructFieldObject<PublicPartDetails>()
-              .setName('PublicPartDetails')
+              .setName('PartDetails')
               .setFields({
                 part: mddocConstruct.constructFieldObjectField(
                   true,

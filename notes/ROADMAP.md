@@ -14,8 +14,8 @@
   - write multiparts to local file and stream to backend when merging
   - flush redis on complete testing, and use different database
   - enforce minimum multipart upload size of 5mb bcos of s3
+    - if s3 has a 5mb minimum, then we may need to merge some parts internally
   - add better apis for start, delete part/abort, and end multipart upload
-  - communicate that -1 is used for lastPart
   - usage records
 - byte range download
 - find a solution to redis shutdowns

@@ -240,7 +240,7 @@ function getBinaryType(
     return 'Blob | Readable';
   } else {
     doc.appendTypeImport(['Readable'], 'stream');
-    return 'string | Readable | Blob';
+    return 'string | Readable | Blob | Buffer';
   }
 }
 
@@ -668,6 +668,10 @@ async function main() {
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
+    redlockProvider: kFimidaraConfigQueueProvider.memory,
+    cacheProvider: kFimidaraConfigQueueProvider.memory,
+    dsetProvider: kFimidaraConfigQueueProvider.memory,
+    redisURL: '',
   });
 
   await Promise.all([

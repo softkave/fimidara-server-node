@@ -575,11 +575,14 @@ export async function registerUtilsInjectables(
     kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
   }
 
-  const redis = await getRedis();
-  const ioRedis = await getIoRedis();
-  const redis2 = await getRedis();
-  kRegisterUtilsInjectables.redis([redis, redis2]);
-  kRegisterUtilsInjectables.ioredis([ioRedis]);
+  const {redisURL} = kUtilsInjectables.suppliedConfig();
+  if (redisURL) {
+    const redis = await getRedis();
+    const ioRedis = await getIoRedis();
+    const redis2 = await getRedis();
+    kRegisterUtilsInjectables.redis([redis, redis2]);
+    kRegisterUtilsInjectables.ioredis([ioRedis]);
+  }
 
   kRegisterUtilsInjectables.email(getEmailProvider(suppliedConfig));
   kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));

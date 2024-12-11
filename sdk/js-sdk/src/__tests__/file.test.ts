@@ -1,4 +1,5 @@
 import {describe, expect, test} from 'vitest';
+import {FimidaraEndpoints} from '../indexBrowser.js';
 import {invokeEndpoint} from '../invokeEndpoint.js';
 import {getFimidaraReadFileURL} from '../path/index.js';
 import {getTestFilepath} from '../testutils/execFns/file.js';
@@ -16,9 +17,17 @@ import {
 import {
   getTestFileByteLength,
   getTestFileReadStream,
+  getTestVars,
+  ITestVars,
 } from '../testutils/utils.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
+
+export const fimidaraTestVars: ITestVars = getTestVars();
+export const fimidaraTestInstance = new FimidaraEndpoints({
+  authToken: fimidaraTestVars.authToken,
+  serverURL: fimidaraTestVars.serverURL,
+});
 
 describe('file', () => {
   test('upload file with node.js readable', async () => {
@@ -98,5 +107,17 @@ describe('file', () => {
 
   test('delete file', async () => {
     await test_deleteFile();
+  });
+
+  test('getPartDetails', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    const result = await fimidaraTestInstance.files.getPartDetails({
+      fileId: file.resourceId,
+    });
+
+    expect(result.clientMultipartId).toBeFalsy();
+    expect(result.continuationToken).toBeFalsy();
+    expect(result.details).toHaveLength(0);
+    expect(result.isDone).toBe(true);
   });
 });
