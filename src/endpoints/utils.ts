@@ -69,7 +69,6 @@ export function getPublicErrors(inputError: unknown) {
 }
 
 export function prepareResponseError(error: unknown) {
-  kUtilsInjectables.logger().error(error);
   let statusCode = kEndpointConstants.httpStatusCode.serverError;
   const errors = Array.isArray(error) ? error : [error];
   const preppedErrors = getPublicErrors(errors);
@@ -104,18 +103,35 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
           res.status(kEndpointConstants.httpStatusCode.ok).json(result ?? {});
         }
       } catch (error: unknown) {
-        const {statusCode, preppedErrors} = prepareResponseError(error);
+        try {
+          kUtilsInjectables
+            .logger()
+            .log(`error with ${endpoint.name}, URL: ${req.url}`);
+          kUtilsInjectables.logger().error(error);
 
-        if (handleError) {
-          const deferHandling = handleError(res, preppedErrors, error);
+          const {statusCode, preppedErrors} = prepareResponseError(error);
 
-          if (deferHandling !== true) {
-            return;
+          if (handleError) {
+            const deferHandling = handleError(res, preppedErrors, error);
+
+            if (deferHandling !== true) {
+              return;
+            }
           }
-        }
 
-        const result = {errors: preppedErrors};
-        res.status(statusCode).json(result);
+          const result = {errors: preppedErrors};
+
+          if (res.writable) {
+            if (!res.headersSent) {
+              res.status(statusCode).json(result);
+            } else {
+              res.end(JSON.stringify(result));
+            }
+          }
+        } catch (serverError) {
+          kUtilsInjectables.logger().error(serverError);
+          res.end();
+        }
       } finally {
         toCompactArray(cleanup).forEach(fn =>
           kUtilsInjectables.promises().forget(fn(req, res))

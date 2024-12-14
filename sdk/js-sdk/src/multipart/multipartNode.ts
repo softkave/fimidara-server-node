@@ -31,7 +31,7 @@ export async function multipartUploadNode(params: IMultipartUploadNodeParams) {
   // Local file
   let fileHandle: FileHandle | undefined;
 
-  async function seekReadable(start: number, end: number) {
+  async function seekReadable(start: number) {
     assert.ok(inputReadable);
     if (inputReadable.readableEnded) {
       return;
@@ -40,7 +40,9 @@ export async function multipartUploadNode(params: IMultipartUploadNodeParams) {
     }
 
     while (previousReadableEnd < start) {
-      const chunk = inputReadable.read();
+      const remaining = start - previousReadableEnd;
+      const chunk = inputReadable.read(remaining);
+
       if (chunk) {
         previousReadableEnd += chunk.byteLength;
       } else if (inputReadable.readableEnded) {
@@ -69,12 +71,14 @@ export async function multipartUploadNode(params: IMultipartUploadNodeParams) {
     }
 
     return await lockStore.run('readBufferFromReadable', async () => {
-      await seekReadable(start, end);
+      await seekReadable(start);
 
       let chunks: Buffer = Buffer.alloc(0);
 
       while (chunks.byteLength < size) {
-        const chunk = inputReadable.read();
+        const remaining = size - chunks.byteLength;
+        const chunk = inputReadable.read(remaining);
+
         if (chunk) {
           chunks = Buffer.concat([chunks, chunk]);
           previousReadableEnd += chunk.byteLength;

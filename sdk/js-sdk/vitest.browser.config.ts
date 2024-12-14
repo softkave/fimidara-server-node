@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     testTimeout: 30000, // 30 seconds
     fileParallelism: true,
+    include: ['**/*.browser.{test,spec}.ts'],
+    // include: ['/src/multipart/multipart.browser.test.ts'],
     exclude: [
       '**/build/**',
       '**/node_modules/**',
@@ -13,9 +15,16 @@ export default defineConfig({
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-      '**/*.browser.{test,spec}.ts',
     ],
     env: {...process.env, FIMIDARA_TEST_CWD: process.cwd()},
+    name: 'browser',
+    browser: {
+      enabled: true,
+      // headless: true,
+      name: 'chromium',
+      provider: 'playwright',
+      // https://playwright.dev
+    },
   },
   server: {
     fs: {
@@ -26,5 +35,9 @@ export default defineConfig({
         '/src/testutils/testdata',
       ],
     },
+  },
+  define: {
+    process: JSON.stringify({}),
+    'process.env': JSON.stringify({}),
   },
 });

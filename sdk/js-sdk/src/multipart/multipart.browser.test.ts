@@ -1,103 +1,76 @@
 import {faker} from '@faker-js/faker';
+import {server} from '@vitest/browser/context';
 import assert from 'assert';
-import {randomUUID} from 'crypto';
-import {createReadStream, ensureFile, rm} from 'fs-extra';
-import {readFile, writeFile} from 'fs/promises';
-import path from 'path';
-import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import path from 'path-browserify';
+import {beforeAll, describe, expect, test} from 'vitest';
 import {
   fimidaraAddRootnameToPath,
   FimidaraEndpoints,
   stringifyFimidaraFilepath,
-} from '../index.js';
+} from '../indexBrowser.js';
 import {
   generateTestSlop,
   hasTestSlop,
-} from '../testutils/generate/generateTestSlop.node.js';
+} from '../testutils/generate/generateTestSlop.browser.js';
 import {getTestVars} from '../testutils/utils.common.js';
-import {multipartUploadNode} from './multipartNode.js';
+import {multipartUploadBrowser} from './multipartBrowser.js';
 
-const kMinSlopSize = 20 * 1024 * 1024; // 20MB
 const testVars = getTestVars();
-const slopFilepath = path.normalize(
-  process.cwd() +
-    testVars.testFolderPath +
-    `/slop/node-multipart-slop-${kMinSlopSize}.txt`
-);
-const dFolderpath = path.normalize(
-  process.cwd() + testVars.testFolderPath + '/dF/node'
-);
 const fimidara = new FimidaraEndpoints({
   authToken: testVars.authToken,
   serverURL: testVars.serverURL,
 });
-let slopBuffer: Buffer | undefined;
+
+let slopString: string | undefined;
+let slopBlob: Blob | undefined;
+
+const kMinSlopSize = 20 * 1024 * 1024; // 20MB
+const slopFilepath = path.normalize(
+  testVars.cwd +
+    testVars.testFolderPath +
+    `/slop/browser-multipart-slop-${kMinSlopSize}.txt`
+);
 
 beforeAll(async () => {
   if (!(await hasTestSlop({filepath: slopFilepath, size: kMinSlopSize}))) {
     await generateTestSlop({filepath: slopFilepath, minSize: kMinSlopSize});
   }
 
-  slopBuffer = await readFile(slopFilepath);
+  slopString = await server.commands.readFile(slopFilepath);
+  slopBlob = new Blob([slopString]);
 });
 
-afterAll(async () => {
-  await rm(dFolderpath, {recursive: true, force: true});
-});
-
-async function expectReadEqualsBuffer(fileId: string, initialBuffer: Buffer) {
+async function expectReadEqualsSlop(fileId: string) {
   const readResult = await fimidara.files.readFile(
     {fileId},
-    {responseType: 'stream'}
+    {responseType: 'blob'}
   );
 
-  const dF = path.normalize(dFolderpath + '/' + randomUUID());
-  await ensureFile(dF);
-  await writeFile(dF, readResult);
-  const savedBuffer = await readFile(dF);
+  const savedString = await readResult.text();
 
-  expect(savedBuffer.equals(initialBuffer)).toBe(true);
+  expect(savedString).toEqual(slopString);
 }
 
 describe.each([
   {
-    data: 'readable',
+    data: 'blob',
     getData: () => ({
-      localFilepath: undefined,
-      // data: Readable.from(slopBuffer!),
-      data: createReadStream(slopFilepath),
-      size: slopBuffer!.byteLength,
-    }),
-  },
-  {
-    data: 'buffer',
-    getData: () => ({
-      localFilepath: undefined,
-      data: slopBuffer!,
-      size: slopBuffer!.byteLength,
+      data: slopBlob!,
+      size: slopBlob!.size,
     }),
   },
   {
     data: 'string',
     getData: () => ({
-      localFilepath: undefined,
-      data: slopBuffer!.toString('utf-8'),
-      size: slopBuffer!.byteLength,
+      data: slopString!,
+      size: slopBlob!.size,
     }),
   },
-  {
-    data: 'localFilepath',
-    getData: () => ({
-      localFilepath: slopFilepath,
-      size: slopBuffer!.byteLength,
-      data: undefined,
-    }),
-  },
-])('multipartUploadNode, $data ', ({data: dataType, getData}) => {
+])('multipartUploadBrowser, $data ', ({data, getData}) => {
   test(
     'upload',
     async () => {
-      const {data, size, localFilepath} = getData();
+      const {data, size} = getData();
 
       const description = faker.lorem.sentence();
       const encoding = 'base64';
@@ -106,15 +79,14 @@ describe.each([
         testVars.workspaceRootname
       );
       const mimetype = faker.system.mimeType();
-      const result = await multipartUploadNode({
+      const result = await multipartUploadBrowser({
         data,
-        localFilepath,
         size,
         description,
         encoding,
         filepath,
         mimetype,
-        clientMultipartId: 'test-' + randomUUID(),
+        clientMultipartId: 'test-' + faker.string.uuid(),
         endpoints: fimidara,
       });
 
@@ -123,7 +95,7 @@ describe.each([
       expect(result.file.mimetype).toEqual(mimetype);
       expect(result.file.size).toEqual(size);
 
-      await expectReadEqualsBuffer(result.file.resourceId, slopBuffer!);
+      await expectReadEqualsSlop(result.file.resourceId);
     },
     1000 * 60 * 5 // 5 minutes
   );
@@ -131,27 +103,20 @@ describe.each([
   test(
     'resume',
     async () => {
-      // if (dataType === 'readable') {
-      //   // it's not easy to finely control the size of each part
-      //   // so we skip this test
-      //   return;
-      // }
-
-      const {data, size, localFilepath} = getData();
+      const {data, size} = getData();
 
       const filepath = fimidaraAddRootnameToPath(
         faker.system.filePath(),
         testVars.workspaceRootname
       );
-      const clientMultipartId = 'test-' + randomUUID();
+      const clientMultipartId = 'test-' + faker.string.uuid();
 
       const completedParts: number[] = [];
 
       try {
-        await multipartUploadNode({
+        await multipartUploadBrowser({
           data,
           size,
-          localFilepath,
           filepath,
           clientMultipartId,
           endpoints: fimidara,
@@ -159,7 +124,7 @@ describe.each([
           afterPart: part => {
             completedParts.push(part);
           },
-          beforePart: p => {
+          beforePart: () => {
             if (completedParts.length > 0) {
               throw new Error('Simulated error');
             }
@@ -169,12 +134,11 @@ describe.each([
       } catch (e) {
         // Retry
         const reqAgain = getData();
-        const retryResult = await multipartUploadNode({
+        const retryResult = await multipartUploadBrowser({
           filepath,
           clientMultipartId,
           data: reqAgain.data,
           size: reqAgain.size,
-          localFilepath: reqAgain.localFilepath,
           endpoints: fimidara,
           afterPart: part => {
             completedParts.push(part);
@@ -188,7 +152,7 @@ describe.each([
           )
         ).toEqual(filepath);
 
-        await expectReadEqualsBuffer(retryResult.file.resourceId, slopBuffer!);
+        await expectReadEqualsSlop(retryResult.file.resourceId);
       }
     },
     1000 * 60 * 5 // 5 minutes

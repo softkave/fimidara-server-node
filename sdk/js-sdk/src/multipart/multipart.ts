@@ -6,6 +6,7 @@ import {
   OrPromise,
 } from 'softkave-js-utils';
 import {
+  FimidaraEndpointError,
   FimidaraEndpoints,
   PartDetails,
   UploadFileEndpointParams,
@@ -39,27 +40,35 @@ async function getUploadPartDetails(params: {
   filepath?: string;
   endpoints: FimidaraEndpoints;
 }) {
-  let continuationToken: string | undefined;
-  let details: PartDetails[] = [];
-  let clientMultipartId: string | undefined;
+  try {
+    let continuationToken: string | undefined;
+    let details: PartDetails[] = [];
+    let clientMultipartId: string | undefined;
 
-  while (true) {
-    const result = await params.endpoints.files.getPartDetails({
-      continuationToken,
-      fileId: params.fileId,
-      filepath: params.filepath,
-    });
+    while (true) {
+      const result = await params.endpoints.files.getPartDetails({
+        continuationToken,
+        fileId: params.fileId,
+        filepath: params.filepath,
+      });
 
-    details.push(...result.details);
-    continuationToken = result.continuationToken;
-    clientMultipartId = result.clientMultipartId;
+      details.push(...result.details);
+      continuationToken = result.continuationToken;
+      clientMultipartId = result.clientMultipartId;
 
-    if (!continuationToken || result.isDone || !result.clientMultipartId) {
-      break;
+      if (!continuationToken || result.isDone || !result.clientMultipartId) {
+        break;
+      }
     }
-  }
 
-  return {details, clientMultipartId};
+    return {details, clientMultipartId};
+  } catch (error: unknown) {
+    if (error instanceof FimidaraEndpointError && error.statusCode === 404) {
+      return {details: [], clientMultipartId: undefined};
+    }
+
+    throw error;
+  }
 }
 
 export interface IMultipartUploadParams
@@ -169,9 +178,10 @@ export async function multipartUpload(params: IMultipartUploadParams) {
           ...rest,
           clientMultipartId,
           size: dataOrNull.partData.size,
-          data: dataOrNull.partData.data,
           part: dataOrNull.part,
+          data: dataOrNull.partData.data,
         });
+
         await afterPart?.(dataOrNull.part);
         dataOrNull = await readNext();
       }

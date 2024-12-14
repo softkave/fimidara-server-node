@@ -9,7 +9,7 @@ import {
   fimidaraTestInstance,
   fimidaraTestVars,
 } from '../../../testutils/tests/file.js';
-import {streamToString} from '../../../testutils/utils.js';
+import {streamToString} from '../../../testutils/utils.node.js';
 import {copyToFimidaraFile, copyToLocalFile} from '../copyFile.js';
 
 const kTestLocalFsDir = path.join(process.cwd(), 'testdir/copyFile');

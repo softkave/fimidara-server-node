@@ -3,7 +3,7 @@ import {
   getWorkspaceTestExecFn,
   updateWorkspaceTestExecFn,
 } from '../execFns/workspace.js';
-import {ITestVars, getTestVars} from '../utils.js';
+import {ITestVars, getTestVars} from '../utils.common.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

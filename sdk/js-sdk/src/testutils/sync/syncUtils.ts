@@ -9,7 +9,7 @@ import {getNodeDirContent} from '../../node/getNodeDirContent.js';
 import {stringifyFimidaraFilename} from '../../path/file.js';
 import {uploadFileTestExecFn} from '../execFns/file.js';
 import {fimidaraTestInstance, fimidaraTestVars} from '../tests/file.js';
-import {streamToString} from '../utils.js';
+import {streamToString} from '../utils.node.js';
 
 export async function genLocalFiles(localpath: string, count: number) {
   const text = 'Hello World!';

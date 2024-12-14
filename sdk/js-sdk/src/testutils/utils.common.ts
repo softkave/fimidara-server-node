@@ -1,11 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {createReadStream, ReadStream} from 'fs';
+import {isObject} from 'lodash-es';
 import {indexArray} from 'softkave-js-utils';
-import {Readable} from 'stream';
 import {expect} from 'vitest';
 import {fimidaraAddRootnameToPath} from '../path/fimidaraAddRootnameToPath.js';
-import path = require('path-browserify');
+
+// @ts-ignore
+const env = import.meta.env;
+assert.ok(isObject(env));
 
 export interface ITestVars {
   workspaceId: string;
@@ -14,25 +16,24 @@ export interface ITestVars {
   testFilepath: string;
   testFolderPath: string;
   serverURL?: string;
-}
-
-export function makeTestFilepath(workspaceRootname: string, filepath: string) {
-  return path.posix.normalize('/' + workspaceRootname + '/' + filepath);
+  cwd: string;
 }
 
 export function getTestVars(): ITestVars {
-  const workspaceId = process.env.FIMIDARA_TEST_WORKSPACE_ID;
-  const authToken = process.env.FIMIDARA_TEST_AUTH_TOKEN;
-  const testFilepath = process.env.FIMIDARA_TEST_FILEPATH;
-  const testFolderPath = process.env.FIMIDARA_TEST_FOLDER_PATH;
-  const workspaceRootname = process.env.FIMIDARA_TEST_WORKSPACE_ROOTNAME;
-  const serverURL = process.env.FIMIDARA_SERVER_URL;
+  const workspaceId = env.FIMIDARA_TEST_WORKSPACE_ID;
+  const authToken = env.FIMIDARA_TEST_AUTH_TOKEN;
+  const testFilepath = env.FIMIDARA_TEST_FILEPATH;
+  const testFolderPath = env.FIMIDARA_TEST_FOLDER_PATH;
+  const workspaceRootname = env.FIMIDARA_TEST_WORKSPACE_ROOTNAME;
+  const serverURL = env.FIMIDARA_SERVER_URL;
+  const cwd = env.FIMIDARA_TEST_CWD;
 
   assert.ok(workspaceId);
   assert.ok(authToken);
   assert.ok(testFilepath);
   assert.ok(testFolderPath);
   assert.ok(workspaceRootname);
+  assert.ok(cwd);
 
   return {
     workspaceId,
@@ -41,6 +42,7 @@ export function getTestVars(): ITestVars {
     testFilepath,
     testFolderPath,
     serverURL,
+    cwd,
   };
 }
 
@@ -81,35 +83,6 @@ export function containsExactly<T2, T1 extends T2>(
 
 export function indexByResourceId(resource: {resourceId: string}) {
   return resource.resourceId;
-}
-
-export function streamToString(stream: Readable): Promise<string> {
-  const chunks: Buffer[] = [];
-  return new Promise((resolve, reject) => {
-    stream.on('data', chunk => chunks.push(Buffer.from(chunk)));
-    stream.on('error', err => reject(err));
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-  });
-}
-
-export function getTestFileReadStream(vars: ITestVars) {
-  const incomingFilepath = path.normalize(process.cwd() + vars.testFilepath);
-  return createReadStream(incomingFilepath);
-}
-
-export async function getTestFileString(vars: ITestVars) {
-  const stream = getTestFileReadStream(vars);
-  return await streamToString(stream);
-}
-
-export async function getTestFileByteLength(vars: ITestVars) {
-  const str = await getTestFileString(vars);
-  return Buffer.byteLength(str);
-}
-
-export async function getTestStreamByteLength(stream: ReadStream) {
-  const str = await streamToString(stream);
-  return Buffer.byteLength(str);
 }
 
 export function generateTestFolderpath(vars: ITestVars) {

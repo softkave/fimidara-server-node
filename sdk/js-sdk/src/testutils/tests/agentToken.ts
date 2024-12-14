@@ -10,10 +10,10 @@ import {
 } from '../execFns/agentToken.js';
 import {
   ITestVars,
-  containsNoneIn,
   getTestVars,
+  containsNoneIn,
   indexByResourceId,
-} from '../utils.js';
+} from '../utils.common.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

@@ -13,6 +13,7 @@ import {createOrRetrieve} from '../../../utils/concurrency/createOrRetrieve.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
 import RequestData from '../../RequestData.js';
+import {InvalidRequestError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {fileExtractor} from '../utils.js';
 import {prepareFilepath} from '../utils/prepareFilepath.js';
@@ -56,14 +57,22 @@ async function handleUploadFile(params: {
       file,
     });
     let internalMultipartId: string | undefined;
+    const isSilentPart = isMultipart && data.part === -1;
 
     if (isMultipart) {
-      appAssert(isNumber(data.part));
+      appAssert(
+        isNumber(data.part),
+        new InvalidRequestError('part is required for multipart uploads')
+      );
 
       const key = `upload-multipart-file-${file.resourceId}`;
       internalMultipartId = await createOrRetrieve<string>({
         key,
         create: async () => {
+          appAssert(
+            !isSilentPart,
+            new InvalidRequestError('No pending multipart upload')
+          );
           const startResult = await primaryBackend.startMultipartUpload({
             filepath,
             workspaceId: file.workspaceId,
@@ -97,6 +106,8 @@ async function handleUploadFile(params: {
           return dbFile?.internalMultipartId ?? undefined;
         },
       });
+
+      file.internalMultipartId = internalMultipartId;
     }
 
     fireAndForgetHandleMultipartCleanup({
@@ -107,7 +118,6 @@ async function handleUploadFile(params: {
       file: file as FileWithRuntimeData,
     });
 
-    const isSilentPart = isMultipart && data.part === -1;
     let size = 0;
     let pMountData:
       | Pick<FilePersistenceUploadFileResult<unknown>, 'filepath' | 'raw'>
@@ -134,7 +144,6 @@ async function handleUploadFile(params: {
         multipartId: internalMultipartId,
       });
 
-      file.internalMultipartId = internalMultipartId;
       await handleIntermediateStorageUsageRecords({
         reqData,
         file,

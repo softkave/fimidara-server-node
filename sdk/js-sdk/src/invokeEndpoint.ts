@@ -114,9 +114,6 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
       // The request was made and the server responded with a status code that
       // falls out of the range of 2xx
       const response = (axiosError as any).response as AxiosResponse;
-      // console.log(response.data);
-      // console.log(response.status);
-      // console.log(response.headers);
 
       statusCode = response.status;
       statusText = response.statusText;

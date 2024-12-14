@@ -7,7 +7,7 @@ import {
   GetWorkspaceEndpointParams,
   UpdateWorkspaceEndpointParams,
 } from '../../endpoints/publicTypes.js';
-import {ITestVars} from '../utils.js';
+import {ITestVars} from '../utils.common.js';
 
 export async function getWorkspaceTestExecFn(
   endpoint: FimidaraEndpoints,

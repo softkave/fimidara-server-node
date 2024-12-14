@@ -1,5 +1,4 @@
 import {describe, expect, test} from 'vitest';
-import {FimidaraEndpoints} from '../indexBrowser.js';
 import {invokeEndpoint} from '../invokeEndpoint.js';
 import {getFimidaraReadFileURL} from '../path/index.js';
 import {getTestFilepath} from '../testutils/execFns/file.js';
@@ -17,17 +16,9 @@ import {
 import {
   getTestFileByteLength,
   getTestFileReadStream,
-  getTestVars,
-  ITestVars,
-} from '../testutils/utils.js';
+} from '../testutils/utils.node.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
-
-export const fimidaraTestVars: ITestVars = getTestVars();
-export const fimidaraTestInstance = new FimidaraEndpoints({
-  authToken: fimidaraTestVars.authToken,
-  serverURL: fimidaraTestVars.serverURL,
-});
 
 describe('file', () => {
   test('upload file with node.js readable', async () => {
@@ -118,6 +109,8 @@ describe('file', () => {
     expect(result.clientMultipartId).toBeFalsy();
     expect(result.continuationToken).toBeFalsy();
     expect(result.details).toHaveLength(0);
-    expect(result.isDone).toBe(true);
+    expect(result.isDone).toBe(undefined);
+
+    // TODO: add test for when multipart is in progress
   });
 });

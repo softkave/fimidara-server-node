@@ -141,4 +141,8 @@ testdir/
 dump.rdb
 
 # JS SDK tests
-sdk/js-sdk/src/testutils/testdata
+sdk/js-sdk/src/testutils/testdata/
+
+# DS_Store
+.DS_Store
+**/.DS_Store
