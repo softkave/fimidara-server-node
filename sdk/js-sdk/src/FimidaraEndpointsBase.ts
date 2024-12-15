@@ -30,33 +30,34 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
     let body: AnyObject = {};
 
     if (mapping && data) {
-      Object.keys(data).forEach(key => {
-        const value = data[key];
+      const path: AnyObject = {};
+      Object.entries(data).forEach(([key, value]) => {
         const [mapTo, field] = mapping[key] ?? [];
 
         switch (mapTo) {
-          case 'header': {
+          case 'header':
             headers[field] = value;
             break;
-          }
 
-          case 'query': {
+          case 'query':
             query[field] = value;
             break;
-          }
 
-          case 'path': {
-            endpointPath = endpointPath.replace(
-              `:${field}`,
-              encodeURIComponent(value)
-            );
+          case 'path':
+            path[field] = value;
             break;
-          }
 
           case 'body':
           default:
             body[field || key] = value;
         }
+      });
+
+      Object.entries(path).forEach(([key, value]) => {
+        endpointPath = endpointPath.replace(
+          `:${key}`,
+          encodeURIComponent(value)
+        );
       });
     } else if (data) {
       body = data;

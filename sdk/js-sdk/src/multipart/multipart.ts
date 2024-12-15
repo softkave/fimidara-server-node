@@ -89,6 +89,32 @@ export interface IMultipartUploadParams
   numConcurrentParts?: number;
 }
 
+async function uploadOnce(params: IMultipartUploadParams) {
+  const {
+    size,
+    readFrom,
+    endpoints,
+    beforePart,
+    afterPart,
+    numConcurrentParts,
+    ...rest
+  } = params;
+
+  const {data, size: partSize} = await readFrom(0, size, size);
+  await beforePart?.(0);
+  const result = await endpoints.files.uploadFile({
+    data,
+    description: rest.description,
+    encoding: rest.encoding,
+    mimetype: rest.mimetype,
+    fileId: rest.fileId,
+    filepath: rest.filepath,
+    size: partSize,
+  });
+  await afterPart?.(0);
+  return result;
+}
+
 export async function multipartUpload(params: IMultipartUploadParams) {
   const {
     size,
@@ -107,8 +133,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
   }
 
   if (size < kMinPartSize) {
-    // TODO: implement single part upload
-    throw new Error('Single part upload not implemented');
+    return uploadOnce(params);
   }
 
   const {numStreams, numParts, partSize} = determineMultipartParams(
