@@ -2,7 +2,7 @@
 
 ## Environments
 
-NOTE: the actual `.env` file will vary depending on the environment you are running. There are:
+NOTE: the actual `.env` file will vary depending on the environment you are running.
 
 - `.env.dev` for development.
 - `.env.unit-test` for unit testing.
