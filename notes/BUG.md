@@ -32,3 +32,5 @@
 
 - unauthorized error from express-jwt, also means middleware not working
 - check that creating folders/files with presigned paths is successful
+- MongoDb transaction error crashing the server
+- Redis connection error crashing the server

@@ -66,7 +66,7 @@ async function insertFileMountEntry(params: {
     }
   );
 
-  kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts);
+  await kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts);
 }
 
 export async function completeUploadFile(params: {

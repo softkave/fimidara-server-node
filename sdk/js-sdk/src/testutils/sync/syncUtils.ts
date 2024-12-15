@@ -50,9 +50,11 @@ export async function genFimidaraFiles(fimidarapath: string, count: number) {
     () => faker.number.int({min: 10_000}).toString(),
     count
   );
+
   await Promise.all(
     filenames.map(async fName => {
       const fp = path.posix.join(fimidarapath, fName);
+
       await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
         filepath: fp,
         data: text,

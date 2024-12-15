@@ -106,6 +106,11 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     );
   }
 
+  if (size < kMinPartSize) {
+    // TODO: implement single part upload
+    throw new Error('Single part upload not implemented');
+  }
+
   const {numStreams, numParts, partSize} = determineMultipartParams(
     size,
     numConcurrentParts

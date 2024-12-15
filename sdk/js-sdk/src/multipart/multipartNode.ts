@@ -116,14 +116,14 @@ export async function multipartUploadNode(params: IMultipartUploadNodeParams) {
 
     const fResult = await fileHandle.read(
       Buffer.alloc(end - start),
-      0,
-      end - start,
-      start
+      /** buffer offset */ 0,
+      /** bytes to read */ end - start,
+      /** file offset */ start
     );
 
     return {
       size: fResult.bytesRead,
-      data: fResult.buffer,
+      data: fResult.buffer.subarray(0, fResult.bytesRead),
     };
   }
 

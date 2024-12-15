@@ -17,6 +17,7 @@
     - if s3 has a 5mb minimum, then we may need to merge some parts internally
   - add better apis for start, delete part/abort, and end multipart upload
   - usage records
+  - use multipart upload for fimidara sync
 - byte range download
 - find a solution to redis shutdowns
 - usage revamp

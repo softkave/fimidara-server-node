@@ -83,7 +83,9 @@ export class UsageProvider implements IUsageContext {
 
         return result;
       },
-      {retryCount: 10}
+      // TODO: we need to use a queue here and batch usage ops maybe using a
+      // sharded centalized queue
+      {retryCount: 30}
     );
   };
 

@@ -20,7 +20,7 @@ export default defineConfig({
     name: 'browser',
     browser: {
       enabled: true,
-      // headless: true,
+      headless: true,
       name: 'chromium',
       provider: 'playwright',
       // https://playwright.dev
