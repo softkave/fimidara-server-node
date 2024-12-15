@@ -1,13 +1,20 @@
+import {randomUUID} from 'crypto';
 import {omit} from 'lodash-es';
 import {format} from 'util';
 import {kFimidaraCmdOpts} from '../constants.js';
 import {IFimidaraCmdDef} from '../types.js';
 import {copyFileOrFolder} from './copyFileOrFolder.js';
-import {IFimidaraSyncOpts} from './types.js';
+import {IFimidaraSyncOpts, IFimidaraSyncRuntimeOpts} from './types.js';
 
 export async function fimidaraSync(opts: IFimidaraSyncOpts) {
-  console.log(format(omit(opts, ['authToken'])));
-  await copyFileOrFolder(opts);
+  const clientMultipartIdPrefix = randomUUID();
+  const runtimeOpts: IFimidaraSyncRuntimeOpts = {
+    ...opts,
+    clientMultipartIdPrefix,
+  };
+
+  console.log(format(omit(runtimeOpts, ['authToken'])));
+  await copyFileOrFolder(runtimeOpts);
 }
 
 export const fimidaraSyncCmdDef: IFimidaraCmdDef<IFimidaraSyncOpts> = {

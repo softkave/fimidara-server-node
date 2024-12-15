@@ -2,9 +2,10 @@ import {createReadStream, createWriteStream} from 'fs';
 import {ensureFile, Stats} from 'fs-extra';
 import {stat} from 'fs/promises';
 import {Readable, Writable} from 'stream';
+import {multipartUploadNode} from '../../multipart/multipartNode.js';
 import {getFimidara} from '../fimidara.js';
 import {IFimidaraCmdOpts} from '../types.js';
-import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
+import {IFimidaraSyncRuntimeOpts, kFimidaraSyncDirection} from './types.js';
 
 function copyToStream(rstream: Readable, wstream: Writable) {
   return new Promise<void>((resolve, reject) => {
@@ -36,20 +37,28 @@ export async function copyToFimidaraFile(
   fimidarapath: string,
   localpath: string,
   stats: Pick<Stats, 'size'>,
-  opts: IFimidaraCmdOpts
+  opts: IFimidaraCmdOpts &
+    Pick<IFimidaraSyncRuntimeOpts, 'clientMultipartIdPrefix'>
 ) {
   const rstream = createReadStream(localpath, {autoClose: true});
-  await getFimidara(opts).files.uploadFile({
+  const endpoints = getFimidara(opts);
+  const clientMultipartId = `${opts.clientMultipartIdPrefix}-${Buffer.from(
+    fimidarapath
+  ).toString('base64')}`;
+
+  await multipartUploadNode({
+    endpoints,
+    clientMultipartId,
+    size: stats.size,
     filepath: fimidarapath,
     data: rstream,
-    size: stats.size,
   });
 }
 
 export async function copyFile(
   fimidarapath: string,
   localpath: string,
-  opts: IFimidaraSyncOpts
+  opts: IFimidaraSyncRuntimeOpts
 ) {
   if (
     opts.direction === kFimidaraSyncDirection.up ||

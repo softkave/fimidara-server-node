@@ -80,6 +80,7 @@ describe('copyFile', () => {
       /** opts */ {
         authToken: fimidaraTestVars.authToken,
         serverURL: fimidaraTestVars.serverURL,
+        clientMultipartIdPrefix: 'test001',
       }
     );
 

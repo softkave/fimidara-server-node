@@ -22,6 +22,10 @@ export interface IFimidaraSyncOpts extends IFimidaraCmdOpts {
   matchTree?: boolean;
 }
 
+export interface IFimidaraSyncRuntimeOpts extends IFimidaraSyncOpts {
+  clientMultipartIdPrefix: string;
+}
+
 export const kFileEntryType = {
   file: 'file',
   folder: 'folder',
