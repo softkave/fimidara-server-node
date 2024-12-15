@@ -191,12 +191,6 @@ async function handleUploadFile(params: {
       isLastPart: data.isLastPart,
     });
 
-    console.log('completeUploadFile', {
-      size,
-      part: data.part,
-      inputSize: data.size,
-    });
-
     appAssert(pMountData);
     file = await completeUploadFile({
       agent,
