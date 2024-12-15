@@ -74,6 +74,7 @@ describe('copyFolderFiles', () => {
         authToken: fimidaraTestVars.authToken,
         serverURL: fimidaraTestVars.serverURL,
         direction: 'up',
+        clientMultipartIdPrefix: 'test002',
       },
       await getNodeDirContent({folderpath: localpath}),
       pageSize
@@ -121,6 +122,7 @@ describe('copyFolderFiles', () => {
         authToken: fimidaraTestVars.authToken,
         serverURL: fimidaraTestVars.serverURL,
         direction: 'down',
+        clientMultipartIdPrefix: 'test003',
       },
       await getNodeDirContent({folderpath: localpath}),
       pageSize
@@ -179,6 +181,7 @@ describe('copyFolderFiles', () => {
           authToken: fimidaraTestVars.authToken,
           serverURL: fimidaraTestVars.serverURL,
           direction: 'both',
+          clientMultipartIdPrefix: 'test004',
         },
         await getNodeDirContent({folderpath: localpath}),
         pageSize

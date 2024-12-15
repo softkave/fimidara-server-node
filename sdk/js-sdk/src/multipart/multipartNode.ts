@@ -7,7 +7,7 @@ import {IMultipartUploadParams, multipartUpload} from './multipart.js';
 
 export interface IMultipartUploadNodeParams
   extends Omit<IMultipartUploadParams, 'readFrom' | 'size'> {
-  data: string | Buffer | Readable;
+  data?: string | Buffer | Readable;
   localFilepath?: string;
   size?: number;
 }

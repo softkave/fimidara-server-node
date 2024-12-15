@@ -43,6 +43,7 @@ export class UsageProvider implements IUsageContext {
     input: UsageRecordIncrementInput
   ): Promise<IUsageCheckResult> => {
     return await kUtilsInjectables.redlock().using(
+      // TODO: use a category-specific lock and maybe a queue
       // only using workspaceId because all usage ops touch the total usage
       `usage:${input.workspaceId}`,
       /** 10 seconds */ 10_000,

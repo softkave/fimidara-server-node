@@ -3,7 +3,11 @@ import {Folder} from '../../endpoints/publicTypes.js';
 import {getNodeDirContent} from '../../node/getNodeDirContent.js';
 import {getFimidara} from '../fimidara.js';
 import {copyFolderFiles} from './copyFolderFiles.js';
-import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
+import {
+  IFimidaraSyncOpts,
+  IFimidaraSyncRuntimeOpts,
+  kFimidaraSyncDirection,
+} from './types.js';
 
 async function getFimidaraFolderFolders(
   fimidarapath: string,
@@ -28,7 +32,8 @@ async function getFimidaraFolderFolders(
 async function copyFimidaraFolderFolders(
   fimidarapath: string,
   localpath: string,
-  opts: IFimidaraSyncOpts
+  opts: IFimidaraSyncOpts &
+    Pick<IFimidaraSyncRuntimeOpts, 'clientMultipartIdPrefix'>
 ) {
   const folderPageSize = 10;
   const filePageSize = 10;
@@ -61,7 +66,8 @@ async function copyFimidaraFolderFolders(
 export async function copyFolder(
   fimidarapath: string,
   localpath: string,
-  opts: IFimidaraSyncOpts,
+  opts: IFimidaraSyncOpts &
+    Pick<IFimidaraSyncRuntimeOpts, 'clientMultipartIdPrefix'>,
   filePageSize: number
 ) {
   const dirContent = await getNodeDirContent({folderpath: localpath});

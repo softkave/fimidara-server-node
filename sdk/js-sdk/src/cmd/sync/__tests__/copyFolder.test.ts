@@ -69,6 +69,7 @@ describe('copyFolder', () => {
           matchTree: false,
           authToken: fimidaraTestVars.authToken,
           serverURL: fimidaraTestVars.serverURL,
+          clientMultipartIdPrefix: 'test005',
         },
         pageSize
       );
