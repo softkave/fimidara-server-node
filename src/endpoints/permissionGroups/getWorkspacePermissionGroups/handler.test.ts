@@ -1,6 +1,7 @@
+import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {calculatePageSize, findItemWithField} from '../../../utils/fns.js';
+import {findItemWithField} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

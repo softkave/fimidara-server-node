@@ -10,14 +10,13 @@ import {
   updateFileDetailsTestExecFn,
   uploadFileTestExecFn,
 } from '../execFns/file.js';
+import {ITestVars, getTestVars} from '../utils.common.js';
 import {
-  ITestVars,
   getTestFileReadStream,
   getTestFileString,
   getTestStreamByteLength,
-  getTestVars,
   streamToString,
-} from '../utils.js';
+} from '../utils.node.js';
 
 export const fimidaraTestVars: ITestVars = getTestVars();
 export const fimidaraTestInstance = new FimidaraEndpoints({
@@ -81,7 +80,7 @@ export const test_updateFileDetails = async () => {
 };
 
 export const test_uploadFile_nodeReadable = async () => {
-  await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
+  return await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars);
 };
 
 export const test_uploadFile_string = async () => {

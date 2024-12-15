@@ -452,6 +452,30 @@
                     },
                     "__id": "FieldObjectField",
                     "required": false
+                },
+                "clientMultipartId": {
+                    "data": {
+                        "__id": "FieldString",
+                        "description": "Client generated unique identifier for multipart uploads. It is used to identify the same multipart upload across multiple requests"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "part": {
+                    "data": {
+                        "__id": "FieldNumber",
+                        "description": "Part number of the multipart upload"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
+                },
+                "isLastPart": {
+                    "data": {
+                        "__id": "FieldBoolean",
+                        "description": "Whether this is the last part of the multipart upload"
+                    },
+                    "__id": "FieldObjectField",
+                    "required": false
                 }
             },
             "name": "UploadFileEndpointParams"

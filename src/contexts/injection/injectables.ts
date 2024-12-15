@@ -1,3 +1,5 @@
+import {Redis} from 'ioredis';
+import {RedisClientType} from 'redis';
 import 'reflect-metadata';
 import {
   DisposablesStore,
@@ -16,6 +18,7 @@ import {
 import {ShardedRunner} from '../../utils/shardedRunnerQueue.js';
 import {SessionContextType} from '../SessionContext.js';
 import {AsyncLocalStorageUtils} from '../asyncLocalStorage.js';
+import {ICacheContext} from '../cache/types.js';
 import {
   AgentTokenDataProvider,
   AppDataProvider,
@@ -41,11 +44,12 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types.js';
+import {IDSetContext} from '../dset/types.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {FileProviderResolver} from '../file/types.js';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {IQueueContext} from '../queue/types.js';
+import {IRedlockContext} from '../redlock/types.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
@@ -77,6 +81,7 @@ import {
 } from '../semantic/types.js';
 import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {IUsageContext} from '../usage/types.js';
 import {kInjectionKeys} from './keys.js';
 
 export const kSemanticModels = {
@@ -249,8 +254,6 @@ export const kUtilsInjectables = {
   locks: () => container.resolve<LockStore>(kInjectionKeys.locks),
   disposables: () =>
     container.resolve<DisposablesStore>(kInjectionKeys.disposables),
-  usageLogic: () =>
-    container.resolve<UsageRecordLogicProvider>(kInjectionKeys.usageLogic),
   logger: () => container.resolve<Logger>(kInjectionKeys.logger),
   shardedRunner: () =>
     container.resolve<ShardedRunner>(kInjectionKeys.shardedRunner),
@@ -259,4 +262,13 @@ export const kUtilsInjectables = {
     container.resolve<FimidaraWorkerPool>(kInjectionKeys.workerPool),
   queue: () => container.resolve<IQueueContext>(kInjectionKeys.queue),
   pubsub: () => container.resolve<IPubSubContext>(kInjectionKeys.pubsub),
+  cache: () => container.resolve<ICacheContext>(kInjectionKeys.cache),
+  redlock: () => container.resolve<IRedlockContext>(kInjectionKeys.redlock),
+  redis: () =>
+    container.resolve<[RedisClientType, RedisClientType, ...RedisClientType[]]>(
+      kInjectionKeys.redis
+    ),
+  ioredis: () => container.resolve<[Redis, ...Redis[]]>(kInjectionKeys.ioredis),
+  dset: () => container.resolve<IDSetContext>(kInjectionKeys.dset),
+  usage: () => container.resolve<IUsageContext>(kInjectionKeys.usage),
 };

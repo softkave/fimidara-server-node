@@ -2,6 +2,7 @@ import {faker} from '@faker-js/faker';
 import * as argon2 from 'argon2';
 import assert from 'assert';
 import {add} from 'date-fns';
+import {isNumber} from 'lodash-es';
 import {Readable} from 'stream';
 import {globalSetup} from '../../contexts/globalUtils.js';
 import {
@@ -78,12 +79,17 @@ import {
   generateTestFilepathString,
 } from './generate/file.js';
 import {
+  generateTestFileBinary,
+  GenerateTestFileType,
+  kGenerateTestFileType,
+} from './generate/file/generateTestFileBinary.js';
+import {IGenerateImageProps} from './generate/file/generateTestImage.js';
+import {
   generateFileBackendConfigInput,
   generateFileBackendMountInput,
   generateFileBackendTypeForInput,
 } from './generate/fileBackend.js';
 import {generateTestFolderName} from './generate/folder.js';
-import sharp = require('sharp');
 
 export function getTestEmailProvider() {
   return new MockTestEmailProviderContext();
@@ -454,40 +460,11 @@ export async function insertFolderForTest(
   return {...result, rawFolder};
 }
 
-export interface IGenerateImageProps {
-  width: number;
-  height: number;
-}
-
-export async function generateTestImage(
-  props: IGenerateImageProps = {width: 300, height: 200}
-) {
-  const imgBuffer = await sharp({
-    create: {
-      width: props.width,
-      height: props.height,
-      channels: 4,
-      background: {r: 255, g: 0, b: 0, alpha: 0.5},
-    },
-  })
-    .png()
-    .toBuffer();
-  const imgStream = sharp(imgBuffer).png();
-  return {imgBuffer, imgStream};
-}
-
-export function generateTestTextFile() {
-  const text = faker.lorem.paragraphs(10);
-  const textBuffer = Buffer.from(text);
-  const textStream = Readable.from([textBuffer]);
-  return {textBuffer, textStream};
-}
-
 export async function insertFileForTest(
   userToken: AgentToken | null, // Pass null for public agent
   workspace: Pick<Workspace, 'rootname'>,
   fileInput: Partial<UploadFileEndpointParams> = {},
-  type: 'png' | 'txt' = 'png',
+  type: GenerateTestFileType = kGenerateTestFileType.png,
   imageProps?: IGenerateImageProps
 ) {
   const testBuffer = Buffer.from('Hello world!');
@@ -499,33 +476,25 @@ export async function insertFileForTest(
     ),
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
-    // Not used, because they're replaced either by fileInput or below
+    // Not used, because it's replaced either by `fileInput` or below when we
+    // generate a test file. It's added here to satisfy the type checker.
     size: testBuffer.byteLength,
     data: testStream,
   };
 
-  assert(input.filepath);
   let dataBuffer: Buffer | undefined = undefined;
 
   if (fileInput.data) {
-    assert(fileInput.size, 'size must be provided is data is set');
+    assert(
+      isNumber(fileInput.size),
+      'size param must be provided if data param is set'
+    );
   }
 
   if (!fileInput.data) {
-    if (type === 'png') {
-      const {imgBuffer, imgStream} = await generateTestImage(imageProps);
-      input.data = imgStream;
-      input.mimetype = 'image/png';
-      input.size = imgBuffer.byteLength;
-      dataBuffer = imgBuffer;
-    } else {
-      const {textBuffer, textStream} = generateTestTextFile();
-      input.data = textStream;
-      input.mimetype = 'text/plain';
-      input.encoding = 'utf-8';
-      input.size = textBuffer.byteLength;
-      dataBuffer = textBuffer;
-    }
+    const generated = await generateTestFileBinary({type, imageProps});
+    dataBuffer = generated.dataBuffer;
+    mergeData(input, generated.getInput(), {arrayUpdateStrategy: 'replace'});
   }
 
   mergeData(input, fileInput, {arrayUpdateStrategy: 'replace'});
@@ -544,6 +513,5 @@ export async function insertFileForTest(
       EndpointReusableQueries.getByResourceId(result.file.resourceId)
     );
 
-  assert(dataBuffer);
   return {...result, dataBuffer, rawFile, reqData: reqData};
 }

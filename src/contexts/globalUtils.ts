@@ -7,6 +7,15 @@ export async function globalDispose() {
   kUtilsInjectables.runtimeState().setIsEnded(true);
   await kUtilsInjectables.disposables().awaitDisposeAll();
   await kUtilsInjectables.promises().close().flush();
+
+  const {redisURL} = kUtilsInjectables.suppliedConfig();
+  if (redisURL) {
+    await Promise.allSettled([
+      ...kUtilsInjectables.redis().map(redis => redis.quit()),
+      ...kUtilsInjectables.ioredis().map(redis => redis.quit()),
+    ]);
+  }
+
   await kUtilsInjectables.dbConnection().close();
 }
 

@@ -16,6 +16,9 @@ const fileSchema = ensureMongoTypeFields<File>({
   isReadAvailable: {type: Boolean},
   isWriteAvailable: {type: Boolean},
   version: {type: Number},
+  clientMultipartId: {type: String},
+  internalMultipartId: {type: String},
+  multipartTimeout: {type: Number},
 });
 
 export type FileDocument = Document<File>;

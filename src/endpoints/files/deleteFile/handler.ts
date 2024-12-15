@@ -1,15 +1,18 @@
+import {first} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
+import {Job} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
-import {decrementStorageUsageRecord} from '../../usageRecords/usageFns.js';
+import {InvalidRequestError} from '../../errors.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
+import {beginDeleteFile} from './beginDeleteFile.js';
+import {deleteMultipartUpload} from './deleteMultipartUpload.js';
 import {DeleteFileEndpoint} from './types.js';
-import {beginDeleteFile} from './utils.js';
 import {deleteFileJoiSchema} from './validation.js';
 
 const deleteFile: DeleteFileEndpoint = async reqData => {
@@ -33,18 +36,30 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
     });
   });
 
-  kUtilsInjectables
-    .promises()
-    .forget(decrementStorageUsageRecord(reqData, file));
+  let job: Job | undefined;
+  if (data.clientMultipartId) {
+    appAssert(
+      file.internalMultipartId,
+      new InvalidRequestError('File is not a multipart upload')
+    );
+    await deleteMultipartUpload({
+      file,
+      multipartId: file.internalMultipartId,
+      part: data.part,
+      shouldCleanupFile: true,
+    });
 
-  const [job] = await beginDeleteFile({
-    workspaceId: file.workspaceId,
-    resources: [file],
-    agent,
-  });
-  appAssert(job);
-
-  return {jobId: job.resourceId};
+    return {};
+  } else {
+    const jobs = await beginDeleteFile({
+      agent,
+      workspaceId: file.workspaceId,
+      resources: [file],
+    });
+    job = first(jobs);
+    appAssert(job);
+    return {jobId: job.resourceId};
+  }
 };
 
 export default deleteFile;

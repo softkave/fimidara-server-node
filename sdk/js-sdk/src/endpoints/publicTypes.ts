@@ -224,6 +224,8 @@ export type RevokeCollaboratorEndpointParams = {
 export type DeleteFileEndpointParams = {
   filepath?: string;
   fileId?: string;
+  clientMultipartId?: string;
+  part?: number;
 };
 export type GetFileDetailsEndpointParams = {
   filepath?: string;
@@ -252,6 +254,21 @@ export type File = {
 };
 export type GetFileDetailsEndpointResult = {
   file: File;
+};
+export type GetPartDetailsEndpointParams = {
+  filepath?: string;
+  fileId?: string;
+  continuationToken?: string;
+};
+export type PartDetails = {
+  part: number;
+  size: number;
+};
+export type GetPartDetailsEndpointResult = {
+  clientMultipartId?: string;
+  details: Array<PartDetails>;
+  continuationToken?: string;
+  isDone?: boolean;
 };
 export type ImageResizeFitEnum =
   | 'contain'
@@ -310,11 +327,14 @@ export type UpdateFileDetailsEndpointResult = {
 export type UploadFileEndpointParams = {
   filepath?: string;
   fileId?: string;
-  data: string | Readable | Blob;
+  data: string | Readable | Blob | Buffer;
   description?: string;
   size: number;
   encoding?: string;
   mimetype?: string;
+  clientMultipartId?: string;
+  part?: number;
+  isLastPart?: boolean;
 };
 export type UploadFileEndpointResult = {
   file: File;

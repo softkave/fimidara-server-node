@@ -1,4 +1,8 @@
-import {DeleteObjectsCommand, S3Client} from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  ListMultipartUploadsCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import assert from 'assert';
 import {merge} from 'lodash-es';
 import {Readable} from 'stream';
@@ -9,6 +13,7 @@ import {
 } from '../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {generateTestFilepathString} from '../../../endpoints/testUtils/generate/file.js';
+import {generateTestTextFile} from '../../../endpoints/testUtils/generate/file/generateTestTextFile.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
@@ -24,7 +29,10 @@ import {loopAndCollate, pathJoin, pathSplit} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
-import {FilePersistenceUploadFileParams} from '../types.js';
+import {
+  FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
+} from '../types.js';
 
 // TODO: delete keys when done
 
@@ -109,7 +117,172 @@ describe.skip('S3FilePersistenceProvider', () => {
       workspaceId,
     });
     assert(savedFile.body);
-    expectFileBodyEqual(data, savedFile.body);
+    await expectFileBodyEqual(data, savedFile.body);
+  });
+
+  test('startMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const mount = await getNewMount({workspaceId});
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const backend = getS3BackendInstance();
+    const result = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+
+    expect(result.multipartId).toBeTruthy();
+  });
+
+  test('uploadFile, multipart', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const mount = await getNewMount({workspaceId});
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const data01 = Buffer.from('Hello world!');
+    const stream01 = Readable.from(data01);
+
+    const backend = getS3BackendInstance();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    const result01 = await backend.uploadFile({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+      body: stream01,
+      part: 1,
+    });
+
+    expect(result01.multipartId).toBe(multipartId);
+    expect(result01.part).toBe(1);
+    expect(result01.partId).toBeTruthy();
+  });
+
+  test('completeMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const mount = await getNewMount({workspaceId});
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+    const {dataBuffer: data01, getStream: getStream01} = generateTestTextFile({
+      minSize: 5 * 1024 * 1024, // 5 MB
+    });
+    const {dataBuffer: data02, getStream: getStream02} = generateTestTextFile({
+      minSize: 5 * 1024 * 1024, // 5 MB
+    });
+    const stream01 = getStream01();
+    const stream02 = getStream02();
+
+    const backend = getS3BackendInstance();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    const [result01, result02] = await Promise.all([
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream01,
+        part: 1,
+      }),
+      backend.uploadFile({
+        mount,
+        workspaceId,
+        filepath,
+        fileId,
+        multipartId,
+        body: stream02,
+        part: 2,
+      }),
+    ]);
+    assert(result01.partId);
+    assert(result02.partId);
+    await backend.completeMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+      parts: [
+        {
+          multipartId,
+          part: 1,
+          partId: result01.partId,
+        },
+        {
+          multipartId,
+          part: 2,
+          partId: result02.partId,
+        },
+      ],
+    });
+
+    const savedFile = await backend.readFile({
+      filepath,
+      fileId,
+      mount,
+      workspaceId,
+    });
+    assert(savedFile.body);
+    await expectFileBodyEqual(Buffer.concat([data01, data02]), savedFile.body);
+  });
+
+  test('cleanupMultipartUpload', async () => {
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const mount = await getNewMount({workspaceId});
+    const filepath = generateTestFilepathString({
+      parentNamepath: mount.namepath,
+      length: mount.namepath.length + 2,
+    });
+    const fileId = getNewIdForResource(kFimidaraResourceType.File);
+
+    const backend = getS3BackendInstance();
+    const {multipartId} = await backend.startMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+    });
+    let result = await backend.listFileMultipartUploads({
+      mount,
+      filepath,
+    });
+    expect(result.Uploads?.length).toBeTruthy();
+
+    await backend.cleanupMultipartUpload({
+      mount,
+      workspaceId,
+      filepath,
+      fileId,
+      multipartId,
+    });
+
+    result = await backend.listFileMultipartUploads({
+      mount,
+      filepath,
+    });
+    expect(result.Uploads?.length).toBeFalsy();
   });
 
   test('readFile', async () => {
@@ -138,7 +311,7 @@ describe.skip('S3FilePersistenceProvider', () => {
     });
 
     assert(result.body);
-    expectFileBodyEqual(data, result.body);
+    await expectFileBodyEqual(data, result.body);
   });
 
   test('deleteFiles', async () => {
@@ -374,7 +547,9 @@ describe.skip('S3FilePersistenceProvider', () => {
 });
 
 class TestS3Provider extends S3FilePersistenceProvider {
-  async uploadFile(params: FilePersistenceUploadFileParams) {
+  async uploadFile(
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> {
     const {nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
@@ -382,7 +557,26 @@ class TestS3Provider extends S3FilePersistenceProvider {
     keysToCleanup.push(nativePath);
     const pFile = await super.uploadFile(params);
 
-    return {filepath: pFile.filepath, raw: pFile.raw};
+    return pFile;
+  }
+
+  async listFileMultipartUploads(
+    params: Pick<FilePersistenceUploadFileParams, 'filepath' | 'mount'> & {
+      size?: number;
+    }
+  ) {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    const key = this.formatKey(nativePath, {removeStartingSeparator: true});
+    const command = new ListMultipartUploadsCommand({
+      Bucket: bucket,
+      Prefix: key,
+    });
+
+    const result = await this.s3.send(command);
+    return result;
   }
 }
 

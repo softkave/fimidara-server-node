@@ -51,15 +51,6 @@ export type FimidaraConfigQueueProvider = ValueOf<
   typeof kFimidaraConfigQueueProvider
 >;
 
-export const kFimidaraConfigPubSubProvider = {
-  redis: 'redis',
-  memory: 'mem',
-} as const;
-
-export type FimidaraConfigPubSubProvider = ValueOf<
-  typeof kFimidaraConfigPubSubProvider
->;
-
 export interface AWSConfig {
   accessKeyId: string;
   secretAccessKey: string;
@@ -92,6 +83,8 @@ export type FimidaraSuppliedConfig = Partial<{
   // File
   fileBackend: FimidaraConfigFilePersistenceProvider;
   localFsDir?: string;
+  localPartsFsDir?: string;
+  multipartLockTimeoutSeconds?: number;
 
   // Email
   emailProvider: FimidaraConfigEmailProvider;
@@ -141,9 +134,12 @@ export type FimidaraSuppliedConfig = Partial<{
     sesEmailEncoding: string;
   }>;
 
+  // Redis
+  redisURL: string;
+  redisDatabase: number;
+
   // Queues
   queueProvider: FimidaraConfigQueueProvider;
-  queueRedisURL: string;
   addFolderQueueStart: number;
   addFolderQueueEnd: number;
   addFolderQueueNo: number[];
@@ -151,9 +147,17 @@ export type FimidaraSuppliedConfig = Partial<{
   addFolderQueuePrefix: string;
 
   // PubSub
-  pubSubProvider: FimidaraConfigPubSubProvider;
-  pubSubRedisURL: string;
+  pubSubProvider: FimidaraConfigQueueProvider;
   addFolderPubSubChannelPrefix: string;
+
+  // Cache
+  cacheProvider: FimidaraConfigQueueProvider;
+
+  // Redlock
+  redlockProvider: FimidaraConfigQueueProvider;
+
+  // Distributed Set
+  dsetProvider: FimidaraConfigQueueProvider;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

@@ -16,7 +16,7 @@ import {
 import {
   getTestFileByteLength,
   getTestFileReadStream,
-} from '../testutils/utils.js';
+} from '../testutils/utils.node.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
 
@@ -98,5 +98,19 @@ describe('file', () => {
 
   test('delete file', async () => {
     await test_deleteFile();
+  });
+
+  test('getPartDetails', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    const result = await fimidaraTestInstance.files.getPartDetails({
+      fileId: file.resourceId,
+    });
+
+    expect(result.clientMultipartId).toBeFalsy();
+    expect(result.continuationToken).toBeFalsy();
+    expect(result.details).toHaveLength(0);
+    expect(result.isDone).toBe(undefined);
+
+    // TODO: add test for when multipart is in progress
   });
 });

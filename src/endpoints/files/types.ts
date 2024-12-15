@@ -8,6 +8,7 @@ import {
 } from '../types.js';
 import {DeleteFileEndpoint} from './deleteFile/types.js';
 import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
+import {GetPartDetailsEndpoint} from './getPartDetails/types.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
@@ -26,6 +27,9 @@ export type UploadFileEndpointHTTPHeaders =
     'x-fimidara-file-description'?: string;
     'x-fimidara-file-mimetype'?: string;
     'x-fimidara-file-size'?: number;
+    'x-fimidara-multipart-id'?: string;
+    'x-fimidara-multipart-part'?: number;
+    'x-fimidara-multipart-is-last-part'?: boolean;
     'content-length': number;
   };
 
@@ -58,6 +62,8 @@ export type DeleteFileHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
 export type GetFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetFileDetailsEndpoint>;
+export type GetPartDetailsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<GetPartDetailsEndpoint>;
 export type UpdateFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsEndpoint>;
 export type UploadFileEndpointSdkParams = UploadFileEndpointParams;
@@ -78,6 +84,7 @@ export type FilesExportedEndpoints = {
   getFileDetails: GetFileDetailsHttpEndpoint;
   updateFileDetails: UpdateFileDetailsHttpEndpoint;
   uploadFile: UploadFileHttpEndpoint;
+  getPartDetails: GetPartDetailsHttpEndpoint;
 };
 
 export type FileMatcherPathParameters = {

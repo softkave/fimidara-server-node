@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 
 import assert from 'assert';
+import {Redis} from 'ioredis';
 import {construct} from 'js-accessor';
 import {isFunction} from 'lodash-es';
+import {RedisClientType} from 'redis';
 import {
   AnyFn,
   DisposableResource,
@@ -69,6 +71,8 @@ import {
   AsyncLocalStorageUtils,
   kAsyncLocalStorageUtils,
 } from '../asyncLocalStorage.js';
+import {ICacheContext} from '../cache/types.js';
+import {getCacheContext} from '../cache/utils.js';
 import {MongoDataProviderUtils} from '../data/MongoDataProviderUtils.js';
 import {
   AgentTokenMongoDataProvider,
@@ -119,15 +123,19 @@ import {
   UserDataProvider,
   WorkspaceDataProvider,
 } from '../data/types.js';
+import {IDSetContext} from '../dset/types.js';
+import {getDSetContext} from '../dset/utils.js';
 import {IEmailProviderContext} from '../email/types.js';
 import {getEmailProvider} from '../email/utils.js';
 import {FileProviderResolver} from '../file/types.js';
 import {defaultFileProviderResolver} from '../file/utils.js';
-import {UsageRecordLogicProvider} from '../logic/UsageRecordLogicProvider.js';
 import {IPubSubContext} from '../pubsub/types.js';
 import {getPubSubContext} from '../pubsub/utils.js';
 import {IQueueContext} from '../queue/types.js';
 import {getQueueContext} from '../queue/utils.js';
+import {getIoRedis, getRedis} from '../redis.js';
+import {IRedlockContext} from '../redlock/types.js';
+import {getRedlockContext} from '../redlock/utils.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {getSecretsProvider} from '../secrets/utils.js';
@@ -187,6 +195,8 @@ import {SemanticUserProviderType} from '../semantic/user/types.js';
 import {DataSemanticProviderUtils} from '../semantic/utils.js';
 import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
+import {UsageProvider} from '../usage/UsageProvider.js';
+import {IUsageContext} from '../usage/types.js';
 import {kDataModels, kUtilsInjectables} from './injectables.js';
 import {kInjectionKeys} from './keys.js';
 
@@ -303,7 +313,6 @@ export const kRegisterDataModels = {
 };
 
 export const kRegisterUtilsInjectables = {
-  // config: (item: FimidaraConfig) => register(kInjectionKeys.config, item),
   suppliedConfig: (item: FimidaraSuppliedConfig) =>
     registerToken(kInjectionKeys.suppliedConfig, item),
   runtimeConfig: (item: FimidaraRuntimeConfig) =>
@@ -327,8 +336,6 @@ export const kRegisterUtilsInjectables = {
   locks: (item: LockStore) => registerToken(kInjectionKeys.locks, item),
   disposables: (item: DisposablesStore) =>
     registerToken(kInjectionKeys.disposables, item),
-  usageLogic: (item: UsageRecordLogicProvider) =>
-    registerToken(kInjectionKeys.usageLogic, item),
   logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
   shardedRunner: (item: ShardedRunner) =>
     registerToken(kInjectionKeys.shardedRunner, item),
@@ -338,6 +345,15 @@ export const kRegisterUtilsInjectables = {
     registerToken(kInjectionKeys.workerPool, item),
   queue: (item: IQueueContext) => registerToken(kInjectionKeys.queue, item),
   pubsub: (item: IPubSubContext) => registerToken(kInjectionKeys.pubsub, item),
+  cache: (item: ICacheContext) => registerToken(kInjectionKeys.cache, item),
+  redlock: (item: IRedlockContext) =>
+    registerToken(kInjectionKeys.redlock, item),
+  redis: (item: [RedisClientType, RedisClientType, ...RedisClientType[]]) =>
+    registerToken(kInjectionKeys.redis, item),
+  ioredis: (item: [Redis, ...Redis[]]) =>
+    registerToken(kInjectionKeys.ioredis, item),
+  dset: (item: IDSetContext) => registerToken(kInjectionKeys.dset, item),
+  usage: (item: IUsageContext) => registerToken(kInjectionKeys.usage, item),
 };
 
 export function registerDataModelInjectables() {
@@ -520,7 +536,6 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.locks(new LockStore());
   kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());
-  kRegisterUtilsInjectables.usageLogic(new UsageRecordLogicProvider());
   kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
 
   const shardedRunner = new ShardedRunner();
@@ -560,10 +575,23 @@ export async function registerUtilsInjectables(
     kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
   }
 
+  const {redisURL} = kUtilsInjectables.suppliedConfig();
+  if (redisURL) {
+    const redis = await getRedis();
+    const ioRedis = await getIoRedis();
+    const redis2 = await getRedis();
+    kRegisterUtilsInjectables.redis([redis, redis2]);
+    kRegisterUtilsInjectables.ioredis([ioRedis]);
+  }
+
   kRegisterUtilsInjectables.email(getEmailProvider(suppliedConfig));
   kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));
   kRegisterUtilsInjectables.queue(await getQueueContext(suppliedConfig));
   kRegisterUtilsInjectables.pubsub(await getPubSubContext(suppliedConfig));
+  kRegisterUtilsInjectables.cache(await getCacheContext(suppliedConfig));
+  kRegisterUtilsInjectables.redlock(await getRedlockContext(suppliedConfig));
+  kRegisterUtilsInjectables.dset(await getDSetContext(suppliedConfig));
+  kRegisterUtilsInjectables.usage(new UsageProvider());
 }
 
 export async function registerInjectables(

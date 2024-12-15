@@ -15,9 +15,9 @@ import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFolderpath,
 } from '../../path/index.js';
-import {ITestVars} from '../utils.js';
 import {uploadFileTestExecFn} from './file.js';
 import path = require('path-browserify');
+import {ITestVars} from '../utils.common.js';
 
 export async function deleteFolderTestExecFn(
   endpoint: FimidaraEndpoints,

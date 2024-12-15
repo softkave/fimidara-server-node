@@ -8,12 +8,16 @@ import {stringifyFimidaraFilename} from '../../path/index.js';
 import {getFimidara} from '../fimidara.js';
 import {IFimidaraCmdOpts} from '../types.js';
 import {copyToFimidaraFile, copyToLocalFile} from './copyFile.js';
-import {IFimidaraSyncOpts, kFimidaraSyncDirection} from './types.js';
+import {IFimidaraSyncRuntimeOpts, kFimidaraSyncDirection} from './types.js';
 
 export async function copyFolderFiles(
   fimidarapath: string,
   localpath: string,
-  opts: IFimidaraCmdOpts & Pick<IFimidaraSyncOpts, 'direction' | 'matchTree'>,
+  opts: IFimidaraCmdOpts &
+    Pick<
+      IFimidaraSyncRuntimeOpts,
+      'direction' | 'matchTree' | 'clientMultipartIdPrefix'
+    >,
   dirContent: Awaited<ReturnType<typeof getNodeDirContent>>,
   pageSize = 20
 ) {

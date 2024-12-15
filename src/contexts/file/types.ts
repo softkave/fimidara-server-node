@@ -30,6 +30,12 @@ interface FolderpathMatcher {
   folderpath: string;
 }
 
+export interface FilePersistenceUploadPartResult {
+  part: number | number;
+  multipartId: string;
+  partId: string;
+}
+
 export interface FilePersistenceUploadFileParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
@@ -38,12 +44,15 @@ export interface FilePersistenceUploadFileParams
   mimetype?: string;
   encoding?: string;
   fileId: string;
+  part?: number;
+  multipartId?: string | null;
 }
 
 export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
   PersistedFileDescription<TRaw>,
   'filepath' | 'raw'
->;
+> &
+  Partial<FilePersistenceUploadPartResult>;
 
 export interface FilePersistenceGetFileParams
   extends FilePersistenceDefaultParams,
@@ -162,12 +171,64 @@ export interface FimidaraToFilePersistencePathResult {
   nativePath: string;
 }
 
+export interface FilePersistenceCompleteMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+  multipartId: string;
+  parts: FilePersistenceUploadPartResult[];
+}
+
+export interface FilePersistenceCompleteMultipartUploadResult {
+  filepath: string;
+  raw: unknown;
+}
+
+export interface FilePersistenceCleanupMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+  multipartId: string;
+}
+
+export interface FilePersistenceStartMultipartUploadParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  fileId: string;
+  mount: FileBackendMount;
+}
+
+export interface FilePersistenceStartMultipartUploadResult {
+  multipartId: string;
+}
+
+export interface FilePersistenceDeleteMultipartUploadPartParams
+  extends FilePersistenceDefaultParams,
+    FilepathMatcher {
+  multipartId: string;
+  part: number;
+}
+
 // TODO: implement a better way to specify TRaw
 export interface FilePersistenceProvider extends DisposableResource {
   supportsFeature: (feature: FilePersistenceProviderFeature) => boolean;
   uploadFile: (
     params: FilePersistenceUploadFileParams
   ) => Promise<FilePersistenceUploadFileResult>;
+  completeMultipartUpload: (
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) => Promise<FilePersistenceCompleteMultipartUploadResult>;
+  cleanupMultipartUpload: (
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) => Promise<void>;
+  deleteMultipartUploadPart: (
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) => Promise<void>;
+  startMultipartUpload: (
+    params: FilePersistenceStartMultipartUploadParams
+  ) => Promise<FilePersistenceStartMultipartUploadResult>;
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceDescribeFileParams

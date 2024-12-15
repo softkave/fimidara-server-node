@@ -46,6 +46,8 @@ import {
   DeleteFileEndpointParams,
   GetFileDetailsEndpointParams,
   GetFileDetailsEndpointResult,
+  GetPartDetailsEndpointParams,
+  GetPartDetailsEndpointResult,
   ReadFileEndpointParams,
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult,
@@ -402,6 +404,19 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       opts
     );
   };
+  getPartDetails = async (
+    props?: GetPartDetailsEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<GetPartDetailsEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/getPartDetails',
+        method: 'POST',
+      },
+      opts
+    );
+  };
   readFile = async <TResponseType extends 'blob' | 'stream'>(
     props?: ReadFileEndpointParams,
     opts: FimidaraEndpointDownloadBinaryOpts<TResponseType> = {
@@ -448,6 +463,9 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       size: ['header', 'x-fimidara-file-size'],
       encoding: ['header', 'x-fimidara-file-encoding'],
       mimetype: ['header', 'x-fimidara-file-mimetype'],
+      clientMultipartId: ['header', 'x-fimidara-multipart-id'],
+      part: ['header', 'x-fimidara-multipart-part'],
+      isLastPart: ['header', 'x-fimidara-multipart-is-last-part'],
     } as const;
     return this.executeJson(
       {

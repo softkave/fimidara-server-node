@@ -102,6 +102,13 @@ export type DeleteResourceJobParams = DeleteResourceCascadeFnDefaultArgs & {
   isRemoveCollaborator?: true;
 };
 
+export type DeleteFilePartJobParams = DeleteResourceCascadeFnDefaultArgs & {
+  clientMultipartId: string;
+  part: number;
+  internalMultipartId: string;
+  internalPartId: string;
+};
+
 export interface DeleteResourceJobMeta {
   getArtifacts?: PartialRecord<string, {page: number; pageSize: number}>;
   deleteArtifacts?: PartialRecord<string, {done: boolean}>;

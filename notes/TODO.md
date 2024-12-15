@@ -57,6 +57,7 @@
 - when surfacing jobs, make sure to not surface all info because a job can start
   a job owned by a different workspace, like remove collaborator is linked to
   unassigning a permission group owned by fimidara
+- check that read available works for all file providers, local, s3, etc.
 
 ## JS SDK
 

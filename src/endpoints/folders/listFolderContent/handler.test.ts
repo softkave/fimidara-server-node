@@ -1,12 +1,9 @@
+import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {
-  calculatePageSize,
-  getResourceId,
-  pathJoin,
-} from '../../../utils/fns.js';
+import {getResourceId, pathJoin} from '../../../utils/fns.js';
 import addPermissionItems from '../../permissionItems/addItems/handler.js';
 import {AddPermissionItemsEndpointParams} from '../../permissionItems/addItems/types.js';
 import RequestData from '../../RequestData.js';

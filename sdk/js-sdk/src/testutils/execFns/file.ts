@@ -17,11 +17,8 @@ import {
   stringifyFimidaraFilepath,
 } from '../../path/index.js';
 import {FimidaraEndpointDownloadBinaryOpts} from '../../types.js';
-import {
-  getTestFileByteLength,
-  getTestFileReadStream,
-  ITestVars,
-} from '../utils.js';
+import {ITestVars} from '../utils.common.js';
+import {getTestFileByteLength, getTestFileReadStream} from '../utils.node.js';
 
 export async function deleteFileTestExecFn(
   endpoint: FimidaraEndpoints,

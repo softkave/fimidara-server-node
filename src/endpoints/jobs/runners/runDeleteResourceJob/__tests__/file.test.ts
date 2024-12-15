@@ -1,11 +1,17 @@
 import {flatten} from 'lodash-es';
 import {Readable} from 'stream';
-import {afterAll, beforeAll, describe, expect, test} from 'vitest';
+import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FilePersistenceProvider} from '../../../../../contexts/file/types.js';
+import {kSemanticModels} from '../../../../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
 import {File} from '../../../../../definitions/file.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
+import {
+  kUsageRecordCategory,
+  kUsageRecordFulfillmentStatus,
+  kUsageSummationType,
+} from '../../../../../definitions/usageRecord.js';
 import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../../../files/utils.js';
 import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
@@ -17,6 +23,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../../testUtils/testUtils.js';
+import {getUsageRecordReportingPeriod} from '../../../../usageRecords/utils.js';
 import {deleteFileCascadeEntry} from '../file.js';
 import {DeleteResourceCascadeEntry} from '../types.js';
 import {
@@ -50,6 +57,30 @@ const fileGenerateTypeChildren: GenerateTypeChildrenDefinition<File> = {
     ),
 };
 
+async function expectStorageUsageRecord(params: {
+  workspaceId: string;
+  size: number;
+  op: 'gt' | 'lt' | 'eq';
+}) {
+  const {workspaceId, size, op} = params;
+  const usageL2 = await kSemanticModels.usageRecord().getOneByQuery({
+    status: kUsageRecordFulfillmentStatus.fulfilled,
+    summationType: kUsageSummationType.month,
+    category: kUsageRecordCategory.storage,
+    ...getUsageRecordReportingPeriod(),
+    workspaceId,
+  });
+  assert(usageL2);
+
+  if (op === 'gt') {
+    expect(usageL2.usage).toBeGreaterThan(size);
+  } else if (op === 'lt') {
+    expect(usageL2.usage).toBeLessThan(size);
+  } else {
+    expect(usageL2.usage).toBe(size);
+  }
+}
+
 describe('runDeleteResourceJob, file', () => {
   test('runDeleteResourceJobArtifacts', async () => {
     const mountToProviderMap: Record<string, FilePersistenceProvider> = {};
@@ -81,6 +112,12 @@ describe('runDeleteResourceJob, file', () => {
       [mount01.rawConfig, mount02.rawConfig]
     );
 
+    await expectStorageUsageRecord({
+      workspaceId: workspace.resourceId,
+      size: mainResource.size,
+      op: 'eq',
+    });
+
     await testDeleteResourceArtifactsJob({
       genChildrenDef: fileGenerateTypeChildren,
       deleteCascadeDef:
@@ -89,6 +126,7 @@ describe('runDeleteResourceJob, file', () => {
       genResourceFn: () => Promise.resolve(mainResource),
       genWorkspaceFn: () => Promise.resolve(workspace.resourceId),
       genOtherFn: async () => {
+        assert(dataBuffer);
         await Promise.all([
           providersMap[mount01.rawMount.resourceId]?.uploadFile({
             workspaceId: workspace.resourceId,
@@ -124,6 +162,12 @@ describe('runDeleteResourceJob, file', () => {
 
         expect(mountFile01?.body).toBe(undefined);
         expect(mountFile02?.body).toBe(undefined);
+
+        await expectStorageUsageRecord({
+          workspaceId: workspace.resourceId,
+          size: 0,
+          op: 'eq',
+        });
       },
     });
   });

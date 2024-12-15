@@ -77,55 +77,12 @@ export function reverseMap<K extends string, V extends string>(
   return r;
 }
 
-export function getRandomArbitrary(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
-
-export function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  // The maximum is exclusive and the minimum is inclusive
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
-export function getRandomIntInclusive(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  // The maximum is inclusive and the minimum is inclusive
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function uncapitalizeFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
-}
-
-export function calculatePageSize(
-  count: number,
-  pageSize: number,
-  /** zero-index based page */ page: number
-) {
-  count = Math.max(count, 0);
-  pageSize = Math.max(pageSize, 0);
-  page = Math.max(page, 0);
-
-  if (count === 0 ?? pageSize === 0) {
-    return 0;
-  }
-
-  const maxFullPages = Math.floor(count / pageSize);
-  const pageCount =
-    page < maxFullPages ? pageSize : count - maxFullPages * pageSize;
-  return pageCount;
-}
-
-export function calculateMaxPages(count: number, pageSize: number) {
-  return Math.ceil(count / pageSize);
 }
 
 export function getResourceId(resource: Pick<Resource, 'resourceId'>) {

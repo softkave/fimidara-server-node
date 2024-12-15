@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {compact, isUndefined} from 'lodash-es';
+import {compact, isUndefined, omit} from 'lodash-es';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
@@ -89,7 +89,9 @@ describe('getNextJob', () => {
         getNextUnfinishedJob(/** empty active runners */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toMatchObject(omitDeep(job, isUndefined));
+    expect(omit(unfinishedJob, '_id')).toMatchObject(
+      omitDeep(omit(job, '_id'), isUndefined)
+    );
     expect(unfinishedJob?.shard).toBe(shard);
   });
 
@@ -182,7 +184,9 @@ describe('getNextJob', () => {
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toMatchObject(omitDeep(job01, isUndefined));
+    expect(omit(unfinishedJob, '_id')).toMatchObject(
+      omitDeep(omit(job01, '_id'), isUndefined)
+    );
   });
 
   test('getNextUnfinishedJob, updates cooldown', async () => {
@@ -237,7 +241,9 @@ describe('getNextJob', () => {
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toMatchObject(omitDeep(job02, isUndefined));
+    expect(omit(unfinishedJob, '_id')).toMatchObject(
+      omitDeep(omit(job02, '_id'), isUndefined)
+    );
     expect(unfinishedJob).not.toEqual(job01);
   });
 
@@ -264,7 +270,9 @@ describe('getNextJob', () => {
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
-    expect(unfinishedJob).toMatchObject(omitDeep(jobP2, isUndefined));
+    expect(omit(unfinishedJob, '_id')).toMatchObject(
+      omitDeep(omit(jobP2, '_id'), isUndefined)
+    );
     expect(unfinishedJob).not.toEqual(jobP1);
   });
 
@@ -289,7 +297,9 @@ describe('getNextJob', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toMatchObject(omitDeep(job, isUndefined));
+    expect(omit(pendingJob, '_id')).toMatchObject(
+      omitDeep(omit(job, '_id'), isUndefined)
+    );
     expect(pendingJob?.shard).toBe(shard);
   });
 
@@ -314,7 +324,9 @@ describe('getNextJob', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toMatchObject(omitDeep(jobP2, isUndefined));
+    expect(omit(pendingJob, '_id')).toMatchObject(
+      omitDeep(omit(jobP2, '_id'), isUndefined)
+    );
     expect(pendingJob).not.toEqual(jobP1);
   });
 
@@ -336,7 +348,9 @@ describe('getNextJob', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toMatchObject(omitDeep(jobP1, isUndefined));
+    expect(omit(pendingJob, '_id')).toMatchObject(
+      omitDeep(omit(jobP1, '_id'), isUndefined)
+    );
   });
 
   test('getNextPendingJob, returns job with runAfter satisfied', async () => {
@@ -363,7 +377,9 @@ describe('getNextJob', () => {
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
-    expect(pendingJob).toMatchObject(omitDeep(jobP2, isUndefined));
+    expect(omit(pendingJob, '_id')).toMatchObject(
+      omitDeep(omit(jobP2, '_id'), isUndefined)
+    );
     expect(pendingJob).not.toEqual(jobP1);
   });
 
@@ -469,7 +485,7 @@ describe('getNextJob', () => {
       .withTxn(opts => kSemanticModels.job().getOneById(job.resourceId, opts));
 
     expect(startedJob?.resourceId).toEqual(job.resourceId);
-    expect(startedJob).toEqual(dbJob);
+    expect(omit(startedJob, '_id')).toEqual(omit(dbJob, '_id'));
     expect(dbJob?.status).toBe(kJobStatus.inProgress);
     expect(dbJob?.runnerId).toBe(runnerId);
   });
@@ -504,7 +520,7 @@ describe('getNextJob', () => {
 
     expect(startedJob?.resourceId).toEqual(unfinishedJob.resourceId);
     expect(startedJob?.resourceId).not.toEqual(pendingJob.resourceId);
-    expect(startedJob).toEqual(dbJob);
+    expect(omit(startedJob, '_id')).toEqual(omit(dbJob, '_id'));
     expect(dbJob?.statusLastUpdatedAt).toBeGreaterThan(
       unfinishedJob.statusLastUpdatedAt
     );

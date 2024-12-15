@@ -873,6 +873,9 @@ export enum HttpEndpointMethod {
   Get = 'get',
   Post = 'post',
   Delete = 'delete',
+  Options = 'options',
+  Put = 'put',
+  Patch = 'patch',
 }
 
 function constructHttpEndpointMultipartFormdata<T extends object>() {

@@ -1,13 +1,20 @@
+import {AnyFn} from 'softkave-js-utils';
 import {
   BasePubSubContext,
   IBasePubSubContextClient,
 } from './BasePubSubContext.js';
-import {IPubSubContext, QueueContextSubscribeFn} from './types.js';
+import {IPubSubContext} from './types.js';
 
 export class InMemoryPubSubClient implements IBasePubSubContextClient {
-  protected listeners = new Map<string, Set<QueueContextSubscribeFn>>();
+  protected listeners = new Map<
+    string,
+    Set<AnyFn<[message: string | Buffer, channel: string]>>
+  >();
 
-  async subscribe(channel: string, fn: QueueContextSubscribeFn): Promise<void> {
+  async subscribe(
+    channel: string,
+    fn: (message: string | Buffer, channel: string) => void
+  ) {
     if (!this.listeners.has(channel)) {
       this.listeners.set(channel, new Set());
     }
@@ -17,7 +24,7 @@ export class InMemoryPubSubClient implements IBasePubSubContextClient {
 
   async unsubscribe(
     channel?: string,
-    fn?: QueueContextSubscribeFn
+    fn?: (message: string | Buffer, channel: string) => void
   ): Promise<void> {
     if (channel) {
       if (fn) {

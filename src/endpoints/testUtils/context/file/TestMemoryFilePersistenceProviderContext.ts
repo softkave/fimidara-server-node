@@ -9,6 +9,8 @@ export default class TestMemoryFilePersistenceProviderContext
   private client: MemoryFilePersistenceProvider;
 
   uploadFile: TestFilePersistenceProviderContext['uploadFile'];
+  completeMultipartUpload: TestFilePersistenceProviderContext['completeMultipartUpload'];
+  cleanupMultipartUpload: TestFilePersistenceProviderContext['cleanupMultipartUpload'];
   toFimidaraPath: TestFilePersistenceProviderContext['toFimidaraPath'];
   toNativePath: TestFilePersistenceProviderContext['toNativePath'];
   readFile: TestFilePersistenceProviderContext['readFile'];
@@ -19,10 +21,18 @@ export default class TestMemoryFilePersistenceProviderContext
   describeFolderContent: TestFilePersistenceProviderContext['describeFolderContent'];
   supportsFeature: TestFilePersistenceProviderContext['supportsFeature'];
   dispose: TestFilePersistenceProviderContext['dispose'];
+  deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
+  startMultipartUpload: TestFilePersistenceProviderContext['startMultipartUpload'];
 
   constructor() {
     this.client = new MemoryFilePersistenceProvider();
     this.uploadFile = vi.fn(this.client.uploadFile).mockName('uploadFile');
+    this.completeMultipartUpload = vi
+      .fn(this.client.completeMultipartUpload)
+      .mockName('completeMultipartUpload');
+    this.cleanupMultipartUpload = vi
+      .fn(this.client.cleanupMultipartUpload)
+      .mockName('cleanupMultipartUpload');
     this.toFimidaraPath = vi
       .fn(this.client.toFimidaraPath)
       .mockName('toFimidaraPath');
@@ -47,6 +57,12 @@ export default class TestMemoryFilePersistenceProviderContext
     this.supportsFeature = vi
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
+    this.deleteMultipartUploadPart = vi
+      .fn(this.client.deleteMultipartUploadPart)
+      .mockName('deleteMultipartUploadPart');
+    this.startMultipartUpload = vi
+      .fn(this.client.startMultipartUpload)
+      .mockName('startMultipartUpload');
 
     mockWith(this.client, this);
   }

@@ -14,7 +14,6 @@ export const kInjectionKeys = {
   logic: {
     permissions: logicKey('permissions'),
     jobs: logicKey('jobs'),
-    usageRecords: logicKey('usageRecords'),
   },
   data: {
     user: dataKey('user'),
@@ -88,4 +87,10 @@ export const kInjectionKeys = {
   workerPool: 'workerPool',
   queue: 'queue',
   pubsub: 'pubsub',
+  cache: 'cache',
+  redlock: 'redlock',
+  redis: 'redis',
+  ioredis: 'ioredis',
+  dset: 'dset',
+  usage: 'usage',
 };

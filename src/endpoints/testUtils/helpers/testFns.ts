@@ -1,11 +1,12 @@
 import assert from 'assert';
 import {findLastIndex, get, isFunction, noop} from 'lodash-es';
-import {createClient} from 'redis';
 import {
   AnyFn,
   AnyObject,
-  kLoopAsyncSettlementType,
-  loopAsync,
+  calculateMaxPages,
+  calculatePageSize,
+  convertToArray,
+  getRandomInt,
   OrArray,
   OrPromise,
 } from 'softkave-js-utils';
@@ -17,13 +18,6 @@ import {
 } from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {IServerRequest} from '../../../contexts/types.js';
-import {
-  calculateMaxPages,
-  calculatePageSize,
-  convertToArray,
-  getRandomInt,
-} from '../../../utils/fns.js';
-import {kFolderConstants} from '../../folders/constants.js';
 import RequestData from '../../RequestData.js';
 import {initFimidara} from '../../runtime/initFimidara.js';
 import {
@@ -46,41 +40,7 @@ export function mutationTest(
 }
 
 export async function completeTests() {
-  const config = kUtilsInjectables.suppliedConfig();
-
   await globalDispose();
-
-  if (
-    config.queueRedisURL &&
-    config.addFolderQueuePrefix &&
-    config.addFolderQueueStart &&
-    config.addFolderQueueEnd
-  ) {
-    const redis = createClient({url: config.queueRedisURL});
-    await redis.connect();
-
-    await loopAsync(
-      async index => {
-        const key = kFolderConstants.getAddFolderQueueWithNo(
-          index + config.addFolderQueueStart!
-        );
-        await redis.del(key);
-      },
-      config.addFolderQueueEnd + 1 - config.addFolderQueueStart,
-      kLoopAsyncSettlementType.allSettled
-    );
-
-    await redis.quit();
-  }
-
-  if (config.pubSubRedisURL && config.addFolderPubSubChannelPrefix) {
-    const redis = createClient({url: config.pubSubRedisURL});
-    await redis.connect();
-    const key = kFolderConstants.getAddFolderPubSubChannel('*');
-    await redis.unsubscribe(key);
-
-    await redis.quit();
-  }
 }
 
 export function startTesting() {

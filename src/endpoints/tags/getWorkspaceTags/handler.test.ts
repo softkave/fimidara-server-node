@@ -1,6 +1,6 @@
+import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';

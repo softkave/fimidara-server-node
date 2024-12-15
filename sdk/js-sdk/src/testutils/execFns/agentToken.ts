@@ -11,7 +11,7 @@ import {
   GetWorkspaceAgentTokensEndpointParams,
   UpdateAgentTokenEndpointParams,
 } from '../../endpoints/publicTypes.js';
-import {ITestVars} from '../utils.js';
+import {ITestVars} from '../utils.common.js';
 
 function getTokenExpiryDate(
   days: number = faker.number.int({min: 1, max: 10})

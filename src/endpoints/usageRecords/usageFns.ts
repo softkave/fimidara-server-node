@@ -3,7 +3,7 @@ import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {
   UsageRecordDecrementInput,
   UsageRecordIncrementInput,
-} from '../../contexts/logic/UsageRecordLogicProvider.js';
+} from '../../contexts/usage/types.js';
 import {File} from '../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
@@ -33,7 +33,7 @@ async function incrementUsageRecord(
       )
   );
 
-  const result = await kUtilsInjectables.usageLogic().increment(agent, input);
+  const result = await kUtilsInjectables.usage().increment(agent, input);
 
   if (!result.permitted && !nothrow) {
     throw new UsageLimitExceededError({
@@ -185,7 +185,7 @@ async function decrementUsageRecord(
       )
   );
 
-  await kUtilsInjectables.usageLogic().decrement(agent, input);
+  await kUtilsInjectables.usage().decrement(agent, input);
 }
 
 export async function decrementStorageUsageRecord(

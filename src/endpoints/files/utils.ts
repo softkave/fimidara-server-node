@@ -241,7 +241,10 @@ export function createNewFile(
   workspaceId: string,
   pathinfo: FilepathInfo,
   parentFolder: Folder | null,
-  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  data: Pick<
+    File,
+    'description' | 'encoding' | 'mimetype' | 'clientMultipartId'
+  >,
   seed: Partial<File> = {}
 ) {
   const fileId = getNewIdForResource(kFimidaraResourceType.File);
@@ -266,6 +269,7 @@ export function createNewFile(
       description: data.description,
       encoding: data.encoding,
       mimetype: data.mimetype,
+      clientMultipartId: data.clientMultipartId,
       ...seed,
     }
   );
@@ -277,7 +281,10 @@ export async function createNewFileAndEnsureFolders(
   agent: SessionAgent,
   workspace: Workspace,
   pathinfo: FilepathInfo,
-  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
+  data: Pick<
+    File,
+    'description' | 'encoding' | 'mimetype' | 'clientMultipartId'
+  >,
   seed: Partial<File> = {},
   parentFolder: Folder | null
 ) {

@@ -42,7 +42,7 @@ class MockedBasePubSubClient implements IBasePubSubContextClient {
 
   publish = vi
     .fn()
-    .mockImplementation(async (channel: string, message: any) => {
+    .mockImplementation(async (channel: string, message: unknown) => {
       this.listeners.get(channel)?.forEach(fn => fn(message, channel));
     });
 }
@@ -70,8 +70,17 @@ describe('BasePubSubContext', () => {
     const client = new MockedBasePubSubClient();
     const context = new BasePubSubContext(client);
     const fn = () => {};
-    await context.subscribe('channel', fn);
-    expect(client.subscribe).toHaveBeenCalledWith('channel', fn);
+    const sub = await context.subscribe('channel', fn);
+    expect(client.subscribe).toHaveBeenCalledWith(
+      'channel',
+      expect.any(Function)
+    );
+
+    sub.unsubscribe();
+    expect(client.unsubscribe).toHaveBeenCalledWith(
+      'channel',
+      expect.any(Function)
+    );
   });
 
   test('unsubscribe', async () => {
@@ -111,8 +120,11 @@ describe('BasePubSubContext', () => {
     const client = new MockedBasePubSubClient();
     const context = new BasePubSubContext(client);
     const fn = vi.fn();
-    await context.subscribeJson('channel', fn);
+    const sub = await context.subscribeJson('channel', fn);
     expect(client.subscribe).toHaveBeenCalled();
+
+    sub.unsubscribe();
+    expect(client.unsubscribe).toHaveBeenCalled();
   });
 
   test('subscribeJson with message', async () => {
@@ -123,7 +135,9 @@ describe('BasePubSubContext', () => {
     const message = {key: 'value'};
     const json = JSON.stringify(message);
     context.publish('channel', json);
-    expect(fn).toHaveBeenCalledWith(message, 'channel');
+    expect(fn).toHaveBeenCalledWith(message, 'channel', {
+      unsubscribe: expect.any(Function),
+    });
   });
 
   test('subscribeJson with invalid message', async () => {

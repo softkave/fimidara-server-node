@@ -67,8 +67,11 @@ const op = (schema: Joi.Schema) =>
           : comparisonOpsSchema(schema)
   );
 
-const page = Joi.number().integer();
-const pageSize = Joi.number().integer();
+const page = Joi.number().integer().min(0);
+const pageSize = Joi.number()
+  .integer()
+  .min(1)
+  .max(kEndpointConstants.maxPageSize);
 const optionalWorkspaceIdParts: JoiSchemaParts<EndpointOptionalWorkspaceIDParam> =
   {
     workspaceId: kValidationSchemas.resourceId,
@@ -81,12 +84,16 @@ const paginationParts: JoiSchemaParts<PaginationQuery> = {
   page,
   pageSize,
 };
+const continuationToken = Joi.string().max(
+  kEndpointConstants.continuationTokenMaxLength
+);
 
 export const endpointValidationSchemas = {
   page,
   pageSize,
   optionalWorkspaceIdParts,
   paginationParts,
+  continuationToken,
   workspaceResourceParts,
   op,
   comparisonOps,

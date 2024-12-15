@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {pick} from 'lodash-es';
+import {isObjectLike, pick} from 'lodash-es';
 import {AnyFn, AnyObject, OrPromise} from 'softkave-js-utils';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {
@@ -32,9 +32,11 @@ export function generateTestList<
   const data: T[] = [];
   for (let i = 0; i < count; i++) {
     const f = generareFullDataFn(i, cache);
-    const item = mergeData(f, generatePartialDataFn(i, f, cache), {
-      arrayUpdateStrategy: 'replace',
-    });
+    const item = isObjectLike(f)
+      ? mergeData(f, generatePartialDataFn(i, f, cache), {
+          arrayUpdateStrategy: 'replace',
+        })
+      : f;
     data.push(item);
   }
   return data;

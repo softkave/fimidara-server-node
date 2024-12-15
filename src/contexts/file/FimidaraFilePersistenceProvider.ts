@@ -21,9 +21,12 @@ import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.j
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
 import {
+  FilePersistenceCleanupMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadParams,
   FilePersistenceDefaultParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDeleteMultipartUploadPartParams,
   FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
@@ -35,9 +38,12 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
@@ -89,10 +95,38 @@ export class FimidaraFilePersistenceProvider
     }
   };
 
-  uploadFile = async (params: FilePersistenceUploadFileParams) => {
+  uploadFile = async (
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> => {
     const preparedParams = this.prepareParams(params);
-    await this.backend.uploadFile(preparedParams);
-    return {filepath: params.filepath, raw: undefined};
+    const result = await this.backend.uploadFile(preparedParams);
+    return result;
+  };
+
+  startMultipartUpload = async (
+    params: FilePersistenceStartMultipartUploadParams
+  ): Promise<FilePersistenceStartMultipartUploadResult> => {
+    return this.backend.startMultipartUpload(params);
+  };
+
+  deleteMultipartUploadPart = async (
+    params: FilePersistenceDeleteMultipartUploadPartParams
+  ) => {
+    return this.backend.deleteMultipartUploadPart(params);
+  };
+
+  completeMultipartUpload = async (
+    params: FilePersistenceCompleteMultipartUploadParams
+  ) => {
+    const preparedParams = this.prepareParams(params);
+    return await this.backend.completeMultipartUpload(preparedParams);
+  };
+
+  cleanupMultipartUpload = (
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) => {
+    const preparedParams = this.prepareParams(params);
+    return this.backend.cleanupMultipartUpload(preparedParams);
   };
 
   readFile = async (
@@ -456,8 +490,10 @@ export class FimidaraFilePersistenceProvider
 
       case kFimidaraConfigFilePersistenceProvider.fs: {
         appAssert(config.localFsDir);
-        const pathResolved = path.resolve(config.localFsDir);
-        return new LocalFsFilePersistenceProvider({dir: pathResolved});
+        appAssert(config.localPartsFsDir);
+        const dir = path.resolve(config.localFsDir);
+        const partsDir = path.resolve(config.localPartsFsDir);
+        return new LocalFsFilePersistenceProvider({dir, partsDir});
       }
 
       case kFimidaraConfigFilePersistenceProvider.memory:

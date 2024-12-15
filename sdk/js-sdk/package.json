@@ -64,7 +64,8 @@
     "clean": "gts clean",
     "compile": "npm run clean && tsc",
     "fix": "gts fix",
-    "test": "env-cmd -f \".env.test\" vitest --config ./vitest.config.ts",
+    "test": "env-cmd -f \".env.test\" vitest --config=./vitest.config.ts",
+    "test:browser": "env-cmd -f \".env.test\" vitest --config=./vitest.browser.config.ts",
     "publish-to-npm": "npm run compile && npm publish",
     "publish-to-local": "npm run compile && yalc publish",
     "show-packlist": "npm run compile && npm pack --dry-run"
@@ -75,9 +76,13 @@
   "devDependencies": {
     "@types/node": "^20.14.8",
     "@types/path-browserify": "^1.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/browser": "^2.1.8",
     "gts": "^3.1.1",
+    "playwright": "^1.49.1",
     "typescript": "^5.5.2",
-    "vitest": "^1.6.0"
+    "vitest": "^2.1.8",
+    "vitest-browser-react": "^0.0.4"
   },
   "dependencies": {
     "assert": "^2.1.0",
@@ -86,6 +91,6 @@
     "fs-extra": "^11.2.0",
     "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1",
-    "softkave-js-utils": "^0.9.0"
+    "softkave-js-utils": "^0.10.0"
   }
 }

@@ -9,7 +9,7 @@ import {getNodeDirContent} from '../../node/getNodeDirContent.js';
 import {stringifyFimidaraFilename} from '../../path/file.js';
 import {uploadFileTestExecFn} from '../execFns/file.js';
 import {fimidaraTestInstance, fimidaraTestVars} from '../tests/file.js';
-import {streamToString} from '../utils.js';
+import {streamToString} from '../utils.node.js';
 
 export async function genLocalFiles(localpath: string, count: number) {
   const text = 'Hello World!';
@@ -50,9 +50,11 @@ export async function genFimidaraFiles(fimidarapath: string, count: number) {
     () => faker.number.int({min: 10_000}).toString(),
     count
   );
+
   await Promise.all(
     filenames.map(async fName => {
       const fp = path.posix.join(fimidarapath, fName);
+
       await uploadFileTestExecFn(fimidaraTestInstance, fimidaraTestVars, {
         filepath: fp,
         data: text,

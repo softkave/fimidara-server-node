@@ -77,7 +77,8 @@ export async function setupSDKTestReq() {
     const envText = `FIMIDARA_TEST_WORKSPACE_ID="${workspace.resourceId}"
 FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
 FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
-FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testfile.txt"
+FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testdata.txt"
+FIMIDARA_TEST_FOLDER_PATH="/src/testutils/testdata"
 FIMIDARA_SERVER_URL="http://localhost:${
       kUtilsInjectables.suppliedConfig().httpPort
     }"`;

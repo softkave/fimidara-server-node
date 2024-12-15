@@ -3,9 +3,9 @@ import {isUndefined} from 'lodash-es';
 import {checkFimidaraType} from './checkType.js';
 import {copyFile} from './copyFile.js';
 import {copyFolder} from './copyFolder.js';
-import {IFimidaraSyncOpts, kFileEntryType} from './types.js';
+import {IFimidaraSyncRuntimeOpts, kFileEntryType} from './types.js';
 
-export async function copyFileOrFolder(opts: IFimidaraSyncOpts) {
+export async function copyFileOrFolder(opts: IFimidaraSyncRuntimeOpts) {
   const {fimidarapath, localpath} = opts;
   let type = (await checkFimidaraType(fimidarapath, opts))?.type;
 

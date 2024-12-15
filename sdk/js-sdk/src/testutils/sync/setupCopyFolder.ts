@@ -26,6 +26,7 @@ export async function setupCopyFolder(testDir: string, paged?: boolean) {
     fimidarapath,
     count
   );
+
   const {foldernames: fimidaraFoldernames} = await genFimidaraFolders(
     fimidarapath,
     count
@@ -53,6 +54,7 @@ export async function setupCopyFolder(testDir: string, paged?: boolean) {
 
   const {filenames: localFilenames} = await genLocalFiles(localpath, count);
   const {foldernames: localFoldernames} = await genLocalFolders(localpath);
+
   // local folder content depth 02
   const lf02List = await genLocalFolderContentForFolders(
     localpath,

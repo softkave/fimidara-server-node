@@ -1,27 +1,18 @@
-import assert from 'assert';
-import {RedisClientType, createClient} from 'redis';
 import {
   FimidaraSuppliedConfig,
-  kFimidaraConfigPubSubProvider,
+  kFimidaraConfigQueueProvider,
 } from '../../resources/config.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {InMemoryPubSubContext} from './InMemoryPubSubContext.js';
 import {RedisPubSubContext} from './RedisPubSubContext.js';
 
 export async function getPubSubContext(config: FimidaraSuppliedConfig) {
   switch (config.pubSubProvider) {
-    case kFimidaraConfigPubSubProvider.redis: {
-      const pubSubRedisURL = config.pubSubRedisURL;
-      assert.ok(pubSubRedisURL);
-      const publisherRedis: RedisClientType = createClient({
-        url: pubSubRedisURL,
-      });
-      const subscriberRedis: RedisClientType = createClient({
-        url: pubSubRedisURL,
-      });
-      await Promise.all([publisherRedis.connect(), subscriberRedis.connect()]);
+    case kFimidaraConfigQueueProvider.redis: {
+      const [publisherRedis, subscriberRedis] = kUtilsInjectables.redis();
       return new RedisPubSubContext(publisherRedis, subscriberRedis);
     }
-    case kFimidaraConfigPubSubProvider.memory:
+    case kFimidaraConfigQueueProvider.memory:
       return new InMemoryPubSubContext();
     default:
       throw new Error(`Unknown PubSub type: ${config.pubSubProvider}`);

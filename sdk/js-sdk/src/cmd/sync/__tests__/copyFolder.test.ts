@@ -31,11 +31,11 @@ afterAll(async () => {
 
 describe('copyFolder', () => {
   test.each([
-    {paged: true},
+    {paged: true, recursive: undefined, direction: undefined},
     {recursive: false},
     {recursive: true, direction: kFimidaraSyncDirection.up},
     {recursive: true, direction: kFimidaraSyncDirection.down},
-    {recursive: true, direction: kFimidaraSyncDirection.both},
+    {recursive: true, direction: kFimidaraSyncDirection.both, paged: undefined},
   ])(
     'copies folder content recursive=$recursive paged=$paged direction=$direction',
     async ({
@@ -85,6 +85,7 @@ describe('copyFolder', () => {
         recursive,
         text
       );
+
       await assertCopyFolderFimidara(
         fimidarapath,
         fimidaraFilenames,
@@ -110,6 +111,7 @@ describe('copyFolder', () => {
             contentType: 'folder',
           }),
         ]);
+
         const foldersRecord = indexArray(folders, {indexer: f => f.name});
 
         ff02List.forEach(ff02 => {

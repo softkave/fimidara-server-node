@@ -1,5 +1,4 @@
 import assert from 'assert';
-import {createClient, RedisClientType} from 'redis';
 import {waitTimeout} from 'softkave-js-utils';
 import {
   afterAll,
@@ -15,59 +14,68 @@ import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {kUtilsInjectables} from '../../injection/injectables.js';
 import {RedisPubSubContext} from '../RedisPubSubContext.js';
 
-let redis: RedisClientType | undefined;
-let redis02: RedisClientType | undefined;
-
 beforeAll(async () => {
   await initTests();
-
-  const pubSubRedisURL = kUtilsInjectables.suppliedConfig().pubSubRedisURL;
-  assert.ok(pubSubRedisURL);
-  redis = await createClient({url: pubSubRedisURL});
-  redis02 = await createClient({url: pubSubRedisURL});
-  await redis.connect();
-  await redis02.connect();
 });
 
 afterEach(async () => {
+  const [redis, redis02] = kUtilsInjectables.redis();
+  assert.ok(redis);
+  assert.ok(redis02);
   await redis?.unsubscribe();
   await redis02?.unsubscribe();
 });
 
 afterAll(async () => {
-  await redis?.quit();
-  await redis02?.quit();
   await completeTests();
 });
 
-describe.skip('RedisPubSubContext', () => {
+describe('RedisPubSubContext', () => {
   test('subscribe + publish', async () => {
+    const [redis, redis02] = kUtilsInjectables.redis();
     assert.ok(redis);
     assert.ok(redis02);
     const context01 = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
-    await context01.subscribe(channel, fn);
+    const sub = await context01.subscribe(channel, fn);
     await context01.publish(channel, 'message');
-    expect(fn).toHaveBeenCalledWith('message', channel);
+
+    // wait for the message to be received
+    await waitTimeout(200);
+    expect(fn).toHaveBeenCalledWith('message', channel, {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
+
+    sub.unsubscribe();
+    await context01.publish(channel, 'message');
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('subscribe + publish json', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context01 = new RedisPubSubContext(redis, redis02);
     const json = {key: 'value'};
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
-    await context01.subscribeJson(channel, fn);
+    const sub = await context01.subscribeJson(channel, fn);
     await context01.publish(channel, json);
+
+    // wait for the message to be received
     await waitTimeout(100);
-    expect(fn).toHaveBeenCalledWith(json, channel);
+    expect(fn).toHaveBeenCalledWith(json, channel, {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
+
+    sub.unsubscribe();
+    await context01.publish(channel, json);
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('unsubscribe', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -78,8 +86,7 @@ describe.skip('RedisPubSubContext', () => {
   });
 
   test('unsubscribe without fn', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -90,8 +97,7 @@ describe.skip('RedisPubSubContext', () => {
   });
 
   test('unsubscribe without channel and fn', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -102,8 +108,7 @@ describe.skip('RedisPubSubContext', () => {
   });
 
   test('unsubscribe json listener', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -114,9 +119,7 @@ describe.skip('RedisPubSubContext', () => {
   });
 
   test('subscribeJson with invalid message', async () => {
-    assert.ok(redis);
-    assert.ok(redis02);
-    assert.ok(redis02);
+    const [redis, redis02] = kUtilsInjectables.redis();
     const context01 = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();

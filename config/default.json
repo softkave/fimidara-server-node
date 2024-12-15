@@ -15,6 +15,7 @@
   "rootUserLastName": "",
   "fileBackend": "fs",
   "localFsDir": "./dev-local-fs",
+  "localPartsFsDir": "./dev-local-parts-fs",
   "emailProvider": "noop",
   "secretsManagerProvider": "mem",
   "FLAG_waitlistNewSignups": true,
@@ -26,9 +27,6 @@
   "changePasswordLink": "",
   "verifyEmailLink": "",
   "upgradeWaitlistLink": "",
-  "test": {
-    "localFsDir": "./test-local-fs"
-  },
   "loggerType": "console",
   "runnerLocation": "./build/src/endpoints/jobs/fimidaraWorker/workerMain.js",
   "runnerCount": 2,
@@ -42,8 +40,9 @@
     "s3Bucket": "",
     "sesEmailEncoding": "UTF-8"
   },
+  "redisURL": "",
+  "redisDatabase": 0,
   "queueProvider": "",
-  "queueRedisURL": "",
   "addFolderQueueStart": 1,
   "addFolderQueueEnd": 1,
   "addFolderQueueNo": [1],
@@ -51,5 +50,7 @@
   "addFolderQueuePrefix": "addFolderQueue",
   "addFolderPubSubChannelPrefix": "addFolderPubSub",
   "pubSubProvider": "",
-  "pubSubRedisURL": ""
+  "redlockProvider": "",
+  "cacheProvider": "",
+  "dsetProvider": ""
 }

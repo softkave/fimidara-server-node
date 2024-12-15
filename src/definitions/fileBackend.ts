@@ -22,7 +22,7 @@ export interface FileBackendMount extends WorkspaceResource {
   // arrays? If not, make them string
   /** folderpath without workspace rootname */
   namepath: string[];
-  /** string array of + bucket? + folderpath? */
+  /** string array of "bucket? + folderpath?" */
   mountedFrom: string[];
   /** Preferred backend mount for file or folder look up when multiple backends
    * are mounted to the same folderpath. Higher values have higher weight. */

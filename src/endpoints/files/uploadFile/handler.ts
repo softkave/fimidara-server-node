@@ -1,67 +1,214 @@
-import {pick} from 'lodash-es';
+import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
+import {kIncludeInProjection} from '../../../contexts/data/types.js';
+import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
-import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
-import {File} from '../../../definitions/file.js';
-import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {
-  SessionAgent,
-  kFimidaraResourceType,
-} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
+import {FileWithRuntimeData} from '../../../definitions/file.js';
+import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {getTimestamp} from '../../../utils/dateFns.js';
-import {ValidationError} from '../../../utils/errors.js';
-import {mergeData, pathExtract} from '../../../utils/fns.js';
-import {newWorkspaceResource} from '../../../utils/resource.js';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
+import {createOrRetrieve} from '../../../utils/concurrency/createOrRetrieve.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
+import RequestData from '../../RequestData.js';
+import {InvalidRequestError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {fileExtractor} from '../utils.js';
+import {prepareFilepath} from '../utils/prepareFilepath.js';
 import {
-  decrementStorageUsageRecord,
-  incrementBandwidthInUsageRecord,
-  incrementStorageEverConsumedUsageRecord,
-  incrementStorageUsageRecord,
-} from '../../usageRecords/usageFns.js';
-import {FileNotWritableError} from '../errors.js';
-import {getFileWithMatcher} from '../getFilesWithMatcher.js';
+  fireAndForgetHandleMultipartCleanup,
+  handleLastMultipartUpload,
+} from './multipart.js';
+import {prepareFile} from './prepare.js';
+import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
 import {
-  FilepathInfo,
-  assertFile,
-  createNewFileAndEnsureFolders,
-  fileExtractor,
-  getFilepathInfo,
-  getWorkspaceFromFileOrFilepath,
-  stringifyFilenamepath,
-} from '../utils.js';
-import {UploadFileEndpoint} from './types.js';
-import {checkUploadFileAuth} from './utils.js';
+  completeUploadFile,
+  getFileUpdate,
+  saveFilePartData,
+  setFileWritable,
+} from './update.js';
+import {
+  handleFinalStorageUsageRecords,
+  handleIntermediateStorageUsageRecords,
+} from './usage.js';
 import {uploadFileJoiSchema} from './validation.js';
 
-async function createAndInsertNewFile(
-  agent: SessionAgent,
-  workspace: Workspace,
-  pathinfo: FilepathInfo,
-  data: Pick<File, 'description' | 'encoding' | 'mimetype'>,
-  opts: SemanticProviderMutationParams,
-  seed: Partial<File> = {}
-) {
-  const {file, parentFolder} = await createNewFileAndEnsureFolders(
-    agent,
-    workspace,
-    pathinfo,
-    data,
-    seed,
-    /** parentFolder */ null
+async function handleUploadFile(params: {
+  file: FileWithRuntimeData;
+  data: UploadFileEndpointParams;
+  agent: SessionAgent;
+  isNewFile: boolean;
+  reqData: RequestData<UploadFileEndpointParams>;
+}) {
+  const {data, agent, reqData, isNewFile} = params;
+  let {file} = params;
+
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
+    file,
+    /** initPrimaryBackendOnly */ true
   );
 
-  await kSemanticModels.file().insertItem(file, opts);
-  return {file, parentFolder};
+  const isMultipart = isString(data.clientMultipartId);
+  try {
+    const filepath = await prepareFilepath({
+      primaryMount,
+      file,
+    });
+    let internalMultipartId: string | undefined;
+    const isSilentPart = isMultipart && data.part === -1;
+
+    if (isMultipart) {
+      appAssert(
+        isNumber(data.part),
+        new InvalidRequestError('part is required for multipart uploads')
+      );
+
+      const key = `upload-multipart-file-${file.resourceId}`;
+      internalMultipartId = await createOrRetrieve<string>({
+        key,
+        create: async () => {
+          appAssert(
+            !isSilentPart,
+            new InvalidRequestError('No pending multipart upload')
+          );
+          const startResult = await primaryBackend.startMultipartUpload({
+            filepath,
+            workspaceId: file.workspaceId,
+            fileId: file.resourceId,
+            mount: primaryMount,
+          });
+
+          await kSemanticModels.utils().withTxn(async opts => {
+            await kSemanticModels
+              .file()
+              .updateOneById(
+                file.resourceId,
+                {internalMultipartId: startResult.multipartId},
+                opts
+              );
+          });
+
+          return startResult.multipartId;
+        },
+        retrieve: async () => {
+          if (file.internalMultipartId) {
+            return file.internalMultipartId;
+          }
+
+          const dbFile = await kSemanticModels
+            .file()
+            .getOneById(file.resourceId, {
+              projection: {internalMultipartId: kIncludeInProjection},
+            });
+
+          return dbFile?.internalMultipartId ?? undefined;
+        },
+      });
+
+      file.internalMultipartId = internalMultipartId;
+    }
+
+    fireAndForgetHandleMultipartCleanup({
+      primaryBackend,
+      primaryMount,
+      filepath,
+      data,
+      file: file as FileWithRuntimeData,
+    });
+
+    let size = 0;
+    let pMountData:
+      | Pick<FilePersistenceUploadFileResult<unknown>, 'filepath' | 'raw'>
+      | undefined;
+
+    if (isSilentPart) {
+      // avoid memory leak by destroying the stream
+      data.data.destroy();
+    }
+
+    if (!isSilentPart) {
+      // TODO: compare bytecounter and size input to make sure they match or
+      // update usage record
+      const bytesCounterStream = new ByteCounterPassThroughStream();
+      data.data.pipe(bytesCounterStream);
+
+      pMountData = await primaryBackend.uploadFile({
+        filepath,
+        workspaceId: file.workspaceId,
+        body: bytesCounterStream,
+        fileId: file.resourceId,
+        mount: primaryMount,
+        part: data.part,
+        multipartId: internalMultipartId,
+      });
+
+      await handleIntermediateStorageUsageRecords({
+        reqData,
+        file,
+        isNewFile,
+        size: bytesCounterStream.contentLength,
+      });
+
+      size = bytesCounterStream.contentLength;
+    }
+
+    if (isMultipart) {
+      if (!isSilentPart) {
+        appAssert(pMountData);
+        await saveFilePartData({pMountData: pMountData, size});
+      }
+
+      if (data.isLastPart) {
+        const completePartResult = await handleLastMultipartUpload({
+          file,
+          primaryBackend,
+          primaryMount,
+          filepath,
+          data,
+        });
+        size = completePartResult.size;
+        pMountData = completePartResult.pMountData;
+      }
+    }
+
+    await handleFinalStorageUsageRecords({
+      reqData,
+      file,
+      isMultipart,
+      size,
+      isLastPart: data.isLastPart,
+    });
+
+    const update = getFileUpdate({
+      agent,
+      file,
+      data,
+      isMultipart,
+      persistedMountData: pMountData,
+      size,
+      isLastPart: data.isLastPart,
+    });
+
+    appAssert(pMountData);
+    file = await completeUploadFile({
+      agent,
+      file,
+      primaryMount,
+      pMountData,
+      update,
+      shouldInsertMountEntry: !isMultipart || !!data.isLastPart,
+    });
+
+    return {file: fileExtractor(file)};
+  } catch (error) {
+    if (!isMultipart) {
+      kUtilsInjectables.promises().forget(setFileWritable(file.resourceId));
+    }
+
+    throw error;
+  }
 }
 
 const uploadFile: UploadFileEndpoint = async reqData => {
@@ -73,208 +220,23 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
+  // TODO: use a lock on the file using path, because it's still possible to
+  // have concurrency issues in the prepare stage. for that, we need to resolve
+  // a filepath as quickly as possible and lock on that.
 
   // eslint-disable-next-line prefer-const
-  let {file, isNewFile} = await kSemanticModels.utils().withTxn(async opts => {
-    const matched = await getFileWithMatcher({
-      presignedPathAction: kFimidaraPermissionActions.uploadFile,
-      incrementPresignedPathUsageCount: true,
-      supportPresignedPath: true,
-      matcher: data,
-      opts,
-    });
+  let {file, isNewFile} = await prepareFile(data, agent);
+  const isMultipart = isString(data.clientMultipartId);
 
-    let isNewFile: boolean;
-    let file = matched.file;
-    const presignedPath = matched.presignedPath;
-    const workspace = await getWorkspaceFromFileOrFilepath(file, data.filepath);
-
-    if (file) {
-      isNewFile = false;
-      appAssert(file.isWriteAvailable, new FileNotWritableError());
-
-      if (!presignedPath) {
-        // Permission is already checked if there's a `presignedPath`
-        await checkUploadFileAuth(
-          agent,
-          workspace,
-          file,
-          /** parent folder not needed for an existing file */ null,
-          opts
-        );
-      }
-
-      file = await kSemanticModels
-        .file()
-        .getAndUpdateOneById(file.resourceId, {isWriteAvailable: false}, opts);
-    } else {
-      isNewFile = true;
-      appAssert(
-        data.filepath,
-        new ValidationError('Provide a filepath for new files')
-      );
-
-      const pathinfo = getFilepathInfo(data.filepath, {
-        containsRootname: true,
-        allowRootFolder: false,
-      });
-      const createResult = await createAndInsertNewFile(
-        agent,
-        workspace,
-        pathinfo,
-        data,
-        opts,
-        /** seed */ {}
-      );
-
-      file = createResult.file;
-      await checkUploadFileAuth(
-        agent,
-        workspace,
-        file,
-        createResult.parentFolder,
-        opts
-      );
-    }
-
-    assertFile(file);
-    // await Promise.all([
-    //   incrementBandwidthInUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    //   incrementStorageEverConsumedUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    //   incrementStorageUsageRecord(
-    //     reqData,
-    //     {...file, size: data.size},
-    //     kFimidaraPermissionActions.uploadFile
-    //   ),
-    // ]);
-
-    // TODO: use sharded runner to process all an once
-    await incrementBandwidthInUsageRecord(
-      reqData,
-      {...file, size: data.size, resourceId: undefined},
-      kFimidaraPermissionActions.uploadFile
+  if (isMultipart) {
+    const result = await kUtilsInjectables.redlock().using(
+      `upload-file-${file.resourceId}-${data.part}`,
+      /** durationMs */ 10 * 60 * 1000, // 10 minutes
+      () => handleUploadFile({file, data, agent, isNewFile, reqData})
     );
-    await incrementStorageEverConsumedUsageRecord(
-      reqData,
-      {...file, size: data.size, resourceId: undefined},
-      kFimidaraPermissionActions.uploadFile
-    );
-    await incrementStorageUsageRecord(
-      reqData,
-      {...file, size: data.size, resourceId: undefined},
-      kFimidaraPermissionActions.uploadFile
-    );
-
-    return {file, workspace, isNewFile};
-  });
-
-  if (!isNewFile) {
-    // TODO: this prolly should be at the end
-    kUtilsInjectables
-      .promises()
-      .forget(decrementStorageUsageRecord(reqData, file));
-  }
-
-  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
-    file,
-    /** init primary backend only */ true
-  );
-
-  try {
-    let mountEntry: ResolvedMountEntry | undefined | null;
-
-    if (!isNewFile) {
-      mountEntry = await kSemanticModels
-        .resolvedMountEntry()
-        .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
-    }
-
-    // TODO: compare bytecounter and size input to make sure they match or
-    // update usage record
-    const bytesCounterStream = new ByteCounterPassThroughStream();
-    data.data.pipe(bytesCounterStream);
-
-    // TODO: should we wait here, cause it may take a while
-    const persistedMountData = await primaryBackend.uploadFile({
-      filepath: stringifyFilenamepath(
-        mountEntry
-          ? {namepath: mountEntry?.backendNamepath, ext: mountEntry?.backendExt}
-          : file
-      ),
-      workspaceId: file.workspaceId,
-      body: bytesCounterStream,
-      fileId: file.resourceId,
-      mount: primaryMount,
-    });
-
-    const update: Partial<File> = {
-      lastUpdatedBy: getActionAgentFromSessionAgent(agent),
-      size: bytesCounterStream.contentLength,
-      lastUpdatedAt: getTimestamp(),
-      version: file.version + 1,
-      isWriteAvailable: true,
-      isReadAvailable: true,
-    };
-
-    mergeData(update, pick(data, ['description', 'encoding', 'mimetype']), {
-      arrayUpdateStrategy: 'replace',
-    });
-
-    file = await kSemanticModels.utils().withTxn(async opts => {
-      const {namepath, ext} = pathExtract(persistedMountData.filepath);
-      const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
-        agent,
-        kFimidaraResourceType.ResolvedMountEntry,
-        file.workspaceId,
-        /** seed */ {
-          forType: kFimidaraResourceType.File,
-          mountId: primaryMount.resourceId,
-          fimidaraNamepath: file.namepath,
-          backendNamepath: namepath,
-          forId: file.resourceId,
-          fimidaraExt: file.ext,
-          backendExt: ext,
-          persisted: {
-            filepath: persistedMountData.filepath,
-            lastUpdatedAt: file.lastUpdatedAt,
-            mountId: primaryMount.resourceId,
-            raw: persistedMountData.raw,
-            encoding: file.encoding,
-            mimetype: file.mimetype,
-            size: file.size,
-          },
-        }
-      );
-
-      const [savedFile] = await Promise.all([
-        kSemanticModels
-          .file()
-          .getAndUpdateOneById(file.resourceId, update, opts),
-        kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts),
-      ]);
-
-      assertFile(savedFile);
-      return savedFile;
-    });
-
-    assertFile(file);
-    return {file: fileExtractor(file)};
-  } catch (error) {
-    await kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels
-        .file()
-        .getAndUpdateOneById(file.resourceId, {isWriteAvailable: true}, opts);
-    });
-
-    throw error;
+    return result;
+  } else {
+    return handleUploadFile({file, data, agent, isNewFile, reqData});
   }
 };
 

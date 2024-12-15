@@ -1,3 +1,4 @@
+import {randomUUID} from 'crypto';
 import {tmpdir} from 'os';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
@@ -37,7 +38,11 @@ describe('utils', () => {
     ).toBeTruthy();
     expect(
       isFilePersistenceProvider(
-        new LocalFsFilePersistenceProvider({dir: tmpdir()})
+        new LocalFsFilePersistenceProvider({
+          // TODO: we should clean this up
+          dir: tmpdir() + '/' + randomUUID(),
+          partsDir: tmpdir() + '/' + randomUUID(),
+        })
       )
     ).toBeTruthy();
     expect(

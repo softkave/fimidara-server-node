@@ -1,8 +1,9 @@
 import busboy from 'busboy';
 import {Request, Response} from 'express';
-import {first, isString, last} from 'lodash-es';
+import {first, isNumber, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {finished} from 'stream/promises';
 import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {convertToArray} from '../../utils/fns.js';
@@ -17,12 +18,14 @@ import deleteFile from './deleteFile/handler.js';
 import {
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
+  getPartDetailsEndpointDefinition,
   readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getFileDetails from './getFileDetails/handler.js';
+import getPartDetails from './getPartDetails/handler.js';
 import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,
@@ -73,38 +76,15 @@ async function handleReadFileResponse(
 
   const responseHeaders: AnyObject = {
     'Content-Length': result.contentLength,
-    'Content-Type': result.mimetype,
   };
+
+  if (result.mimetype) {
+    responseHeaders['Content-Type'] = result.mimetype;
+  }
+
   res.set(responseHeaders).status(kEndpointConstants.httpStatusCode.ok);
-
-  return new Promise<void>(resolve => {
-    // TODO: set timeout for stream after which, we destroy it, to avoid leaving
-    // a stream on indefinitely or waiting resources (memory)
-    result.stream.on('data', data => {
-      res.write(data, error => {
-        if (error) {
-          // TODO: better handle error
-          kUtilsInjectables.logger().log('readFile stream.data.error');
-          kUtilsInjectables.logger().error(error);
-        }
-      });
-    });
-
-    // TODO: better handle error
-    result.stream.on('error', error => {
-      kUtilsInjectables.logger().log('readFile stream.error');
-      kUtilsInjectables.logger().error(error);
-      res.end();
-      resolve();
-    });
-
-    result.stream.on('end', () => {
-      res.end();
-      resolve();
-    });
-
-    // result.stream.pipe(res);
-  });
+  result.stream.pipe(res, {end: true});
+  await finished(res, {cleanup: true});
 }
 
 /**
@@ -161,6 +141,13 @@ async function extractUploadFileParamsFromReq(
     req.headers[kFileConstants.headers['x-fimidara-file-description']];
   const mimeType =
     req.headers[kFileConstants.headers['x-fimidara-file-mimetype']];
+  const clientMultipartId =
+    req.headers[kFileConstants.headers['x-fimidara-multipart-id']];
+  const part = parseInt(
+    req.headers[kFileConstants.headers['x-fimidara-multipart-part']] as string
+  );
+  const isLastPart =
+    req.headers[kFileConstants.headers['x-fimidara-multipart-is-last-part']];
 
   const bb = busboy({
     limits: kFileConstants.multipartLimits,
@@ -195,7 +182,7 @@ async function extractUploadFileParamsFromReq(
       resolve({
         ...matcher,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        encoding: info.encoding ?? contentEncoding,
+        encoding: isString(contentEncoding) ? contentEncoding : info.encoding,
         description: description
           ? first(convertToArray(description))
           : undefined,
@@ -203,6 +190,11 @@ async function extractUploadFileParamsFromReq(
         // TODO: this is safe because there's Joi validation at the endpoint
         // level
         size: contentLength as unknown as number,
+        clientMultipartId: isString(clientMultipartId)
+          ? clientMultipartId
+          : undefined,
+        part: isNumber(part) && !isNaN(part) ? part : undefined,
+        isLastPart: isLastPart === 'true' ? true : false,
       });
     });
 
@@ -221,7 +213,7 @@ async function extractUploadFileParamsFromReq(
       resolve({
         ...matcher,
         mimetype: isString(mimeType) && mimeType ? mimeType : info.mimeType,
-        encoding: info.encoding ?? contentEncoding,
+        encoding: isString(contentEncoding) ? contentEncoding : info.encoding,
         data: Readable.from(value),
         description: description
           ? first(convertToArray(description))
@@ -229,6 +221,11 @@ async function extractUploadFileParamsFromReq(
         // TODO: this is safe because there's Joi validation at the endpoint
         // level
         size: contentLength as unknown as number,
+        part: isNumber(part) && !isNaN(part) ? part : undefined,
+        isLastPart: isLastPart === 'true' ? true : false,
+        clientMultipartId: isString(clientMultipartId)
+          ? clientMultipartId
+          : undefined,
       });
     });
   });
@@ -275,6 +272,12 @@ export function getFilesHttpEndpoints() {
       mddocHttpDefinition: getFileDetailsEndpointDefinition,
       handleError: handleNotFoundError,
       fn: getFileDetails,
+    },
+    getPartDetails: {
+      tag: [kEndpointTag.public],
+      mddocHttpDefinition: getPartDetailsEndpointDefinition,
+      handleError: handleNotFoundError,
+      fn: getPartDetails,
     },
     readFile: [
       {

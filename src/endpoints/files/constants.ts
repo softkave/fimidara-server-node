@@ -8,6 +8,7 @@ const multipartLimits: BusboyConfig['limits'] = {
   fieldSize: maxFileSizeInBytes,
   fileSize: maxFileSizeInBytes,
 };
+
 export const kFileConstants = {
   maxFileSizeInBytes,
   multipartLimits,
@@ -27,11 +28,21 @@ export const kFileConstants = {
     uploadFile: `${kEndpointConstants.apiv1}/files/uploadFile`,
     // TODO: better implement divide between express paths and mddoc def
     uploadFile_post: `${kEndpointConstants.apiv1}/files/uploadFile/:filepathOrId`,
+    getPartDetails: `${kEndpointConstants.apiv1}/files/getPartDetails`,
   },
   headers: {
     'x-fimidara-file-encoding': 'x-fimidara-file-encoding',
     'x-fimidara-file-description': 'x-fimidara-file-description',
     'x-fimidara-file-mimetype': 'x-fimidara-file-mimetype',
     'x-fimidara-file-size': 'x-fimidara-file-size',
+    'x-fimidara-multipart-id': 'x-fimidara-multipart-id',
+    'x-fimidara-multipart-part': 'x-fimidara-multipart-part',
+    'x-fimidara-multipart-is-last-part': 'x-fimidara-multipart-is-last-part',
   } as const,
+  multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
+  maxPartLength: 10_000,
+  partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
+  getPartCacheKey: (multipartId: string, part: number) => {
+    return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;
+  },
 };

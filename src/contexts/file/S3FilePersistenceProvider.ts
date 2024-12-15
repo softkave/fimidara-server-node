@@ -1,11 +1,17 @@
 import {
+  AbortMultipartUploadCommand,
+  CompletedPart,
+  CompleteMultipartUploadCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
   HeadObjectCommandOutput,
+  ListMultipartUploadsCommand,
   ListObjectsV2Command,
   ObjectIdentifier,
   S3Client,
+  UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {first} from 'lodash-es';
@@ -14,10 +20,15 @@ import {Readable} from 'stream';
 import {FileBackendMount} from '../../definitions/fileBackend.js';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {appAssert} from '../../utils/assertion.js';
+import {streamToBuffer} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {
+  FilePersistenceCleanupMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
+  FilePersistenceDeleteMultipartUploadPartParams,
   FilePersistenceDescribeFileParams,
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderFoldersParams,
@@ -25,9 +36,12 @@ import {
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
   FilePersistenceProviderFeature,
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
   FilePersistenceToFimidaraPathParams,
   FilePersistenceToFimidaraPathResult,
   FilePersistenceUploadFileParams,
+  FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
   PersistedFile,
   PersistedFileDescription,
@@ -84,27 +98,56 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     }
   };
 
-  async uploadFile(params: FilePersistenceUploadFileParams) {
+  async uploadFile(
+    params: FilePersistenceUploadFileParams
+  ): Promise<FilePersistenceUploadFileResult> {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
-    const parallelUploads3 = new Upload({
-      client: this.s3,
-      params: {
-        Bucket: bucket,
-        Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
-        Body: params.body,
-        ContentType: params.mimetype,
-        ContentEncoding: params.encoding,
-      },
-      queueSize: 4,
-      partSize: 1024 * 1024 * 5, // 5MB
-      leavePartsOnError: false,
-    });
 
-    const response = await parallelUploads3.done();
-    return {filepath: params.filepath, raw: response};
+    if (params.multipartId) {
+      const response = await this.uploadPart(
+        bucket,
+        nativePath,
+        params.multipartId,
+        params
+      );
+      return {
+        filepath: params.filepath,
+        raw: response,
+        partId: response.ETag,
+        part: params.part,
+        multipartId: params.multipartId,
+      };
+    } else {
+      const response = await this.parrallelUpload(bucket, nativePath, params);
+      return {filepath: params.filepath, raw: response};
+    }
+  }
+
+  async startMultipartUpload(
+    params: FilePersistenceStartMultipartUploadParams
+  ): Promise<FilePersistenceStartMultipartUploadResult> {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    const key = this.formatKey(nativePath, {removeStartingSeparator: true});
+    const command = new CreateMultipartUploadCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    const response = await this.s3.send(command);
+    appAssert(response.UploadId);
+    return {multipartId: response.UploadId};
+  }
+
+  async deleteMultipartUploadPart(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _params: FilePersistenceDeleteMultipartUploadPartParams
+  ) {
+    // not supported
   }
 
   readFile = async (
@@ -318,7 +361,53 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     return {fimidaraPath};
   };
 
-  formatKey(
+  async completeMultipartUpload(
+    params: FilePersistenceCompleteMultipartUploadParams
+  ): Promise<FilePersistenceCompleteMultipartUploadResult> {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+
+    const parts = params.parts.map(
+      (part): CompletedPart => ({
+        PartNumber: part.part,
+        ETag: part.partId,
+      })
+    );
+    const key = this.formatKey(nativePath, {removeStartingSeparator: true});
+    const command = new CompleteMultipartUploadCommand({
+      Bucket: bucket,
+      Key: key,
+      UploadId: params.multipartId,
+      MultipartUpload: {Parts: parts},
+    });
+
+    const result = await this.s3.send(command);
+    return {
+      filepath: params.filepath,
+      raw: result,
+    };
+  }
+
+  async cleanupMultipartUpload(
+    params: FilePersistenceCleanupMultipartUploadParams
+  ) {
+    const {bucket, nativePath} = this.toNativePath({
+      fimidaraPath: params.filepath,
+      mount: params.mount,
+    });
+    const key = this.formatKey(nativePath, {removeStartingSeparator: true});
+    const command = new AbortMultipartUploadCommand({
+      Bucket: bucket,
+      Key: key,
+      UploadId: params.multipartId,
+    });
+
+    await this.s3.send(command);
+  }
+
+  protected formatKey(
     key: string,
     options: {
       removeStartingSeparator?: boolean;
@@ -339,5 +428,61 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     }
 
     return key;
+  }
+
+  protected async hasMultipartsUploads(bucket: string, key: string) {
+    key = this.formatKey(key, {removeStartingSeparator: true});
+    const command = new ListMultipartUploadsCommand({
+      Bucket: bucket,
+      Prefix: key,
+      MaxUploads: 1,
+    });
+    const response = await this.s3.send(command);
+    return !!response.Uploads?.length;
+  }
+
+  protected async uploadPart(
+    bucket: string,
+    key: string,
+    multipartId: string,
+    params: FilePersistenceUploadFileParams
+  ) {
+    key = this.formatKey(key, {removeStartingSeparator: true});
+
+    // TODO: implement a better way to handle this without buffering
+    const buffer = await streamToBuffer(params.body);
+    const command = new UploadPartCommand({
+      Bucket: bucket,
+      Key: key,
+      UploadId: multipartId,
+      PartNumber: params.part,
+      Body: buffer,
+    });
+
+    const response = await this.s3.send(command);
+    return response;
+  }
+
+  protected async parrallelUpload(
+    bucket: string,
+    nativePath: string,
+    params: FilePersistenceUploadFileParams
+  ) {
+    const upload = new Upload({
+      client: this.s3,
+      params: {
+        Bucket: bucket,
+        Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
+        Body: params.body,
+        ContentType: params.mimetype,
+        ContentEncoding: params.encoding,
+      },
+      queueSize: 4,
+      partSize: 1024 * 1024 * 5, // 5MB
+      leavePartsOnError: false,
+    });
+
+    const response = await upload.done();
+    return response;
   }
 }

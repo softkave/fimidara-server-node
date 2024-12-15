@@ -4,6 +4,7 @@ import fse from 'fs-extra';
 import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import path from 'path';
 import {AnyObject} from 'softkave-js-utils';
+import {globalDispose} from '../contexts/globalUtils.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {registerUtilsInjectables} from '../contexts/injection/register.js';
 import {
@@ -13,7 +14,6 @@ import {
 import {kEndpointTag} from '../endpoints/types.js';
 import {
   kFimidaraConfigDbType,
-  kFimidaraConfigPubSubProvider,
   kFimidaraConfigQueueProvider,
 } from '../resources/config.js';
 import {isObjectEmpty, pathSplit} from '../utils/fns.js';
@@ -45,7 +45,6 @@ import {
   objectHasRequiredFields,
 } from './mddoc.js';
 import {filterEndpoints} from './utils.js';
-import {globalDispose} from '../contexts/globalUtils.js';
 
 class Doc {
   protected disclaimer =
@@ -241,7 +240,7 @@ function getBinaryType(
     return 'Blob | Readable';
   } else {
     doc.appendTypeImport(['Readable'], 'stream');
-    return 'string | Readable | Blob';
+    return 'string | Readable | Blob | Buffer';
   }
 }
 
@@ -668,7 +667,11 @@ async function main() {
   await registerUtilsInjectables({
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
-    pubSubProvider: kFimidaraConfigPubSubProvider.memory,
+    pubSubProvider: kFimidaraConfigQueueProvider.memory,
+    redlockProvider: kFimidaraConfigQueueProvider.memory,
+    cacheProvider: kFimidaraConfigQueueProvider.memory,
+    dsetProvider: kFimidaraConfigQueueProvider.memory,
+    redisURL: '',
   });
 
   await Promise.all([

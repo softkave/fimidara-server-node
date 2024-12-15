@@ -120,7 +120,9 @@ test-mongo-rs-data/
 
 # Local file persistence backend save dir
 dev-local-fs/
+dev-local-parts-fs/
 test-local-fs/
+test-local-parts-fs/
 
 # Runtime logs
 runtime-logs/
@@ -134,3 +136,13 @@ certs/
 
 # local shananigans
 testdir/
+
+# Redis
+dump.rdb
+
+# JS SDK tests
+sdk/js-sdk/src/testutils/testdata/
+
+# DS_Store
+.DS_Store
+**/.DS_Store

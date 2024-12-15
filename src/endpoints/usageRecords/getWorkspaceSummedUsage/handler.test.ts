@@ -1,4 +1,5 @@
 import {add, endOfMonth, startOfMonth, sub} from 'date-fns';
+import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
@@ -10,7 +11,6 @@ import {
   kUsageSummationType,
 } from '../../../definitions/usageRecord.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {calculatePageSize} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';

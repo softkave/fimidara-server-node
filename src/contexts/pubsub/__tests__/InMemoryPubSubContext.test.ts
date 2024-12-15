@@ -69,7 +69,9 @@ describe('InMemoryPubSubContext', () => {
     const fn = vi.fn();
     await context.subscribe('channel', fn);
     await context.publish('channel', 'message');
-    expect(fn).toHaveBeenCalledWith('message', 'channel');
+    expect(fn).toHaveBeenCalledWith('message', 'channel', {
+      unsubscribe: expect.any(Function),
+    });
   });
 
   test('publish json', async () => {
@@ -78,15 +80,24 @@ describe('InMemoryPubSubContext', () => {
     const fn = vi.fn();
     await context.subscribeJson('channel', fn);
     await context.publish('channel', json);
-    expect(fn).toHaveBeenCalledWith(json, 'channel');
+    expect(fn).toHaveBeenCalledWith(json, 'channel', {
+      unsubscribe: expect.any(Function),
+    });
   });
 
   test('subscribe', async () => {
     const context = new InMemoryPubSubContext();
     const fn = vi.fn();
-    await context.subscribe('channel', fn);
+    const sub = await context.subscribe('channel', fn);
     await context.publish('channel', 'message');
-    expect(fn).toHaveBeenCalledWith('message', 'channel');
+    expect(fn).toHaveBeenCalledWith('message', 'channel', {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
+
+    sub.unsubscribe();
+    await context.publish('channel', 'message');
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('unsubscribe', async () => {
@@ -128,9 +139,16 @@ describe('InMemoryPubSubContext', () => {
   test('subscribeJson', async () => {
     const context = new InMemoryPubSubContext();
     const fn = vi.fn();
-    await context.subscribeJson('channel', fn);
+    const sub = await context.subscribeJson('channel', fn);
     await context.publish('channel', {key: 'value'});
-    expect(fn).toHaveBeenCalledWith({key: 'value'}, 'channel');
+    expect(fn).toHaveBeenCalledWith({key: 'value'}, 'channel', {
+      unsubscribe: expect.any(Function),
+    });
+    fn.mockClear();
+
+    sub.unsubscribe();
+    await context.publish('channel', {key: 'value'});
+    expect(fn).not.toHaveBeenCalled();
   });
 
   test('subscribeJson with invalid message', async () => {

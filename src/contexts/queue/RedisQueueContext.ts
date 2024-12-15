@@ -67,8 +67,4 @@ export class RedisQueueContext implements IQueueContext {
       fn(hasData);
     });
   };
-
-  dispose = async () => {
-    await this.redis.quit();
-  };
 }
