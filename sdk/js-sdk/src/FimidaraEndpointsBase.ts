@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {isString} from 'lodash-es';
+import {isNil, isString} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {FimidaraJsConfig, FimidaraJsConfigAuthToken} from './config.js';
 import {InvokeEndpointParams, invokeEndpoint} from './invokeEndpoint.js';
@@ -31,25 +31,31 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
 
     if (mapping && data) {
       const path: AnyObject = {};
+
+      function write(obj: AnyObject, field: string, value: any) {
+        if (isNil(obj[field])) obj[field] = value;
+        else if (value !== undefined) obj[field] = value;
+      }
+
       Object.entries(data).forEach(([key, value]) => {
         const [mapTo, field] = mapping[key] ?? [];
 
         switch (mapTo) {
           case 'header':
-            headers[field] = value;
+            write(headers, field, value);
             break;
 
           case 'query':
-            query[field] = value;
+            write(query, field, value);
             break;
 
           case 'path':
-            path[field] = value;
+            write(path, field, value);
             break;
 
           case 'body':
           default:
-            body[field || key] = value;
+            write(body, field || key, value);
         }
       });
 

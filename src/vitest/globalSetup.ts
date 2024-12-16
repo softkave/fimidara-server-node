@@ -5,11 +5,14 @@ import {getSuppliedConfig} from '../resources/config.js';
 import {dropMongoCollections} from './utils.js';
 
 export async function setup() {
-  await globalSetup({
-    useFimidaraApp: false,
-    useFimidaraWorkerPool: false,
-    addFolderQueueNo: [],
-  });
+  await globalSetup(
+    {
+      useFimidaraApp: false,
+      useFimidaraWorkerPool: false,
+      addFolderQueueNo: [],
+    },
+    {useHandleFolderQueue: true}
+  );
   await initFimidara();
 }
 

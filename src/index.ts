@@ -97,7 +97,7 @@ function setupJWT() {
 }
 
 async function setup() {
-  await globalSetup();
+  await globalSetup(/** overrideConfig */ {}, {useHandleFolderQueue: true});
   kUtilsInjectables.logger().log('Server initialization');
 
   // Run scripts here

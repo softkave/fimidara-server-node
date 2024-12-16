@@ -402,9 +402,9 @@ async function createFolderListWithWorkspace(input: IAddFolderQueueInput[]) {
 async function addFolderQueueCreateFolderList(input: IAddFolderQueueInput[]) {
   const inputByWorkspace = groupBy(input, next => next.workspaceId);
   await Promise.all(
-    Object.entries(inputByWorkspace).map(async ([, input]) =>
-      createFolderListWithWorkspace(input)
-    )
+    Object.entries(inputByWorkspace).map(async ([, input]) => {
+      return await createFolderListWithWorkspace(input);
+    })
   );
 }
 

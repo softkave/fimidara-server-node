@@ -19,7 +19,12 @@ export async function globalDispose() {
   await kUtilsInjectables.dbConnection().close();
 }
 
-export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
+export async function globalSetup(
+  overrideConfig: FimidaraSuppliedConfig = {},
+  otherConfig: {
+    useHandleFolderQueue?: boolean;
+  }
+) {
   await registerInjectables(overrideConfig);
   await kUtilsInjectables.dbConnection().wait();
 
@@ -39,6 +44,7 @@ export async function globalSetup(overrideConfig: FimidaraSuppliedConfig = {}) {
   }
 
   if (
+    otherConfig.useHandleFolderQueue &&
     suppliedConfig.addFolderQueueNo &&
     suppliedConfig.addFolderQueueNo.length > 0
   ) {

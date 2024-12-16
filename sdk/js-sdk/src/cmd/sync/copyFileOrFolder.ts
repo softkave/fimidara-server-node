@@ -23,8 +23,6 @@ export async function copyFileOrFolder(opts: IFimidaraSyncRuntimeOpts) {
     }
   }
 
-  console.log({type, fimidarapath, localpath});
-
   if (type === kFileEntryType.file) {
     await copyFile(fimidarapath, localpath, opts);
   } else if (type === kFileEntryType.folder) {

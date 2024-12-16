@@ -96,16 +96,22 @@ export function getTestEmailProvider() {
 }
 
 export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
-  await globalSetup({
-    useFimidaraApp: false,
-    useFimidaraWorkerPool: false,
-    ...overrides,
-  });
+  await globalSetup(
+    {
+      useFimidaraApp: false,
+      useFimidaraWorkerPool: false,
+      ...overrides,
+    },
+    {useHandleFolderQueue: true}
+  );
   await initFimidara();
 }
 
 export async function initFnTests() {
-  await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
+  await globalSetup(
+    {useFimidaraApp: false, useFimidaraWorkerPool: false},
+    {useHandleFolderQueue: true}
+  );
 }
 
 export function assertEndpointResultOk(result?: BaseEndpointResult | void) {

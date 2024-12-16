@@ -32,7 +32,7 @@ afterAll(async () => {
 describe('copyFolder', () => {
   test.each([
     {paged: true, recursive: undefined, direction: undefined},
-    {recursive: false},
+    {recursive: false, paged: undefined, direction: undefined},
     {recursive: true, direction: kFimidaraSyncDirection.up},
     {recursive: true, direction: kFimidaraSyncDirection.down},
     {recursive: true, direction: kFimidaraSyncDirection.both, paged: undefined},

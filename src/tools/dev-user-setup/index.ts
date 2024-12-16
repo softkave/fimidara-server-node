@@ -14,7 +14,10 @@ const appOptions: ISetupDevUserOptions = {
 };
 
 async function main() {
-  await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
+  await globalSetup(
+    {useFimidaraApp: false, useFimidaraWorkerPool: false},
+    {useHandleFolderQueue: true}
+  );
   await setupDevUser(appOptions);
   await globalDispose();
 }

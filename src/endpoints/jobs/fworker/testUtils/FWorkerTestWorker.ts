@@ -6,7 +6,10 @@ import {FWorkerMessager} from '../FWorkerMessager.js';
 import {kFWorkerTestWorkerTerminateMessage} from './constants.js';
 
 async function main() {
-  await globalSetup({useFimidaraApp: false, useFimidaraWorkerPool: false});
+  await globalSetup(
+    {useFimidaraApp: false, useFimidaraWorkerPool: false},
+    {useHandleFolderQueue: false}
+  );
   const fworker = new FWorker();
 
   fworker.getPort().on('message', message => {

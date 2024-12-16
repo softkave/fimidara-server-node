@@ -1,4 +1,4 @@
-import {faker} from '@faker-js/faker';
+import {randomUUID} from 'crypto';
 import {flatten} from 'lodash-es';
 import path from 'path-browserify';
 import {stringifyFimidaraFolderpath} from '../../path/index.js';
@@ -13,7 +13,7 @@ import {
 } from './syncUtils.js';
 
 export async function setupCopyFolder(testDir: string, paged?: boolean) {
-  const foldername = faker.number.int({min: 10_000}).toString();
+  const foldername = randomUUID();
   const localpath = path.join(testDir, foldername);
   const fimidarapath = stringifyFimidaraFolderpath(
     {namepath: [foldername]},

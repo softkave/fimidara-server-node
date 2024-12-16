@@ -45,6 +45,7 @@ const listFolderContent: ListFolderContentEndpoint = async reqData => {
     kFimidaraResourceType.File,
     kFimidaraResourceType.Folder,
   ];
+
   const [fetchedFolders, fetchedFiles] = await Promise.all([
     contentType.includes(kFimidaraResourceType.Folder)
       ? fetchFolders(agent, workspace, parentFolder, data)

@@ -153,9 +153,11 @@ export async function multipartUploadNode(params: IMultipartUploadNodeParams) {
     'No size. Please provide size or data as Buffer or string, or provide localFilepath.'
   );
 
-  return await multipartUpload({
+  const result = await multipartUpload({
     ...rest,
     readFrom,
     size,
   });
+
+  return result;
 }
