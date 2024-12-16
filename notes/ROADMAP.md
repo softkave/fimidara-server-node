@@ -27,4 +27,4 @@
 - mdx docs for sdk and rest api
 - error pages
 - new homepage with features + code
-- dev log
+- devlog and changelog

@@ -98,7 +98,7 @@
                     "__id": "FieldArray",
                     "type": {
                         "__id": "FieldObject",
-                        "name": "PublicPartDetails",
+                        "name": "PartDetails",
                         "fields": {
                             "part": {
                                 "data": {
