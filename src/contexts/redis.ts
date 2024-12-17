@@ -21,6 +21,8 @@ export async function getIoRedis() {
   const redis = new Redis.default({
     port: parseInt(p.port),
     host: p.hostname,
+    username: p.username,
+    password: p.password,
     db: redisDatabase,
     lazyConnect: true,
   });

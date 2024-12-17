@@ -1,5 +1,6 @@
 ## NextJs
 
+- show error when server is unavailable
 - toggle all should toggle all permission and untoggling one should untoggle all
 - deleted file not removed from list. check folder too
 - only text navigates not menu in sidenav, and other menus not navigated to get selected
