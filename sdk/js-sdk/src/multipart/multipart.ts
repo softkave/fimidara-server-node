@@ -5,12 +5,12 @@ import {
   loopAsync,
   OrPromise,
 } from 'softkave-js-utils';
-import {
-  FimidaraEndpointError,
-  FimidaraEndpoints,
+import type {FimidaraEndpoints} from '../endpoints/publicEndpoints.js';
+import type {
   PartDetails,
   UploadFileEndpointParams,
-} from '../index.js';
+} from '../endpoints/publicTypes.js';
+import {FimidaraEndpointError} from '../error.js';
 
 const kMaxFileSize = 50 * 1024 * 1024 * 1024; // 50GB
 const kMaxParts = 10_000;
@@ -71,6 +71,12 @@ async function getUploadPartDetails(params: {
   }
 }
 
+export interface IMultipartUploadHookFnParams {
+  part: number;
+  size: number;
+  estimatedNumParts: number;
+}
+
 export interface IMultipartUploadParams
   extends Pick<
     UploadFileEndpointParams,
@@ -84,8 +90,8 @@ export interface IMultipartUploadParams
     end: number,
     size: number
   ) => Promise<{data: UploadFileEndpointParams['data']; size: number}>;
-  beforePart?: (part: number) => OrPromise<void>;
-  afterPart?: (part: number) => OrPromise<void>;
+  beforePart?: (params: IMultipartUploadHookFnParams) => OrPromise<void>;
+  afterPart?: (params: IMultipartUploadHookFnParams) => OrPromise<void>;
   numConcurrentParts?: number;
 }
 
@@ -101,7 +107,13 @@ async function uploadOnce(params: IMultipartUploadParams) {
   } = params;
 
   const {data, size: partSize} = await readFrom(0, size, size);
-  await beforePart?.(0);
+  const hookParams: IMultipartUploadHookFnParams = {
+    part: 0,
+    size: partSize,
+    estimatedNumParts: 1,
+  };
+
+  await beforePart?.(hookParams);
   const result = await endpoints.files.uploadFile({
     data,
     description: rest.description,
@@ -111,7 +123,7 @@ async function uploadOnce(params: IMultipartUploadParams) {
     filepath: rest.filepath,
     size: partSize,
   });
-  await afterPart?.(0);
+  await afterPart?.(hookParams);
   return result;
 }
 
@@ -203,7 +215,13 @@ export async function multipartUpload(params: IMultipartUploadParams) {
       let dataOrNull = await readNext();
 
       while (dataOrNull && dataOrNull.partData.size) {
-        await beforePart?.(dataOrNull.part);
+        const hookParams: IMultipartUploadHookFnParams = {
+          part: dataOrNull.part,
+          size: dataOrNull.partData.size,
+          estimatedNumParts: numParts,
+        };
+
+        await beforePart?.(hookParams);
         await endpoints.files.uploadFile({
           ...rest,
           clientMultipartId,
@@ -211,8 +229,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
           part: dataOrNull.part,
           data: dataOrNull.partData.data,
         });
-
-        await afterPart?.(dataOrNull.part);
+        await afterPart?.(hookParams);
         dataOrNull = await readNext();
       }
     },

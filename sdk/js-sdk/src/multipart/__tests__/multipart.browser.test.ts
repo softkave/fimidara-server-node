@@ -4,16 +4,16 @@ import assert from 'assert';
 import path from 'path-browserify';
 import {beforeAll, describe, expect, test} from 'vitest';
 import {
-  fimidaraAddRootnameToPath,
   FimidaraEndpoints,
+  fimidaraAddRootnameToPath,
   stringifyFimidaraFilepath,
-} from '../indexBrowser.js';
+} from '../../indexBrowser.js';
 import {
   generateTestSlop,
   hasTestSlop,
-} from '../testutils/generate/generateTestSlop.browser.js';
-import {getTestVars} from '../testutils/utils.common.js';
-import {multipartUploadBrowser} from './multipartBrowser.js';
+} from '../../testutils/generate/generateTestSlop.browser.js';
+import {getTestVars} from '../../testutils/utils.common.js';
+import {multipartUploadBrowser} from '../multipartBrowser.js';
 
 const testVars = getTestVars();
 const fimidara = new FimidaraEndpoints({
@@ -121,8 +121,8 @@ describe.each([
           clientMultipartId,
           endpoints: fimidara,
           numConcurrentParts: 1,
-          afterPart: part => {
-            completedParts.push(part);
+          afterPart: hookParams => {
+            completedParts.push(hookParams.part);
           },
           beforePart: () => {
             if (completedParts.length > 0) {
@@ -140,8 +140,8 @@ describe.each([
           data: reqAgain.data,
           size: reqAgain.size,
           endpoints: fimidara,
-          afterPart: part => {
-            completedParts.push(part);
+          afterPart: hookParams => {
+            completedParts.push(hookParams.part);
           },
         });
 

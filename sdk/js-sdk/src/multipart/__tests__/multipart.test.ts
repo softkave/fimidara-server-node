@@ -6,16 +6,16 @@ import {readFile, writeFile} from 'fs/promises';
 import path from 'path';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
-  fimidaraAddRootnameToPath,
   FimidaraEndpoints,
+  fimidaraAddRootnameToPath,
   stringifyFimidaraFilepath,
-} from '../index.js';
+} from '../../indexNode.js';
 import {
   generateTestSlop,
   hasTestSlop,
-} from '../testutils/generate/generateTestSlop.node.js';
-import {getTestVars} from '../testutils/utils.common.js';
-import {multipartUploadNode} from './multipartNode.js';
+} from '../../testutils/generate/generateTestSlop.node.js';
+import {getTestVars} from '../../testutils/utils.common.js';
+import {multipartUploadNode} from '../multipartNode.js';
 
 const kMinSlopSize = 20 * 1024 * 1024; // 20MB
 const testVars = getTestVars();
@@ -156,8 +156,8 @@ describe.each([
           clientMultipartId,
           endpoints: fimidara,
           numConcurrentParts: 1,
-          afterPart: part => {
-            completedParts.push(part);
+          afterPart: hookParams => {
+            completedParts.push(hookParams.part);
           },
           beforePart: p => {
             if (completedParts.length > 0) {
@@ -176,8 +176,8 @@ describe.each([
           size: reqAgain.size,
           localFilepath: reqAgain.localFilepath,
           endpoints: fimidara,
-          afterPart: part => {
-            completedParts.push(part);
+          afterPart: hookParams => {
+            completedParts.push(hookParams.part);
           },
         });
 

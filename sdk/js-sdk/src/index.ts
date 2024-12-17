@@ -4,6 +4,7 @@ export * from './endpoints/publicEndpoints.js';
 export type * from './endpoints/publicTypes.js';
 export * from './error.js';
 export * from './folder/index.js';
+export * from './multipart/multipart.js';
 export * from './path/index.js';
 export * from './RefreshAgentToken.js';
 export type * from './types.js';

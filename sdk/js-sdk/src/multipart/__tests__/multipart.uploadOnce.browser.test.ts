@@ -2,13 +2,16 @@ import {faker} from '@faker-js/faker';
 import {server} from '@vitest/browser/context';
 import path from 'path-browserify';
 import {beforeAll, describe, expect, test} from 'vitest';
-import {fimidaraAddRootnameToPath, FimidaraEndpoints} from '../indexBrowser.js';
+import {
+  fimidaraAddRootnameToPath,
+  FimidaraEndpoints,
+} from '../../indexBrowser.js';
 import {
   generateTestSlop,
   hasTestSlop,
-} from '../testutils/generate/generateTestSlop.browser.js';
-import {getTestVars} from '../testutils/utils.common.js';
-import {multipartUploadBrowser} from './multipartBrowser.js';
+} from '../../testutils/generate/generateTestSlop.browser.js';
+import {getTestVars} from '../../testutils/utils.common.js';
+import {multipartUploadBrowser} from '../multipartBrowser.js';
 
 const testVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

@@ -23,8 +23,8 @@
 
 ## NextJs
 
-- use multipart upload in app
 - mdx docs for sdk and rest api
 - error pages
 - new homepage with features + code
 - devlog and changelog
+- use shadcn's navbar
