@@ -106,13 +106,15 @@ export class FimidaraFilePersistenceProvider
   startMultipartUpload = async (
     params: FilePersistenceStartMultipartUploadParams
   ): Promise<FilePersistenceStartMultipartUploadResult> => {
-    return this.backend.startMultipartUpload(params);
+    const preparedParams = this.prepareParams(params);
+    return this.backend.startMultipartUpload(preparedParams);
   };
 
   deleteMultipartUploadPart = async (
     params: FilePersistenceDeleteMultipartUploadPartParams
   ) => {
-    return this.backend.deleteMultipartUploadPart(params);
+    const preparedParams = this.prepareParams(params);
+    return this.backend.deleteMultipartUploadPart(preparedParams);
   };
 
   completeMultipartUpload = async (

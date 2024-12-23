@@ -207,6 +207,7 @@ export interface FilePersistenceStartMultipartUploadResult {
 export interface FilePersistenceDeleteMultipartUploadPartParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
+  fileId: string;
   multipartId: string;
   part: number;
 }

@@ -24,6 +24,8 @@
 - file upload time and speed
 - expanded design of file in upload file
 - input outline is truncated
+- add files layout is still broken
+  - auto trim file name to fit limit
 
 ## CLI
 
