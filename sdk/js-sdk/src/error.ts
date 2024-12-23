@@ -21,7 +21,10 @@ export class FimidaraEndpointError extends Error {
     public headers?: FimidaraEndpointHeaders
   ) {
     super(
-      errors.map(item => item.message).join('\n') || 'Fimidara endpoint error'
+      errors.map(item => item.message).join('\n') ||
+        'fimidara endpoint error. ' +
+          'This could be because the client is not able to connect to the server. ' +
+          'Please check your internet connection or check with Support if the issue persists.'
     );
   }
 }

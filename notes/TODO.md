@@ -155,3 +155,4 @@
 - homepage refresh
 - icons to files, with size
 - open items in drawer panel
+- bolder font
