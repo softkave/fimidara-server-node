@@ -17,7 +17,7 @@ import {
 } from './utils.js';
 
 interface IRunArtifacts<TOutputItem>
-  extends ReturnType<typeof getDeferredPromise<TOutputItem[]>> {
+  extends ReturnType<typeof getDeferredPromise<TOutputItem>> {
   timeout: DisposableTimeout | null;
   queueKey: string;
   channel: string;
@@ -59,11 +59,11 @@ function cleanup(vars: IRunArtifacts<any>) {
 export async function queueShardRunner<TInputItem, TOutputItem>(params: {
   agent: Agent;
   workspaceId: string;
-  items: TInputItem[];
+  item: TInputItem;
   queueKey: string;
   timeoutMs: number;
 }) {
-  const {agent, workspaceId, items, queueKey, timeoutMs} = params;
+  const {agent, workspaceId, item, queueKey, timeoutMs} = params;
 
   const id = getNewId();
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
@@ -71,7 +71,7 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
   const input: IShardRunnerEntry<TInputItem> = {
     agent,
     workspaceId,
-    items,
+    item,
     id,
     pubSubChannel: outputChannel,
   };
@@ -81,7 +81,7 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
     queueId: [],
     listener: null,
     timeout: null,
-    ...getDeferredPromise<TOutputItem[]>(),
+    ...getDeferredPromise<TOutputItem>(),
   };
 
   vars.promise.finally(() => cleanup(vars));
@@ -97,7 +97,7 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
         vars.timeout.extend(timeoutMs);
       }
     } else if (output.type === kShardRunnerOutputType.success) {
-      vars.resolve(output.items);
+      vars.resolve(output.item);
     } else {
       vars.reject(output.error);
     }
