@@ -20,6 +20,9 @@
 - find a solution to redis shutdowns
 - usage revamp
 - run sdk tests using redis
+- hardening
+  - use pubsub for addFolder
+  - separate usage server
 
 ## NextJs
 
