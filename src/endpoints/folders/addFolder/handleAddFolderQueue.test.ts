@@ -21,8 +21,12 @@ import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {kStringFalse, kStringTrue} from '../../../utils/constants.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
+import {
+  IShardRunnerEntry,
+  IShardRunnerOutput,
+  kShardRunnerOutputType,
+} from '../../../utils/shardRunner/types.js';
 import {NotFoundError} from '../../errors.js';
 import {
   generateAndInsertTestFolders,
@@ -41,9 +45,8 @@ import {kFolderConstants} from '../constants.js';
 import {getFolderpathInfo, stringifyFolderpath} from '../utils.js';
 import {startHandleAddFolderQueue} from './handleAddFolderQueue.js';
 import {
-  IAddFolderQueueInput,
-  IAddFolderQueueOutput,
-  kAddFolderQueueOutputType,
+  IAddFolderQueueShardRunnerInput,
+  IAddFolderQueueShardRunnerOutput,
 } from './types.js';
 
 // TODO: part of parent folder exists
@@ -63,22 +66,28 @@ afterEach(async () => {
   queueStart += 1;
 });
 
-interface ITestAddFolderQueueInput extends IAddFolderQueueInput {
-  hasAccess: string;
+interface ITestAddFolderQueueInput
+  extends IShardRunnerEntry<IAddFolderQueueShardRunnerInput> {
+  hasAccess: boolean;
 }
 
 function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
   const channel = `addFolder-${workspace.resourceId}`;
   return loopAndCollate(
-    (): OmitFrom<IAddFolderQueueInput, keyof Agent | 'id'> => {
+    (): OmitFrom<
+      IShardRunnerEntry<IAddFolderQueueShardRunnerInput>,
+      'agent' | 'id'
+    > => {
       return {
-        channel,
+        outputChannel: channel,
         workspaceId: workspace.resourceId,
-        folderpath: stringifyFolderpath({
-          namepath: generateTestFolderpath({rootname: workspace.rootname}),
-        }),
-        UNSAFE_skipAuthCheck: kStringFalse,
-        throwIfFolderExists: kStringFalse,
+        item: {
+          folderpath: stringifyFolderpath({
+            namepath: generateTestFolderpath({rootname: workspace.rootname}),
+          }),
+          UNSAFE_skipAuthCheck: false,
+          throwIfFolderExists: false,
+        },
       };
     },
     /** count */ 5
@@ -86,18 +95,27 @@ function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
 }
 
 function populateWithAgent(
-  input: OmitFrom<IAddFolderQueueInput, keyof Agent | 'id'>[],
+  input: OmitFrom<
+    IShardRunnerEntry<IAddFolderQueueShardRunnerInput>,
+    'agent' | 'id'
+  >[],
   agents: Agent[],
   hasAccess: boolean
 ): ITestAddFolderQueueInput[] {
   return flatten(
     input.map(inputItem =>
-      agents.map(agent => ({
-        ...inputItem,
-        ...agent,
-        hasAccess: hasAccess ? kStringTrue : kStringFalse,
-        id: getNewId(),
-      }))
+      agents.map(
+        (agent): ITestAddFolderQueueInput => ({
+          ...inputItem,
+          agent: {
+            agentId: agent.agentId,
+            agentType: agent.agentType,
+            agentTokenId: agent.agentTokenId,
+          },
+          hasAccess,
+          id: getNewId(),
+        })
+      )
     )
   );
 }
@@ -140,20 +158,20 @@ async function generateTokens(
 }
 
 async function readyChannel(
-  input: IAddFolderQueueInput[],
+  input: ITestAddFolderQueueInput[],
   fn: QueueContextSubscribeJsonFn
 ) {
   await Promise.all(
-    uniq(input.map(inputItem => inputItem.channel)).map(channel =>
+    uniq(input.map(inputItem => inputItem.outputChannel)).map(channel =>
       kUtilsInjectables.pubsub().subscribeJson(channel, fn)
     )
   );
 }
 
-async function insertInQueue(input: IAddFolderQueueInput[]) {
+async function insertInQueue(input: ITestAddFolderQueueInput[]) {
   const queueKeys = uniq(
     input.map(inputItem =>
-      kFolderConstants.getAddFolderQueueKey(inputItem.folderpath)
+      kFolderConstants.getAddFolderQueueKey(inputItem.item.folderpath)
     )
   );
   assert.ok(queueKeys.length === 1);
@@ -164,11 +182,11 @@ async function insertInQueue(input: IAddFolderQueueInput[]) {
     .addMessages(queueKey, input as unknown as IQueueMessage[]);
 }
 
-async function getFoldersFromDB(input: IAddFolderQueueInput[]) {
+async function getFoldersFromDB(input: ITestAddFolderQueueInput[]) {
   const folderpaths = uniqBy(
     input.map(inputItem => ({
       workspaceId: inputItem.workspaceId,
-      ...getFolderpathInfo(inputItem.folderpath, {
+      ...getFolderpathInfo(inputItem.item.folderpath, {
         allowRootFolder: false,
         containsRootname: true,
       }),
@@ -190,7 +208,7 @@ async function getFoldersFromDB(input: IAddFolderQueueInput[]) {
 }
 
 async function checkFoldersCreatedInDB(
-  input: IAddFolderQueueInput[],
+  input: ITestAddFolderQueueInput[],
   shouldBeCreated: boolean
 ) {
   const {foldersRecord, folderpaths} = await getFoldersFromDB(input);
@@ -208,30 +226,28 @@ async function checkFoldersCreatedInDB(
   });
 }
 
-async function checkFoldersNotDuplicated(input: IAddFolderQueueInput[]) {
+async function checkFoldersNotDuplicated(input: ITestAddFolderQueueInput[]) {
   const {folders} = await getFoldersFromDB(input);
-  const uniqInput = uniqBy(input, inputItem => inputItem.folderpath);
+  const uniqInput = uniqBy(input, inputItem => inputItem.item.folderpath);
   assert.ok(folders.length === uniqInput.length);
 }
 
 async function checkAckNotified(
-  input: IAddFolderQueueInput[],
-  output: IAddFolderQueueOutput[]
+  input: ITestAddFolderQueueInput[],
+  output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[]
 ) {
   const acks = output.filter(
-    outputItem => outputItem.type === kAddFolderQueueOutputType.ack
+    outputItem => outputItem.type === kShardRunnerOutputType.ack
   );
   expect(acks.length).toBe(input.length);
 }
 
 async function checkCorrectResponseReturned(
   input: ITestAddFolderQueueInput[],
-  output: IAddFolderQueueOutput[]
+  output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[]
 ) {
   const outputRecord = keyBy(
-    output.filter(
-      outputItem => outputItem.type !== kAddFolderQueueOutputType.ack
-    ),
+    output.filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack),
     outputItem => outputItem.id
   );
 
@@ -239,17 +255,17 @@ async function checkCorrectResponseReturned(
     const outputItem = outputRecord[inputItem.id];
     assert.ok(outputItem);
 
-    if (inputItem.hasAccess === kStringTrue) {
-      assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
-      expect(outputItem.folders.length).toBeGreaterThan(0);
-      expect(pathJoin({input: last(outputItem.folders)!.namepath})).toBe(
-        getFolderpathInfo(inputItem.folderpath, {
+    if (inputItem.hasAccess) {
+      assert.ok(outputItem.type === kShardRunnerOutputType.success);
+      expect(outputItem.item.length).toBeGreaterThan(0);
+      expect(pathJoin({input: last(outputItem.item)!.namepath})).toBe(
+        getFolderpathInfo(inputItem.item.folderpath, {
           allowRootFolder: false,
           containsRootname: true,
         }).stringPath
       );
     } else {
-      assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+      assert.ok(outputItem.type === kShardRunnerOutputType.error);
       const expectedError = new PermissionDeniedError();
       expect((outputItem.error as Error).message).toBe(expectedError.message);
       expect((outputItem.error as Error).name).toBe(expectedError.name);
@@ -313,9 +329,11 @@ describe('handleAddFolderQueue', () => {
       ...w2i2a2,
     ];
 
-    const output: IAddFolderQueueOutput[] = [];
+    const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
     const fn: QueueContextSubscribeJsonFn = response => {
-      output.push(response as IAddFolderQueueOutput);
+      output.push(
+        response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+      );
     };
 
     await readyChannel(input, fn);
@@ -355,9 +373,11 @@ describe('handleAddFolderQueue', () => {
     const w1i1a1 = populateWithAgent(w1i1, w1a1.agents, /** hasAccess */ true);
     const input = [...w1i1a1];
 
-    const output: IAddFolderQueueOutput[] = [];
+    const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
     const fn: QueueContextSubscribeJsonFn = response => {
-      output.push(response as IAddFolderQueueOutput);
+      output.push(
+        response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+      );
     };
 
     await readyChannel(input, fn);
@@ -366,9 +386,9 @@ describe('handleAddFolderQueue', () => {
     await startHandleAddFolderQueue(queueStart);
 
     output
-      .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+      .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
       .forEach(outputItem => {
-        assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+        assert.ok(outputItem.type === kShardRunnerOutputType.error);
         const expectedError = new NotFoundError('Workspace not found');
         expect((outputItem.error as Error).name).toBe(expectedError.name);
         expect((outputItem.error as Error).message).toBe(expectedError.message);
@@ -393,9 +413,11 @@ describe('handleAddFolderQueue', () => {
     );
     const input = [...w1i1a1];
 
-    const output: IAddFolderQueueOutput[] = [];
+    const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
     const fn: QueueContextSubscribeJsonFn = response => {
-      output.push(response as IAddFolderQueueOutput);
+      output.push(
+        response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+      );
     };
 
     await readyChannel(input, fn);
@@ -404,9 +426,9 @@ describe('handleAddFolderQueue', () => {
     await startHandleAddFolderQueue(queueStart);
 
     output
-      .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+      .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
       .forEach(outputItem => {
-        assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+        assert.ok(outputItem.type === kShardRunnerOutputType.error);
       });
   });
 
@@ -425,9 +447,11 @@ describe('handleAddFolderQueue', () => {
     const w1i1a1 = populateWithAgent(w1i1, w1a1.agents, /** hasAccess */ true);
     const input = [...w1i1a1];
 
-    const output: IAddFolderQueueOutput[] = [];
+    const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
     const fn: QueueContextSubscribeJsonFn = response => {
-      output.push(response as IAddFolderQueueOutput);
+      output.push(
+        response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+      );
     };
 
     await startHandleAddFolderQueue(queueStart);
@@ -444,7 +468,7 @@ describe('handleAddFolderQueue', () => {
     await checkCorrectResponseReturned(input, output);
   });
 
-  test.each([kStringTrue, kStringFalse])(
+  test.each([true, false])(
     'handleAddFolderQueue, UNSAFE_skipAuthCheck=%s',
     async UNSAFE_skipAuthCheck => {
       const {userToken} = await insertUserForTest();
@@ -461,7 +485,7 @@ describe('handleAddFolderQueue', () => {
       const w1i1a2 = populateWithAgent(
         w1i1,
         w1a2.agents,
-        /** hasAccess */ UNSAFE_skipAuthCheck === kStringTrue
+        /** hasAccess */ UNSAFE_skipAuthCheck
       );
 
       const input = w1i1a2.map(inputItem => ({
@@ -469,9 +493,11 @@ describe('handleAddFolderQueue', () => {
         UNSAFE_skipAuthCheck,
       }));
 
-      const output: IAddFolderQueueOutput[] = [];
+      const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
       const fn: QueueContextSubscribeJsonFn = response => {
-        output.push(response as IAddFolderQueueOutput);
+        output.push(
+          response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+        );
       };
 
       await readyChannel(input, fn);
@@ -483,7 +509,7 @@ describe('handleAddFolderQueue', () => {
 
       await checkFoldersCreatedInDB(
         w1i1a2,
-        /** shouldBeCreated */ UNSAFE_skipAuthCheck === kStringTrue
+        /** shouldBeCreated */ UNSAFE_skipAuthCheck
       );
 
       await checkFoldersNotDuplicated(input);
@@ -492,7 +518,7 @@ describe('handleAddFolderQueue', () => {
     }
   );
 
-  test.each([kStringTrue, kStringFalse])(
+  test.each([true, false])(
     'handleAddFolderQueue, throwIfFolderExists=%s',
     async throwIfFolderExists => {
       const {userToken} = await insertUserForTest();
@@ -538,9 +564,11 @@ describe('handleAddFolderQueue', () => {
         folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
       }));
 
-      const output: IAddFolderQueueOutput[] = [];
+      const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
       const fn: QueueContextSubscribeJsonFn = response => {
-        output.push(response as IAddFolderQueueOutput);
+        output.push(
+          response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+        );
       };
 
       await readyChannel(input, fn);
@@ -552,14 +580,14 @@ describe('handleAddFolderQueue', () => {
 
       await checkFoldersNotDuplicated(input);
       output
-        .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+        .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
         .forEach(outputItem => {
           if (throwIfFolderExists) {
-            assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+            assert.ok(outputItem.type === kShardRunnerOutputType.error);
             expect((outputItem.error as Error).name).toBe('FolderExistsError');
           } else {
-            assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
-            expect(last(outputItem.folders)!.resourceId).toEqual(f2.resourceId);
+            assert.ok(outputItem.type === kShardRunnerOutputType.success);
+            expect(last(outputItem.item)!.resourceId).toEqual(f2.resourceId);
           }
         });
     }
@@ -606,9 +634,11 @@ describe('handleAddFolderQueue', () => {
         folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
       }));
 
-      const output: IAddFolderQueueOutput[] = [];
+      const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
       const fn: QueueContextSubscribeJsonFn = response => {
-        output.push(response as IAddFolderQueueOutput);
+        output.push(
+          response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
+        );
       };
 
       await readyChannel(input, fn);
@@ -620,15 +650,16 @@ describe('handleAddFolderQueue', () => {
 
       await checkFoldersNotDuplicated(input);
       output
-        .filter(outputItem => outputItem.type !== kAddFolderQueueOutputType.ack)
+        .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
         .forEach(outputItem => {
           if (hasAccess) {
-            assert.ok(outputItem.type === kAddFolderQueueOutputType.success);
-            expect(last(outputItem.folders)!.resourceId).toEqual(f2.resourceId);
+            assert.ok(outputItem.type === kShardRunnerOutputType.success);
+            expect(last(outputItem.item)!.resourceId).toEqual(f2.resourceId);
           } else {
-            assert.ok(outputItem.type === kAddFolderQueueOutputType.error);
+            assert.ok(outputItem.type === kShardRunnerOutputType.error);
             const error = new PermissionDeniedError();
             expect((outputItem.error as Error).name).toBe(error.name);
+            expect((outputItem.error as Error).message).toBe(error.message);
           }
         });
     }

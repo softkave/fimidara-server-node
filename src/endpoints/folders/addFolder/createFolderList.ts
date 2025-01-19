@@ -2,15 +2,16 @@ import {Folder} from '../../../definitions/folder.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {convertToArray} from '../../../utils/fns.js';
-import {queueAddFolder} from './queueAddFolder.js';
-import {NewFolderInput} from './types.js';
+import {queueShardRunner} from '../../../utils/shardRunner/queue.js';
+import {kFolderConstants} from '../constants.js';
+import {IAddFolderQueueShardRunnerInput, NewFolderInput} from './types.js';
 
 export async function createFolderList(
   agent: SessionAgent,
   workspace: Workspace,
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck: boolean,
-  throwOnFolderExists: boolean,
+  throwIfFolderExists: boolean,
   throwOnError: boolean
 ) {
   const outputList = await Promise.all(
@@ -21,13 +22,21 @@ export async function createFolderList(
         {success: true; output: Folder[]} | {success: false; reason: unknown}
       > => {
         try {
-          const output = await queueAddFolder(
-            agent,
-            workspace.resourceId,
-            nextInput,
+          const input: IAddFolderQueueShardRunnerInput = {
+            ...nextInput,
             UNSAFE_skipAuthCheck,
-            throwOnFolderExists
-          );
+            throwIfFolderExists,
+          };
+          const output = await queueShardRunner<
+            IAddFolderQueueShardRunnerInput,
+            Folder[]
+          >({
+            agent,
+            workspaceId: workspace.resourceId,
+            item: input,
+            queueKey: kFolderConstants.getAddFolderQueueKey(input.folderpath),
+            timeoutMs: kFolderConstants.addFolderQueueTimeout,
+          });
 
           return {success: true, output};
         } catch (reason) {
@@ -36,6 +45,7 @@ export async function createFolderList(
       }
     )
   );
+
   const success = outputList.filter(output => output.success) as Array<{
     success: true;
     output: Folder[];

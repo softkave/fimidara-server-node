@@ -10,16 +10,10 @@
 - move from queue waitOnStream to pubsub
 - usage thresholds internal and reporting
 - docs
-- image
-- resumable
 - range download
 - cookies
 - when the agent is public, don't return all data
 - add providedId to add and update endpoints for workspace resources
-- test usage records
-- real-time image transform in a different thread
-- multi instance
-- track all changes made with system agent and whys
 - regex match for email not working because email contained +
 - do not require rootname if using token
 - there was an error with sharp that broke the instance (maybe not waiting for
@@ -29,29 +23,22 @@
   - usage records alerting
   - UI to set usage thresholds internal
   - make sure api and users can't set thresholds themselves for now, but can read it
-  - test usage records on frontend
   - UI to update costs, internal
   - limit how many workspaces a user can create, maybe 3 or 5 for now
 - go through apis docs
-- hamburger menu
-- Resumable uploads
 - logs, maybe Sentry
 - audit logs
 - use local fs?
-- remove image resizing for now
-- prevent deleting fimidara default org and folders
 - check if email recipient is a user and only send login link, or signup link otherwise
 - tool to print config without values for env
-- cache certain of UsageRecord operations for speed
 - email me with new signups in intervals
 - what happens when a user still have bandwidth in but no storage?
 - fix NotFoundException exception thrown from email deliverability check (AWS SES)
+  - switch email to resend
 - empty out test s3 bucket and write code to auto clean it after tests
 - download folder as zip
 - match file with node:fs stat, e.g. last accessed, last status change (though
   we don't have a similar concept), and nano seconds, etc.
-- download from anywhere in the internet
-- accept ranges
 - stop workers on sigint
 - use uncreated folder and file path for permissions
 - when surfacing jobs, make sure to not surface all info because a job can start
@@ -88,6 +75,7 @@
 
 ## NextJs
 
+- dark mode
 - authentication + authorization + workspaces
 - image manipulation
 - add that you get $# free hosting for 1 year on fimidara as a banner
@@ -98,7 +86,6 @@
   - hide agent token and toggle to see
 - new homepage with features + code
 - sample apps
-- resumable uploads
 - image manipulation
 - report bug/request feature
 - prevent submit if error and data has not changed
@@ -112,7 +99,6 @@
 - toggle allow showing password
 - marketing emails & subscriptions using resend
 - copy in agent token and other info
-- message dark mode
 - add toast for long runnign tasks like delete so they can track and know it's not immediate
 - no separate folders/files loading and error
 - files and folders not refreshed after upload (testing in root)
@@ -130,10 +116,9 @@
 - dark mode styling for 404 and other pages
 - center all "loading..."/"nothing found..." divs
 - shows not logged in home page on first load when logged in
-- only show errors not merked internal, but log in console
+- only show errors not marked internal, but log in console
 - revise overview docs
 - revise docs one-by-one
-- docs open keys
 - display public errors only
 - logout
 - silently refresh data when user visits page if page already has data (files and folders)
