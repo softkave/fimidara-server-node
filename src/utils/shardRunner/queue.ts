@@ -73,7 +73,7 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
     workspaceId,
     item,
     id,
-    pubSubChannel: outputChannel,
+    outputChannel: outputChannel,
   };
   const vars: IRunArtifacts<TOutputItem> = {
     queueKey,

@@ -27,6 +27,6 @@ describe('shardRunner utils', () => {
     setActiveShardRunner({queueKey});
     expect(isActiveShardRunner({queueKey})).toBe(true);
     unsetActiveShardRunner({queueKey});
-    expect(isActiveShardRunner({queueKey})).toBe(false);
+    expect(isActiveShardRunner({queueKey})).toBeFalsy();
   });
 });

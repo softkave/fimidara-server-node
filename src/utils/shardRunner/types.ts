@@ -26,7 +26,7 @@ export type IShardRunnerOutput<TItem> =
 
 export interface IShardRunnerEntry<TItem> {
   id: string;
-  pubSubChannel: string;
+  outputChannel: string;
   workspaceId: string;
   item: TItem;
   agent: Agent;
@@ -48,11 +48,14 @@ export type ShardRunnerProvidedHandlerResult<TItem> =
       item: TItem;
     };
 
+export type ShardRunnerProvidedHandlerResultMap<TItem> = Record<
+  string,
+  ShardRunnerProvidedHandlerResult<TItem>
+>;
+
 export type ShardRunnerProvidedMultiItemsHandler<TItem> = AnyFn<
   [params: {items: IShardRunnerEntry<TItem>[]}],
-  Promise<
-    Record</** entry ID */ string, ShardRunnerProvidedHandlerResult<TItem>>
-  >
+  Promise<ShardRunnerProvidedHandlerResultMap<TItem>>
 >;
 
 export type ShardRunnerProvidedSingleItemHandler<TItem> = AnyFn<

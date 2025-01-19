@@ -40,7 +40,7 @@ function ackItems(params: {items: IShardRunnerEntry<unknown>[]}) {
         type: kShardRunnerOutputType.ack,
         id: next.id,
       };
-      await kUtilsInjectables.pubsub().publish(next.pubSubChannel, ack);
+      await kUtilsInjectables.pubsub().publish(next.outputChannel, ack);
     })
   );
 }
@@ -70,7 +70,7 @@ async function outputItems(params: {
       }
 
       if (output) {
-        await kUtilsInjectables.pubsub().publish(next.pubSubChannel, output);
+        await kUtilsInjectables.pubsub().publish(next.outputChannel, output);
       }
     })
   );
