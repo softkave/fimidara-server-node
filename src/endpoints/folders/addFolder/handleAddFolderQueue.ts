@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {forEach, groupBy, isNumber, keyBy, map, uniqBy} from 'lodash-es';
-import {AnyFn, pathJoin} from 'softkave-js-utils';
+import {pathJoin} from 'softkave-js-utils';
 import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
@@ -14,8 +14,17 @@ import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {Resource, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
-import {kStringTrue} from '../../../utils/constants.js';
 import {kAppMessages} from '../../../utils/messages.js';
+import {
+  multiItemsHandleShardQueue,
+  startShardRunner,
+  stopShardRunner,
+} from '../../../utils/shardRunner/handler.js';
+import {
+  IShardRunnerEntry,
+  kShardRunnerOutputType,
+  ShardRunnerProvidedHandlerResultMap,
+} from '../../../utils/shardRunner/types.js';
 import {NotFoundError} from '../../errors.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
@@ -24,10 +33,9 @@ import {createNewFolder} from '../utils.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import {prepareFolderInputList} from './prepareFolderInputList.js';
 import {
-  IAddFolderQueueInput,
-  IAddFolderQueueOutput,
+  IAddFolderQueueShardRunnerInput,
+  IAddFolderQueueShardRunnerOutput,
   IAddFolderQueueWorkingInput,
-  kAddFolderQueueOutputType,
 } from './types.js';
 
 interface IOwnWorkingInput {
@@ -175,7 +183,7 @@ async function createFolderListWithTransaction(
       id: inputAtIndex.id,
       target: authTarget,
       agent: inputAtIndex.agent,
-      UNSAFE_skipAuthCheck: inputAtIndex.UNSAFE_skipAuthCheck === kStringTrue,
+      UNSAFE_skipAuthCheck: inputAtIndex.UNSAFE_skipAuthCheck ?? false,
       hasAccess: false,
       folderpath: pathinfo.stringPath,
     };
@@ -220,12 +228,12 @@ async function createFolderListWithTransaction(
   }
 
   function getFolderInfo(
-    input: IAddFolderQueueInput,
+    inputId: string,
     folderpath: string
   ):
     | {success: true; folder: Folder; isNew: boolean}
     | {success: false; error: Error} {
-    const error = getError(input.id);
+    const error = getError(inputId);
     const folder = getFolder(folderpath);
     assert(folder);
 
@@ -243,10 +251,11 @@ async function createFolderListWithTransaction(
 }
 
 function bagAddFolderOutput(
-  params: Awaited<ReturnType<typeof createFolderListWithTransaction>>,
-  input: IAddFolderQueueInput[]
+  createResult: Awaited<ReturnType<typeof createFolderListWithTransaction>>,
+  input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[],
+  outputMap: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput>
 ) {
-  const {getFolderInfo, pathinfoList} = params;
+  const {getFolderInfo, pathinfoList} = createResult;
   return pathinfoList.reduce((acc, pathinfo, i) => {
     const folders: Folder[] = [];
     const inputAtIndex = input[i];
@@ -257,11 +266,11 @@ function bagAddFolderOutput(
       const key = pathJoin({input: pathinfo.namepath.slice(0, index + 1)});
       assert.ok(inputAtIndex);
       assert.ok(
-        inputAtIndex.folderpath === pathinfo.input,
-        `${inputAtIndex.folderpath} !== ${pathinfo.input}`
+        inputAtIndex.item.folderpath === pathinfo.input,
+        `${inputAtIndex.item.folderpath} !== ${pathinfo.input}`
       );
 
-      const folder = getFolderInfo(inputAtIndex, key);
+      const folder = getFolderInfo(inputAtIndex.id, key);
 
       if (folder.success) {
         folders.push(folder.folder);
@@ -272,74 +281,40 @@ function bagAddFolderOutput(
       }
     }
 
-    if (inputAtIndex.throwIfFolderExists === kStringTrue && !isNew) {
+    if (inputAtIndex.item.throwIfFolderExists && !isNew) {
       error = new FolderExistsError();
     }
 
     if (error) {
-      acc[inputAtIndex.id] = {isSuccess: false, error};
+      acc[inputAtIndex.id] = {type: kShardRunnerOutputType.error, error};
     } else {
       folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
-      acc[inputAtIndex.id] = {isSuccess: true, folders};
+      acc[inputAtIndex.id] = {
+        type: kShardRunnerOutputType.success,
+        item: folders,
+      };
     }
 
     return acc;
-  }, {} as OutputByNamepath);
+  }, outputMap);
 }
 
-async function publishAddFolderOutput(
-  input: IAddFolderQueueInput[],
-  result: OutputByNamepath
+async function populateAgent(
+  input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[]
 ) {
-  await Promise.all(
-    input.map(async input => {
-      const inputResult = result[input.id];
-      assert.ok(inputResult);
-      let output: IAddFolderQueueOutput | undefined;
-
-      if (inputResult.isSuccess) {
-        output = {
-          folders: inputResult.folders,
-          type: kAddFolderQueueOutputType.success,
-          id: input.id,
-        };
-      } else {
-        kUtilsInjectables.logger().error(inputResult.error);
-        output = {
-          error: inputResult.error,
-          type: kAddFolderQueueOutputType.error,
-          id: input.id,
-        };
-      }
-
-      await kUtilsInjectables.pubsub().publish(input.channel, output);
-    })
-  );
-}
-
-async function publishAddFolderAck(input: IAddFolderQueueInput[]) {
-  await Promise.all(
-    input.map(async input => {
-      const output: IAddFolderQueueOutput = {
-        type: kAddFolderQueueOutputType.ack,
-        id: input.id,
-      };
-
-      await kUtilsInjectables.pubsub().publish(input.channel, output);
-    })
-  );
-}
-
-async function populateAgent(input: IAddFolderQueueInput[]) {
   return await Promise.all(
     input.map(async input => {
       try {
         const agent = await kUtilsInjectables
           .session()
-          .getAgentByAgentTokenId(input.agentTokenId);
+          .getAgentByAgentTokenId(input.agent.agentTokenId);
         const workingInput: IAddFolderQueueWorkingInput = {
-          ...input,
           agent,
+          id: input.id,
+          workspaceId: input.workspaceId,
+          folderpath: input.item.folderpath,
+          UNSAFE_skipAuthCheck: input.item.UNSAFE_skipAuthCheck ?? false,
+          throwIfFolderExists: input.item.throwIfFolderExists ?? false,
         };
 
         return {isError: false, workingInput};
@@ -350,62 +325,67 @@ async function populateAgent(input: IAddFolderQueueInput[]) {
   );
 }
 
-async function createFolderListWithWorkspace(input: IAddFolderQueueInput[]) {
-  if (input.length === 0) {
-    return;
-  }
-
-  kUtilsInjectables.promises().forget(publishAddFolderAck(input));
+async function createFolderListWithWorkspace(
+  input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[]
+) {
+  assert.ok(input.length);
 
   const workspace = await kSemanticModels
     .workspace()
     .getOneById(input[0].workspaceId);
+  let result: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput> =
+    {};
 
   if (!workspace) {
     const error = new NotFoundError(kAppMessages.workspace.notFound());
-    const result: OutputByNamepath = input.reduce((acc, nextInput) => {
-      acc[nextInput.id] = {isSuccess: false, error};
+    input.reduce((acc, nextInput) => {
+      acc[nextInput.id] = {type: kShardRunnerOutputType.error, error};
       return acc;
-    }, {} as OutputByNamepath);
+    }, result);
 
-    kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
-    return;
+    return result;
   }
 
   const workingInputRaw = await populateAgent(input);
   const workingInput = workingInputRaw
     .filter(next => !next.isError)
     .map(next => next.workingInput!);
-  const errorInput = workingInputRaw.filter(next => next.isError);
+  const errorInputList = workingInputRaw.filter(next => next.isError);
 
-  if (errorInput.length) {
-    const result: OutputByNamepath = errorInput.reduce((acc, nextInput) => {
-      acc[nextInput.input!.id] = {
-        isSuccess: false,
-        error: nextInput.error,
+  if (errorInputList.length) {
+    errorInputList.reduce((acc, next) => {
+      assert.ok(next.input);
+      acc[next.input.id] = {
+        type: kShardRunnerOutputType.error,
+        error: next.error,
       };
       return acc;
-    }, {} as OutputByNamepath);
-
-    kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
+    }, result);
   } else if (workingInput.length) {
     const workingOutput = await kSemanticModels
       .utils()
       .withTxn(opts =>
         createFolderListWithTransaction(workspace, workingInput, opts)
       );
-    const result = bagAddFolderOutput(workingOutput, input);
-    kUtilsInjectables.promises().forget(publishAddFolderOutput(input, result));
+    bagAddFolderOutput(workingOutput, input, result);
   }
+
+  return result;
 }
 
-async function addFolderQueueCreateFolderList(input: IAddFolderQueueInput[]) {
+async function addFolderQueueCreateFolderList(
+  input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[]
+) {
   const inputByWorkspace = groupBy(input, next => next.workspaceId);
-  await Promise.all(
+  const result = await Promise.all(
     Object.entries(inputByWorkspace).map(async ([, input]) => {
       return await createFolderListWithWorkspace(input);
     })
   );
+
+  return result.reduce((acc, next) => {
+    return {...acc, ...next};
+  }, {} as ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput>);
 }
 
 function getAddFolderQueueKey(queueNo: number) {
@@ -413,46 +393,27 @@ function getAddFolderQueueKey(queueNo: number) {
   return kFolderConstants.getAddFolderQueueWithNo(queueNo);
 }
 
-function waitOnQueue(key: string, fn: AnyFn) {
-  if (!kUtilsInjectables.runtimeState().getIsEnded()) {
-    kUtilsInjectables.queue().waitOnStream(key, hasData => {
-      if (hasData) {
-        fn();
-      } else {
-        setTimeout(() => {
-          waitOnQueue(key, fn);
-        }, 0);
-      }
-    });
-  }
-}
-
 async function handleAddFolderQueue(inputQueueNo: number) {
   const key = getAddFolderQueueKey(inputQueueNo);
-  const rawInput = await kUtilsInjectables
-    .queue()
-    .getMessages(
-      key,
-      kFolderConstants.addFolderProcessCount,
-      /** remove */ true
-    );
-
-  if (rawInput.length) {
-    const input = rawInput.map(
-      next => next.message
-    ) as unknown as IAddFolderQueueInput[];
-
-    await addFolderQueueCreateFolderList(input);
-  }
-
-  waitOnQueue(key, () => {
-    kUtilsInjectables.promises().forget(handleAddFolderQueue(inputQueueNo));
+  multiItemsHandleShardQueue({
+    queueKey: key,
+    readCount: kFolderConstants.addFolderProcessCount,
+    providedHandler: async items => {
+      return await addFolderQueueCreateFolderList(items.items);
+    },
   });
 }
 
 export function startHandleAddFolderQueue(inputQueueNo: number) {
   const key = getAddFolderQueueKey(inputQueueNo);
-  waitOnQueue(key, () => {
-    kUtilsInjectables.promises().forget(handleAddFolderQueue(inputQueueNo));
+  startShardRunner({
+    queueKey: key,
+    handlerFn: () => handleAddFolderQueue(inputQueueNo),
   });
+}
+
+// TODO: currently not used
+export async function stopHandleAddFolderQueue(inputQueueNo: number) {
+  const key = getAddFolderQueueKey(inputQueueNo);
+  await stopShardRunner({queueKey: key});
 }

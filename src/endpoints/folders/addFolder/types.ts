@@ -1,5 +1,5 @@
 import {Folder, PublicFolder} from '../../../definitions/folder.js';
-import {Agent, SessionAgent} from '../../../definitions/system.js';
+import {SessionAgent} from '../../../definitions/system.js';
 import {Endpoint, EndpointResultNote} from '../../types.js';
 
 export interface NewFolderInput {
@@ -20,41 +20,17 @@ export type AddFolderEndpoint = Endpoint<
   AddFolderEndpointResult
 >;
 
-export interface IAddFolderQueueInput extends NewFolderInput, Agent {
-  id: string;
-  channel: string;
-  workspaceId: string;
-  UNSAFE_skipAuthCheck?: string;
-  throwIfFolderExists?: string;
+export interface IAddFolderQueueShardRunnerInput extends NewFolderInput {
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
 export interface IAddFolderQueueWorkingInput extends NewFolderInput {
   id: string;
-  channel: string;
   workspaceId: string;
   agent: SessionAgent;
-  UNSAFE_skipAuthCheck?: string;
-  throwIfFolderExists?: string;
+  UNSAFE_skipAuthCheck?: boolean;
+  throwIfFolderExists?: boolean;
 }
 
-export const kAddFolderQueueOutputType = {
-  error: 0,
-  success: 1,
-  ack: 2,
-} as const;
-
-export type IAddFolderQueueOutput =
-  | {
-      id: IAddFolderQueueInput['id'];
-      type: typeof kAddFolderQueueOutputType.error;
-      error: unknown;
-    }
-  | {
-      id: IAddFolderQueueInput['id'];
-      type: typeof kAddFolderQueueOutputType.success;
-      folders: Folder[];
-    }
-  | {
-      id: IAddFolderQueueInput['id'];
-      type: typeof kAddFolderQueueOutputType.ack;
-    };
+export type IAddFolderQueueShardRunnerOutput = Folder[];
