@@ -412,6 +412,7 @@ export function startHandleAddFolderQueue(inputQueueNo: number) {
   });
 }
 
+// TODO: currently not used
 export async function stopHandleAddFolderQueue(inputQueueNo: number) {
   const key = getAddFolderQueueKey(inputQueueNo);
   await stopShardRunner({queueKey: key});
