@@ -145,15 +145,26 @@ export async function singleItemHandleShardQueue(params: {
 export function startShardRunner(params: {queueKey: string; handlerFn: AnyFn}) {
   const {queueKey, handlerFn} = params;
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
-  const isEnded = kUtilsInjectables.runtimeState().getIsEnded();
 
-  if (!isEnded) {
+  const isServerEnded = () => kUtilsInjectables.runtimeState().getIsEnded();
+
+  const runHandler = () => {
+    const isActive = isActiveShardRunner({queueKey});
+
+    if (!isActive && !isServerEnded()) {
+      setActiveShardRunner({queueKey});
+      kUtilsInjectables.promises().forget(handlerFn());
+    }
+  };
+
+  if (!isServerEnded()) {
+    // run handler immediately to consume what's in the queue
+    runHandler();
+
+    // subscribe to wakeup channel to run handler when new items are added
     kUtilsInjectables.pubsub().subscribe(wakeupChannel, msg => {
-      const isActive = isActiveShardRunner({queueKey});
-
-      if (msg === kShardRunnerPubSubAlertMessage && !isActive) {
-        setActiveShardRunner({queueKey});
-        kUtilsInjectables.promises().forget(handlerFn());
+      if (msg === kShardRunnerPubSubAlertMessage) {
+        runHandler();
       }
     });
   }

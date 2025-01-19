@@ -1,13 +1,13 @@
 import assert from 'assert';
 import {flatten, keyBy, last, uniq, uniqBy} from 'lodash-es';
 import {
+  getDeferredPromise,
   getNewId,
   kLoopAsyncSettlementType,
   loopAndCollate,
   loopAndCollateAsync,
   OmitFrom,
   pathJoin,
-  waitTimeout,
 } from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
@@ -15,7 +15,6 @@ import {
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {QueueContextSubscribeJsonFn} from '../../../contexts/pubsub/types.js';
-import {IQueueMessage} from '../../../contexts/queue/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -24,9 +23,12 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {
   IShardRunnerEntry,
+  IShardRunnerMessage,
   IShardRunnerOutput,
   kShardRunnerOutputType,
+  kShardRunnerPubSubAlertMessage,
 } from '../../../utils/shardRunner/types.js';
+import {getShardRunnerPubSubAlertChannel} from '../../../utils/shardRunner/utils.js';
 import {NotFoundError} from '../../errors.js';
 import {
   generateAndInsertTestFolders,
@@ -85,8 +87,6 @@ function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
           folderpath: stringifyFolderpath({
             namepath: generateTestFolderpath({rootname: workspace.rootname}),
           }),
-          UNSAFE_skipAuthCheck: false,
-          throwIfFolderExists: false,
         },
       };
     },
@@ -157,7 +157,7 @@ async function generateTokens(
   return {tokens, agents};
 }
 
-async function readyChannel(
+async function listenOnOutput(
   input: ITestAddFolderQueueInput[],
   fn: QueueContextSubscribeJsonFn
 ) {
@@ -174,12 +174,16 @@ async function insertInQueue(input: ITestAddFolderQueueInput[]) {
       kFolderConstants.getAddFolderQueueKey(inputItem.item.folderpath)
     )
   );
+  const queueMessages = input.map(inputItem => {
+    const message: IShardRunnerMessage = {
+      msg: JSON.stringify(inputItem),
+    };
+    return message;
+  });
+
   assert.ok(queueKeys.length === 1);
   const queueKey = queueKeys[0];
-
-  await kUtilsInjectables
-    .queue()
-    .addMessages(queueKey, input as unknown as IQueueMessage[]);
+  await kUtilsInjectables.queue().addMessages(queueKey, queueMessages);
 }
 
 async function getFoldersFromDB(input: ITestAddFolderQueueInput[]) {
@@ -330,18 +334,32 @@ describe('handleAddFolderQueue', () => {
     ];
 
     const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
-    const fn: QueueContextSubscribeJsonFn = response => {
+    const count = {ack: 0, success: 0, error: 0, expected: input.length};
+    const p = getDeferredPromise();
+    const listenOnOutputChannelFn: QueueContextSubscribeJsonFn = response => {
       output.push(
         response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
       );
+
+      if (response.type === kShardRunnerOutputType.ack) {
+        count.ack += 1;
+      } else if (response.type === kShardRunnerOutputType.success) {
+        count.success += 1;
+      } else if (response.type === kShardRunnerOutputType.error) {
+        count.error += 1;
+      }
+
+      if (count.success + count.error === count.expected) {
+        p.resolve();
+      }
     };
 
-    await readyChannel(input, fn);
+    await listenOnOutput(input, listenOnOutputChannelFn);
     await insertInQueue(input);
 
     await startHandleAddFolderQueue(queueStart);
-    await waitTimeout(1_000);
-    await kUtilsInjectables.promises().flush();
+
+    await p.promise;
 
     await checkFoldersCreatedInDB(w1i1a1, /** shouldBeCreated */ true);
     await checkFoldersCreatedInDB(w1i1a2, /** shouldBeCreated */ true);
@@ -374,16 +392,32 @@ describe('handleAddFolderQueue', () => {
     const input = [...w1i1a1];
 
     const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+    const count = {ack: 0, success: 0, error: 0, expected: input.length};
+    const p = getDeferredPromise();
     const fn: QueueContextSubscribeJsonFn = response => {
       output.push(
         response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
       );
+
+      if (response.type === kShardRunnerOutputType.ack) {
+        count.ack += 1;
+      } else if (response.type === kShardRunnerOutputType.success) {
+        count.success += 1;
+      } else if (response.type === kShardRunnerOutputType.error) {
+        count.error += 1;
+      }
+
+      if (count.success + count.error === count.expected) {
+        p.resolve();
+      }
     };
 
-    await readyChannel(input, fn);
+    await listenOnOutput(input, fn);
     await insertInQueue(input);
 
     await startHandleAddFolderQueue(queueStart);
+
+    await p.promise;
 
     output
       .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
@@ -414,16 +448,32 @@ describe('handleAddFolderQueue', () => {
     const input = [...w1i1a1];
 
     const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+    const count = {ack: 0, success: 0, error: 0, expected: input.length};
+    const p = getDeferredPromise();
     const fn: QueueContextSubscribeJsonFn = response => {
       output.push(
         response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
       );
+
+      if (response.type === kShardRunnerOutputType.ack) {
+        count.ack += 1;
+      } else if (response.type === kShardRunnerOutputType.success) {
+        count.success += 1;
+      } else if (response.type === kShardRunnerOutputType.error) {
+        count.error += 1;
+      }
+
+      if (count.success + count.error === count.expected) {
+        p.resolve();
+      }
     };
 
-    await readyChannel(input, fn);
+    await listenOnOutput(input, fn);
     await insertInQueue(input);
 
     await startHandleAddFolderQueue(queueStart);
+
+    await p.promise;
 
     output
       .filter(outputItem => outputItem.type !== kShardRunnerOutputType.ack)
@@ -448,19 +498,38 @@ describe('handleAddFolderQueue', () => {
     const input = [...w1i1a1];
 
     const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+    const count = {ack: 0, success: 0, error: 0, expected: input.length};
+    const p = getDeferredPromise();
     const fn: QueueContextSubscribeJsonFn = response => {
       output.push(
         response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
       );
+
+      if (response.type === kShardRunnerOutputType.ack) {
+        count.ack += 1;
+      } else if (response.type === kShardRunnerOutputType.success) {
+        count.success += 1;
+      } else if (response.type === kShardRunnerOutputType.error) {
+        count.error += 1;
+      }
+
+      if (count.success + count.error === count.expected) {
+        p.resolve();
+      }
     };
 
     await startHandleAddFolderQueue(queueStart);
 
-    await readyChannel(input, fn);
+    await listenOnOutput(input, fn);
     await insertInQueue(input);
 
-    await waitTimeout(500);
-    await kUtilsInjectables.promises().flush();
+    const queueKey = kFolderConstants.getAddFolderQueueWithNo(queueStart);
+    const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
+    await kUtilsInjectables
+      .pubsub()
+      .publish(wakeupChannel, kShardRunnerPubSubAlertMessage);
+
+    await p.promise;
 
     await checkFoldersCreatedInDB(w1i1a1, /** shouldBeCreated */ true);
     await checkFoldersNotDuplicated(input);
@@ -490,22 +559,39 @@ describe('handleAddFolderQueue', () => {
 
       const input = w1i1a2.map(inputItem => ({
         ...inputItem,
-        UNSAFE_skipAuthCheck,
+        item: {
+          ...inputItem.item,
+          UNSAFE_skipAuthCheck,
+        },
       }));
 
       const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+      const count = {ack: 0, success: 0, error: 0, expected: input.length};
+      const p = getDeferredPromise();
       const fn: QueueContextSubscribeJsonFn = response => {
         output.push(
           response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
         );
+
+        if (response.type === kShardRunnerOutputType.ack) {
+          count.ack += 1;
+        } else if (response.type === kShardRunnerOutputType.success) {
+          count.success += 1;
+        } else if (response.type === kShardRunnerOutputType.error) {
+          count.error += 1;
+        }
+
+        if (count.success + count.error === count.expected) {
+          p.resolve();
+        }
       };
 
-      await readyChannel(input, fn);
+      await listenOnOutput(input, fn);
       await insertInQueue(input);
 
       await startHandleAddFolderQueue(queueStart);
-      await waitTimeout(1_000);
-      await kUtilsInjectables.promises().flush();
+
+      await p.promise;
 
       await checkFoldersCreatedInDB(
         w1i1a2,
@@ -560,23 +646,40 @@ describe('handleAddFolderQueue', () => {
 
       const input = [...w1i1a1].map(inputItem => ({
         ...inputItem,
-        throwIfFolderExists,
-        folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+        item: {
+          ...inputItem.item,
+          throwIfFolderExists,
+          folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+        },
       }));
 
       const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+      const count = {ack: 0, success: 0, error: 0, expected: input.length};
+      const p = getDeferredPromise();
       const fn: QueueContextSubscribeJsonFn = response => {
         output.push(
           response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
         );
+
+        if (response.type === kShardRunnerOutputType.ack) {
+          count.ack += 1;
+        } else if (response.type === kShardRunnerOutputType.success) {
+          count.success += 1;
+        } else if (response.type === kShardRunnerOutputType.error) {
+          count.error += 1;
+        }
+
+        if (count.success + count.error === count.expected) {
+          p.resolve();
+        }
       };
 
-      await readyChannel(input, fn);
+      await listenOnOutput(input, fn);
       await insertInQueue(input);
 
       await startHandleAddFolderQueue(queueStart);
-      await waitTimeout(1_000);
-      await kUtilsInjectables.promises().flush();
+
+      await p.promise;
 
       await checkFoldersNotDuplicated(input);
       output
@@ -631,22 +734,39 @@ describe('handleAddFolderQueue', () => {
 
       const input = [...w1i1a1].map(inputItem => ({
         ...inputItem,
-        folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+        item: {
+          ...inputItem.item,
+          folderpath: stringifyFolderpath(f2, w1.rawWorkspace.rootname),
+        },
       }));
 
       const output: IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>[] = [];
+      const count = {ack: 0, success: 0, error: 0, expected: input.length};
+      const p = getDeferredPromise();
       const fn: QueueContextSubscribeJsonFn = response => {
         output.push(
           response as IShardRunnerOutput<IAddFolderQueueShardRunnerOutput>
         );
+
+        if (response.type === kShardRunnerOutputType.ack) {
+          count.ack += 1;
+        } else if (response.type === kShardRunnerOutputType.success) {
+          count.success += 1;
+        } else if (response.type === kShardRunnerOutputType.error) {
+          count.error += 1;
+        }
+
+        if (count.success + count.error === count.expected) {
+          p.resolve();
+        }
       };
 
-      await readyChannel(input, fn);
+      await listenOnOutput(input, fn);
       await insertInQueue(input);
 
       await startHandleAddFolderQueue(queueStart);
-      await waitTimeout(1_000);
-      await kUtilsInjectables.promises().flush();
+
+      await p.promise;
 
       await checkFoldersNotDuplicated(input);
       output
