@@ -1,3 +1,4 @@
+import {DisposableResource} from 'softkave-js-utils';
 import {Agent} from '../../definitions/system.js';
 import {
   UsageRecordArtifact,
@@ -27,7 +28,7 @@ export interface UsageRecordDecrementInput {
   category: UsageRecordCategory;
 }
 
-export interface IUsageContext {
+export interface IUsageContext extends DisposableResource {
   // check(params: {
   //   usage: number;
   //   workspaceId: string;

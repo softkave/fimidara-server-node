@@ -158,6 +158,12 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Distributed Set
   dsetProvider: FimidaraConfigQueueProvider;
+
+  // Usage
+  usageRefreshWorkspaceIntervalMs: number;
+  usageCommitIntervalMs: number;
+  usageL1BatchedUpdatesSize: number;
+  usageL2BatchedUpdatesSize: number;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;
