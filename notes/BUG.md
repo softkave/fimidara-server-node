@@ -1,5 +1,10 @@
 ## NextJs
 
+- multipart upload's showing "Server error" while uploading is still in progress
+- overflow in delete file modal
+- prevent closing of modal when clicking outside when it's loading
+- upload in folder is uploading to root
+- uploading not working
 - toggle all should toggle all permission and untoggling one should untoggle all
 - deleted file not removed from list. check folder too
 - only text navigates not menu in sidenav, and other menus not navigated to get selected

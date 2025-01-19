@@ -14,7 +14,9 @@ export type WorkspaceSummedUsageQuery = {
   category?: UsageRecordCategory | UsageRecordCategory[];
   fromDate?: number;
   toDate?: number;
-  fulfillmentStatus?: UsageRecordFulfillmentStatus | UsageRecordFulfillmentStatus[];
+  fulfillmentStatus?:
+    | UsageRecordFulfillmentStatus
+    | UsageRecordFulfillmentStatus[];
 };
 
 export interface GetWorkspaceSummedUsageEndpointParamsBase
