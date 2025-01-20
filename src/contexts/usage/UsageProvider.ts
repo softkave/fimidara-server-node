@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {defaultTo} from 'lodash-es';
 import {OmitFrom} from 'softkave-js-utils';
 import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
@@ -309,15 +310,39 @@ export class UsageProvider implements IUsageContext {
       return usageL2FromCache;
     }
 
-    const usageL2 = await this.getOrMakeUsageL2FromDb({
-      agent,
-      record,
-      category,
-      status,
-    });
+    const lockName = kUsageProviderConstants.getUsageL2LockName(
+      record.workspaceId
+    );
 
-    this.setUsageL2Cache({usageL2});
-    return usageL2;
+    if (kUtilsInjectables.locks().has(lockName)) {
+      await kUtilsInjectables.locks().wait({
+        name: lockName,
+        timeoutMs: kUsageProviderConstants.getUsageL2LockWaitTimeoutMs,
+      });
+
+      const usageL2FromCache = this.getUsageL2FromCache({
+        workspaceId: record.workspaceId,
+        month: record.month,
+        year: record.year,
+        category,
+        status,
+      });
+
+      assert.ok(usageL2FromCache);
+      return usageL2FromCache;
+    }
+
+    return await kUtilsInjectables.locks().run(lockName, async () => {
+      const usageL2 = await this.getOrMakeUsageL2FromDb({
+        agent,
+        record,
+        category,
+        status,
+      });
+
+      this.setUsageL2Cache({usageL2});
+      return usageL2;
+    });
   }
 
   protected checkWorkspaceBillStatus = async (params: {
