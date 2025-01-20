@@ -8,7 +8,7 @@ import {kFWorkerTestWorkerTerminateMessage} from './constants.js';
 async function main() {
   await globalSetup(
     {useFimidaraApp: false, useFimidaraWorkerPool: false},
-    {useHandleFolderQueue: false}
+    {useHandleFolderQueue: false, useHandleUsageRecordQueue: false}
   );
   const fworker = new FWorker();
 

@@ -47,7 +47,7 @@ export function startTesting() {
   beforeAll(async () => {
     await globalSetup(
       {useFimidaraApp: false, useFimidaraWorkerPool: false},
-      {useHandleFolderQueue: true}
+      {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
     );
     await initFimidara();
   });

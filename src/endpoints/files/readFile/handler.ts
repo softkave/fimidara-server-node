@@ -11,6 +11,7 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
+import {incrementBandwidthOutUsageRecord} from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {isObjectFieldsEmpty} from '../../../utils/fns.js';
@@ -21,7 +22,6 @@ import {
   initBackendProvidersForMounts,
   resolveMountsForFolder,
 } from '../../fileBackends/mountUtils.js';
-import {incrementBandwidthOutUsageRecord} from '../../usageRecords/usageFns.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {assertFile, stringifyFilenamepath} from '../utils.js';
 import {ReadFileEndpoint} from './types.js';

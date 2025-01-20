@@ -1,9 +1,3 @@
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {
-  UsageRecordDecrementInput,
-  UsageRecordIncrementInput,
-} from '../../contexts/usage/types.js';
 import {File} from '../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
@@ -13,9 +7,16 @@ import {
   kUsageRecordArtifactType,
   kUsageRecordCategory,
 } from '../../definitions/usageRecord.js';
+import RequestData from '../../endpoints/RequestData.js';
+import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors.js';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
-import RequestData from '../RequestData.js';
-import {UsageLimitExceededError} from './errors.js';
+import {kSessionUtils} from '../SessionContext.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
+import {
+  queueDecrementUsageRecord,
+  queueIncrementUsageRecord,
+} from './queueUsageOps.js';
+import {UsageRecordDecrementInput, UsageRecordIncrementInput} from './types.js';
 
 // #region "increment fns"
 async function incrementUsageRecord(
@@ -33,7 +34,7 @@ async function incrementUsageRecord(
       )
   );
 
-  const result = await kUtilsInjectables.usage().increment(agent, input);
+  const result = await queueIncrementUsageRecord({agent, input});
 
   if (!result.permitted && !nothrow) {
     throw new UsageLimitExceededError({
@@ -185,7 +186,7 @@ async function decrementUsageRecord(
       )
   );
 
-  await kUtilsInjectables.usage().decrement(agent, input);
+  await queueDecrementUsageRecord({agent, input});
 }
 
 export async function decrementStorageUsageRecord(

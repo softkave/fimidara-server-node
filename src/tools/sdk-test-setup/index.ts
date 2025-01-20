@@ -4,7 +4,7 @@ import {setupSDKTestReq} from './utils.js';
 async function main() {
   await globalSetup(
     {useFimidaraApp: false, useFimidaraWorkerPool: false},
-    {useHandleFolderQueue: true}
+    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
   );
   await setupSDKTestReq();
   await globalDispose();

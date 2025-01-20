@@ -28,6 +28,31 @@ export interface UsageRecordDecrementInput {
   category: UsageRecordCategory;
 }
 
+export const kUsageRecordQueueInputType = {
+  increment: 'increment',
+  decrement: 'decrement',
+} as const;
+
+export type IUsageRecordQueueInput =
+  | {
+      type: typeof kUsageRecordQueueInputType.increment;
+      input: UsageRecordIncrementInput;
+    }
+  | {
+      type: typeof kUsageRecordQueueInputType.decrement;
+      input: UsageRecordDecrementInput;
+    };
+
+export type IUsageRecordQueueOutput =
+  | {
+      type: typeof kUsageRecordQueueInputType.increment;
+      result: IUsageCheckResult;
+    }
+  | {
+      type: typeof kUsageRecordQueueInputType.decrement;
+      result: void;
+    };
+
 export interface IUsageContext extends DisposableResource {
   // check(params: {
   //   usage: number;

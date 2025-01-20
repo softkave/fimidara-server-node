@@ -142,6 +142,7 @@ export type FimidaraSuppliedConfig = Partial<{
   queueProvider: FimidaraConfigQueueProvider;
   addFolderQueueStart: number;
   addFolderQueueEnd: number;
+  /** add folder queues handled by this server */
   addFolderQueueNo: number[];
   addFolderTimeoutMs: number;
   addFolderQueuePrefix: string;
@@ -164,6 +165,14 @@ export type FimidaraSuppliedConfig = Partial<{
   usageCommitIntervalMs: number;
   usageL1BatchedUpdatesSize: number;
   usageL2BatchedUpdatesSize: number;
+  addUsageRecordQueuePrefix: string;
+  addUsageRecordPubSubChannelPrefix: string;
+  addUsageRecordQueueTimeout: number;
+  addUsageRecordProcessCount: number;
+  addUsageRecordQueueStart: number;
+  addUsageRecordQueueEnd: number;
+  /** add usage record queues handled by this server */
+  addUsageRecordQueueNo: number[];
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

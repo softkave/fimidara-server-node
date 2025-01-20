@@ -33,17 +33,13 @@ import {
   kUtilsInjectables,
 } from '../injection/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
+import {kUsageProviderConstants} from './constants.js';
 import {
   IUsageCheckResult,
   IUsageContext,
   UsageRecordDecrementInput,
   UsageRecordIncrementInput,
 } from './types.js';
-
-const kDefaultWorkspaceRefreshIntervalMs = 1000 * 60 * 60 * 24; // 1 day
-const kDefaultBatchedUsageCommitIntervalMs = 1000 * 60 * 10; // 10 minutes
-const kDefaultUsageL1BatchedUpdatesSize = 100;
-const kDefaultUsageL2BatchedUpdatesSize = 100;
 
 export class UsageProvider implements IUsageContext {
   protected usageL2Cache: Record<string, UsageRecord> = {};
@@ -511,7 +507,7 @@ export class UsageProvider implements IUsageContext {
 
     const maxSize =
       kUtilsInjectables.suppliedConfig().usageL1BatchedUpdatesSize ??
-      kDefaultUsageL1BatchedUpdatesSize;
+      kUsageProviderConstants.defaultUsageL1BatchedUpdatesSize;
 
     if (this.usageL1BatchedUpdates.length >= maxSize) {
       kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates());
@@ -529,7 +525,7 @@ export class UsageProvider implements IUsageContext {
 
     const maxSize =
       kUtilsInjectables.suppliedConfig().usageL2BatchedUpdatesSize ??
-      kDefaultUsageL2BatchedUpdatesSize;
+      kUsageProviderConstants.defaultUsageL2BatchedUpdatesSize;
 
     if (Object.keys(this.usageL2BatchedUpdates).length >= maxSize) {
       kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates());
@@ -571,7 +567,7 @@ export class UsageProvider implements IUsageContext {
   protected startWorkspaceRefreshInterval(params: {workspaceId: string}) {
     const intervalMs =
       kUtilsInjectables.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
-      kDefaultWorkspaceRefreshIntervalMs;
+      kUsageProviderConstants.defaultWorkspaceRefreshIntervalMs;
 
     this.refreshWorkspaceInterval = setInterval(
       () =>
@@ -667,7 +663,7 @@ export class UsageProvider implements IUsageContext {
   protected startCommitBatchedUsageL1Interval() {
     const intervalMs =
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
-      kDefaultBatchedUsageCommitIntervalMs;
+      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL1Interval = setInterval(
       () =>
@@ -679,7 +675,7 @@ export class UsageProvider implements IUsageContext {
   protected startCommitBatchedUsageL2Interval() {
     const intervalMs =
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
-      kDefaultBatchedUsageCommitIntervalMs;
+      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL2Interval = setInterval(
       () =>

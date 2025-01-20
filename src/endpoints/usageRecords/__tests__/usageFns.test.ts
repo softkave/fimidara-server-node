@@ -3,6 +3,13 @@ import assert from 'assert';
 import {expectErrorThrownAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {
+  decrementStorageUsageRecord,
+  incrementBandwidthInUsageRecord,
+  incrementBandwidthOutUsageRecord,
+  incrementStorageEverConsumedUsageRecord,
+  incrementStorageUsageRecord,
+} from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {
   FimidaraResourceType,
@@ -30,13 +37,6 @@ import {
 } from '../../testUtils/testUtils.js';
 import {getCostForUsage, getUsageForCost} from '../constants.js';
 import {UsageLimitExceededError} from '../errors.js';
-import {
-  decrementStorageUsageRecord,
-  incrementBandwidthInUsageRecord,
-  incrementBandwidthOutUsageRecord,
-  incrementStorageEverConsumedUsageRecord,
-  incrementStorageUsageRecord,
-} from '../usageFns.js';
 import {getUsageRecordReportingPeriod} from '../utils.js';
 
 beforeAll(async () => {
