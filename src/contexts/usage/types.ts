@@ -64,4 +64,7 @@ export interface IUsageContext extends DisposableResource {
     params: UsageRecordIncrementInput
   ): Promise<IUsageCheckResult>;
   decrement(agent: Agent, params: UsageRecordDecrementInput): Promise<void>;
+  // TODO: run after writes instead of always
+  startCommitBatchedUsageL1Interval(): void;
+  startCommitBatchedUsageL2Interval(): void;
 }

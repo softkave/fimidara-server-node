@@ -34,6 +34,7 @@ export const kUsageProviderConstants = {
 
     return key;
   },
-  getUsageL2LockName: (workspaceId: string) => `usage:${workspaceId}:l2`,
+  getUsageL2LockName: (workspaceId: string, category: string, status: string) =>
+    `usage:${workspaceId}:${category}:${status}:l2`,
   getUsageL2LockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
 };

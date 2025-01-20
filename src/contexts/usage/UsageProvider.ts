@@ -62,23 +62,49 @@ export class UsageProvider implements IUsageContext {
     agent: Agent,
     input: UsageRecordIncrementInput
   ): Promise<IUsageCheckResult> => {
+    // const markPrefix = `incrementUsageRecord-${input.category}-${input.workspaceId}`;
+    // performance.mark(`${markPrefix}-getWorkspace`);
     const workspace = await this.getWorkspace({workspaceId: input.workspaceId});
+    // const getWorkspaceMeasure = performance.measure(
+    //   `${markPrefix}-getWorkspace`,
+    //   `${markPrefix}-getWorkspace`
+    // );
+    // console.log(
+    //   `${markPrefix}-getWorkspace: ${getWorkspaceMeasure.duration}ms`
+    // );
+
     const record = this.makeL1Record(agent, input);
+    // performance.mark(`${markPrefix}-checkWorkspaceBillStatus`);
     const overdueBillCheck = await this.checkWorkspaceBillStatus({
       agent,
       workspace,
       record,
     });
+    // const checkWorkspaceBillStatusMeasure = performance.measure(
+    //   `${markPrefix}-checkWorkspaceBillStatus`,
+    //   `${markPrefix}-checkWorkspaceBillStatus`
+    // );
+    // console.log(
+    //   `${markPrefix}-checkWorkspaceBillStatus: ${checkWorkspaceBillStatusMeasure.duration}ms`
+    // );
 
     if (overdueBillCheck) {
       return overdueBillCheck;
     }
 
+    // performance.mark(`${markPrefix}-checkExceedsRemainingUsage`);
     const exceedsUsageCheck = await this.checkExceedsRemainingUsage({
       agent,
       workspace,
       record,
     });
+    // const checkExceedsRemainingUsageMeasure = performance.measure(
+    //   `${markPrefix}-checkExceedsRemainingUsage`,
+    //   `${markPrefix}-checkExceedsRemainingUsage`
+    // );
+    // console.log(
+    //   `${markPrefix}-checkExceedsRemainingUsage: ${checkExceedsRemainingUsageMeasure.duration}ms`
+    // );
 
     if (exceedsUsageCheck) {
       return exceedsUsageCheck;
@@ -127,6 +153,93 @@ export class UsageProvider implements IUsageContext {
       this.commitBatchedUsageL2Updates(),
     ]);
   };
+
+  startCommitBatchedUsageL1Interval() {
+    const intervalMs =
+      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
+      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
+
+    this.commitBatchedUsageL1Interval = setInterval(
+      () =>
+        kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates()),
+      intervalMs
+    );
+  }
+
+  startCommitBatchedUsageL2Interval() {
+    const intervalMs =
+      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
+      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
+
+    this.commitBatchedUsageL2Interval = setInterval(
+      () =>
+        kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates()),
+      intervalMs
+    );
+  }
+
+  async commitBatchedUsageL1Updates() {
+    if (
+      this.usageL1BatchedUpdates.length === 0 ||
+      this.isCommittingBatchedUsageL1Updates
+    ) {
+      return;
+    }
+
+    this.isCommittingBatchedUsageL1Updates = true;
+    this.committingUsageL1BatchedUpdated =
+      this.committingUsageL1BatchedUpdated.concat(this.usageL1BatchedUpdates);
+    this.usageL1BatchedUpdates = [];
+
+    try {
+      await kSemanticModels.utils().withTxn(async opts => {
+        await kSemanticModels
+          .usageRecord()
+          .insertItem(this.committingUsageL1BatchedUpdated, opts);
+      });
+
+      this.committingUsageL1BatchedUpdated = [];
+    } catch (error) {
+      kUtilsInjectables.logger().error(error);
+    } finally {
+      this.isCommittingBatchedUsageL1Updates = false;
+    }
+  }
+
+  async commitBatchedUsageL2Updates() {
+    if (
+      Object.keys(this.usageL2BatchedUpdates).length === 0 ||
+      this.isCommittingBatchedUsageL2Updates
+    ) {
+      return;
+    }
+
+    this.isCommittingBatchedUsageL2Updates = true;
+    this.committingUsageL2BatchedUpdated = {
+      ...this.committingUsageL2BatchedUpdated,
+      ...this.usageL2BatchedUpdates,
+    };
+    this.usageL2BatchedUpdates = {};
+
+    try {
+      await kDataModels.utils().withTxn(async opts => {
+        await kDataModels.usageRecord().bulkWrite(
+          Object.values(this.committingUsageL2BatchedUpdated).map(usage => ({
+            type: BulkOpType.UpdateOne,
+            query: {resourceId: usage.resourceId},
+            update: usage,
+          })),
+          {txn: opts}
+        );
+      });
+
+      this.committingUsageL2BatchedUpdated = {};
+    } catch (error) {
+      kUtilsInjectables.logger().error(error);
+    } finally {
+      this.isCommittingBatchedUsageL2Updates = false;
+    }
+  }
 
   protected makeL1Record = (agent: Agent, input: UsageRecordIncrementInput) => {
     const record: UsageRecord = newWorkspaceResource(
@@ -265,7 +378,17 @@ export class UsageProvider implements IUsageContext {
     status: UsageRecordFulfillmentStatus;
   }) {
     const {record, category, status} = params;
+
+    // const markPrefix = `getOrMakeUsageL2FromDb-${category}-${status}`;
+    // performance.mark(`${markPrefix}-withTxn`);
     return await kSemanticModels.utils().withTxn(async opts => {
+      // const withTxnMeasure = performance.measure(
+      //   `${markPrefix}-withTxn`,
+      //   `${markPrefix}-withTxn`
+      // );
+      // console.log(`${markPrefix}-withTxn: ${withTxnMeasure.duration}ms`);
+
+      // performance.mark(`${markPrefix}-getUsageL2FromDb`);
       let usageL2 = await this.getUsageL2FromDb({
         category,
         year: record.year,
@@ -274,51 +397,56 @@ export class UsageProvider implements IUsageContext {
         workspaceId: record.workspaceId,
         opts,
       });
+      // const getUsageL2FromDbMeasure = performance.measure(
+      //   `${markPrefix}-getUsageL2FromDb`,
+      //   `${markPrefix}-getUsageL2FromDb`
+      // );
+      // console.log(
+      //   `${markPrefix}-getUsageL2FromDb: ${getUsageL2FromDbMeasure.duration}ms`
+      // );
 
       if (!usageL2) {
-        usageL2 = await kUtilsInjectables
-          .redlock()
-          .using(
-            `usage:${record.workspaceId}`,
-            /** 10 seconds */ 10_000,
-            async () => {
-              return await this.makeAndSaveUsageL2ToDb({...params, opts});
-            }
-          );
+        // performance.mark(`${markPrefix}-makeAndSaveUsageL2ToDb`);
+        usageL2 = await this.makeAndSaveUsageL2ToDb({...params, opts});
+        // const makeAndSaveUsageL2ToDbMeasure = performance.measure(
+        //   `${markPrefix}-makeAndSaveUsageL2ToDb`,
+        //   `${markPrefix}-makeAndSaveUsageL2ToDb`
+        // );
+        // console.log(
+        //   `${markPrefix}-makeAndSaveUsageL2ToDb: ${makeAndSaveUsageL2ToDbMeasure.duration}ms`
+        // );
       }
 
       return usageL2;
     });
   }
 
-  protected async getUsageL2(params: {
+  protected async getOrMakeUsageL2(params: {
     agent: Agent;
     record: Pick<UsageRecord, 'month' | 'year' | 'workspaceId'>;
     category: UsageRecordCategory;
     status: UsageRecordFulfillmentStatus;
   }) {
     const {agent, record, category, status} = params;
-    const usageL2FromCache = this.getUsageL2FromCache({
-      workspaceId: record.workspaceId,
-      month: record.month,
-      year: record.year,
-      category,
-      status,
-    });
-
-    if (usageL2FromCache) {
-      return usageL2FromCache;
-    }
-
     const lockName = kUsageProviderConstants.getUsageL2LockName(
-      record.workspaceId
+      record.workspaceId,
+      category,
+      status
     );
 
+    // const markPrefix = `getOrMakeUsageL2-${record.workspaceId}-${category}-${status}`;
+
     if (kUtilsInjectables.locks().has(lockName)) {
+      // performance.mark(`${markPrefix}-wait`);
       await kUtilsInjectables.locks().wait({
         name: lockName,
         timeoutMs: kUsageProviderConstants.getUsageL2LockWaitTimeoutMs,
       });
+      // const waitMeasure = performance.measure(
+      //   `${markPrefix}-wait`,
+      //   `${markPrefix}-wait`
+      // );
+      // console.log(`${markPrefix}-wait: ${waitMeasure.duration}ms`);
 
       const usageL2FromCache = this.getUsageL2FromCache({
         workspaceId: record.workspaceId,
@@ -332,17 +460,54 @@ export class UsageProvider implements IUsageContext {
       return usageL2FromCache;
     }
 
+    // performance.mark(`${markPrefix}-run`);
     return await kUtilsInjectables.locks().run(lockName, async () => {
+      // const runMeasure = performance.measure(
+      //   `${markPrefix}-run`,
+      //   `${markPrefix}-run`
+      // );
+      // console.log(`${markPrefix}-run: ${runMeasure.duration}ms`);
+
+      // performance.mark(`${markPrefix}-getOrMakeUsageL2FromDb`);
       const usageL2 = await this.getOrMakeUsageL2FromDb({
         agent,
         record,
         category,
         status,
       });
+      // const getOrMakeUsageL2FromDbMeasure = performance.measure(
+      //   `${markPrefix}-getOrMakeUsageL2FromDb`,
+      //   `${markPrefix}-getOrMakeUsageL2FromDb`
+      // );
+      // console.log(
+      //   `${markPrefix}-getOrMakeUsageL2FromDb: ${getOrMakeUsageL2FromDbMeasure.duration}ms`
+      // );
 
       this.setUsageL2Cache({usageL2});
       return usageL2;
     });
+  }
+
+  protected async getUsageL2(params: {
+    agent: Agent;
+    record: Pick<UsageRecord, 'month' | 'year' | 'workspaceId'>;
+    category: UsageRecordCategory;
+    status: UsageRecordFulfillmentStatus;
+  }) {
+    const {record, category, status} = params;
+    const usageL2FromCache = this.getUsageL2FromCache({
+      workspaceId: record.workspaceId,
+      month: record.month,
+      year: record.year,
+      category,
+      status,
+    });
+
+    if (usageL2FromCache) {
+      return usageL2FromCache;
+    }
+
+    return await this.getOrMakeUsageL2(params);
   }
 
   protected checkWorkspaceBillStatus = async (params: {
@@ -375,6 +540,9 @@ export class UsageProvider implements IUsageContext {
     record: UsageRecord;
   }): Promise<IUsageCheckResult | undefined> => {
     const {agent, workspace, record} = params;
+
+    // const markPrefix = `checkExceedsRemainingUsage-${record.category}-${record.workspaceId}`;
+    // performance.mark(`${markPrefix}-getUsageL2`);
     const [usageFulfilledL2, usageTotalFulfilled, usageDroppedL2] =
       await Promise.all([
         this.getUsageL2({
@@ -396,6 +564,11 @@ export class UsageProvider implements IUsageContext {
           status: kUsageRecordFulfillmentStatus.dropped,
         }),
       ]);
+    // const getUsageL2Measure = performance.measure(
+    //   `${markPrefix}-getUsageL2`,
+    //   `${markPrefix}-getUsageL2`
+    // );
+    // console.log(`${markPrefix}-getUsageL2: ${getUsageL2Measure.duration}ms`);
 
     const totalMonthUsageThreshold =
       workspace.usageThresholds[kUsageRecordCategory.total];
@@ -408,12 +581,18 @@ export class UsageProvider implements IUsageContext {
       totalMonthUsageThreshold.budget <
         usageTotalFulfilled.usageCost + usageCost
     ) {
+      // performance.mark(`${markPrefix}-dropRecord`);
       await this.dropRecord({
         agent,
         usageL1: record,
         dropReason: kUsageRecordDropReason.exceedsUsage,
         usageL2: usageDroppedL2,
       });
+      // const dropRecordMeasure = performance.measure(
+      //   `${markPrefix}-dropRecord`,
+      //   `${markPrefix}-dropRecord`
+      // );
+      // console.log(`${markPrefix}-dropRecord: ${dropRecordMeasure.duration}ms`);
 
       return {
         permitted: false,
@@ -427,12 +606,18 @@ export class UsageProvider implements IUsageContext {
       categoryMonthUsageThreshold.budget <
         usageFulfilledL2.usageCost + usageCost
     ) {
+      // performance.mark(`${markPrefix}-dropRecord`);
       await this.dropRecord({
         agent,
         usageL1: record,
         dropReason: kUsageRecordDropReason.exceedsUsage,
         usageL2: usageDroppedL2,
       });
+      // const dropRecordMeasure = performance.measure(
+      //   `${markPrefix}-dropRecord`,
+      //   `${markPrefix}-dropRecord`
+      // );
+      // console.log(`${markPrefix}-dropRecord: ${dropRecordMeasure.duration}ms`);
 
       return {
         permitted: false,
@@ -441,12 +626,20 @@ export class UsageProvider implements IUsageContext {
       };
     }
 
+    // performance.mark(`${markPrefix}-fulfillRecord`);
     await this.fulfillRecord({
       agent,
       record,
       usageFulfilledL2,
       usageTotalFulfilled,
     });
+    // const fulfillRecordMeasure = performance.measure(
+    //   `${markPrefix}-fulfillRecord`,
+    //   `${markPrefix}-fulfillRecord`
+    // );
+    // console.log(
+    //   `${markPrefix}-fulfillRecord: ${fulfillRecordMeasure.duration}ms`
+    // );
 
     return undefined;
   };
@@ -620,92 +813,5 @@ export class UsageProvider implements IUsageContext {
     this.setWorkspaceCache({workspace: workspaceFromDb});
     this.startWorkspaceRefreshInterval({workspaceId: params.workspaceId});
     return workspaceFromDb;
-  }
-
-  protected async commitBatchedUsageL1Updates() {
-    if (
-      this.usageL1BatchedUpdates.length === 0 ||
-      this.isCommittingBatchedUsageL1Updates
-    ) {
-      return;
-    }
-
-    this.isCommittingBatchedUsageL1Updates = true;
-    this.committingUsageL1BatchedUpdated =
-      this.committingUsageL1BatchedUpdated.concat(this.usageL1BatchedUpdates);
-    this.usageL1BatchedUpdates = [];
-
-    try {
-      await kSemanticModels.utils().withTxn(async opts => {
-        await kSemanticModels
-          .usageRecord()
-          .insertItem(this.committingUsageL1BatchedUpdated, opts);
-      });
-
-      this.committingUsageL1BatchedUpdated = [];
-    } catch (error) {
-      kUtilsInjectables.logger().error(error);
-    } finally {
-      this.isCommittingBatchedUsageL1Updates = false;
-    }
-  }
-
-  protected async commitBatchedUsageL2Updates() {
-    if (
-      Object.keys(this.usageL2BatchedUpdates).length === 0 ||
-      this.isCommittingBatchedUsageL2Updates
-    ) {
-      return;
-    }
-
-    this.isCommittingBatchedUsageL2Updates = true;
-    this.committingUsageL2BatchedUpdated = {
-      ...this.committingUsageL2BatchedUpdated,
-      ...this.usageL2BatchedUpdates,
-    };
-    this.usageL2BatchedUpdates = {};
-
-    try {
-      await kDataModels.utils().withTxn(async opts => {
-        await kDataModels.usageRecord().bulkWrite(
-          Object.values(this.committingUsageL2BatchedUpdated).map(usage => ({
-            type: BulkOpType.UpdateOne,
-            query: {resourceId: usage.resourceId},
-            update: usage,
-          })),
-          {txn: opts}
-        );
-      });
-
-      this.committingUsageL2BatchedUpdated = {};
-    } catch (error) {
-      kUtilsInjectables.logger().error(error);
-    } finally {
-      this.isCommittingBatchedUsageL2Updates = false;
-    }
-  }
-
-  protected startCommitBatchedUsageL1Interval() {
-    const intervalMs =
-      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
-      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
-
-    this.commitBatchedUsageL1Interval = setInterval(
-      () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates()),
-      intervalMs
-    );
-  }
-
-  protected startCommitBatchedUsageL2Interval() {
-    const intervalMs =
-      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
-      kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
-
-    this.commitBatchedUsageL2Interval = setInterval(
-      () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates()),
-      intervalMs
-    );
   }
 }

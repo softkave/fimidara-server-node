@@ -55,13 +55,11 @@ export async function globalSetup(
     });
   }
 
-  if (
-    otherConfig.useHandleUsageRecordQueue &&
-    suppliedConfig.addUsageRecordQueueNo &&
-    suppliedConfig.addUsageRecordQueueNo.length > 0
-  ) {
-    suppliedConfig.addUsageRecordQueueNo.map(queueNo => {
+  if (otherConfig.useHandleUsageRecordQueue) {
+    suppliedConfig.addUsageRecordQueueNo?.map(queueNo => {
       startHandleUsageRecordQueue(queueNo);
     });
+    kUtilsInjectables.usage().startCommitBatchedUsageL1Interval();
+    kUtilsInjectables.usage().startCommitBatchedUsageL2Interval();
   }
 }

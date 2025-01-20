@@ -24,6 +24,8 @@ async function incrementUsageRecord(
   input: UsageRecordIncrementInput,
   nothrow = false
 ) {
+  // const markPrefix = `incrementUsageRecord-${input.category}-${input.workspaceId}`;
+  // performance.mark(`${markPrefix}-getAgent`);
   const agent = getActionAgentFromSessionAgent(
     await kUtilsInjectables
       .session()
@@ -33,8 +35,20 @@ async function incrementUsageRecord(
         kSessionUtils.accessScopes.api
       )
   );
+  // const getAgentMeasure = performance.measure(
+  //   `${markPrefix}-getAgent`,
+  //   `${markPrefix}-getAgent`
+  // );
+  // console.log(`${markPrefix}-getAgent: ${getAgentMeasure.duration}ms`);
 
+  // performance.mark(`${markPrefix}-queue`);
   const result = await queueIncrementUsageRecord({agent, input});
+  // performance.mark(`${markPrefix}-end`);
+  // const queueMeasure = performance.measure(
+  //   `${markPrefix}-queue`,
+  //   `${markPrefix}-queue`
+  // );
+  // console.log(`${markPrefix}-queue: ${queueMeasure.duration}ms`);
 
   if (!result.permitted && !nothrow) {
     throw new UsageLimitExceededError({

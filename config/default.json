@@ -52,5 +52,10 @@
   "pubSubProvider": "",
   "redlockProvider": "",
   "cacheProvider": "",
-  "dsetProvider": ""
+  "dsetProvider": "",
+  "addUsageRecordQueuePrefix": "addUsageRecordQueue",
+  "addUsageRecordPubSubChannelPrefix": "addUsageRecordPubSub",
+  "addUsageRecordQueueStart": 1,
+  "addUsageRecordQueueEnd": 1,
+  "addUsageRecordQueueNo": [1]
 }

@@ -7,5 +7,7 @@
   "localPartsFsDir": "./test-local-parts-fs",
   "addFolderTimeoutMs": 10000,
   "addFolderQueuePrefix": "test_addFolderQueue",
-  "addFolderPubSubChannelPrefix": "test_addFolderPubSub"
+  "addFolderPubSubChannelPrefix": "test_addFolderPubSub",
+  "addUsageRecordQueuePrefix": "test_addUsageRecordQueue",
+  "addUsageRecordPubSubChannelPrefix": "test_addUsageRecordPubSub"
 }
