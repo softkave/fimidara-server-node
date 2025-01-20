@@ -1,9 +1,3 @@
-import {kSessionUtils} from '../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {
-  UsageRecordDecrementInput,
-  UsageRecordIncrementInput,
-} from '../../contexts/usage/types.js';
 import {File} from '../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
@@ -13,9 +7,16 @@ import {
   kUsageRecordArtifactType,
   kUsageRecordCategory,
 } from '../../definitions/usageRecord.js';
+import RequestData from '../../endpoints/RequestData.js';
+import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors.js';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
-import RequestData from '../RequestData.js';
-import {UsageLimitExceededError} from './errors.js';
+import {kSessionUtils} from '../SessionContext.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
+import {
+  queueDecrementUsageRecord,
+  queueIncrementUsageRecord,
+} from './queueUsageOps.js';
+import {UsageRecordDecrementInput, UsageRecordIncrementInput} from './types.js';
 
 // #region "increment fns"
 async function incrementUsageRecord(
@@ -23,6 +24,8 @@ async function incrementUsageRecord(
   input: UsageRecordIncrementInput,
   nothrow = false
 ) {
+  // const markPrefix = `incrementUsageRecord-${input.category}-${input.workspaceId}`;
+  // performance.mark(`${markPrefix}-getAgent`);
   const agent = getActionAgentFromSessionAgent(
     await kUtilsInjectables
       .session()
@@ -32,8 +35,20 @@ async function incrementUsageRecord(
         kSessionUtils.accessScopes.api
       )
   );
+  // const getAgentMeasure = performance.measure(
+  //   `${markPrefix}-getAgent`,
+  //   `${markPrefix}-getAgent`
+  // );
+  // console.log(`${markPrefix}-getAgent: ${getAgentMeasure.duration}ms`);
 
-  const result = await kUtilsInjectables.usage().increment(agent, input);
+  // performance.mark(`${markPrefix}-queue`);
+  const result = await queueIncrementUsageRecord({agent, input});
+  // performance.mark(`${markPrefix}-end`);
+  // const queueMeasure = performance.measure(
+  //   `${markPrefix}-queue`,
+  //   `${markPrefix}-queue`
+  // );
+  // console.log(`${markPrefix}-queue: ${queueMeasure.duration}ms`);
 
   if (!result.permitted && !nothrow) {
     throw new UsageLimitExceededError({
@@ -185,7 +200,7 @@ async function decrementUsageRecord(
       )
   );
 
-  await kUtilsInjectables.usage().decrement(agent, input);
+  await queueDecrementUsageRecord({agent, input});
 }
 
 export async function decrementStorageUsageRecord(

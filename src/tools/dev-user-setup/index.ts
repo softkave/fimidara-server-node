@@ -16,7 +16,7 @@ const appOptions: ISetupDevUserOptions = {
 async function main() {
   await globalSetup(
     {useFimidaraApp: false, useFimidaraWorkerPool: false},
-    {useHandleFolderQueue: true}
+    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
   );
   await setupDevUser(appOptions);
   await globalDispose();

@@ -16,7 +16,7 @@ export class FimidaraWorker extends FWorker {
   async start() {
     await globalSetup(
       {useFimidaraApp: false, useFimidaraWorkerPool: false},
-      {useHandleFolderQueue: false}
+      {useHandleFolderQueue: false, useHandleUsageRecordQueue: false}
     );
     this.workerEndedLock = new LockableResource<boolean>(
       kUtilsInjectables.locks(),
