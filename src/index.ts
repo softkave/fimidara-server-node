@@ -103,6 +103,7 @@ async function setup() {
       useHandleFolderQueue: true,
       useHandleUsageRecordQueue: true,
       useHandleAddInternalMultipartIdQueue: true,
+      useHandlePrepareFileQueue: true,
     }
   );
   kUtilsInjectables.logger().log('Server initialization');

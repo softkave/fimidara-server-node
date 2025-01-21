@@ -106,6 +106,7 @@ export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
       useHandleFolderQueue: true,
       useHandleUsageRecordQueue: true,
       useHandleAddInternalMultipartIdQueue: true,
+      useHandlePrepareFileQueue: true,
     }
   );
   await initFimidara();
@@ -118,6 +119,7 @@ export async function initFnTests() {
       useHandleFolderQueue: true,
       useHandleUsageRecordQueue: true,
       useHandleAddInternalMultipartIdQueue: true,
+      useHandlePrepareFileQueue: true,
     }
   );
 }

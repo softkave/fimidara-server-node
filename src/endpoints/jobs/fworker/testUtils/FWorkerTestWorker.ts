@@ -12,6 +12,7 @@ async function main() {
       useHandleFolderQueue: false,
       useHandleUsageRecordQueue: false,
       useHandleAddInternalMultipartIdQueue: false,
+      useHandlePrepareFileQueue: false,
     }
   );
   const fworker = new FWorker();

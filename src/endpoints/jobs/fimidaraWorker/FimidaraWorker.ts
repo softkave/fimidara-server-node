@@ -20,6 +20,7 @@ export class FimidaraWorker extends FWorker {
         useHandleFolderQueue: false,
         useHandleUsageRecordQueue: false,
         useHandleAddInternalMultipartIdQueue: false,
+        useHandlePrepareFileQueue: false,
       }
     );
     this.workerEndedLock = new LockableResource<boolean>(

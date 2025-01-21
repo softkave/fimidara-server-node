@@ -279,7 +279,7 @@ export function createNewFile(
 
 export async function createNewFileAndEnsureFolders(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspace: Pick<Workspace, 'resourceId' | 'rootname'>,
   pathinfo: FilepathInfo,
   data: Pick<
     File,

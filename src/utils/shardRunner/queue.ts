@@ -69,7 +69,11 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
   const outputChannel = getShardRunnerPubSubOutputChannel({queueKey, id});
   const input: IShardRunnerEntry<TInputItem> = {
-    agent,
+    agent: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+      agentTokenId: agent.agentTokenId,
+    },
     workspaceId,
     item,
     id,

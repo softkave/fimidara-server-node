@@ -8,7 +8,7 @@ import {IAddFolderQueueShardRunnerInput, NewFolderInput} from './types.js';
 
 export async function createFolderList(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspace: Pick<Workspace, 'resourceId'>,
   input: NewFolderInput | NewFolderInput[],
   UNSAFE_skipAuthCheck: boolean,
   throwIfFolderExists: boolean,

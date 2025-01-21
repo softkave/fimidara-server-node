@@ -17,7 +17,13 @@ export async function queueAddInternalMultipartId(params: {
   >({
     agent,
     workspaceId: input.workspaceId,
-    item: input,
+    item: {
+      fileId: input.fileId,
+      workspaceId: input.workspaceId,
+      mount: input.mount,
+      filepath: input.filepath,
+      namepath: input.namepath,
+    },
     queueKey: kFileConstants.getAddInternalMultipartIdQueueKey(
       input.workspaceId
     ),

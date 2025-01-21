@@ -174,7 +174,7 @@ export type FimidaraSuppliedConfig = Partial<{
   /** add usage record queues handled by this server */
   addUsageRecordQueueNo: number[];
 
-  // Files
+  // Internal Multipart Id
   addInternalMultipartIdQueuePrefix: string;
   addInternalMultipartIdPubSubChannelPrefix: string;
   addInternalMultipartIdQueueTimeout: number;
@@ -183,6 +183,16 @@ export type FimidaraSuppliedConfig = Partial<{
   addInternalMultipartIdQueueEnd: number;
   /** add internal multipart id queues handled by this server */
   addInternalMultipartIdQueueNo: number[];
+
+  // Prepare File
+  prepareFileQueuePrefix: string;
+  prepareFilePubSubChannelPrefix: string;
+  prepareFileQueueTimeout: number;
+  prepareFileProcessCount: number;
+  prepareFileQueueStart: number;
+  prepareFileQueueEnd: number;
+  /** prepare file queues handled by this server */
+  prepareFileQueueNo: number[];
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

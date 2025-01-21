@@ -82,4 +82,35 @@ export const kFileConstants = {
   getAddInternalMultipartIdLockName: (fileId: string) =>
     `addInternalMultipartId:${fileId}`,
   getAddInternalMultipartIdLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
+  prepareFileQueueTimeout: 30_000,
+  prepareFileProcessCount: 100,
+  getPrepareFilePubSubChannel: (workspaceId: string) =>
+    `${
+      kUtilsInjectables.suppliedConfig().prepareFilePubSubChannelPrefix
+    }-${workspaceId}`,
+  getPrepareFileQueueWithNo: (num: number) =>
+    `${kUtilsInjectables.suppliedConfig().prepareFileQueuePrefix}${num}`,
+  getPrepareFileQueueKey: (workspaceId: string) => {
+    const {prepareFileQueueStart, prepareFileQueueEnd} =
+      kUtilsInjectables.suppliedConfig();
+
+    assert.ok(prepareFileQueueStart);
+    assert.ok(prepareFileQueueEnd);
+
+    const queueCount = prepareFileQueueEnd - prepareFileQueueStart + 1;
+    assert.ok(queueCount > 0);
+
+    const hash = workspaceId.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0);
+    }, 0);
+
+    const key = kFileConstants.getPrepareFileQueueWithNo(
+      (hash % queueCount) + prepareFileQueueStart
+    );
+
+    return key;
+  },
+  getPrepareFileLockName: (filepathOrId: string) =>
+    `prepareFile:${filepathOrId}`,
+  getPrepareFileLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
 };

@@ -22,8 +22,13 @@
   - use shard runner for creating internal multipart ID
     - queue in handler by fileId
     - lock by fileId and get before creating
+  - use shard runner for prepare file
+    - queue in handler by fileId or filepath
+    - lock by fileId or filepath and get before creating
   - concurrency with insertJob idempotency check
   - cache calls to resolveBackendsMountsAndConfigs
+  - errors thrown in single runner should return error for that entry
+  - errors thrown in multi runner should return error for all entries
 
 ## NextJs
 

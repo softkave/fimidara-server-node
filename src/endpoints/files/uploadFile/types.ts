@@ -3,7 +3,8 @@ import {
   FilePersistenceStartMultipartUploadParams,
   FilePersistenceStartMultipartUploadResult,
 } from '../../../contexts/file/types.js';
-import {FileMatcher, PublicFile} from '../../../definitions/file.js';
+import {File, FileMatcher, PublicFile} from '../../../definitions/file.js';
+import {Workspace} from '../../../definitions/workspace.js';
 import {Endpoint} from '../../types.js';
 
 export interface UploadFileEndpointParams extends FileMatcher {
@@ -34,3 +35,13 @@ export type IInternalMultipartIdQueueInput =
 
 export type IInternalMultipartIdQueueOutput =
   FilePersistenceStartMultipartUploadResult;
+
+export interface IPrepareFileQueueInput {
+  workspace: Pick<Workspace, 'resourceId' | 'rootname'>;
+  data: Pick<
+    UploadFileEndpointParams,
+    'filepath' | 'clientMultipartId' | 'part' | 'fileId'
+  >;
+}
+
+export type IPrepareFileQueueOutput = File;

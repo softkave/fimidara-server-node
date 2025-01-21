@@ -51,6 +51,7 @@ export function startTesting() {
         useHandleFolderQueue: true,
         useHandleUsageRecordQueue: true,
         useHandleAddInternalMultipartIdQueue: true,
+        useHandlePrepareFileQueue: true,
       }
     );
     await initFimidara();

@@ -62,5 +62,10 @@
   "addInternalMultipartIdPubSubChannelPrefix": "addInternalMultipartIdPubSub",
   "addInternalMultipartIdQueueStart": 1,
   "addInternalMultipartIdQueueEnd": 1,
-  "addInternalMultipartIdQueueNo": [1]
+  "addInternalMultipartIdQueueNo": [1],
+  "prepareFileQueuePrefix": "prepareFileQueue",
+  "prepareFilePubSubChannelPrefix": "prepareFilePubSub",
+  "prepareFileQueueStart": 1,
+  "prepareFileQueueEnd": 1,
+  "prepareFileQueueNo": [1]
 }

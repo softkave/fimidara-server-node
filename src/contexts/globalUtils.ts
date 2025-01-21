@@ -1,4 +1,5 @@
-import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadFile/handleAddInternalMultipartId.js';
+import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadFile/handleAddInternalMultipartIdQueue.js';
+import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kUtilsInjectables} from './injection/injectables.js';
@@ -27,6 +28,7 @@ export async function globalSetup(
     useHandleFolderQueue?: boolean;
     useHandleUsageRecordQueue?: boolean;
     useHandleAddInternalMultipartIdQueue?: boolean;
+    useHandlePrepareFileQueue?: boolean;
   }
 ) {
   await registerInjectables(overrideConfig);
@@ -64,6 +66,12 @@ export async function globalSetup(
   if (otherConfig.useHandleAddInternalMultipartIdQueue) {
     suppliedConfig.addInternalMultipartIdQueueNo?.map(queueNo => {
       startHandleAddInternalMultipartIdQueue(queueNo);
+    });
+  }
+
+  if (otherConfig.useHandlePrepareFileQueue) {
+    suppliedConfig.prepareFileQueueNo?.map(queueNo => {
+      startHandlePrepareFileQueue(queueNo);
     });
   }
 }

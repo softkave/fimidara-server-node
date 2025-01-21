@@ -20,6 +20,7 @@ async function main() {
       useHandleFolderQueue: true,
       useHandleUsageRecordQueue: true,
       useHandleAddInternalMultipartIdQueue: true,
+      useHandlePrepareFileQueue: true,
     }
   );
   await setupDevUser(appOptions);
