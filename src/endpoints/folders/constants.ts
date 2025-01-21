@@ -22,20 +22,23 @@ export const kFolderConstants = {
     `${
       kUtilsInjectables.suppliedConfig().addFolderPubSubChannelPrefix
     }-${folderpath}`,
-  getAddFolderQueueWithNo: (no: number) =>
-    `${kUtilsInjectables.suppliedConfig().addFolderQueuePrefix}${no}`,
+  getAddFolderQueueWithNo: (num: number) =>
+    `${kUtilsInjectables.suppliedConfig().addFolderQueuePrefix}${num}`,
   getAddFolderQueueKey: (folderpath: string) => {
     const {addFolderQueueStart, addFolderQueueEnd} =
       kUtilsInjectables.suppliedConfig();
+
     assert.ok(addFolderQueueStart);
     assert.ok(addFolderQueueEnd);
+
     const queueCount = addFolderQueueEnd - addFolderQueueStart + 1;
     assert.ok(queueCount > 0);
 
-    // consistently select between 1 and queueCount using the
-    // folderpath.split("/")[1]
+    // consistently select a queue between 1 and queueCount using the
+    // folderpath.split("/")[1] as the seed
     const folderpath1 = folderpath.split('/')[1];
     assert.ok(folderpath1);
+
     const hash = folderpath1.split('').reduce((acc, char) => {
       return acc + char.charCodeAt(0);
     }, 0);

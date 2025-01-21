@@ -1,11 +1,17 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {difference} from 'lodash-es';
-import {afterEach, beforeEach, describe, expect, test} from 'vitest';
+import {difference, uniqWith} from 'lodash-es';
+import {
+  kLoopAsyncSettlementType,
+  loopAsync,
+  waitTimeout,
+} from 'softkave-js-utils';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import {
   UsageRecord,
   UsageRecordCategory,
   UsageRecordDropReason,
+  UsageRecordFulfillmentStatus,
   kUsageRecordCategory,
   kUsageRecordDropReason,
   kUsageRecordFulfillmentStatus,
@@ -33,14 +39,21 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../injection/injectables.js';
+import {UsageProvider} from '../UsageProvider.js';
+
+const kUsageCommitIntervalMs = 50;
 
 beforeEach(async () => {
-  await initTests();
+  await initTests({usageCommitIntervalMs: kUsageCommitIntervalMs});
 });
 
 afterEach(async () => {
   await completeTests();
 });
+
+async function waitUntilUsageIsCommitted() {
+  await waitTimeout(kUsageCommitIntervalMs * 2);
+}
 
 async function expectUsageDropped(props: {
   existingCategoryFulfilledUsage?: number;
@@ -192,12 +205,32 @@ async function expectUsageFulfilled(props: {
   expect(usageTotal.status).toBe(fulfillmentStatus);
 }
 
-describe('UsageRecordLogicProvider', () => {
-  describe.each(
-    difference(Object.values(kUsageRecordCategory), [
-      kUsageRecordCategory.total,
-    ])
-  )('category=%s', category => {
+/**
+ * TODO:
+ * - test that workspace is refreshed
+ * - test that commit usage is batched and committed
+ */
+
+const usageCategoryStatusList = Object.values(kUsageRecordCategory).reduce(
+  (acc, category) => {
+    Object.values(kUsageRecordFulfillmentStatus).forEach(status => {
+      acc.push({category, status});
+    });
+    return acc;
+  },
+  [] as Array<{
+    category: UsageRecordCategory;
+    status: UsageRecordFulfillmentStatus;
+  }>
+);
+
+const usageWithoutTotalList = difference(Object.values(kUsageRecordCategory), [
+  kUsageRecordCategory.total,
+]);
+
+describe.each(usageWithoutTotalList)(
+  'UsageProvider ops category=%s',
+  category => {
     describe('increment', () => {
       test.each([
         {threshold: faker.number.int({min: 100})},
@@ -233,6 +266,7 @@ describe('UsageRecordLogicProvider', () => {
         assert(result.permitted);
 
         const {month, year} = getUsageRecordReportingPeriod();
+        await waitUntilUsageIsCommitted();
         await expectUsageFulfilled({workspace, category, month, year, usage});
       });
 
@@ -278,6 +312,7 @@ describe('UsageRecordLogicProvider', () => {
           expect(result.reason).toBe(kUsageRecordDropReason.exceedsUsage);
           expect(result.category).toBe(exceededCategory);
 
+          await waitUntilUsageIsCommitted();
           await expectUsageDropped({
             existingCategoryFulfilledUsage:
               exceededCategory !== kUsageRecordCategory.total
@@ -317,6 +352,7 @@ describe('UsageRecordLogicProvider', () => {
         expect(result.reason).toBe(kUsageRecordDropReason.billOverdue);
         expect(result.category).toBe(undefined);
 
+        await waitUntilUsageIsCommitted();
         await expectUsageDropped({
           dropReason: kUsageRecordDropReason.billOverdue,
           existingCategoryFulfilledUsage: 0,
@@ -370,6 +406,7 @@ describe('UsageRecordLogicProvider', () => {
             expect(result.reason).toBe(kUsageRecordDropReason.exceedsUsage);
             expect(result.category).toBe(exceededCategory);
 
+            await waitUntilUsageIsCommitted();
             const {usageFulfilledL2} = await expectUsageDropped({
               existingCategoryFulfilledUsage:
                 previousMonthUsageFulfilledL2.usage,
@@ -385,6 +422,7 @@ describe('UsageRecordLogicProvider', () => {
             expect(usageFulfilledL2.persistent).toBeTruthy();
           } else {
             assert(result.permitted);
+            await waitUntilUsageIsCommitted();
             await expectUsageFulfilled({
               workspace,
               category,
@@ -397,61 +435,159 @@ describe('UsageRecordLogicProvider', () => {
       );
     });
 
-    test.each([{existingRecord: true}, {existingRecord: false}])(
-      'decrement existing=$existingRecord',
-      async params => {
-        const [workspace] = await generateAndInsertWorkspaceListForTest(
-          /** count */ 1
-        );
-        let existingRecord: UsageRecord | undefined;
-        const {month, year} = getUsageRecordReportingPeriod();
-
-        if (params.existingRecord) {
-          [existingRecord] = await generateAndInsertUsageRecordList(
-            /** count */ 1,
-            {
-              status: kUsageRecordFulfillmentStatus.fulfilled,
-              summationType: kUsageSummationType.month,
-              workspaceId: workspace.resourceId,
-              category,
-              month,
-              year,
-            }
+    describe('decrement', () => {
+      test.each([{existingRecord: true}, {existingRecord: false}])(
+        'decrement existing=$existingRecord',
+        async params => {
+          const [workspace] = await generateAndInsertWorkspaceListForTest(
+            /** count */ 1
           );
+          let existingRecord: UsageRecord | undefined;
+          const {month, year} = getUsageRecordReportingPeriod();
+
+          if (params.existingRecord) {
+            [existingRecord] = await generateAndInsertUsageRecordList(
+              /** count */ 1,
+              {
+                status: kUsageRecordFulfillmentStatus.fulfilled,
+                summationType: kUsageSummationType.month,
+                workspaceId: workspace.resourceId,
+                category,
+                month,
+                year,
+              }
+            );
+          }
+
+          const usage = faker.number.int();
+          const usageCost = getCostForUsage(category, usage);
+          await kUtilsInjectables.usage().decrement(kSystemSessionAgent, {
+            workspaceId: workspace.resourceId,
+            category,
+            usage,
+          });
+
+          await waitUntilUsageIsCommitted();
+
+          const dbRecord = await kSemanticModels.usageRecord().getOneByQuery({
+            status: kUsageRecordFulfillmentStatus.fulfilled,
+            summationType: kUsageSummationType.month,
+            workspaceId: workspace.resourceId,
+            category,
+            month,
+            year,
+          });
+
+          assert(dbRecord);
+
+          if (existingRecord) {
+            expect(dbRecord.resourceId).toBe(existingRecord.resourceId);
+            expect(dbRecord.usage).toBe(
+              Math.max(0, existingRecord.usage - usage)
+            );
+            expect(dbRecord.usageCost).toBe(
+              Math.max(0, existingRecord.usageCost - usageCost)
+            );
+          } else {
+            expect(dbRecord.usage).toBe(0);
+            expect(dbRecord.usageCost).toBe(0);
+          }
         }
+      );
+    });
+  }
+);
 
-        const usage = faker.number.int();
-        const usageCost = getCostForUsage(category, usage);
-        await kUtilsInjectables.usage().decrement(kSystemSessionAgent, {
-          workspaceId: workspace.resourceId,
-          category,
-          usage,
-        });
-
-        const dbRecord = await kSemanticModels.usageRecord().getOneByQuery({
-          status: kUsageRecordFulfillmentStatus.fulfilled,
-          summationType: kUsageSummationType.month,
-          workspaceId: workspace.resourceId,
-          category,
-          month,
-          year,
-        });
-
-        assert(dbRecord);
-
-        if (existingRecord) {
-          expect(dbRecord.resourceId).toBe(existingRecord.resourceId);
-          expect(dbRecord.usage).toBe(
-            Math.max(0, existingRecord.usage - usage)
-          );
-          expect(dbRecord.usageCost).toBe(
-            Math.max(0, existingRecord.usageCost - usageCost)
-          );
-        } else {
-          expect(dbRecord.usage).toBe(0);
-          expect(dbRecord.usageCost).toBe(0);
-        }
+describe.each(usageCategoryStatusList)(
+  'UsageProvider usageL2 is created category=$category status=$status',
+  ({category, status}) => {
+    class TestUsageProvider extends UsageProvider {
+      async exposeGetUsageL2(...args: Parameters<UsageProvider['getUsageL2']>) {
+        return this.getUsageL2(...args);
       }
-    );
-  });
-});
+    }
+
+    const testUsageProvider = new TestUsageProvider();
+
+    test('usageL2 is created only once', async () => {
+      const [workspace] = await generateAndInsertWorkspaceListForTest(
+        /** count */ 1
+      );
+
+      const {month, year} = getUsageRecordReportingPeriod();
+      const runCount = 12;
+      const usageL2s: UsageRecord[] = [];
+
+      async function getUsageL2() {
+        const usageL2 = await testUsageProvider.exposeGetUsageL2({
+          agent: kSystemSessionAgent,
+          record: {
+            workspaceId: workspace.resourceId,
+            month,
+            year,
+          },
+          category,
+          status,
+        });
+        usageL2s.push(usageL2);
+      }
+
+      await loopAsync(getUsageL2, runCount, kLoopAsyncSettlementType.all);
+
+      expect(usageL2s.length).toBe(runCount);
+      const uniqueUsageL2s = uniqWith(
+        usageL2s,
+        (a, b) => a.resourceId === b.resourceId
+      );
+      expect(uniqueUsageL2s.length).toBe(1);
+    });
+  }
+);
+
+describe.each(usageCategoryStatusList)(
+  'UsageProvider usageL2 is cached category=$category status=$status',
+  ({category, status}) => {
+    class TestUsageProvider extends UsageProvider {
+      getOrMakeUsageL2 = vi.fn().mockImplementation(this.getOrMakeUsageL2);
+
+      async exposeGetUsageL2(...args: Parameters<UsageProvider['getUsageL2']>) {
+        return this.getUsageL2(...args);
+      }
+    }
+
+    const testUsageProvider = new TestUsageProvider();
+
+    test('usageL2 is cached', async () => {
+      const [workspace] = await generateAndInsertWorkspaceListForTest(
+        /** count */ 1
+      );
+
+      const {month, year} = getUsageRecordReportingPeriod();
+      const runCount = 5;
+      const usageL2s: UsageRecord[] = [];
+
+      async function getUsageL2() {
+        const usageL2 = await testUsageProvider.exposeGetUsageL2({
+          agent: kSystemSessionAgent,
+          record: {
+            workspaceId: workspace.resourceId,
+            month,
+            year,
+          },
+          category,
+          status,
+        });
+        usageL2s.push(usageL2);
+      }
+
+      // first call will create the usageL2
+      await getUsageL2();
+
+      // subsequent calls will return the cached usageL2
+      await loopAsync(getUsageL2, runCount, kLoopAsyncSettlementType.all);
+
+      expect(usageL2s.length).toBe(runCount + 1);
+      expect(testUsageProvider.getOrMakeUsageL2).toHaveBeenCalledTimes(1);
+    });
+  }
+);

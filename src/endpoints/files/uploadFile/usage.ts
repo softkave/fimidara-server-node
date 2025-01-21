@@ -1,12 +1,12 @@
-import {File} from '../../../definitions/file.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import RequestData from '../../RequestData.js';
 import {
   decrementStorageUsageRecord,
   incrementBandwidthInUsageRecord,
   incrementStorageEverConsumedUsageRecord,
   incrementStorageUsageRecord,
-} from '../../usageRecords/usageFns.js';
+} from '../../../contexts/usage/usageFns.js';
+import {File} from '../../../definitions/file.js';
+import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
+import RequestData from '../../RequestData.js';
 
 export async function handleIntermediateStorageUsageRecords(params: {
   reqData: RequestData;

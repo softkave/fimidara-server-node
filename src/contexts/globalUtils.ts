@@ -2,6 +2,7 @@ import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAd
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kUtilsInjectables} from './injection/injectables.js';
 import {registerInjectables} from './injection/register.js';
+import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
   kUtilsInjectables.runtimeState().setIsEnded(true);
@@ -23,6 +24,7 @@ export async function globalSetup(
   overrideConfig: FimidaraSuppliedConfig = {},
   otherConfig: {
     useHandleFolderQueue?: boolean;
+    useHandleUsageRecordQueue?: boolean;
   }
 ) {
   await registerInjectables(overrideConfig);
@@ -51,5 +53,13 @@ export async function globalSetup(
     suppliedConfig.addFolderQueueNo.map(queueNo => {
       startHandleAddFolderQueue(queueNo);
     });
+  }
+
+  if (otherConfig.useHandleUsageRecordQueue) {
+    suppliedConfig.addUsageRecordQueueNo?.map(queueNo => {
+      startHandleUsageRecordQueue(queueNo);
+    });
+    kUtilsInjectables.usage().startCommitBatchedUsageL1Interval();
+    kUtilsInjectables.usage().startCommitBatchedUsageL2Interval();
   }
 }
