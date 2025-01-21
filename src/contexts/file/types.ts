@@ -14,9 +14,14 @@ export type FilePersistenceProviderFeature =
   | 'deleteFiles'
   | 'deleteFolders';
 
+export type IFilePersistenceProviderMount = Pick<
+  FileBackendMount,
+  'resourceId' | 'namepath' | 'mountedFrom' | 'backend'
+>;
+
 export interface FilePersistenceDefaultParams {
   workspaceId: string;
-  mount: FileBackendMount;
+  mount: IFilePersistenceProviderMount;
 }
 
 interface FilepathMatcher {
@@ -40,7 +45,6 @@ export interface FilePersistenceUploadFileParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   body: Readable;
-  mount: FileBackendMount;
   mimetype?: string;
   encoding?: string;
   fileId: string;
@@ -175,7 +179,6 @@ export interface FilePersistenceCompleteMultipartUploadParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
-  mount: FileBackendMount;
   multipartId: string;
   parts: FilePersistenceUploadPartResult[];
 }
@@ -189,7 +192,6 @@ export interface FilePersistenceCleanupMultipartUploadParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
-  mount: FileBackendMount;
   multipartId: string;
 }
 
@@ -197,7 +199,6 @@ export interface FilePersistenceStartMultipartUploadParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
-  mount: FileBackendMount;
 }
 
 export interface FilePersistenceStartMultipartUploadResult {
@@ -251,7 +252,7 @@ export interface FilePersistenceProvider extends DisposableResource {
 }
 
 export type FileProviderResolver = (
-  mount: FileBackendMount,
+  mount: IFilePersistenceProviderMount,
   initParams?: unknown,
   config?: FileBackendConfig
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

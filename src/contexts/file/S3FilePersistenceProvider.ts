@@ -17,7 +17,6 @@ import {Upload} from '@aws-sdk/lib-storage';
 import {first} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
-import {FileBackendMount} from '../../definitions/fileBackend.js';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
@@ -43,6 +42,7 @@ import {
   FilePersistenceUploadFileParams,
   FilePersistenceUploadFileResult,
   FimidaraToFilePersistencePathParams,
+  IFilePersistenceProviderMount,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
@@ -57,7 +57,7 @@ export interface S3FilePersistenceProviderInitParams {
 
 export class S3FilePersistenceProvider implements FilePersistenceProvider {
   static getBucketAndPrefix(params: {
-    mount: FileBackendMount;
+    mount: IFilePersistenceProviderMount;
     filepath?: string;
     folderpath?: string;
   }) {

@@ -11,7 +11,11 @@ export async function setup() {
       useFimidaraWorkerPool: false,
       addFolderQueueNo: [],
     },
-    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
+    {
+      useHandleFolderQueue: true,
+      useHandleUsageRecordQueue: true,
+      useHandleAddInternalMultipartIdQueue: true,
+    }
   );
   await initFimidara();
 }

@@ -1,4 +1,8 @@
 import {Readable} from 'stream';
+import {
+  FilePersistenceStartMultipartUploadParams,
+  FilePersistenceStartMultipartUploadResult,
+} from '../../../contexts/file/types.js';
 import {FileMatcher, PublicFile} from '../../../definitions/file.js';
 import {Endpoint} from '../../types.js';
 
@@ -22,3 +26,11 @@ export type UploadFileEndpoint = Endpoint<
   UploadFileEndpointParams,
   UploadFileEndpointResult
 >;
+
+export type IInternalMultipartIdQueueInput =
+  FilePersistenceStartMultipartUploadParams & {
+    namepath: string[];
+  };
+
+export type IInternalMultipartIdQueueOutput =
+  FilePersistenceStartMultipartUploadResult;

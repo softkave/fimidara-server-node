@@ -9,5 +9,7 @@
   "addFolderQueuePrefix": "test_addFolderQueue",
   "addFolderPubSubChannelPrefix": "test_addFolderPubSub",
   "addUsageRecordQueuePrefix": "test_addUsageRecordQueue",
-  "addUsageRecordPubSubChannelPrefix": "test_addUsageRecordPubSub"
+  "addUsageRecordPubSubChannelPrefix": "test_addUsageRecordPubSub",
+  "addInternalMultipartIdQueuePrefix": "test_addInternalMultipartIdQueue",
+  "addInternalMultipartIdPubSubChannelPrefix": "test_addInternalMultipartIdPubSub"
 }

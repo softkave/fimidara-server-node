@@ -99,7 +99,11 @@ function setupJWT() {
 async function setup() {
   await globalSetup(
     /** overrideConfig */ {},
-    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
+    {
+      useHandleFolderQueue: true,
+      useHandleUsageRecordQueue: true,
+      useHandleAddInternalMultipartIdQueue: true,
+    }
   );
   kUtilsInjectables.logger().log('Server initialization');
 

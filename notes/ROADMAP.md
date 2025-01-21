@@ -20,7 +20,10 @@
   - use shard runner for usage
     - queue in handler by workspaceId + category + operation
   - use shard runner for creating internal multipart ID
+    - queue in handler by fileId
+    - lock by fileId and get before creating
   - concurrency with insertJob idempotency check
+  - cache calls to resolveBackendsMountsAndConfigs
 
 ## NextJs
 

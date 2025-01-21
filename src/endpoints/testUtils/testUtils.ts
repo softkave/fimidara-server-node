@@ -102,7 +102,11 @@ export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
       useFimidaraWorkerPool: false,
       ...overrides,
     },
-    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
+    {
+      useHandleFolderQueue: true,
+      useHandleUsageRecordQueue: true,
+      useHandleAddInternalMultipartIdQueue: true,
+    }
   );
   await initFimidara();
 }
@@ -110,7 +114,11 @@ export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
 export async function initFnTests() {
   await globalSetup(
     {useFimidaraApp: false, useFimidaraWorkerPool: false},
-    {useHandleFolderQueue: true, useHandleUsageRecordQueue: true}
+    {
+      useHandleFolderQueue: true,
+      useHandleUsageRecordQueue: true,
+      useHandleAddInternalMultipartIdQueue: true,
+    }
   );
 }
 
