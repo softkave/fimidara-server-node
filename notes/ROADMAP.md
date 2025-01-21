@@ -18,6 +18,7 @@
     - check if folder exists before sending to shard runner
     - shard runner, who logs errors
   - use shard runner for usage
+    - queue in handler by workspaceId + category + operation
   - use shard runner for creating internal multipart ID
   - concurrency with insertJob idempotency check
 
