@@ -740,12 +740,11 @@ export class UsageProvider implements IUsageContext {
 
   protected async writeUsageL2(params: {
     usageL2: UsageRecord;
-    update?: Partial<UsageRecord>;
+    update: Partial<UsageRecord>;
   }) {
-    this.usageL2BatchedUpdates[params.usageL2.resourceId] = {
-      ...params.usageL2,
-      ...params.update,
-    };
+    const usageL2 = {...params.usageL2, ...params.update};
+    this.usageL2BatchedUpdates[params.usageL2.resourceId] = usageL2;
+    this.setUsageL2Cache({usageL2});
 
     const maxSize =
       kUtilsInjectables.suppliedConfig().usageL2BatchedUpdatesSize ??

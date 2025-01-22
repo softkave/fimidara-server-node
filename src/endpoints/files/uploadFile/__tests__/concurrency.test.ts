@@ -82,28 +82,25 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         length: 4,
       });
 
-      const results = await Promise.allSettled([
-        uploadFileBaseTest({
-          isMultipart,
-          insertUserResult,
-          insertWorkspaceResult,
-          input: {filepath},
-          type: kGenerateTestFileType.txt,
-        }),
-        uploadFileBaseTest({
-          isMultipart,
-          insertUserResult,
-          insertWorkspaceResult,
-          input: {filepath},
-          type: kGenerateTestFileType.txt,
-        }),
-        uploadFileBaseTest({
-          isMultipart,
-          insertUserResult,
-          insertWorkspaceResult,
-          input: {filepath},
-          type: kGenerateTestFileType.txt,
-        }),
+      async function callUploadFile() {
+        try {
+          const result = await uploadFileBaseTest({
+            isMultipart,
+            insertUserResult,
+            insertWorkspaceResult,
+            input: {filepath},
+            type: kGenerateTestFileType.txt,
+          });
+          return {status: 'fulfilled', value: result} as const;
+        } catch (e) {
+          return {status: 'rejected', reason: e} as const;
+        }
+      }
+
+      const results = await Promise.all([
+        callUploadFile(),
+        callUploadFile(),
+        callUploadFile(),
       ]);
 
       const sResultOuter = results.find(r => r.status === 'fulfilled');

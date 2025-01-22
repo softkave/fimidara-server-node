@@ -28,10 +28,8 @@
     - lock by fileId or filepath and get before creating
   - concurrency with insertJob idempotency check
   - cache calls to resolveBackendsMountsAndConfigs
-  - errors thrown in single runner should return error for that entry
-  - errors thrown in multi runner should return error for all entries
   - Mongo unique constraint can serve as an alternative to shard runner
-  - remove default folders
+  - multipart file tests should check that binary is correct after upload
 
 ## NextJs
 
