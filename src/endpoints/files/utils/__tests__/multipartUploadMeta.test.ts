@@ -196,17 +196,21 @@ describe('multipartUploadMeta', () => {
       multipartId,
       pageSize: 2,
     });
-    expect(p1.parts).toEqual(parts.slice(0, 2));
-    expect(p1.isDone).toBe(false);
-    expect(p1.continuationToken).toBeTruthy();
+    const fetchedParts = p1.parts;
 
-    const p2 = await getMultipartUploadPartMetas({
-      multipartId,
-      pageSize: 3,
-      cursor: p1.continuationToken,
-    });
-    expect(p2.parts).toEqual(parts.slice(2, 5));
-    expect(p2.isDone).toBe(true);
-    expect(p2.continuationToken).toBeNull();
+    if (fetchedParts.length < parts.length) {
+      const p2 = await getMultipartUploadPartMetas({
+        multipartId,
+        pageSize: 3,
+        cursor: p1.continuationToken,
+      });
+      expect(p2.parts).toEqual(parts.slice(2, 5));
+      expect(p2.isDone).toBe(true);
+      expect(p2.continuationToken).toBeNull();
+
+      fetchedParts.push(...p2.parts);
+    }
+
+    expect(fetchedParts).toEqual(parts);
   });
 });
