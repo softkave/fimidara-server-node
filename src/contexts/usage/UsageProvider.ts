@@ -138,14 +138,17 @@ export class UsageProvider implements IUsageContext {
   dispose = async () => {
     if (this.refreshWorkspaceInterval) {
       clearInterval(this.refreshWorkspaceInterval);
+      this.refreshWorkspaceInterval = undefined;
     }
 
     if (this.commitBatchedUsageL1Interval) {
       clearInterval(this.commitBatchedUsageL1Interval);
+      this.commitBatchedUsageL1Interval = undefined;
     }
 
     if (this.commitBatchedUsageL2Interval) {
       clearInterval(this.commitBatchedUsageL2Interval);
+      this.commitBatchedUsageL2Interval = undefined;
     }
 
     await Promise.all([
@@ -159,13 +162,13 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
-    this.commitBatchedUsageL1Interval = setInterval(
-      () =>
+    this.commitBatchedUsageL1Interval = setInterval(() => {
+      if (this.commitBatchedUsageL1Interval) {
         kUtilsInjectables
           .promises()
-          .callAndForget(() => this.commitBatchedUsageL1Updates()),
-      intervalMs
-    );
+          .callAndForget(() => this.commitBatchedUsageL1Updates());
+      }
+    }, intervalMs);
   }
 
   startCommitBatchedUsageL2Interval() {
@@ -173,13 +176,13 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
-    this.commitBatchedUsageL2Interval = setInterval(
-      () =>
+    this.commitBatchedUsageL2Interval = setInterval(() => {
+      if (this.commitBatchedUsageL2Interval) {
         kUtilsInjectables
           .promises()
-          .callAndForget(() => this.commitBatchedUsageL2Updates()),
-      intervalMs
-    );
+          .callAndForget(() => this.commitBatchedUsageL2Updates());
+      }
+    }, intervalMs);
   }
 
   async commitBatchedUsageL1Updates() {
@@ -712,6 +715,7 @@ export class UsageProvider implements IUsageContext {
 
     usageL1.status = kUsageRecordFulfillmentStatus.dropped;
     usageL1.dropReason = dropReason;
+
     await Promise.all([
       this.writeUsageL1({usageL1}),
       this.writeUsageL2({
@@ -794,15 +798,16 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
       kUsageProviderConstants.defaultWorkspaceRefreshIntervalMs;
 
-    this.refreshWorkspaceInterval = setInterval(
-      () =>
+    this.refreshWorkspaceInterval = setInterval(() => {
+      if (this.refreshWorkspaceInterval) {
+        console.log('refreshWorkspaceInterval');
         kUtilsInjectables
           .promises()
           .callAndForget(() =>
             this.refreshWorkspace({workspaceId: params.workspaceId})
-          ),
-      intervalMs
-    );
+          );
+      }
+    }, intervalMs);
   }
 
   protected async getWorkspace(params: {workspaceId: string}) {
