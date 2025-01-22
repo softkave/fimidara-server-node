@@ -263,7 +263,7 @@ export function createNewFile(
         : [pathinfo.filenameExcludingExt],
       parentId: parentFolder?.resourceId ?? null,
       size: 0,
-      isWriteAvailable: false,
+      isWriteAvailable: true,
       isReadAvailable: false,
       version: 0,
       description: data.description,

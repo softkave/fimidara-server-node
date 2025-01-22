@@ -134,7 +134,7 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         }
       } finally {
         toCompactArray(cleanup).forEach(fn =>
-          kUtilsInjectables.promises().forget(fn(req, res))
+          kUtilsInjectables.promises().callAndForget(() => fn(req, res))
         );
       }
     });

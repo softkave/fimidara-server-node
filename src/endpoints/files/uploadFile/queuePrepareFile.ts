@@ -18,6 +18,8 @@ export async function queuePrepareFile(params: {
       data: {
         clientMultipartId: input.data.clientMultipartId,
         part: input.data.part,
+        fileId: input.data.fileId,
+        filepath: input.data.filepath,
       },
       workspace: {
         resourceId: input.workspace.resourceId,

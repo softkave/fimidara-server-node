@@ -16,7 +16,7 @@ import {
   fireAndForgetHandleMultipartCleanup,
   handleLastMultipartUpload,
 } from './multipart.js';
-import {prepareFile} from './prepare.js';
+import {prepareFileForUpload} from './prepare.js';
 import {queueAddInternalMultipartId} from './queueAddInternalMultipartId.js';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
 import {
@@ -178,7 +178,9 @@ async function handleUploadFile(params: {
     return {file: fileExtractor(file)};
   } catch (error) {
     if (!isMultipart) {
-      kUtilsInjectables.promises().forget(setFileWritable(file.resourceId));
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => setFileWritable(file.resourceId));
     }
 
     throw error;
@@ -199,7 +201,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   // a filepath as quickly as possible and lock on that.
 
   // eslint-disable-next-line prefer-const
-  let {file, isNewFile} = await prepareFile(data, agent);
+  let {file, isNewFile} = await prepareFileForUpload(data, agent);
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {

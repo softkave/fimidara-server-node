@@ -103,18 +103,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
         return {request, existingUser};
       });
 
-    kUtilsInjectables.promises().forget(
-      // queueEmailMessage(
-      //   request.recipientEmail,
-      //   {
-      //     type: kEmailMessageType.collaborationRequest,
-      //     params: {requestId: request.resourceId},
-      //   },
-      //   workspace.resourceId,
-      //   existingUser?.resourceId,
-      //   {reuseTxn: false}
-      // )
-
+    kUtilsInjectables.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: agent,
         type: kJobType.email,

@@ -21,6 +21,7 @@ export interface File extends WorkspaceResource {
   // multipart uploads
   internalMultipartId?: string | null;
   clientMultipartId?: string | null;
+  /** timestamp in ms */
   multipartTimeout?: number | null;
 }
 

@@ -102,7 +102,7 @@ export async function sendConfirmEmailAddressEmail(
     destination: params.emailAddress,
   });
 
-  kUtilsInjectables.promises().forget(
+  kUtilsInjectables.promises().callAndForget(() =>
     kSemanticModels.utils().withTxn(async opts => {
       await kSemanticModels
         .user()

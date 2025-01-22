@@ -27,12 +27,13 @@ import {
   FilepathInfo,
   getFilepathInfo,
 } from '../utils.js';
-import {prepareExistingFile, tryGetFile} from './prepareExistingFile.js';
+import {checkoutFileForUpload} from './checkoutFileForUpload.js';
 import {
   IPrepareFileQueueInput,
   IPrepareFileQueueOutput,
   UploadFileEndpointParams,
 } from './types.js';
+import {tryGetFile} from './utils.js';
 
 async function createAndInsertNewFile(params: {
   agent: SessionAgent;
@@ -75,7 +76,7 @@ async function getAndPrepareExistingFile(params: {
     );
 
     if (file) {
-      const preparedFile = await prepareExistingFile({
+      const preparedFile = await checkoutFileForUpload({
         agent,
         workspace,
         file,
@@ -126,7 +127,7 @@ async function createAndPrepareNewFile(params: {
       opts,
     });
 
-    const preparedFile = await prepareExistingFile({
+    const preparedFile = await checkoutFileForUpload({
       agent,
       workspace,
       file,
@@ -148,15 +149,15 @@ async function handlePrepareFileEntry(params: {
   const agent = entry.agent;
   const input = entry.item;
 
+  const filepathOrId = input.data.filepath ?? input.data.fileId;
+  assert.ok(filepathOrId);
+  const lockName = kFileConstants.getPrepareFileLockName(filepathOrId);
+
   const [sessionAgent, workspace] = await Promise.all([
     kUtilsInjectables.session().getAgentByAgentTokenId(agent.agentTokenId),
     kSemanticModels.workspace().getOneById(input.workspace.resourceId),
   ]);
   assert.ok(workspace);
-
-  const filepathOrId = input.data.filepath ?? input.data.fileId;
-  assert.ok(filepathOrId);
-  const lockName = kFileConstants.getPrepareFileLockName(filepathOrId);
 
   const existingFile = await getAndPrepareExistingFile({
     workspace,
@@ -211,11 +212,14 @@ function getPrepareFileQueueKey(queueNo: number) {
 
 async function handlePrepareFileQueue(inputQueueNo: number) {
   const key = getPrepareFileQueueKey(inputQueueNo);
-  singleItemHandleShardQueue({
+  await singleItemHandleShardQueue({
     queueKey: key,
     readCount: kUsageProviderConstants.addUsageRecordProcessCount,
-    providedHandler: async params => {
-      return await handlePrepareFileEntry({entry: params.item});
+    providedHandler: async (params: {
+      item: IShardRunnerEntry<IPrepareFileQueueInput>;
+    }) => {
+      const result = await handlePrepareFileEntry({entry: params.item});
+      return result;
     },
   });
 }

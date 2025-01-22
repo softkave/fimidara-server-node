@@ -161,7 +161,9 @@ export class UsageProvider implements IUsageContext {
 
     this.commitBatchedUsageL1Interval = setInterval(
       () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates()),
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.commitBatchedUsageL1Updates()),
       intervalMs
     );
   }
@@ -173,7 +175,9 @@ export class UsageProvider implements IUsageContext {
 
     this.commitBatchedUsageL2Interval = setInterval(
       () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates()),
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.commitBatchedUsageL2Updates()),
       intervalMs
     );
   }
@@ -728,7 +732,9 @@ export class UsageProvider implements IUsageContext {
       kUsageProviderConstants.defaultUsageL1BatchedUpdatesSize;
 
     if (this.usageL1BatchedUpdates.length >= maxSize) {
-      kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates());
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => this.commitBatchedUsageL1Updates());
     }
   }
 
@@ -746,7 +752,9 @@ export class UsageProvider implements IUsageContext {
       kUsageProviderConstants.defaultUsageL2BatchedUpdatesSize;
 
     if (Object.keys(this.usageL2BatchedUpdates).length >= maxSize) {
-      kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates());
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => this.commitBatchedUsageL2Updates());
     }
   }
 
@@ -791,7 +799,9 @@ export class UsageProvider implements IUsageContext {
       () =>
         kUtilsInjectables
           .promises()
-          .forget(this.refreshWorkspace({workspaceId: params.workspaceId})),
+          .callAndForget(() =>
+            this.refreshWorkspace({workspaceId: params.workspaceId})
+          ),
       intervalMs
     );
   }

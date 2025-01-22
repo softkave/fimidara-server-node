@@ -13,6 +13,7 @@
     - if s3 has a 5mb minimum, then we may need to merge some parts internally
 - byte range download
 - find a solution to redis shutdowns
+- connection pool for redis
 - hardening
   - use shard runner for addFolder
     - check if folder exists before sending to shard runner
@@ -29,6 +30,8 @@
   - cache calls to resolveBackendsMountsAndConfigs
   - errors thrown in single runner should return error for that entry
   - errors thrown in multi runner should return error for all entries
+  - Mongo unique constraint can serve as an alternative to shard runner
+  - remove default folders
 
 ## NextJs
 

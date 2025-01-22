@@ -108,9 +108,17 @@ export function generateTestFile(
     parentId,
     description: faker.lorem.paragraph(),
     mimetype: faker.system.mimeType(),
-    createdBy: kSystemSessionAgent,
+    createdBy: {
+      agentId: kSystemSessionAgent.agentId,
+      agentTokenId: kSystemSessionAgent.agentTokenId,
+      agentType: kSystemSessionAgent.agentType,
+    },
     lastUpdatedAt: createdAt,
-    lastUpdatedBy: kSystemSessionAgent,
+    lastUpdatedBy: {
+      agentId: kSystemSessionAgent.agentId,
+      agentTokenId: kSystemSessionAgent.agentTokenId,
+      agentType: kSystemSessionAgent.agentType,
+    },
     idPath: extra.idPath
       ? extra.idPath.concat(id)
       : extra.parentId

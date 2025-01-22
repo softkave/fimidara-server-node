@@ -98,18 +98,7 @@ export async function notifySenderOnCollaborationRequestResponse(
       : null;
 
   if (sender && sender.isEmailVerified) {
-    kUtilsInjectables.promises().forget(
-      // queueEmailMessage(
-      //   sender.email,
-      //   {
-      //     type: kEmailMessageType.collaborationRequestResponse,
-      //     params: {requestId: request.resourceId},
-      //   },
-      //   workspace.resourceId,
-      //   sender.resourceId,
-      //   {reuseTxn: false}
-      // )
-
+    kUtilsInjectables.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,

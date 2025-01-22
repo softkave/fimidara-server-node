@@ -65,18 +65,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
         return {workspace, request: updatedRequest};
       });
 
-    kUtilsInjectables.promises().forget(
-      // queueEmailMessage(
-      //   request.recipientEmail,
-      //   {
-      //     type: kEmailMessageType.collaborationRequestRevoked,
-      //     params: {requestId: request.resourceId},
-      //   },
-      //   workspace.resourceId,
-      //   undefined,
-      //   {reuseTxn: false}
-      // )
-
+    kUtilsInjectables.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         type: kJobType.email,
         createdBy: agent,

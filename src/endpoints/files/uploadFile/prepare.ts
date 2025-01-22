@@ -1,32 +1,12 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SessionAgent} from '../../../definitions/system.js';
-import {Workspace} from '../../../definitions/workspace.js';
 import {getWorkspaceFromFileOrFilepath} from '../utils.js';
-import {prepareExistingFile, tryGetFile} from './prepareExistingFile.js';
+import {checkoutFileForUpload} from './checkoutFileForUpload.js';
 import {queuePrepareFile} from './queuePrepareFile.js';
 import {UploadFileEndpointParams} from './types.js';
+import {tryGetFile} from './utils.js';
 
-export async function prepareNewFile(params: {
-  agent: SessionAgent;
-  workspace: Pick<Workspace, 'resourceId' | 'rootname'>;
-  data: Pick<
-    UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'part'
-  >;
-}) {
-  const {agent, workspace, data} = params;
-  const file = await queuePrepareFile({
-    agent,
-    input: {
-      workspace,
-      data,
-    },
-  });
-
-  return file;
-}
-
-export async function prepareFile(
+export async function prepareFileForUpload(
   data: UploadFileEndpointParams,
   agent: SessionAgent
 ) {
@@ -38,7 +18,7 @@ export async function prepareFile(
     );
 
     if (existingFile) {
-      const file = await prepareExistingFile({
+      const file = await checkoutFileForUpload({
         agent,
         workspace,
         data,
@@ -59,6 +39,13 @@ export async function prepareFile(
   }
 
   const {workspace} = firstAttempt;
-  const file = await prepareNewFile({agent, workspace, data});
+  const file = await queuePrepareFile({
+    agent,
+    input: {
+      workspace,
+      data,
+    },
+  });
+
   return {file, workspace, isNewFile: true};
 }

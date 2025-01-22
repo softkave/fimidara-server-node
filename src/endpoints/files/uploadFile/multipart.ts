@@ -48,7 +48,7 @@ export function fireAndForgetHandleMultipartCleanup(params: {
     file.RUNTIME_ONLY_shouldCleanupMultipart = false;
     appAssert(isString(file.RUNTIME_ONLY_internalMultipartId));
 
-    kUtilsInjectables.promises().forget(
+    kUtilsInjectables.promises().callAndForget(() =>
       Promise.all([
         cleanupConcurrencyKeys({file, data}),
         deleteMultipartUpload({
@@ -56,7 +56,7 @@ export function fireAndForgetHandleMultipartCleanup(params: {
           primaryBackend,
           primaryMount,
           filepath,
-          multipartId: file.RUNTIME_ONLY_internalMultipartId,
+          multipartId: file.RUNTIME_ONLY_internalMultipartId!,
           // we don't want to cleanup the file here, because we've done that
           // already, and there's a chance a different multipart upload is going
           // on
@@ -91,11 +91,11 @@ export async function handleLastMultipartUpload(params: {
     workspaceId: file.workspaceId,
   });
 
-  kUtilsInjectables.promises().forget(
+  kUtilsInjectables.promises().callAndForget(() =>
     Promise.all([
       cleanupConcurrencyKeys({file, data}),
       deleteMultipartUploadPartMetas({
-        multipartId: file.internalMultipartId,
+        multipartId: file.internalMultipartId!,
       }),
     ])
   );

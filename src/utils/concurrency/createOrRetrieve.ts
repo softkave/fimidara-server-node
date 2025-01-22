@@ -114,9 +114,10 @@ export async function createOrRetrieve<T>(params: {
         });
 
         const pubsubKey = `pubsub-${params.key}`;
+        kUtilsInjectables;
         kUtilsInjectables
           .promises()
-          .forget(
+          .callAndForget(() =>
             kUtilsInjectables.pubsub().publish(pubsubKey, kPubSubMessage)
           );
 

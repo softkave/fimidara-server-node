@@ -121,7 +121,7 @@ function getAddInternalMultipartIdQueueKey(queueNo: number) {
 
 async function handleAddInternalMultipartIdQueue(inputQueueNo: number) {
   const key = getAddInternalMultipartIdQueueKey(inputQueueNo);
-  singleItemHandleShardQueue({
+  await singleItemHandleShardQueue({
     queueKey: key,
     readCount: kUsageProviderConstants.addUsageRecordProcessCount,
     providedHandler: async params => {

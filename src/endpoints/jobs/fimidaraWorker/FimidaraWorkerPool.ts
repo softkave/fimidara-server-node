@@ -47,7 +47,9 @@ export class FimidaraWorkerPool implements DisposableResource {
     const startWorkerAppsPromiseList = map(workers, async worker => {
       appAssert(worker, 'worker is undefined');
       worker.port.on('message', message =>
-        kUtilsInjectables.promises().forget(this.handleMessage(worker, message))
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.handleMessage(worker, message))
       );
 
       const workerApp = new FimidaraApp({
@@ -59,7 +61,7 @@ export class FimidaraWorkerPool implements DisposableResource {
       this.workerApps[worker.id] = workerApp;
 
       worker.worker.on('exit', () => {
-        kUtilsInjectables.promises().forget(workerApp.dispose());
+        kUtilsInjectables.promises().callAndForget(() => workerApp.dispose());
         delete this.workerApps[worker.id];
       });
     });

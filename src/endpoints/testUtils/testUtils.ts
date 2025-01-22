@@ -291,6 +291,7 @@ export async function insertWorkspaceForTest(
 
   const result = await addWorkspace(reqData);
   assertEndpointResultOk(result);
+
   const rawWorkspace = await kSemanticModels
     .workspace()
     .getOneById(result.workspace.resourceId);

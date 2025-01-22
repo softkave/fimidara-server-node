@@ -1,12 +1,10 @@
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
-import {File, FileMatcher} from '../../../definitions/file.js';
+import {File} from '../../../definitions/file.js';
 import {Folder} from '../../../definitions/folder.js';
-import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {FileNotWritableError} from '../errors.js';
-import {getFileWithMatcher} from '../getFilesWithMatcher.js';
 import {checkUploadFileAuth} from './auth.js';
 import {beginCleanupExpiredMultipartUpload} from './multipart.js';
 import {UploadFileEndpointParams} from './types.js';
@@ -20,9 +18,12 @@ async function checkFileWriteAvailable(params: {
 
   if (file.isWriteAvailable) {
     return;
-  } else if (file.clientMultipartId === clientMultipartId) {
+  } else if (
+    file.clientMultipartId &&
+    file.clientMultipartId === clientMultipartId
+  ) {
     return;
-  } else if (file.multipartTimeout && file.multipartTimeout > Date.now()) {
+  } else if (file.multipartTimeout && file.multipartTimeout < Date.now()) {
     await beginCleanupExpiredMultipartUpload(file, opts);
     return;
   }
@@ -30,7 +31,7 @@ async function checkFileWriteAvailable(params: {
   throw new FileNotWritableError();
 }
 
-export async function prepareExistingFile(params: {
+export async function checkoutFileForUpload(params: {
   agent: SessionAgent;
   workspace: Workspace;
   file: File;
@@ -65,20 +66,4 @@ export async function prepareExistingFile(params: {
       {isWriteAvailable: false, clientMultipartId: data.clientMultipartId},
       opts
     );
-}
-
-export async function tryGetFile(
-  data: FileMatcher & {workspaceId?: string},
-  opts: SemanticProviderMutationParams
-) {
-  const matched = await getFileWithMatcher({
-    opts,
-    presignedPathAction: kFimidaraPermissionActions.uploadFile,
-    incrementPresignedPathUsageCount: true,
-    supportPresignedPath: true,
-    matcher: data,
-    workspaceId: data.workspaceId,
-  });
-
-  return matched;
 }

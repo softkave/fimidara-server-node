@@ -3,7 +3,7 @@ import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handleP
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kUtilsInjectables} from './injection/injectables.js';
-import {registerInjectables} from './injection/register.js';
+import {clearInjectables, registerInjectables} from './injection/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
@@ -20,6 +20,7 @@ export async function globalDispose() {
   }
 
   await kUtilsInjectables.dbConnection().close();
+  clearInjectables();
 }
 
 export async function globalSetup(

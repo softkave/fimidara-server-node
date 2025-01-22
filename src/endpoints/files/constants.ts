@@ -82,7 +82,7 @@ export const kFileConstants = {
   getAddInternalMultipartIdLockName: (fileId: string) =>
     `addInternalMultipartId:${fileId}`,
   getAddInternalMultipartIdLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
-  prepareFileQueueTimeout: 30_000,
+  prepareFileQueueTimeout: 1000 * 60 * 1, // 1 minute
   prepareFileProcessCount: 100,
   getPrepareFilePubSubChannel: (workspaceId: string) =>
     `${

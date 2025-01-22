@@ -78,7 +78,7 @@ function getUsageRecordQueueKey(queueNo: number) {
 
 async function handleUsageRecordQueue(inputQueueNo: number) {
   const key = getUsageRecordQueueKey(inputQueueNo);
-  singleItemHandleShardQueue({
+  await singleItemHandleShardQueue({
     queueKey: key,
     readCount: kUsageProviderConstants.addUsageRecordProcessCount,
     providedHandler: async params => {

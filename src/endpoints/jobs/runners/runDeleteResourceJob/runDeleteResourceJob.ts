@@ -100,7 +100,9 @@ async function getArtifactsAndQueueDeleteJobs(
     page += 1;
     kUtilsInjectables
       .promises()
-      .forget(setDeleteJobGetArtifactsMeta(helpers.job, type, page, pageSize));
+      .callAndForget(() =>
+        setDeleteJobGetArtifactsMeta(helpers.job, type, page, pageSize)
+      );
   } while (artifacts.length >= pageSize);
 }
 
@@ -156,7 +158,7 @@ async function processDeleteArtifactsFromDef(
       await deleteFn({args, helpers, preRunMeta});
       kUtilsInjectables
         .promises()
-        .forget(
+        .callAndForget(() =>
           setDeleteJobDeleteArtifactsMeta(
             helpers.job,
             type as FimidaraResourceType

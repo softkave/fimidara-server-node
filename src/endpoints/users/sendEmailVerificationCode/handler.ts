@@ -46,7 +46,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
     }
   }
 
-  kUtilsInjectables.promises().forget(
+  kUtilsInjectables.promises().callAndForget(() =>
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

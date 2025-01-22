@@ -439,6 +439,8 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       await promise;
     }
 
-    kUtilsInjectables.promises().forget(this.cleanupPartsFile(params));
+    kUtilsInjectables
+      .promises()
+      .callAndForget(() => this.cleanupPartsFile(params));
   }
 }
