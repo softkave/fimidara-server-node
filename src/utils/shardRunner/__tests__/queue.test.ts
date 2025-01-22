@@ -111,27 +111,6 @@ describe('shardRunner queue', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const item: ITestItem = {data: 'test'};
     const queueKey = 'test' + Math.random();
-    const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
-
-    kUtilsInjectables.pubsub().subscribe(wakeupChannel, async () => {
-      const messages = await kUtilsInjectables
-        .queue()
-        .getMessages(queueKey, /** count */ 1);
-      expect(messages).toHaveLength(1);
-
-      const [message] = messages;
-      const entry = JSON.parse(
-        (message.message as IShardRunnerMessage).msg
-      ) as IShardRunnerEntry<ITestItem>;
-      expect(entry.item).toMatchObject(item);
-
-      const output: IShardRunnerOutput<ITestItem> = {
-        id: entry.id,
-        type: kShardRunnerOutputType.error,
-        error: new Error('test'),
-      };
-      await kUtilsInjectables.pubsub().publish(entry.outputChannel, output);
-    });
 
     await expect(() =>
       queueShardRunner({

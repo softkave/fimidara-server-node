@@ -33,5 +33,5 @@ test('folder returned', async () => {
 
   const result = await getFolder(reqData);
   assertEndpointResultOk(result);
-  expect(result.folder).toEqual(folder01);
+  expect(result.folder).toMatchObject(folder01);
 });

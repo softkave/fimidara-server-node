@@ -374,7 +374,7 @@ describe.each(
     expect(internalBackend.deleteMultipartUploadPart).toBeCalledWith({
       mount,
       workspaceId,
-      filepath,
+      filepath: pathJoin([workspaceId, fileId]),
       fileId,
       multipartId,
       part: 1,
