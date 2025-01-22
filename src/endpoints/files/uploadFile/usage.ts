@@ -15,21 +15,25 @@ export async function handleIntermediateStorageUsageRecords(params: {
   isNewFile: boolean;
 }) {
   const {reqData, file, size, isNewFile} = params;
+
   if (!isNewFile) {
     await decrementStorageUsageRecord(reqData, file);
   }
 
+  // TODO: why is resourceId undefined?
   const fileWithSize = {...file, size, resourceId: undefined};
-  await incrementBandwidthInUsageRecord(
-    reqData,
-    fileWithSize,
-    kFimidaraPermissionActions.uploadFile
-  );
-  await incrementStorageEverConsumedUsageRecord(
-    reqData,
-    fileWithSize,
-    kFimidaraPermissionActions.uploadFile
-  );
+  await Promise.all([
+    incrementBandwidthInUsageRecord(
+      reqData,
+      fileWithSize,
+      kFimidaraPermissionActions.uploadFile
+    ),
+    incrementStorageEverConsumedUsageRecord(
+      reqData,
+      fileWithSize,
+      kFimidaraPermissionActions.uploadFile
+    ),
+  ]);
 }
 
 export async function handleFinalStorageUsageRecords(params: {

@@ -1,15 +1,10 @@
 import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIncludeInProjection} from '../../../contexts/data/types.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {createOrRetrieve} from '../../../utils/concurrency/createOrRetrieve.js';
 import {ByteCounterPassThroughStream} from '../../../utils/streams.js';
 import {validate} from '../../../utils/validate.js';
 import RequestData from '../../RequestData.js';
@@ -21,7 +16,8 @@ import {
   fireAndForgetHandleMultipartCleanup,
   handleLastMultipartUpload,
 } from './multipart.js';
-import {prepareFile} from './prepare.js';
+import {prepareFileForUpload} from './prepare.js';
+import {queueAddInternalMultipartId} from './queueAddInternalMultipartId.js';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
 import {
   completeUploadFile,
@@ -45,18 +41,15 @@ async function handleUploadFile(params: {
   const {data, agent, reqData, isNewFile} = params;
   let {file} = params;
 
+  const isMultipart = isString(data.clientMultipartId);
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
     /** initPrimaryBackendOnly */ true
   );
 
-  const isMultipart = isString(data.clientMultipartId);
   try {
-    const filepath = await prepareFilepath({
-      primaryMount,
-      file,
-    });
-    let internalMultipartId: string | undefined;
+    const filepath = await prepareFilepath({primaryMount, file});
+    let internalMultipartId = file.internalMultipartId;
     const isSilentPart = isMultipart && data.part === -1;
 
     if (isMultipart) {
@@ -65,49 +58,30 @@ async function handleUploadFile(params: {
         new InvalidRequestError('part is required for multipart uploads')
       );
 
-      const key = `upload-multipart-file-${file.resourceId}`;
-      internalMultipartId = await createOrRetrieve<string>({
-        key,
-        create: async () => {
-          appAssert(
-            !isSilentPart,
-            new InvalidRequestError('No pending multipart upload')
-          );
-          const startResult = await primaryBackend.startMultipartUpload({
+      if (!internalMultipartId) {
+        appAssert(
+          !isSilentPart,
+          new InvalidRequestError('No pending multipart upload')
+        );
+
+        const {multipartId} = await queueAddInternalMultipartId({
+          agent,
+          input: {
             filepath,
-            workspaceId: file.workspaceId,
             fileId: file.resourceId,
-            mount: primaryMount,
-          });
+            workspaceId: file.workspaceId,
+            mount: {
+              backend: primaryMount.backend,
+              namepath: primaryMount.namepath,
+              resourceId: primaryMount.resourceId,
+              mountedFrom: primaryMount.mountedFrom,
+            },
+            namepath: file.namepath,
+          },
+        });
 
-          await kSemanticModels.utils().withTxn(async opts => {
-            await kSemanticModels
-              .file()
-              .updateOneById(
-                file.resourceId,
-                {internalMultipartId: startResult.multipartId},
-                opts
-              );
-          });
-
-          return startResult.multipartId;
-        },
-        retrieve: async () => {
-          if (file.internalMultipartId) {
-            return file.internalMultipartId;
-          }
-
-          const dbFile = await kSemanticModels
-            .file()
-            .getOneById(file.resourceId, {
-              projection: {internalMultipartId: kIncludeInProjection},
-            });
-
-          return dbFile?.internalMultipartId ?? undefined;
-        },
-      });
-
-      file.internalMultipartId = internalMultipartId;
+        file.internalMultipartId = internalMultipartId = multipartId;
+      }
     }
 
     fireAndForgetHandleMultipartCleanup({
@@ -204,7 +178,9 @@ async function handleUploadFile(params: {
     return {file: fileExtractor(file)};
   } catch (error) {
     if (!isMultipart) {
-      kUtilsInjectables.promises().forget(setFileWritable(file.resourceId));
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => setFileWritable(file.resourceId));
     }
 
     throw error;
@@ -225,7 +201,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   // a filepath as quickly as possible and lock on that.
 
   // eslint-disable-next-line prefer-const
-  let {file, isNewFile} = await prepareFile(data, agent);
+  let {file, isNewFile} = await prepareFileForUpload(data, agent);
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {

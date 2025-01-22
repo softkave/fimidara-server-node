@@ -167,7 +167,7 @@ describe('multipart.uploadFile', () => {
   });
 
   test('parts cleaned and file unlocked on timeout', async () => {
-    const timeoutSecs = 5;
+    const timeoutSecs = 1;
     kRegisterUtilsInjectables.suppliedConfig({
       ...kUtilsInjectables.suppliedConfig(),
       multipartLockTimeoutSeconds: timeoutSecs,
@@ -183,7 +183,7 @@ describe('multipart.uploadFile', () => {
     const {rawFile: rf01} = (await runNext()) ?? {};
     assert.ok(rf01);
 
-    await waitTimeout(timeoutSecs + 1);
+    await waitTimeout(timeoutSecs * 1000 + 10);
     const {runNext: runNextSingle} = await singleFileUpload({
       userToken,
       workspace: rawWorkspace,

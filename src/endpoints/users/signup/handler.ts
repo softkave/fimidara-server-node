@@ -15,7 +15,9 @@ const signup: SignupEndpoint = async reqData => {
     .utils()
     .withTxn(opts => INTERNAL_signupUser(data, {}, opts));
 
-  kUtilsInjectables.promises().forget(INTERNAL_sendEmailVerificationCode(user));
+  kUtilsInjectables
+    .promises()
+    .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   return await getLoginResult(user);
 };
 

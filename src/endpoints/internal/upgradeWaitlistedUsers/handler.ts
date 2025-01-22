@@ -48,15 +48,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
     });
 
     users.map(user => {
-      kUtilsInjectables.promises().forget(
-        // queueEmailMessage(
-        //   user.email,
-        //   {type: kEmailMessageType.upgradedFromWaitlist, params: {}},
-        //   undefined,
-        //   user.resourceId,
-        //   {reuseTxn: false}
-        // )
-
+      kUtilsInjectables.promises().callAndForget(() =>
         queueJobs<EmailJobParams>(
           /** workspace ID */ undefined,
           /** parent job ID */ undefined,

@@ -34,7 +34,16 @@ async function getNextItems(params: {queueKey: string; readCount: number}) {
 
 function ackItems(params: {items: IShardRunnerEntry<unknown>[]}) {
   const {items} = params;
-  kUtilsInjectables.promises().forget(
+
+  if (kUtilsInjectables.runtimeState().getIsEnded()) {
+    kUtilsInjectables
+      .logger()
+      .log('dropping ack items because server is ending');
+    kUtilsInjectables.logger().log(JSON.stringify(items, null, 2));
+    return;
+  }
+
+  kUtilsInjectables.promises().callAndForget(() =>
     items.map(async next => {
       const ack: IShardRunnerOutput<unknown> = {
         type: kShardRunnerOutputType.ack,
@@ -45,12 +54,22 @@ function ackItems(params: {items: IShardRunnerEntry<unknown>[]}) {
   );
 }
 
-async function outputItems(params: {
+function outputItems(params: {
   items: IShardRunnerEntry<unknown>[];
   resultsMap: Record<string, ShardRunnerProvidedHandlerResult<unknown>>;
 }) {
   const {items, resultsMap} = params;
-  kUtilsInjectables.promises().forget(
+
+  if (kUtilsInjectables.runtimeState().getIsEnded()) {
+    kUtilsInjectables
+      .logger()
+      .log('dropping output items because server is ending');
+    kUtilsInjectables.logger().log(JSON.stringify(items, null, 2));
+    kUtilsInjectables.logger().log(JSON.stringify(resultsMap, null, 2));
+    return;
+  }
+
+  kUtilsInjectables.promises().callAndForget(() =>
     items.map(async next => {
       const result = resultsMap[next.id];
       let output: IShardRunnerOutput<unknown> | undefined;
@@ -99,7 +118,7 @@ export async function handleShardQueue(params: {
     if (!isEnded) {
       kUtilsInjectables
         .promises()
-        .forget(
+        .callAndForget(() =>
           handleShardQueue({...params, __previousRunHasItems: !!items.length})
         );
     }
@@ -118,8 +137,22 @@ export async function multiItemsHandleShardQueue(params: {
   await handleShardQueue({
     ...params,
     handlerFn: async items => {
-      const resultsMap = await providedHandler({items});
-      outputItems({items, resultsMap});
+      try {
+        const resultsMap = await providedHandler({items});
+        outputItems({items, resultsMap});
+      } catch (error) {
+        kUtilsInjectables.logger().error(error);
+        outputItems({
+          items,
+          resultsMap: items.reduce(
+            (acc, item) => {
+              acc[item.id] = {type: kShardRunnerOutputType.error, error};
+              return acc;
+            },
+            {} as Record<string, ShardRunnerProvidedHandlerResult<unknown>>
+          ),
+        });
+      }
     },
   });
 }
@@ -135,8 +168,18 @@ export async function singleItemHandleShardQueue(params: {
     ...params,
     handlerFn: async items => {
       for (const item of items) {
-        const result = await providedHandler({item});
-        outputItems({items: [item], resultsMap: {[item.id]: result}});
+        try {
+          const result = await providedHandler({item});
+          outputItems({items: [item], resultsMap: {[item.id]: result}});
+        } catch (error) {
+          kUtilsInjectables.logger().error(error);
+          outputItems({
+            items: [item],
+            resultsMap: {
+              [item.id]: {type: kShardRunnerOutputType.error, error},
+            },
+          });
+        }
       }
     },
   });
@@ -153,7 +196,7 @@ export function startShardRunner(params: {queueKey: string; handlerFn: AnyFn}) {
 
     if (!isActive && !isServerEnded()) {
       setActiveShardRunner({queueKey});
-      kUtilsInjectables.promises().forget(handlerFn());
+      kUtilsInjectables.promises().callAndForget(handlerFn);
     }
   };
 

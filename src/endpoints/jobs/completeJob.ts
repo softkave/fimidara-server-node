@@ -107,9 +107,9 @@ export async function completeJob(
       job?.status === kJobStatus.completed) &&
     job.parentJobId
   ) {
-    kUtilsInjectables.promises().forget(
+    kUtilsInjectables.promises().callAndForget(() =>
       completeJob(
-        job.parentJobId,
+        job.parentJobId!,
         job.status,
         // if job is completed and parent is waiting, then mark complete. if
         // job failed, then also mark parent failed.

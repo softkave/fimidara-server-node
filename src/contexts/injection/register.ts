@@ -601,3 +601,7 @@ export async function registerInjectables(
   registerDataModelInjectables();
   registerSemanticModelInjectables();
 }
+
+export function clearInjectables() {
+  container.reset();
+}

@@ -138,14 +138,17 @@ export class UsageProvider implements IUsageContext {
   dispose = async () => {
     if (this.refreshWorkspaceInterval) {
       clearInterval(this.refreshWorkspaceInterval);
+      this.refreshWorkspaceInterval = undefined;
     }
 
     if (this.commitBatchedUsageL1Interval) {
       clearInterval(this.commitBatchedUsageL1Interval);
+      this.commitBatchedUsageL1Interval = undefined;
     }
 
     if (this.commitBatchedUsageL2Interval) {
       clearInterval(this.commitBatchedUsageL2Interval);
+      this.commitBatchedUsageL2Interval = undefined;
     }
 
     await Promise.all([
@@ -159,11 +162,13 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
-    this.commitBatchedUsageL1Interval = setInterval(
-      () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates()),
-      intervalMs
-    );
+    this.commitBatchedUsageL1Interval = setInterval(() => {
+      if (this.commitBatchedUsageL1Interval) {
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.commitBatchedUsageL1Updates());
+      }
+    }, intervalMs);
   }
 
   startCommitBatchedUsageL2Interval() {
@@ -171,11 +176,13 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
-    this.commitBatchedUsageL2Interval = setInterval(
-      () =>
-        kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates()),
-      intervalMs
-    );
+    this.commitBatchedUsageL2Interval = setInterval(() => {
+      if (this.commitBatchedUsageL2Interval) {
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.commitBatchedUsageL2Updates());
+      }
+    }, intervalMs);
   }
 
   async commitBatchedUsageL1Updates() {
@@ -708,6 +715,7 @@ export class UsageProvider implements IUsageContext {
 
     usageL1.status = kUsageRecordFulfillmentStatus.dropped;
     usageL1.dropReason = dropReason;
+
     await Promise.all([
       this.writeUsageL1({usageL1}),
       this.writeUsageL2({
@@ -728,25 +736,28 @@ export class UsageProvider implements IUsageContext {
       kUsageProviderConstants.defaultUsageL1BatchedUpdatesSize;
 
     if (this.usageL1BatchedUpdates.length >= maxSize) {
-      kUtilsInjectables.promises().forget(this.commitBatchedUsageL1Updates());
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => this.commitBatchedUsageL1Updates());
     }
   }
 
   protected async writeUsageL2(params: {
     usageL2: UsageRecord;
-    update?: Partial<UsageRecord>;
+    update: Partial<UsageRecord>;
   }) {
-    this.usageL2BatchedUpdates[params.usageL2.resourceId] = {
-      ...params.usageL2,
-      ...params.update,
-    };
+    const usageL2 = {...params.usageL2, ...params.update};
+    this.usageL2BatchedUpdates[params.usageL2.resourceId] = usageL2;
+    this.setUsageL2Cache({usageL2});
 
     const maxSize =
       kUtilsInjectables.suppliedConfig().usageL2BatchedUpdatesSize ??
       kUsageProviderConstants.defaultUsageL2BatchedUpdatesSize;
 
     if (Object.keys(this.usageL2BatchedUpdates).length >= maxSize) {
-      kUtilsInjectables.promises().forget(this.commitBatchedUsageL2Updates());
+      kUtilsInjectables
+        .promises()
+        .callAndForget(() => this.commitBatchedUsageL2Updates());
     }
   }
 
@@ -787,13 +798,16 @@ export class UsageProvider implements IUsageContext {
       kUtilsInjectables.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
       kUsageProviderConstants.defaultWorkspaceRefreshIntervalMs;
 
-    this.refreshWorkspaceInterval = setInterval(
-      () =>
+    this.refreshWorkspaceInterval = setInterval(() => {
+      if (this.refreshWorkspaceInterval) {
+        console.log('refreshWorkspaceInterval');
         kUtilsInjectables
           .promises()
-          .forget(this.refreshWorkspace({workspaceId: params.workspaceId})),
-      intervalMs
-    );
+          .callAndForget(() =>
+            this.refreshWorkspace({workspaceId: params.workspaceId})
+          );
+      }
+    }, intervalMs);
   }
 
   protected async getWorkspace(params: {workspaceId: string}) {

@@ -44,7 +44,7 @@ const updateUser: UpdateUserEndpoint = async reqData => {
   if (isEmailAddressUpdated) {
     kUtilsInjectables
       .promises()
-      .forget(INTERNAL_sendEmailVerificationCode(user));
+      .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   }
 
   const userWithWorkspaces = await populateUserWorkspaces(user);

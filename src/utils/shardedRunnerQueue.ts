@@ -161,7 +161,7 @@ export class ShardedRunner {
         // sequence of shards until there's none left. we wait instead for the
         // deferred promise of touched shards
         if (!isRunning) {
-          kUtilsInjectables.promises().forget(
+          kUtilsInjectables.promises().callAndForget(() =>
             kUtilsInjectables.locks().run(lockName, async () => {
               await this.runShard(id, key);
             })

@@ -57,7 +57,7 @@ export async function runEmailJob(
   const blockEmailAddressList = result?.blockEmailAddressList || [];
 
   if (blockEmailAddressList.length) {
-    kUtilsInjectables.promises().forget(
+    kUtilsInjectables.promises().callAndForget(() =>
       kSemanticModels.utils().withTxn(async opts => {
         const blocklistItems = blockEmailAddressList.map(item => {
           return newResource<EmailBlocklist>(
@@ -78,7 +78,7 @@ export async function runEmailJob(
   }
 
   if (result?.meta) {
-    kUtilsInjectables.promises().forget(
+    kUtilsInjectables.promises().callAndForget(() =>
       kSemanticModels.utils().withTxn(async opts => {
         await kSemanticModels
           .job()

@@ -1,7 +1,6 @@
 import {isNumber} from 'lodash-es';
 import {OmitFrom} from 'softkave-js-utils';
 import {Readable} from 'stream';
-import {FileBackendMount} from '../../definitions/fileBackend.js';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
 import {
@@ -29,6 +28,7 @@ import {
   FilePersistenceUploadPartResult,
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
+  IFilePersistenceProviderMount,
   PersistedFile,
   PersistedFileDescription,
   PersistedFolderDescription,
@@ -288,7 +288,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   getMemoryFile = (params: {
     workspaceId: string;
     filepath: string;
-    mount: FileBackendMount;
+    mount: IFilePersistenceProviderMount;
   }): MemoryFilePersistenceProviderFile | undefined => {
     const {mount, filepath} = params;
     const {nativePath} = this.toNativePath({

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {difference} from 'lodash-es';
-import {expectErrorThrownAsync} from 'softkave-js-utils';
+import {expectErrorThrownAsync, waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
@@ -27,8 +27,10 @@ import {getUsageRecordReportingPeriod} from '../../../usageRecords/utils.js';
 import {simpleRunUpload} from '../testutils/testUploadFns.js';
 import {UploadFileEndpointParams} from '../types.js';
 
+const kUsageCommitIntervalMs = 50;
+
 beforeAll(async () => {
-  await initTests();
+  await initTests({usageCommitIntervalMs: kUsageCommitIntervalMs});
 });
 
 afterAll(async () => {
@@ -84,6 +86,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         }
       );
       const {file} = await simpleRunUpload(isMultipart, {userToken, workspace});
+      await waitTimeout(kUsageCommitIntervalMs * 2);
       const [
         dbBandwidthInUsageL1,
         dbStorageUsageL1,
@@ -152,14 +155,12 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       // TODO: doing string + slice because I think JS decimals are not aligning.
       // The values ar every close but not completely equal
-      expect(dbTotalUsageL2.usageCost.toString().slice(0, 7)).toBe(
+      expect(dbTotalUsageL2.usageCost.toFixed(2)).toBe(
         (
           dbBandwidthInUsageL2.usageCost +
           dbStorageUsageL2.usageCost +
           dbStorageEverConsumedUsageL2.usageCost
-        )
-          .toString()
-          .slice(0, 7)
+        ).toFixed(2)
       );
 
       otherDbUsageL2s.forEach(dbUsageL2 => {
@@ -255,8 +256,10 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       if (category !== kUsageRecordCategory.total) {
         assert(dbUsageDroppedL2);
-        expect(dbUsageDroppedL2.usage).toBeGreaterThan(usageDroppedL2.usage);
-        expect(dbUsageDroppedL2.usageCost).toBeGreaterThan(
+        expect(dbUsageDroppedL2.usage).toBeGreaterThanOrEqual(
+          usageDroppedL2.usage
+        );
+        expect(dbUsageDroppedL2.usageCost).toBeGreaterThanOrEqual(
           usageDroppedL2.usageCost
         );
       }

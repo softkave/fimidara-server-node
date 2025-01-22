@@ -16,7 +16,12 @@ export class FimidaraWorker extends FWorker {
   async start() {
     await globalSetup(
       {useFimidaraApp: false, useFimidaraWorkerPool: false},
-      {useHandleFolderQueue: false, useHandleUsageRecordQueue: false}
+      {
+        useHandleFolderQueue: false,
+        useHandleUsageRecordQueue: false,
+        useHandleAddInternalMultipartIdQueue: false,
+        useHandlePrepareFileQueue: false,
+      }
     );
     this.workerEndedLock = new LockableResource<boolean>(
       kUtilsInjectables.locks(),
@@ -27,7 +32,7 @@ export class FimidaraWorker extends FWorker {
     kUtilsInjectables
       .logger()
       .log('Started worker ', this.getWorkerData().workerId);
-    kUtilsInjectables.promises().forget(this.run());
+    kUtilsInjectables.promises().callAndForget(() => this.run());
   }
 
   protected run = async () => {

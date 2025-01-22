@@ -33,10 +33,11 @@ function cleanup(vars: IRunArtifacts<any>) {
   }
 
   if (vars.listener) {
+    kUtilsInjectables;
     kUtilsInjectables
       .promises()
-      .forget(
-        kUtilsInjectables.pubsub().unsubscribe(vars.channel, vars.listener)
+      .callAndForget(() =>
+        kUtilsInjectables.pubsub().unsubscribe(vars.channel, vars.listener!)
       );
   }
 
@@ -48,7 +49,7 @@ function cleanup(vars: IRunArtifacts<any>) {
     // remove message from queue if promise was not resolved
     kUtilsInjectables
       .promises()
-      .forget(
+      .callAndForget(() =>
         kUtilsInjectables.queue().deleteMessages(vars.queueKey, vars.queueId)
       );
   }
@@ -69,7 +70,11 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
   const outputChannel = getShardRunnerPubSubOutputChannel({queueKey, id});
   const input: IShardRunnerEntry<TInputItem> = {
-    agent,
+    agent: {
+      agentId: agent.agentId,
+      agentType: agent.agentType,
+      agentTokenId: agent.agentTokenId,
+    },
     workspaceId,
     item,
     id,
@@ -121,7 +126,7 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
     kUtilsInjectables.disposables().add(vars.timeout);
     kUtilsInjectables
       .promises()
-      .forget(
+      .callAndForget(() =>
         kUtilsInjectables
           .pubsub()
           .publish(wakeupChannel, kShardRunnerPubSubAlertMessage)

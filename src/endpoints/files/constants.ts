@@ -1,4 +1,6 @@
+import assert from 'assert';
 import {BusboyConfig} from 'busboy';
+import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
@@ -45,4 +47,70 @@ export const kFileConstants = {
   getPartCacheKey: (multipartId: string, part: number) => {
     return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;
   },
+  addInternalMultipartIdQueueTimeout: 30_000,
+  addInternalMultipartIdProcessCount: 100,
+  getAddInternalMultipartIdPubSubChannel: (workspaceId: string) =>
+    `${
+      kUtilsInjectables.suppliedConfig()
+        .addInternalMultipartIdPubSubChannelPrefix
+    }-${workspaceId}`,
+  getAddInternalMultipartIdQueueWithNo: (num: number) =>
+    `${
+      kUtilsInjectables.suppliedConfig().addInternalMultipartIdQueuePrefix
+    }${num}`,
+  getAddInternalMultipartIdQueueKey: (workspaceId: string) => {
+    const {addInternalMultipartIdQueueStart, addInternalMultipartIdQueueEnd} =
+      kUtilsInjectables.suppliedConfig();
+
+    assert.ok(addInternalMultipartIdQueueStart);
+    assert.ok(addInternalMultipartIdQueueEnd);
+
+    const queueCount =
+      addInternalMultipartIdQueueEnd - addInternalMultipartIdQueueStart + 1;
+    assert.ok(queueCount > 0);
+
+    const hash = workspaceId.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0);
+    }, 0);
+
+    const key = kFileConstants.getAddInternalMultipartIdQueueWithNo(
+      (hash % queueCount) + addInternalMultipartIdQueueStart
+    );
+
+    return key;
+  },
+  getAddInternalMultipartIdLockName: (fileId: string) =>
+    `addInternalMultipartId:${fileId}`,
+  getAddInternalMultipartIdLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
+  prepareFileQueueTimeout: 1000 * 60 * 1, // 1 minute
+  prepareFileProcessCount: 100,
+  getPrepareFilePubSubChannel: (workspaceId: string) =>
+    `${
+      kUtilsInjectables.suppliedConfig().prepareFilePubSubChannelPrefix
+    }-${workspaceId}`,
+  getPrepareFileQueueWithNo: (num: number) =>
+    `${kUtilsInjectables.suppliedConfig().prepareFileQueuePrefix}${num}`,
+  getPrepareFileQueueKey: (workspaceId: string) => {
+    const {prepareFileQueueStart, prepareFileQueueEnd} =
+      kUtilsInjectables.suppliedConfig();
+
+    assert.ok(prepareFileQueueStart);
+    assert.ok(prepareFileQueueEnd);
+
+    const queueCount = prepareFileQueueEnd - prepareFileQueueStart + 1;
+    assert.ok(queueCount > 0);
+
+    const hash = workspaceId.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0);
+    }, 0);
+
+    const key = kFileConstants.getPrepareFileQueueWithNo(
+      (hash % queueCount) + prepareFileQueueStart
+    );
+
+    return key;
+  },
+  getPrepareFileLockName: (filepathOrId: string) =>
+    `prepareFile:${filepathOrId}`,
+  getPrepareFileLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
 };

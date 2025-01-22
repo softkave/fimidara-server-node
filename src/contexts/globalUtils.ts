@@ -1,7 +1,9 @@
+import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadFile/handleAddInternalMultipartIdQueue.js';
+import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
 import {kUtilsInjectables} from './injection/injectables.js';
-import {registerInjectables} from './injection/register.js';
+import {clearInjectables, registerInjectables} from './injection/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
@@ -18,6 +20,7 @@ export async function globalDispose() {
   }
 
   await kUtilsInjectables.dbConnection().close();
+  clearInjectables();
 }
 
 export async function globalSetup(
@@ -25,6 +28,8 @@ export async function globalSetup(
   otherConfig: {
     useHandleFolderQueue?: boolean;
     useHandleUsageRecordQueue?: boolean;
+    useHandleAddInternalMultipartIdQueue?: boolean;
+    useHandlePrepareFileQueue?: boolean;
   }
 ) {
   await registerInjectables(overrideConfig);
@@ -45,12 +50,8 @@ export async function globalSetup(
     }
   }
 
-  if (
-    otherConfig.useHandleFolderQueue &&
-    suppliedConfig.addFolderQueueNo &&
-    suppliedConfig.addFolderQueueNo.length > 0
-  ) {
-    suppliedConfig.addFolderQueueNo.map(queueNo => {
+  if (otherConfig.useHandleFolderQueue) {
+    suppliedConfig.addFolderQueueNo?.map(queueNo => {
       startHandleAddFolderQueue(queueNo);
     });
   }
@@ -61,5 +62,17 @@ export async function globalSetup(
     });
     kUtilsInjectables.usage().startCommitBatchedUsageL1Interval();
     kUtilsInjectables.usage().startCommitBatchedUsageL2Interval();
+  }
+
+  if (otherConfig.useHandleAddInternalMultipartIdQueue) {
+    suppliedConfig.addInternalMultipartIdQueueNo?.map(queueNo => {
+      startHandleAddInternalMultipartIdQueue(queueNo);
+    });
+  }
+
+  if (otherConfig.useHandlePrepareFileQueue) {
+    suppliedConfig.prepareFileQueueNo?.map(queueNo => {
+      startHandlePrepareFileQueue(queueNo);
+    });
   }
 }

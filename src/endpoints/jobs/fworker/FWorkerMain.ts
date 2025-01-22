@@ -129,7 +129,7 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
       const terminatePromise = wEntry.gracefulTerminateFn(wEntry);
 
       if (timeoutMs) {
-        this.promises.forget(terminatePromise);
+        this.promises.callAndForget(() => terminatePromise);
         await awaitOrTimeout(terminatePromise, timeoutMs);
       } else {
         await terminatePromise;

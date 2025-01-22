@@ -17,8 +17,15 @@ export async function queueIncrementUsageRecord(params: {
   const {input, agent} = params;
   const queueInput: IUsageRecordQueueInput = {
     type: kUsageRecordQueueInputType.increment,
-    input,
+    input: {
+      category: input.category,
+      workspaceId: input.workspaceId,
+      usage: input.usage,
+      artifacts: input.artifacts,
+      usageResourceId: input.usageResourceId,
+    },
   };
+
   const result = await queueShardRunner<
     IUsageRecordQueueInput,
     IUsageRecordQueueOutput

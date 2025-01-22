@@ -109,10 +109,10 @@ async function ingestFolderpathContents(
       max: 1000,
       workspaceId: mount.workspaceId,
     });
-    continuationToken = result.continuationToken;
-    kUtilsInjectables.promises().forget(
+    continuationToken = result?.continuationToken;
+    kUtilsInjectables.promises().callAndForget(() =>
       setContinuationTokenInJob(job, {
-        getContentContinuationToken: result.continuationToken,
+        getContentContinuationToken: result?.continuationToken,
       })
     );
     await Promise.all([
@@ -121,8 +121,11 @@ async function ingestFolderpathContents(
     ]);
     kUtilsInjectables
       .promises()
-      .forget(queueIngestFolderJobFor(job, result.folders));
-  } while (continuationToken && (result.folders.length || result.files.length));
+      .callAndForget(() => queueIngestFolderJobFor(job, result?.folders ?? []));
+  } while (
+    continuationToken &&
+    (result?.folders.length || result?.files.length)
+  );
 }
 
 export async function runIngestFolderpathJob(job: Job) {

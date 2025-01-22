@@ -57,5 +57,15 @@
   "addUsageRecordPubSubChannelPrefix": "addUsageRecordPubSub",
   "addUsageRecordQueueStart": 1,
   "addUsageRecordQueueEnd": 1,
-  "addUsageRecordQueueNo": [1]
+  "addUsageRecordQueueNo": [1],
+  "addInternalMultipartIdQueuePrefix": "addInternalMultipartIdQueue",
+  "addInternalMultipartIdPubSubChannelPrefix": "addInternalMultipartIdPubSub",
+  "addInternalMultipartIdQueueStart": 1,
+  "addInternalMultipartIdQueueEnd": 1,
+  "addInternalMultipartIdQueueNo": [1],
+  "prepareFileQueuePrefix": "prepareFileQueue",
+  "prepareFilePubSubChannelPrefix": "prepareFilePubSub",
+  "prepareFileQueueStart": 1,
+  "prepareFileQueueEnd": 1,
+  "prepareFileQueueNo": [1]
 }

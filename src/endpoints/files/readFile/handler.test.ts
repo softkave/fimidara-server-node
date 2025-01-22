@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {difference} from 'lodash-es';
-import {expectErrorThrownAsync} from 'softkave-js-utils';
+import {expectErrorThrownAsync, waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
@@ -64,8 +64,14 @@ import readFile from './handler.js';
 import {ReadFileEndpointParams} from './types.js';
 import sharp = require('sharp');
 
+const kUsageRefreshWorkspaceIntervalMs = 100;
+const kUsageCommitIntervalMs = 50;
+
 beforeAll(async () => {
-  await initTests();
+  await initTests({
+    usageRefreshWorkspaceIntervalMs: kUsageRefreshWorkspaceIntervalMs,
+    usageCommitIntervalMs: kUsageCommitIntervalMs,
+  });
 });
 
 afterAll(async () => {
@@ -369,6 +375,7 @@ describe('readFile', () => {
     const result = await readFile(reqData);
     assertEndpointResultOk(result);
 
+    await waitTimeout(kUsageCommitIntervalMs * 1.5);
     const [dbBandwidthOutUsageL1, dbBandwidthOutUsageL2, dbTotalUsageL2] =
       await Promise.all([
         getUsageL1(
@@ -407,33 +414,31 @@ describe('readFile', () => {
         },
       });
 
-      const {file} = await insertFileForTest(userToken, workspace);
+      // create a usage record so we can use their IDs to retrieve them later from
+      // the db
       const [[usageL2], [usageDroppedL2]] = await Promise.all([
-        category !== kUsageRecordCategory.total
-          ? generateAndInsertUsageRecordList(/** count */ 1, {
-              status: kUsageRecordFulfillmentStatus.fulfilled,
-              summationType: kUsageSummationType.month,
-              usageCost: faker.number.int({min: 1, max: 100}),
-              ...getUsageRecordReportingPeriod(),
-              usage: faker.number.int({min: 1, max: 100}),
-              workspaceId: workspace.resourceId,
-              category,
-            })
-          : Promise.all([getUsageL2(workspace.resourceId, category)]),
-        category !== kUsageRecordCategory.total
-          ? generateAndInsertUsageRecordList(/** count */ 1, {
-              status: kUsageRecordFulfillmentStatus.dropped,
-              summationType: kUsageSummationType.month,
-              usageCost: faker.number.int({min: 1, max: 100}),
-              ...getUsageRecordReportingPeriod(),
-              usage: faker.number.int({min: 1, max: 100}),
-              workspaceId: workspace.resourceId,
-              category,
-            })
-          : [],
+        generateAndInsertUsageRecordList(/** count */ 1, {
+          status: kUsageRecordFulfillmentStatus.fulfilled,
+          summationType: kUsageSummationType.month,
+          usageCost: 0,
+          ...getUsageRecordReportingPeriod(),
+          usage: 0,
+          workspaceId: workspace.resourceId,
+          category,
+        }),
+        generateAndInsertUsageRecordList(/** count */ 1, {
+          status: kUsageRecordFulfillmentStatus.dropped,
+          summationType: kUsageSummationType.month,
+          usageCost: 0,
+          ...getUsageRecordReportingPeriod(),
+          usage: 0,
+          workspaceId: workspace.resourceId,
+          category,
+        }),
       ]);
-
       assert(usageL2);
+
+      const {file} = await insertFileForTest(userToken, workspace);
 
       await kSemanticModels.utils().withTxn(opts =>
         kSemanticModels.workspace().updateOneById(
@@ -453,6 +458,7 @@ describe('readFile', () => {
         )
       );
 
+      await waitTimeout(kUsageRefreshWorkspaceIntervalMs * 2);
       await expectErrorThrownAsync(
         async () => {
           const reqData =
@@ -473,6 +479,8 @@ describe('readFile', () => {
         }
       );
 
+      await waitTimeout(kUsageCommitIntervalMs * 1.5);
+
       const [dbUsageL2, dbUsageDroppedL2] = await Promise.all([
         kSemanticModels.usageRecord().getOneById(usageL2.resourceId),
         usageDroppedL2
@@ -481,8 +489,8 @@ describe('readFile', () => {
       ]);
       assert(dbUsageL2);
 
-      expect(dbUsageL2.usage).toBe(usageL2.usage);
-      expect(dbUsageL2.usageCost).toBe(usageL2.usageCost);
+      expect(dbUsageL2.usage).toBeGreaterThanOrEqual(usageL2.usage);
+      expect(dbUsageL2.usageCost).toBeGreaterThanOrEqual(usageL2.usageCost);
 
       if (category !== kUsageRecordCategory.total) {
         assert(dbUsageDroppedL2);

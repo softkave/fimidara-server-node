@@ -110,8 +110,12 @@ export class FimidaraApp implements DisposableResource {
   protected startHeartbeat() {
     if (!this.recordHeartbeatIntervalHandle) {
       this.recordHeartbeatIntervalHandle = setInterval(() => {
-        kUtilsInjectables.promises().forget(this.recordInstanceHeartbeat());
-        kUtilsInjectables.promises().forget(this.refreshActiveAppIdList());
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.recordInstanceHeartbeat());
+        kUtilsInjectables
+          .promises()
+          .callAndForget(() => this.refreshActiveAppIdList());
       }, this.heartbeatInterval);
     }
   }

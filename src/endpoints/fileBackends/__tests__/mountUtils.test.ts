@@ -15,7 +15,6 @@ import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
 import {
   FileBackendConfig,
-  FileBackendMount,
   kFileBackendType,
 } from '../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -46,6 +45,7 @@ import {
   resolveMountsForFolder,
   sortMounts,
 } from '../mountUtils.js';
+import {IFilePersistenceProviderMount} from '../../../contexts/file/types.js';
 
 describe('file backend mount utils', () => {
   beforeAll(async () => {
@@ -294,7 +294,7 @@ describe('file backend mount utils, mutates injectables', () => {
 
     kRegisterUtilsInjectables.fileProviderResolver(
       (
-        mount: FileBackendMount,
+        mount: IFilePersistenceProviderMount,
         initParams: unknown,
         config?: FileBackendConfig
       ) => {

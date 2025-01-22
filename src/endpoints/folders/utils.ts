@@ -272,7 +272,7 @@ export function areFolderpathsEqual(
 
 export async function ensureFolders(
   agent: SessionAgent,
-  workspace: Workspace,
+  workspace: Pick<Workspace, 'resourceId' | 'rootname'>,
   /** folder path **without** workspace rootname */
   namepath: string | string[]
 ): Promise<{folder: Folder | null; folders: Folder[]}> {

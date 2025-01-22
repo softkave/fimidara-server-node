@@ -1,4 +1,5 @@
 import {flatten} from 'lodash-es';
+import {waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../../contexts/file/MemoryFilePersistenceProvider.js';
@@ -33,8 +34,10 @@ import {
   testDeleteResourceArtifactsJob,
 } from './testUtils.js';
 
+const kUsageCommitIntervalMs = 50;
+
 beforeAll(async () => {
-  await initTests();
+  await initTests({usageCommitIntervalMs: kUsageCommitIntervalMs});
 });
 
 afterAll(async () => {
@@ -63,6 +66,9 @@ async function expectStorageUsageRecord(params: {
   op: 'gt' | 'lt' | 'eq';
 }) {
   const {workspaceId, size, op} = params;
+
+  await waitTimeout(kUsageCommitIntervalMs * 1.5);
+
   const usageL2 = await kSemanticModels.usageRecord().getOneByQuery({
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.month,

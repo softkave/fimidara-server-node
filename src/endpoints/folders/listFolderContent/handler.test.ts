@@ -79,8 +79,16 @@ describe('listFolderContent', () => {
       );
     const result = await listFolderContent(reqData);
     assertEndpointResultOk(result);
-    expect(result.folders).toContainEqual(folder02);
-    expect(result.files).toContainEqual(file);
+
+    const rFolder2 = result.folders.find(
+      f => f.resourceId === folder02.resourceId
+    );
+    expect(rFolder2).toBeDefined();
+    expect(rFolder2).toMatchObject(folder02);
+
+    const rFile = result.files.find(f => f.resourceId === file.resourceId);
+    expect(rFile).toBeDefined();
+    expect(rFile).toMatchObject(file);
   });
 
   test('root folder content returned', async () => {
@@ -108,8 +116,16 @@ describe('listFolderContent', () => {
       );
     const result = await listFolderContent(reqData);
     assertEndpointResultOk(result);
-    expect(result.folders).toContainEqual(folder02);
-    expect(result.files).toContainEqual(file);
+
+    const rFolder2 = result.folders.find(
+      f => f.resourceId === folder02.resourceId
+    );
+    expect(rFolder2).toBeDefined();
+    expect(rFolder2).toMatchObject(folder02);
+
+    const rFile = result.files.find(f => f.resourceId === file.resourceId);
+    expect(rFile).toBeDefined();
+    expect(rFile).toMatchObject(file);
   });
 
   test('content type', async () => {
@@ -159,7 +175,12 @@ describe('listFolderContent', () => {
       );
     const fetchFoldersResult = await listFolderContent(fetchFoldersReqData);
     assertEndpointResultOk(fetchFoldersResult);
-    expect(fetchFoldersResult.folders).toContainEqual(folder02);
+
+    let rFolder2 = fetchFoldersResult.folders.find(
+      f => f.resourceId === folder02.resourceId
+    );
+    expect(rFolder2).toBeDefined();
+    expect(rFolder2).toMatchObject(folder02);
 
     const reqData =
       RequestData.fromExpressRequest<ListFolderContentEndpointParams>(
@@ -168,8 +189,16 @@ describe('listFolderContent', () => {
       );
     const result = await listFolderContent(reqData);
     assertEndpointResultOk(result);
-    expect(fetchFilesResult.files).toContainEqual(file);
-    expect(result.folders).toContainEqual(folder02);
+
+    const rFile = fetchFilesResult.files.find(
+      f => f.resourceId === file.resourceId
+    );
+    expect(rFile).toBeDefined();
+    expect(rFile).toMatchObject(file);
+
+    rFolder2 = result.folders.find(f => f.resourceId === folder02.resourceId);
+    expect(rFolder2).toBeDefined();
+    expect(rFolder2).toMatchObject(folder02);
   });
 
   test('pagination', async () => {

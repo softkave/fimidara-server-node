@@ -9,7 +9,11 @@ import {
   S3FilePersistenceProvider,
   S3FilePersistenceProviderInitParams,
 } from './S3FilePersistenceProvider.js';
-import {FilePersistenceProvider, FileProviderResolver} from './types.js';
+import {
+  FilePersistenceProvider,
+  FileProviderResolver,
+  IFilePersistenceProviderMount,
+} from './types.js';
 
 export function isFilePersistenceProvider(
   item: unknown
@@ -23,7 +27,7 @@ export function isFilePersistenceProvider(
 }
 
 export const defaultFileProviderResolver: FileProviderResolver = (
-  mount: FileBackendMount,
+  mount: IFilePersistenceProviderMount,
   initParams: unknown
 ) => {
   switch (mount.backend) {
