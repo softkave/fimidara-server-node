@@ -1,6 +1,6 @@
-import {RedisClientType} from 'redis';
-import {convertToArray} from 'softkave-js-utils';
-import {ICacheContext} from './types.js';
+import { RedisClientType } from 'redis';
+import { convertToArray } from 'softkave-js-utils';
+import { ICacheContext } from './types.js';
 
 export class RedisCacheProvider implements ICacheContext {
   constructor(protected redis: RedisClientType) {}
@@ -15,10 +15,18 @@ export class RedisCacheProvider implements ICacheContext {
   }
 
   getList(keys: string[]): Promise<Array<string | null>> {
+    if (keys.length === 0) {
+      return Promise.resolve([]);
+    }
+
     return this.redis.mGet(keys);
   }
 
   async getJsonList<T>(keys: string[]): Promise<Array<T | null>> {
+    if (keys.length === 0) {
+      return Promise.resolve([]);
+    }
+
     const values = await this.redis.mGet(keys);
     return values.map(value => (value ? JSON.parse(value) : null));
   }
