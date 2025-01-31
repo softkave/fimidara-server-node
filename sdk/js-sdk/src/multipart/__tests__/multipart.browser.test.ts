@@ -24,7 +24,7 @@ const fimidara = new FimidaraEndpoints({
 let slopString: string | undefined;
 let slopBlob: Blob | undefined;
 
-const kMinSlopSize = 20 * 1024 * 1024; // 20MB
+const kMinSlopSize = 57 * 1024 * 1024; // 57MB
 const slopFilepath = path.normalize(
   testVars.cwd +
     testVars.testFolderPath +

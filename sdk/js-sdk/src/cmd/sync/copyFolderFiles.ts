@@ -64,6 +64,12 @@ export async function copyFolderFiles(
           chunkFF.map(async ff => {
             const fname = stringifyFimidaraFilename(ff);
             const ffpath = path.posix.join(fimidarapath, fname);
+
+            if (!opts.silent) {
+              console.log('deleting file from fimidara');
+              console.log('-', `"${ffpath}"`);
+            }
+
             await getFimidara(opts).files.deleteFile({
               filepath: ffpath,
             });
@@ -98,6 +104,12 @@ export async function copyFolderFiles(
         await Promise.all(
           chunkEF.map(async ef => {
             const efpath = path.join(localpath, ef.name);
+
+            if (!opts.silent) {
+              console.log('deleting file from local');
+              console.log('-', `"${efpath}"`);
+            }
+
             await rm(efpath);
           })
         );

@@ -3,6 +3,7 @@ import {AnyAsyncFn} from 'softkave-js-utils';
 export interface IFimidaraCmdOpts {
   authToken?: string;
   serverURL?: string;
+  silent?: boolean;
 }
 
 export interface IFimidaraCmdOptionDef {

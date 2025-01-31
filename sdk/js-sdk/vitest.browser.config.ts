@@ -6,7 +6,6 @@ export default defineConfig({
     testTimeout: 30000, // 30 seconds
     fileParallelism: true,
     include: ['**/*.browser.{test,spec}.ts'],
-    // include: ['/src/multipart/multipart.browser.test.ts'],
     exclude: [
       '**/build/**',
       '**/node_modules/**',
@@ -23,6 +22,7 @@ export default defineConfig({
       headless: true,
       name: 'chromium',
       provider: 'playwright',
+      screenshotFailures: false,
       // https://playwright.dev
     },
   },

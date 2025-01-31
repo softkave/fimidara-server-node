@@ -43,7 +43,7 @@ describe('sync', () => {
       const direction = kFimidaraSyncDirection.both;
       const recursive = true;
 
-      await $`npx --yes -- tsx src/cmd/index.ts sync -f "${fimidarapath}" -l "${localpath}" -d "${direction}" -r -m -t "${fimidaraTestVars.authToken}" -s "${fimidaraTestVars.serverURL}"`;
+      await $`npx --yes -- tsx src/cmd/index.ts sync -f "${fimidarapath}" -l "${localpath}" -d "${direction}" -r -m -t "${fimidaraTestVars.authToken}" -u "${fimidaraTestVars.serverURL}"`;
 
       await assertCopyFolderLocal(
         localpath,

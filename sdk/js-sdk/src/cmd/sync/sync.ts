@@ -1,6 +1,4 @@
 import {randomUUID} from 'crypto';
-import {omit} from 'lodash-es';
-import {format} from 'util';
 import {kFimidaraCmdOpts} from '../constants.js';
 import {IFimidaraCmdDef} from '../types.js';
 import {copyFileOrFolder} from './copyFileOrFolder.js';
@@ -13,7 +11,14 @@ export async function fimidaraSync(opts: IFimidaraSyncOpts) {
     clientMultipartIdPrefix,
   };
 
-  console.log(format(omit(runtimeOpts, ['authToken'])));
+  if (!opts.silent) {
+    console.log('fimidarapath=', runtimeOpts.fimidarapath);
+    console.log('localpath=', runtimeOpts.localpath);
+    console.log('direction=', runtimeOpts.direction);
+    console.log('recursive=', runtimeOpts.recursive);
+    console.log('matchTree=', runtimeOpts.matchTree);
+  }
+
   await copyFileOrFolder(runtimeOpts);
 }
 
@@ -23,6 +28,7 @@ export const fimidaraSyncCmdDef: IFimidaraCmdDef<IFimidaraSyncOpts> = {
   options: [
     kFimidaraCmdOpts.authToken,
     kFimidaraCmdOpts.serverURL,
+    kFimidaraCmdOpts.silent,
     {
       shortName: '-f',
       longName: '--fimidarapath',

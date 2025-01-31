@@ -21,6 +21,12 @@ export async function copyToLocalFile(
   localpath: string,
   opts: IFimidaraCmdOpts
 ) {
+  if (!opts.silent) {
+    console.log('copying file to local');
+    console.log(`>> "${fimidarapath}"`);
+    console.log(`<< "${localpath}"`);
+  }
+
   const [body] = await Promise.all([
     getFimidara(opts).files.readFile(
       {filepath: fimidarapath},
@@ -40,6 +46,12 @@ export async function copyToFimidaraFile(
   opts: IFimidaraCmdOpts &
     Pick<IFimidaraSyncRuntimeOpts, 'clientMultipartIdPrefix'>
 ) {
+  if (!opts.silent) {
+    console.log('copying file to fimidara');
+    console.log('>>', `"${localpath}"`);
+    console.log('<<', `"${fimidarapath}"`);
+  }
+
   const rstream = createReadStream(localpath, {autoClose: true});
   const endpoints = getFimidara(opts);
   const clientMultipartId = `${opts.clientMultipartIdPrefix}-${Buffer.from(
