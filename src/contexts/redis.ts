@@ -6,17 +6,23 @@ import {kUtilsInjectables} from './injection/injectables.js';
 export async function getRedis() {
   const {redisDatabase, redisURL} = kUtilsInjectables.suppliedConfig();
   assert.ok(redisURL);
+
   const redis: RedisClientType = createClient({
     url: redisURL,
     database: redisDatabase,
   });
-  await redis.connect();
+
+  await redis
+    .on('error', err => kUtilsInjectables.logger().error('Redis error', err))
+    .connect();
+
   return redis;
 }
 
 export async function getIoRedis() {
   const {redisDatabase, redisURL} = kUtilsInjectables.suppliedConfig();
   assert.ok(redisURL);
+
   const p = new URL(redisURL);
   const redis = new Redis.default({
     port: parseInt(p.port),
@@ -26,6 +32,10 @@ export async function getIoRedis() {
     db: redisDatabase,
     lazyConnect: true,
   });
-  await redis.connect();
+
+  await redis
+    .on('error', err => kUtilsInjectables.logger().error('Redis error', err))
+    .connect();
+
   return redis;
 }

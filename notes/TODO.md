@@ -72,6 +72,7 @@
   - show only error message
 - show files it's working on/skipping
 - maybe add an option to show files and folders interacted with
+- show files and folders in sync it's working on
 
 ## NextJs
 
