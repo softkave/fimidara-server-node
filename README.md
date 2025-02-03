@@ -42,11 +42,11 @@ fimidara is a file storage service primarily intended for developers. It's a sim
 
 ## Documentation
 
-- for setup and other instructions, see [SETUP.md](SETUP.md)
-- for code instructions, see [CODE.md](CODE.md)
-- for bugs, see [BUG.md](BUG.md)
-- for todo, see [TODO.md](TODO.md)
-- for roadmap, see [ROADMAP.md](ROADMAP.md)
+- for setup and other instructions, see [SETUP.md](notes/SETUP.md)
+- for code instructions, see [CODE.md](notes/CODE.md)
+- for bugs, see [BUG.md](notes/BUG.md)
+- for todo, see [TODO.md](notes/TODO.md)
+- for roadmap, see [ROADMAP.md](notes/ROADMAP.md)
 
 ## Docs
 
