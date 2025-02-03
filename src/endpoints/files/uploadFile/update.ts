@@ -115,6 +115,11 @@ export async function saveFilePartData(params: {
   const {pMountData, size} = params;
   appAssert(isNumber(pMountData.part));
   appAssert(pMountData.multipartId && pMountData.partId);
+  console.log({
+    size,
+    part: pMountData.part,
+    multipartId: pMountData.multipartId,
+  });
   await writeMultipartUploadPartMetas({
     multipartId: pMountData.multipartId,
     parts: [

@@ -14,7 +14,7 @@ const multipartLimits: BusboyConfig['limits'] = {
 export const kFileConstants = {
   maxFileSizeInBytes,
   multipartLimits,
-  nameextSeparator: '.',
+  nameExtSeparator: '.',
   maxMimeTypeCharLength: 100,
   maxEncodingCharLength: 100,
   maxExtCharLength: 100,
@@ -113,4 +113,6 @@ export const kFileConstants = {
   getPrepareFileLockName: (filepathOrId: string) =>
     `prepareFile:${filepathOrId}`,
   getPrepareFileLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
+  minPartNumber: 1,
+  maxPartNumber: 10_000,
 };

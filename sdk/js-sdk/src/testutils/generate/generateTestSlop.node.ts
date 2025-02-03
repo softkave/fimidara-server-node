@@ -22,6 +22,7 @@ export async function generateTestSlop(params: IGenerateTestSlopParams) {
   }
 
   await p;
+  return generatedSize;
 }
 
 export async function hasTestSlop(params: {filepath: string; size: number}) {

@@ -35,7 +35,10 @@ let slopBuffer: Buffer | undefined;
 
 beforeAll(async () => {
   if (!(await hasTestSlop({filepath: slopFilepath, size: kMinSlopSize}))) {
-    await generateTestSlop({filepath: slopFilepath, minSize: kMinSlopSize});
+    await generateTestSlop({
+      filepath: slopFilepath,
+      minSize: kMinSlopSize,
+    });
   }
 
   slopBuffer = await readFile(slopFilepath);
@@ -176,6 +179,12 @@ describe.each([
           size: reqAgain.size,
           localFilepath: reqAgain.localFilepath,
           endpoints: fimidara,
+          beforePart: p => {
+            if (completedParts.includes(p.part)) {
+              console.log({completedParts, part: p.part});
+              throw new Error('Should not reupload completed parts');
+            }
+          },
           afterPart: hookParams => {
             completedParts.push(hookParams.part);
           },

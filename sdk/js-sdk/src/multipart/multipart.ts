@@ -175,7 +175,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     existingClientMultipartId ?? params.clientMultipartId;
 
   details.forEach(part => {
-    ranSet.add(part.part);
+    ranSet.add(part.part - 1);
   });
 
   const getNextPart = () => {
@@ -201,12 +201,12 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     // the set so that we don't skip a part on retry.
     ranSet.add(part);
 
-    // const partBlob = file.slice(part * partSize, (part + 1) * partSize);
     const partData = await readFrom(
       part * partSize,
       (part + 1) * partSize,
       partSize
     );
+
     return {partData, part};
   }
 
@@ -226,7 +226,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
           ...rest,
           clientMultipartId,
           size: dataOrNull.partData.size,
-          part: dataOrNull.part,
+          part: dataOrNull.part + 1,
           data: dataOrNull.partData.data,
         });
         await afterPart?.(hookParams);

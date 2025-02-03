@@ -14,6 +14,8 @@
 - opening permissions for a folder first shows no permission groups
 - server error not shown in fields
 - input outline is truncated
+- delete resource should remove the resource from the list
+- server error when uploading large file, also it doesn't stop the upload
 
 ## CLI
 
@@ -22,3 +24,8 @@
 ## Server
 
 - check that creating folders/files with presigned paths is successful
+- when using local and running dev, the downloaded file from multipart upload is not the same as the original file
+
+## JS SDK
+
+- end upload when at least one part fails
