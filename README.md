@@ -4,6 +4,12 @@
 
 fimidara is a file storage service primarily intended for developers. It's a simple, secure, and scalable file storage service that is easy to integrate into your application.
 
+## Repos
+
+- [`fimidara-server-node`](https://github.com/softkave/fimidara-server-node)
+- [`fimidara-nextjs`](https://github.com/softkave/fimidara-nextjs)
+- [`fimidara-js-sdk`](https://github.com/softkave/fimidara-server-node/tree/main/sdk/js-sdk)
+
 ## Features
 
 - [x] Versatile file solutions
