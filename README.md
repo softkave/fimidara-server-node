@@ -11,8 +11,7 @@ fimidara is a file storage service primarily intended for developers. It's a sim
     - [x] Folders
     - [x] Files
   - [x] Resumable file uploads
-  - [-] External storage backends
-    - Currently only available through the REST API
+  - [ ] External storage backends. It's currently only available through the REST API
     - [x] S3
     - [x] Local
     - [ ] GCS

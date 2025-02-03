@@ -5,7 +5,7 @@
 - image manipulation
 - byte range download
 
-## NextJs
+## Next.js client
 
 - integrate authjs
 - complete move to shadcn

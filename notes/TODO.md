@@ -99,7 +99,7 @@
 - maybe add an option to show files and folders interacted with
 - show files and folders in sync it's working on
 
-## NextJs
+## Next.js client
 
 - dark mode
 - authentication + authorization + workspaces

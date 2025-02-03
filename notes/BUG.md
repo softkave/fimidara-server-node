@@ -1,4 +1,4 @@
-## NextJs
+## Next.js client
 
 - multipart upload's showing "Server error" while uploading is still in progress
 - overflow in delete file modal
