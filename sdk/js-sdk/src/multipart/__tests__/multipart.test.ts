@@ -181,7 +181,6 @@ describe.each([
           endpoints: fimidara,
           beforePart: p => {
             if (completedParts.includes(p.part)) {
-              console.log({completedParts, part: p.part});
               throw new Error('Should not reupload completed parts');
             }
           },
