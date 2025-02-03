@@ -12,11 +12,11 @@ export async function fimidaraSync(opts: IFimidaraSyncOpts) {
   };
 
   if (!opts.silent) {
-    console.log('fimidarapath=', runtimeOpts.fimidarapath);
-    console.log('localpath=', runtimeOpts.localpath);
-    console.log('direction=', runtimeOpts.direction);
-    console.log('recursive=', runtimeOpts.recursive);
-    console.log('matchTree=', runtimeOpts.matchTree);
+    console.log('fimidarapath ', runtimeOpts.fimidarapath);
+    console.log('localpath    ', runtimeOpts.localpath);
+    console.log('direction    ', runtimeOpts.direction);
+    console.log('recursive    ', runtimeOpts.recursive);
+    console.log('matchTree    ', runtimeOpts.matchTree);
   }
 
   await copyFileOrFolder(runtimeOpts);

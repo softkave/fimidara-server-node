@@ -20,4 +20,8 @@ export interface SemanticUserProviderType
     email: string,
     opts?: SemanticProviderOpParams
   ): Promise<boolean>;
+  getByOAuthUserId(
+    oauthUserId: string,
+    opts?: SemanticProviderQueryParams<User>
+  ): Promise<User | null>;
 }

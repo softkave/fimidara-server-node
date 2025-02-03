@@ -71,6 +71,10 @@ const requestHeaderItem_ContentType = mddocConstruct
   .constructFieldString()
   .setDescription('HTTP request content type')
   .setExample('application/json or multipart/form-data');
+const requestHeaderItem_InterServerAuthSecret = mddocConstruct
+  .constructFieldString()
+  .setDescription('Inter server auth secret')
+  .setExample(customAlphabet('0')());
 
 const requestHeaders_AuthRequired_JsonContentType = mddocConstruct
   .constructFieldObject<HttpEndpointRequestHeaders_AuthRequired_ContentType>()
@@ -191,6 +195,7 @@ export const mddocEndpointHttpHeaderItems = {
   responseHeaderItem_ContentLength,
   responseHeaders_JsonContentType,
   responseHeaderItem_ContentDisposition,
+  requestHeaderItem_InterServerAuthSecret,
 };
 
 const nullValue = mddocConstruct.constructFieldNull();

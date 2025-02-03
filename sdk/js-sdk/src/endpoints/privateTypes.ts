@@ -134,6 +134,18 @@ export type UserExistsEndpointParams = {
 export type UserExistsEndpointResult = {
   exists: boolean;
 };
+export type LoginWithOAuthEndpointParams = {
+  oauthUserId: string;
+  interServerAuthSecret: string;
+  emailVerifiedAt?: number;
+};
+export type SignupWithOAuthEndpointParams = {
+  name: string;
+  email: string;
+  emailVerifiedAt?: number;
+  oauthUserId: string;
+  interServerAuthSecret: string;
+};
 export type AddWorkspaceEndpointParams = {
   name: string;
   rootname: string;

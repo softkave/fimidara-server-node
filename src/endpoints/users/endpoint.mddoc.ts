@@ -1,19 +1,28 @@
+import {EmptyObject} from 'type-fest';
 import {PublicWorkspaceResource} from '../../definitions/system.js';
 import {PublicUser} from '../../definitions/user.js';
 import {
   HttpEndpointMethod,
   InferFieldObjectOrMultipartType,
   InferFieldObjectType,
+  InferSdkParamsType,
   mddocConstruct,
 } from '../../mddoc/mddoc.js';
+import {kEndpointConstants} from '../constants.js';
 import {fReusables, mddocEndpointHttpHeaderItems} from '../endpoints.mddoc.js';
+import {
+  HttpEndpointRequestHeaders_ContentType,
+  HttpEndpointRequestHeaders_InterServerAuth,
+} from '../types.js';
 import {ChangePasswordWithCurrentPasswordEndpointParams} from './changePasswordWithCurrentPassword/types.js';
 import {ChangePasswordWithTokenEndpointParams} from './changePasswordWithToken/types.js';
 import {kUserConstants} from './constants.js';
 import {ForgotPasswordEndpointParams} from './forgotPassword/types.js';
 import {LoginEndpointParams, LoginResult} from './login/types.js';
+import {LoginWithOAuthEndpointParams} from './loginWithOauth/types.js';
 import {RefreshUserTokenEndpointParams} from './refreshToken/types.js';
 import {SignupEndpointParams} from './signup/types.js';
+import {SignupWithOAuthEndpointParams} from './signupWithOAuth/types.js';
 import {
   ChangePasswordWithCurrentPasswordHttpEndpoint,
   ChangePasswordWithTokenHttpEndpoint,
@@ -21,9 +30,11 @@ import {
   ForgotPasswordHttpEndpoint,
   GetUserDataHttpEndpoint,
   LoginHttpEndpoint,
+  LoginWithOAuthHttpEndpoint,
   RefreshUserTokenHttpEndpoint,
   SendEmailVerificationCodeHttpEndpoint,
   SignupHttpEndpoint,
+  SignupWithOAuthHttpEndpoint,
   UpdateUserHttpEndpoint,
   UserExistsHttpEndpoint,
 } from './types.js';
@@ -138,6 +149,24 @@ const signupParams = mddocConstruct
       fReusables.password
     ),
   });
+const signupWithOAuthParams = mddocConstruct
+  .constructFieldObject<SignupWithOAuthEndpointParams>()
+  .setName('SignupWithOAuthEndpointParams')
+  .setFields({
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    email: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.emailAddress
+    ),
+    emailVerifiedAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.date
+    ),
+    oauthUserId: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.providedResourceId
+    ),
+  });
 const loginParams = mddocConstruct
   .constructFieldObject<LoginEndpointParams>()
   .setName('LoginParams')
@@ -147,6 +176,19 @@ const loginParams = mddocConstruct
       fReusables.emailAddress
     ),
     password: mddocConstruct.constructFieldObjectField(true, currentPassword),
+  });
+const loginWithOAuthParams = mddocConstruct
+  .constructFieldObject<LoginWithOAuthEndpointParams>()
+  .setName('LoginWithOAuthEndpointParams')
+  .setFields({
+    oauthUserId: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.providedResourceId
+    ),
+    emailVerifiedAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.date
+    ),
   });
 const forgotPasswordParams = mddocConstruct
   .constructFieldObject<ForgotPasswordEndpointParams>()
@@ -224,6 +266,143 @@ const userExistsHttpResponseBody = mddocConstruct
   })
   .setName('UserExistsEndpointResult');
 
+const signupWithOAuthSdkParamsDef = mddocConstruct
+  .constructFieldObject<
+    SignupWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    }
+  >()
+  .setName('SignupWithOAuthEndpointParams')
+  .setFields({
+    name: mddocConstruct.constructFieldObjectField(true, fReusables.name),
+    email: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.emailAddress
+    ),
+    emailVerifiedAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.date
+    ),
+    oauthUserId: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.providedResourceId
+    ),
+    interServerAuthSecret: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.tokenString
+    ),
+  });
+
+const signupWithOAuthSdkParams = mddocConstruct
+  .constructSdkParamsBody<
+    /** TSdkParams */ SignupWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    },
+    /** TRequestHeaders */ HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth,
+    /** TPathParameters */ EmptyObject,
+    /** TQuery */ EmptyObject,
+    /** TRequestBody */ SignupWithOAuthEndpointParams
+  >(key => {
+    switch (key) {
+      case 'email':
+        return ['body', 'email'];
+      case 'name':
+        return ['body', 'name'];
+      case 'oauthUserId':
+        return ['body', 'oauthUserId'];
+      case 'emailVerifiedAt':
+        return ['body', 'emailVerifiedAt'];
+      case 'interServerAuthSecret':
+        return ['header', 'x-fimidara-inter-server-auth-secret'];
+      default:
+        return undefined;
+    }
+  })
+  .setDef(signupWithOAuthSdkParamsDef)
+  .setSerializeAs('json');
+
+const signupWithOAuthHttpHeaders = mddocConstruct
+  .constructFieldObject<
+    HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth
+  >()
+  .setFields({
+    [kEndpointConstants.headers.contentType]:
+      mddocConstruct.constructFieldObjectField(
+        true,
+        mddocEndpointHttpHeaderItems.requestHeaderItem_JsonContentType
+      ),
+    [kEndpointConstants.headers.interServerAuthSecret]:
+      mddocConstruct.constructFieldObjectField(
+        true,
+        mddocEndpointHttpHeaderItems.requestHeaderItem_InterServerAuthSecret
+      ),
+  });
+
+const loginWithOAuthSdkParamsDef = mddocConstruct
+  .constructFieldObject<
+    LoginWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    }
+  >()
+  .setName('LoginWithOAuthEndpointParams')
+  .setFields({
+    oauthUserId: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.providedResourceId
+    ),
+    interServerAuthSecret: mddocConstruct.constructFieldObjectField(
+      true,
+      fReusables.tokenString
+    ),
+    emailVerifiedAt: mddocConstruct.constructFieldObjectField(
+      false,
+      fReusables.date
+    ),
+  });
+
+const loginWithOAuthSdkParams = mddocConstruct
+  .constructSdkParamsBody<
+    /** TSdkParams */ LoginWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    },
+    /** TRequestHeaders */ HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth,
+    /** TPathParameters */ EmptyObject,
+    /** TQuery */ EmptyObject,
+    /** TRequestBody */ LoginWithOAuthEndpointParams
+  >(key => {
+    switch (key) {
+      case 'oauthUserId':
+        return ['body', 'oauthUserId'];
+      case 'interServerAuthSecret':
+        return ['header', 'x-fimidara-inter-server-auth-secret'];
+      default:
+        return undefined;
+    }
+  })
+  .setDef(loginWithOAuthSdkParamsDef)
+  .setSerializeAs('json');
+
+const loginWithOAuthHttpHeaders = mddocConstruct
+  .constructFieldObject<
+    HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth
+  >()
+  .setFields({
+    [kEndpointConstants.headers.contentType]:
+      mddocConstruct.constructFieldObjectField(
+        true,
+        mddocEndpointHttpHeaderItems.requestHeaderItem_JsonContentType
+      ),
+    [kEndpointConstants.headers.interServerAuthSecret]:
+      mddocConstruct.constructFieldObjectField(
+        true,
+        mddocEndpointHttpHeaderItems.requestHeaderItem_InterServerAuthSecret
+      ),
+  });
+
 export const signupEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -255,6 +434,41 @@ export const signupEndpointDefinition = mddocConstruct
   .setResponseBody(loginResponseBody)
   .setName('SignupEndpoint');
 
+export const signupWithOAuthEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >,
+    InferSdkParamsType<
+      SignupWithOAuthHttpEndpoint['mddocHttpDefinition']['sdkParamsBody']
+    >
+  >()
+  .setBasePathname(kUserConstants.routes.signupWithOAuth)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(signupWithOAuthParams)
+  .setSdkParamsBody(signupWithOAuthSdkParams)
+  .setRequestHeaders(signupWithOAuthHttpHeaders)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(loginResponseBody)
+  .setName('SignupWithOAuthEndpoint');
+
 export const loginEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
@@ -285,6 +499,41 @@ export const loginEndpointDefinition = mddocConstruct
   )
   .setResponseBody(loginResponseBody)
   .setName('LoginEndpoint');
+
+export const loginWithOAuthEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >,
+    InferSdkParamsType<
+      LoginWithOAuthHttpEndpoint['mddocHttpDefinition']['sdkParamsBody']
+    >
+  >()
+  .setBasePathname(kUserConstants.routes.loginWithOAuth)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(loginWithOAuthParams)
+  .setSdkParamsBody(loginWithOAuthSdkParams)
+  .setRequestHeaders(loginWithOAuthHttpHeaders)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(loginResponseBody)
+  .setName('LoginWithOAuthEndpoint');
 
 export const forgotPasswordEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
@@ -417,7 +666,7 @@ export const confirmEmailAddressEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
   )
   .setResponseBody(loginResponseBody)
-  .setName('SendEmailVerificationCodeEndpoint')
+  .setName('ConfirmEmailAddressEndpoint')
   .setDescription(
     'Confirm email address endpoint. Uses the `Authorization` header, and expects a token issued from `forgotPassword`'
   );
@@ -452,10 +701,8 @@ export const getUserDataEndpointDefinition = mddocConstruct
     mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
   )
   .setResponseBody(loginResponseBody)
-  .setName('ConfirmEmailAddressEndpoint')
-  .setDescription(
-    'Confirm email address endpoint. Uses the `Authorization` header'
-  );
+  .setName('GetUserDataEndpoint')
+  .setDescription('Get user data endpoint. Uses the `Authorization` header');
 
 export const sendEmailVerificationCodeEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<

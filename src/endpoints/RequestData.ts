@@ -84,4 +84,12 @@ export default class RequestData<T = any> {
     if (this.req) return this.req.headers['user-agent'];
     return null;
   }
+
+  getSystemAuthId() {
+    if (this.req) {
+      return this.req.headers['x-system-auth-id'];
+    }
+
+    return null;
+  }
 }

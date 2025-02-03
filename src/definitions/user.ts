@@ -17,6 +17,7 @@ export interface User extends Resource {
   emailVerificationEmailSentAt?: number | null;
   isOnWaitlist: boolean;
   removedFromWaitlistOn?: number;
+  oauthUserId?: string | null;
 }
 
 export interface UserWithWorkspace extends User {

@@ -29,6 +29,8 @@ import {
   SignupEndpointParams,
   UserExistsEndpointParams,
   UserExistsEndpointResult,
+  LoginWithOAuthEndpointParams,
+  SignupWithOAuthEndpointParams,
   AddWorkspaceEndpointParams,
   AddWorkspaceEndpointResult,
   GetUserWorkspacesEndpointParams,
@@ -243,6 +245,45 @@ export class UsersEndpoints extends FimidaraEndpointsBase {
         method: 'POST',
       },
       opts
+    );
+  };
+  loginWithOAuth = async (
+    props: LoginWithOAuthEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<LoginResult> => {
+    const mapping = {
+      oauthUserId: ['body', 'oauthUserId'],
+      interServerAuthSecret: ['header', 'x-fimidara-inter-server-auth-secret'],
+    } as const;
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/users/loginWithOAuth',
+        method: 'POST',
+      },
+      opts,
+      mapping
+    );
+  };
+  signupWithOAuth = async (
+    props: SignupWithOAuthEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<LoginResult> => {
+    const mapping = {
+      name: ['body', 'name'],
+      email: ['body', 'email'],
+      emailVerifiedAt: ['body', 'emailVerifiedAt'],
+      oauthUserId: ['body', 'oauthUserId'],
+      interServerAuthSecret: ['header', 'x-fimidara-inter-server-auth-secret'],
+    } as const;
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/users/signupWithOAuth',
+        method: 'POST',
+      },
+      opts,
+      mapping
     );
   };
 }

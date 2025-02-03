@@ -66,8 +66,7 @@ export async function copyFolderFiles(
             const ffpath = path.posix.join(fimidarapath, fname);
 
             if (!opts.silent) {
-              console.log('deleting file from fimidara');
-              console.log('-', `"${ffpath}"`);
+              console.log(`rm up "${ffpath}"`);
             }
 
             await getFimidara(opts).files.deleteFile({
@@ -106,8 +105,7 @@ export async function copyFolderFiles(
             const efpath = path.join(localpath, ef.name);
 
             if (!opts.silent) {
-              console.log('deleting file from local');
-              console.log('-', `"${efpath}"`);
+              console.log(`rm down "${efpath}"`);
             }
 
             await rm(efpath);

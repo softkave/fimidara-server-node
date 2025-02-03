@@ -193,6 +193,9 @@ export type FimidaraSuppliedConfig = Partial<{
   prepareFileQueueEnd: number;
   /** prepare file queues handled by this server */
   prepareFileQueueNo: number[];
+
+  // internal server communication
+  interServerAuthSecret: string;
 }>;
 
 export type FimidaraConfig = FimidaraSuppliedConfig & FimidaraRuntimeConfig;

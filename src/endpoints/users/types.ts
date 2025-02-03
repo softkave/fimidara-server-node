@@ -1,16 +1,27 @@
+import {EmptyObject} from 'softkave-js-utils';
 import {
   ExportedHttpEndpointWithMddocDefinition,
   HttpEndpointRequestHeaders_ContentType,
+  HttpEndpointRequestHeaders_InterServerAuth,
+  HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types.js';
 import {ChangePasswordWithCurrentPasswordEndpoint} from './changePasswordWithCurrentPassword/types.js';
 import {ChangePasswordWithTokenEndpoint} from './changePasswordWithToken/types.js';
 import {ConfirmEmailAddressEndpoint} from './confirmEmailAddress/types.js';
 import {ForgotPasswordEndpoint} from './forgotPassword/types.js';
 import {GetUserDataEndpoint} from './getUserData/types.js';
-import {LoginEndpoint} from './login/types.js';
+import {LoginEndpoint, LoginResult} from './login/types.js';
+import {
+  LoginWithOAuthEndpoint,
+  LoginWithOAuthEndpointParams,
+} from './loginWithOauth/types.js';
 import {RefreshUserTokenEndpoint} from './refreshToken/types.js';
 import {SendEmailVerificationCodeEndpoint} from './sendEmailVerificationCode/types.js';
 import {SignupEndpoint} from './signup/types.js';
+import {
+  SignupWithOAuthEndpoint,
+  SignupWithOAuthEndpointParams,
+} from './signupWithOAuth/types.js';
 import {UpdateUserEndpoint} from './updateUser/types.js';
 import {UserExistsEndpoint} from './userExists/types.js';
 
@@ -45,6 +56,34 @@ export type SendEmailVerificationCodeHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<SendEmailVerificationCodeEndpoint>;
 export type RefreshUserTokenHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<RefreshUserTokenEndpoint>;
+export type LoginWithOAuthHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<
+    LoginWithOAuthEndpoint,
+    HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth,
+    /** TPathParameters */ EmptyObject,
+    /** TQuery */ EmptyObject,
+    /** TRequestBody */ LoginWithOAuthEndpointParams,
+    /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+    /** TResponseBody */ LoginResult,
+    /** TSdkparams */ LoginWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    }
+  >;
+export type SignupWithOAuthHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<
+    SignupWithOAuthEndpoint,
+    HttpEndpointRequestHeaders_ContentType &
+      HttpEndpointRequestHeaders_InterServerAuth,
+    /** TPathParameters */ EmptyObject,
+    /** TQuery */ EmptyObject,
+    /** TRequestBody */ SignupWithOAuthEndpointParams,
+    /** TResponseHeaders */ HttpEndpointResponseHeaders_ContentType_ContentLength,
+    /** TResponseBody */ LoginResult,
+    /** TSdkparams */ SignupWithOAuthEndpointParams & {
+      interServerAuthSecret: string;
+    }
+  >;
 
 export type UsersExportedEndpoints = {
   updateUser: UpdateUserHttpEndpoint;
@@ -58,4 +97,6 @@ export type UsersExportedEndpoints = {
   confirmEmailAddress: ConfirmEmailAddressHttpEndpoint;
   sendEmailVerificationCode: SendEmailVerificationCodeHttpEndpoint;
   refreshToken: RefreshUserTokenHttpEndpoint;
+  loginWithOAuth: LoginWithOAuthHttpEndpoint;
+  signupWithOAuth: SignupWithOAuthHttpEndpoint;
 };
