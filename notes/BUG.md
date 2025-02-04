@@ -1,7 +1,6 @@
 ## Next.js client
 
-- multipart upload's showing "Server error" while uploading is still in progress
-- overflow in delete file modal
+- opening a modal or sheet renders the app uninteractive
 - prevent closing of modal when clicking outside when it's loading
 - toggle all should toggle all permission and untoggling one should untoggle all
 - deleted file not removed from list. check folder too
@@ -14,8 +13,9 @@
 - opening permissions for a folder first shows no permission groups
 - server error not shown in fields
 - input outline is truncated
-- delete resource should remove the resource from the list
 - server error when uploading large file, also it doesn't stop the upload
+- break words in upload file form
+- multipart/resumable uploads are incomplete because it's using previous uploads and stopping on uploading missing parts without. also show progress matching previous uploads.
 
 ## CLI
 

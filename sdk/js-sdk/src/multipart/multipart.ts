@@ -93,6 +93,17 @@ export interface IMultipartUploadParams
   beforePart?: (params: IMultipartUploadHookFnParams) => OrPromise<void>;
   afterPart?: (params: IMultipartUploadHookFnParams) => OrPromise<void>;
   numConcurrentParts?: number;
+  /**
+   * If `true`, the upload will be resumed from the last part that was uploaded.
+   * If `false`, the upload will be started from the beginning. Default is
+   * `true`.
+   */
+  resume?: boolean;
+  /**
+   * If `true`, the part events will be fired for resumed parts. Default is
+   * `true`.
+   */
+  firePartEventsForResumedParts?: boolean;
 }
 
 async function uploadOnce(params: IMultipartUploadParams) {
@@ -135,6 +146,8 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     beforePart,
     afterPart,
     numConcurrentParts,
+    resume = true,
+    firePartEventsForResumedParts = true,
     ...rest
   } = params;
 
@@ -156,12 +169,14 @@ export async function multipartUpload(params: IMultipartUploadParams) {
   const runOrder = Array.from({length: numParts}, (_, i) => i);
   const ranSet = new Set<number>();
 
-  const {details, clientMultipartId: existingClientMultipartId} =
-    await getUploadPartDetails({
-      fileId: rest.fileId,
-      filepath: rest.filepath,
-      endpoints,
-    });
+  const {details: resumedParts, clientMultipartId: existingClientMultipartId} =
+    resume
+      ? await getUploadPartDetails({
+          fileId: rest.fileId,
+          filepath: rest.filepath,
+          endpoints,
+        })
+      : {details: [], clientMultipartId: undefined};
 
   if (existingClientMultipartId) {
     assert.equal(
@@ -174,9 +189,18 @@ export async function multipartUpload(params: IMultipartUploadParams) {
   const clientMultipartId =
     existingClientMultipartId ?? params.clientMultipartId;
 
-  details.forEach(part => {
-    ranSet.add(part.part - 1);
-  });
+  await Promise.all(
+    resumedParts.map(async part => {
+      ranSet.add(part.part - 1);
+      if (firePartEventsForResumedParts) {
+        await afterPart?.({
+          part: part.part - 1,
+          size: part.size,
+          estimatedNumParts: numParts,
+        });
+      }
+    })
+  );
 
   const getNextPart = () => {
     return runOrder.find(part => !ranSet.has(part));
