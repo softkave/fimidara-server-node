@@ -54,7 +54,7 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint =
           kSemanticModels
             .permissions()
             .getEntityAssignedPermissionGroups(
-              {entityId, fetchDeep: false},
+              {workspaceId: workspace.resourceId, entityId, fetchDeep: false},
               opts
             )
         )

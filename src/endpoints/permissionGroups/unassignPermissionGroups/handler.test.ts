@@ -58,7 +58,11 @@ describe('unassignPermissionGroups', () => {
 
     const entityPgListResult = await Promise.all(
       cList01.map(collaborator =>
-        fetchEntityAssignedPermissionGroupList(collaborator.resourceId, false)
+        fetchEntityAssignedPermissionGroupList({
+          workspaceId: workspace.resourceId,
+          entityId: collaborator.resourceId,
+          includeInheritedPermissionGroups: false,
+        })
       )
     );
     const entityPgListId: string[] = [];

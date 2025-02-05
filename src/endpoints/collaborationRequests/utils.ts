@@ -103,7 +103,9 @@ export async function populateRequestAssignedPermissionGroups(
     .getEntityInheritanceMap({
       entityId: request.resourceId,
       fetchDeep: false,
+      workspaceId: request.workspaceId,
     });
+
   return {
     ...request,
     permissionGroupsAssignedOnAcceptingRequest:

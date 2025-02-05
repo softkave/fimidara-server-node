@@ -31,13 +31,22 @@ export function isFetchingOwnPermissionGroups(
   return agent.agentId === entityId;
 }
 
-export async function fetchEntityAssignedPermissionGroupList(
-  entityId: string,
-  includeInheritedPermissionGroups = true,
-  opts?: SemanticProviderOpParams
-) {
+export async function fetchEntityAssignedPermissionGroupList(params: {
+  workspaceId: string;
+  entityId: string;
+  includeInheritedPermissionGroups?: boolean;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {
+    workspaceId,
+    entityId,
+    includeInheritedPermissionGroups = true,
+    opts,
+  } = params;
+
   return await kSemanticModels.permissions().getEntityAssignedPermissionGroups(
     {
+      workspaceId,
       entityId,
       fetchDeep: includeInheritedPermissionGroups,
     },

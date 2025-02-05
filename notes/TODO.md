@@ -103,6 +103,8 @@
 
 - workspace selector
 - dark mode
+- it should be clearer when permissions are given to a resource, and when permissions are given to access a resource
+- add permissions assigned on accepting collaboration request
 - authentication + authorization + workspaces
 - image manipulation
 - add that you get $# free hosting for 1 year on fimidara as a banner

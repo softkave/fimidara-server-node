@@ -54,7 +54,11 @@ describe('assignPermissionGroups', () => {
 
     const permissionGroupsResult = await Promise.all(
       collaboratorList.map(collaborator =>
-        fetchEntityAssignedPermissionGroupList(collaborator.resourceId, false)
+        fetchEntityAssignedPermissionGroupList({
+          workspaceId: workspace.resourceId,
+          entityId: collaborator.resourceId,
+          includeInheritedPermissionGroups: false,
+        })
       )
     );
     permissionGroupsResult.forEach(next => {
@@ -93,8 +97,11 @@ describe('assignPermissionGroups', () => {
     assertEndpointResultOk(result01);
 
     const permissionGroupsResult = await fetchEntityAssignedPermissionGroupList(
-      collaborator.resourceId,
-      false
+      {
+        workspaceId: workspace.resourceId,
+        entityId: collaborator.resourceId,
+        includeInheritedPermissionGroups: false,
+      }
     );
     expect(
       sortStringListLexicographically(

@@ -100,16 +100,19 @@ export async function devUserSetupPromptUserPassword() {
   return answers as PromptUserPasswordAnswers;
 }
 
-async function isUserAdmin(
-  userId: string,
-  adminPermissionGroupId: string,
-  opts?: SemanticProviderOpParams
-) {
-  const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList(
-    userId,
-    /** include inherited permission groups */ true,
-    opts
-  );
+async function isUserAdmin(params: {
+  userId: string;
+  workspaceId: string;
+  adminPermissionGroupId: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {userId, workspaceId, adminPermissionGroupId, opts} = params;
+  const {inheritanceMap} = await fetchEntityAssignedPermissionGroupList({
+    workspaceId,
+    entityId: userId,
+    includeInheritedPermissionGroups: true,
+    opts,
+  });
   const isAdmin = !!inheritanceMap[adminPermissionGroupId];
   return isAdmin;
 }
@@ -120,7 +123,12 @@ async function makeUserAdmin(
   adminPermissionGroupId: string,
   opts: SemanticProviderMutationParams
 ) {
-  const isAdmin = await isUserAdmin(userId, adminPermissionGroupId, opts);
+  const isAdmin = await isUserAdmin({
+    userId,
+    workspaceId: workspace.resourceId,
+    adminPermissionGroupId,
+    opts,
+  });
 
   if (!isAdmin) {
     kUtilsInjectables.logger().log('Making user admin');

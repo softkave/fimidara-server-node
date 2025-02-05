@@ -36,14 +36,14 @@ export type SemanticPermissionProviderType_CountPermissionItemsProps = {
 
 export interface SemanticPermissionProviderType {
   getEntityAssignedPermissionGroups(
-    props: {entityId: string; fetchDeep?: boolean},
+    props: {workspaceId: string; entityId: string; fetchDeep?: boolean},
     options?: SemanticProviderQueryListParams<PermissionGroup>
   ): Promise<{
     permissionGroups: PermissionGroup[];
     inheritanceMap: PermissionEntityInheritanceMap;
   }>;
   getEntityInheritanceMap(
-    props: {entityId: string; fetchDeep?: boolean},
+    props: {workspaceId: string; entityId: string; fetchDeep?: boolean},
     options?: SemanticProviderOpParams
   ): Promise<PermissionEntityInheritanceMap>;
   getEntity(

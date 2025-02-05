@@ -179,13 +179,18 @@ export async function resolveEntityData(
 
   const [entityInheritanceMap, publicInheritanceMap] = await Promise.all([
     permissionsModel.getEntityInheritanceMap(
-      {entityId: target.entityId, fetchDeep: params.fetchEntitiesDeep},
+      {
+        entityId: target.entityId,
+        fetchDeep: params.fetchEntitiesDeep,
+        workspaceId: params.workspaceId,
+      },
       params.opts
     ),
     permissionsModel.getEntityInheritanceMap(
       {
         entityId: workspace.publicPermissionGroupId,
         fetchDeep: params.fetchEntitiesDeep,
+        workspaceId: params.workspaceId,
       },
       params.opts
     ),
