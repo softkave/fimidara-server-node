@@ -1,6 +1,5 @@
 ## Next.js client
 
-- opening a modal or sheet renders the app uninteractive
 - prevent closing of modal when clicking outside when it's loading
 - toggle all should toggle all permission and untoggling one should untoggle all
 - in error page, only surface error's marked public. error page per section,

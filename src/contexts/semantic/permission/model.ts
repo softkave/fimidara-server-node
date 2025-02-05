@@ -9,6 +9,10 @@ import {
   PermissionItem,
 } from '../../../definitions/permissionItem.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  kPublicSessionAgent,
+  kSystemSessionAgent,
+} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {toCompactArray} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -159,6 +163,14 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     props: {entityId: string},
     opts?: SemanticProviderQueryParams<Resource>
   ): Promise<Resource | null> {
+    if (props.entityId === kPublicSessionAgent.agentTokenId) {
+      return kPublicSessionAgent.agentToken;
+    }
+
+    if (props.entityId === kSystemSessionAgent.agentTokenId) {
+      return kSystemSessionAgent.agentToken;
+    }
+
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
     const dataQuery = addIsDeletedIntoQuery<DataQuery<Resource>>(
