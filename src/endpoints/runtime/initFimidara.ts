@@ -40,7 +40,7 @@ export const kNewSignupsOnWaitlistJobIdempotencyToken = '1';
 
 /** 1 hour in ms */
 const kAppSetupVars = {
-  workspaceName: 'Fimidara',
+  workspaceName: 'fimidara',
   rootname: 'fimidara',
 };
 
@@ -62,7 +62,7 @@ async function setupWorkspace(
       {
         name,
         rootname,
-        description: "System-generated workspace for Fimidara's own operations",
+        description: "System-generated workspace for fimidara's own operations",
       },
       agent,
       agent.agentId,

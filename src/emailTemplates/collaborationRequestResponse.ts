@@ -2,16 +2,18 @@ import {CollaborationRequestResponse} from '../definitions/collaborationRequest.
 import {
   emailHelperChars,
   emailTemplateStyles,
+  getBoldText,
   getCenteredContentHTML,
   getFooterHTML,
   getGreetingHTML,
   getGreetingText,
   getHeaderHTML,
   getHeaderText,
+  getItalicText,
   getLoginSectionHTML,
   getLoginSectionText,
 } from './helpers.js';
-import {BaseEmailTemplateProps} from './types.js';
+import {BaseEmailTemplateProps, EmailMode} from './types.js';
 
 export interface CollaborationRequestResponseEmailProps
   extends BaseEmailTemplateProps {
@@ -27,10 +29,18 @@ export const kCollaborationRequestResponseArtifacts = {
       'workspaceName' | 'response'
     >
   ) => {
-    return `Collaboration request ${props.response} on ${props.workspaceName}`;
+    return `Collaboration request ${props.response} on "${props.workspaceName}"`;
   },
-  message: (props: CollaborationRequestResponseEmailProps) => {
-    return `This is to notify you that the collaboration request sent to ${props.recipientEmail} to join the workspace ${props.workspaceName} has been ${props.response}`;
+  message: (
+    props: CollaborationRequestResponseEmailProps & {mode: EmailMode}
+  ) => {
+    return (
+      'This is to notify you that the collaboration request sent to ' +
+      `${getItalicText({text: props.recipientEmail, mode: props.mode})} ` +
+      'to join the workspace ' +
+      `${getBoldText({text: props.workspaceName, mode: props.mode})} ` +
+      `has been ${getBoldText({text: props.response, mode: props.mode})}.`
+    );
   },
 };
 
@@ -51,7 +61,10 @@ export function collaborationRequestResponseEmailHTML(
   ${getCenteredContentHTML(`
     ${getGreetingHTML(props)}
       <p>
-      ${kCollaborationRequestResponseArtifacts.message(props)}
+      ${kCollaborationRequestResponseArtifacts.message({
+        ...props,
+        mode: 'html',
+      })}
       </p>
     `)}
   ${getLoginSectionHTML(props)}
@@ -68,7 +81,10 @@ export function collaborationRequestResponseEmailText(
   const txt = `${getHeaderText(title)}
 ${emailHelperChars.emDash}
 ${getGreetingText(props)}
-${kCollaborationRequestResponseArtifacts.message(props)}
+${kCollaborationRequestResponseArtifacts.message({
+  ...props,
+  mode: 'text',
+})}
 ${getLoginSectionText(props)}
 `;
 

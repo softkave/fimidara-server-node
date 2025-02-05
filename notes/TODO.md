@@ -101,6 +101,7 @@
 
 ## Next.js client
 
+- workspace selector
 - dark mode
 - authentication + authorization + workspaces
 - image manipulation

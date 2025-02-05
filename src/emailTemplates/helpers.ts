@@ -1,5 +1,5 @@
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
-import {BaseEmailTemplateProps} from './types.js';
+import {BaseEmailTemplateProps, EmailMode} from './types.js';
 
 export const emailHelperChars = {emDash: '—'};
 
@@ -136,4 +136,12 @@ export function getGreetingHTML(props: {firstName?: string}) {
 
 export function getGreetingText(props: {firstName?: string}) {
   return props.firstName ? `Hi ${props.firstName},` : '';
+}
+
+export function getBoldText(props: {text: string; mode: EmailMode}) {
+  return props.mode === 'html' ? `<b>${props.text}</b>` : `"${props.text}"`;
+}
+
+export function getItalicText(props: {text: string; mode: EmailMode}) {
+  return props.mode === 'html' ? `<i>${props.text}</i>` : `"${props.text}"`;
 }

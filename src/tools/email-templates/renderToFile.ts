@@ -95,7 +95,7 @@ export async function renderForgotPasswordMedia() {
 // Collaboration request email
 export async function renderCollaborationRequestMedia() {
   const props: CollaborationRequestEmailProps = {
-    workspaceName: 'Fimidara',
+    workspaceName: 'fimidara',
     isRecipientAUser: true,
     loginLink: 'https://fimidara.com/accounts/signup',
     signupLink: 'https://fimidara.com/accounts/login',
@@ -114,7 +114,7 @@ export async function renderCollaborationRequestMedia() {
 // Collaboration request revoked email
 export async function renderCollaborationRequestRevokedMedia() {
   const props: CollaborationRequestRevokedEmailProps = {
-    workspaceName: 'Fimidara',
+    workspaceName: 'fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
     firstName: 'Abayomi',
@@ -128,7 +128,7 @@ export async function renderCollaborationRequestRevokedMedia() {
 // Collaboration request response email
 export async function renderCollaborationRequestResponseMedia() {
   const props: CollaborationRequestResponseEmailProps = {
-    workspaceName: 'Fimidara',
+    workspaceName: 'fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
     recipientEmail: faker.internet.email(),
@@ -144,7 +144,7 @@ export async function renderCollaborationRequestResponseMedia() {
 // Usage exceeded
 export async function renderUsageExceededMedia() {
   const props: UsageExceededEmailProps = {
-    workspaceName: 'Fimidara',
+    workspaceName: 'fimidara',
     signupLink: 'https://fimidara.com/accounts/signup',
     loginLink: 'https://fimidara.com/accounts/login',
     firstName: 'Abayomi',
