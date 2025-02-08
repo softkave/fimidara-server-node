@@ -88,6 +88,7 @@
   - cache calls to resolveBackendsMountsAndConfigs
   - Mongo unique constraint can serve as an alternative to shard runner
   - multipart file tests should check that binary is correct after upload
+- retry failed part uploads
 
 ## CLI
 
@@ -102,6 +103,12 @@
 ## Next.js client
 
 - workspace selector
+- increase file name limit
+- disable delete file when uploading
+- calculate upload time better, it doesn't reduce as expected
+- retry failed upload parts
+- show done after upload
+- use both upload event and part hooks to show progress
 - dark mode
 - it should be clearer when permissions are given to a resource, and when permissions are given to access a resource
 - add permissions assigned on accepting collaboration request
