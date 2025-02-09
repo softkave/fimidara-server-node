@@ -4,7 +4,6 @@ import axios, {
   Method,
   toFormData,
 } from 'axios';
-import {isArray, isObject, isString} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {kDefaultServerURL} from './constants.js';
 import {FimidaraEndpointError, FimidaraEndpointErrorItem} from './error.js';
@@ -121,17 +120,17 @@ export async function invokeEndpoint(props: InvokeEndpointParams) {
 
       const contentType = response.headers[HTTP_HEADER_CONTENT_TYPE];
       const isResultJSON =
-        isString(contentType) &&
+        typeof contentType === 'string' &&
         contentType.includes(CONTENT_TYPE_APPLICATION_JSON);
 
-      if (isResultJSON && isString(response.data)) {
+      if (isResultJSON && typeof response.data === 'string') {
         const body = JSON.parse(response.data);
-        if (isArray(body?.errors)) errors = body.errors;
+        if (Array.isArray(body?.errors)) errors = body.errors;
       } else if (
-        isObject(response.data) &&
-        isArray((response.data as any).errors)
+        typeof response.data === 'object' &&
+        Array.isArray(response.data.errors)
       ) {
-        errors = (response.data as any).errors;
+        errors = response.data.errors;
       }
     } else if ((axiosError as any).request) {
       // The request was made but no response was received `error.request` is an
