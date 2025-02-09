@@ -44,12 +44,13 @@ export async function sendCollaborationRequestResponseEmail(
 
   const emailProps: CollaborationRequestResponseEmailProps = {
     ...base,
-    recipientEmail: user.email,
+    recipientEmail: request.recipientEmail,
     response: request.status as CollaborationRequestResponse,
     workspaceName: workspace.name,
   };
   const html = collaborationRequestResponseEmailHTML(emailProps);
   const text = collaborationRequestResponseEmailText(emailProps);
+
   return await kUtilsInjectables.email().sendEmail({
     source,
     subject: kCollaborationRequestResponseArtifacts.title(emailProps),

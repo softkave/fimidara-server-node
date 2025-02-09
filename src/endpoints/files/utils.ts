@@ -232,7 +232,7 @@ export function stringifyFilenamepath(
 ) {
   const name =
     pathJoin(file.namepath) +
-    (file.ext ? `${kFileConstants.nameextSeparator}${file.ext}` : '');
+    (file.ext ? `${kFileConstants.nameExtSeparator}${file.ext}` : '');
   return rootname ? addRootnameToPath(name, rootname) : name;
 }
 

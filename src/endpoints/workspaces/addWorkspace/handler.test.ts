@@ -90,7 +90,11 @@ describe('addWorkspace', () => {
 
     expect(userWorkspace).toBeTruthy();
     const userPermissionGroupsResult =
-      await fetchEntityAssignedPermissionGroupList(userToken.forEntityId);
+      await fetchEntityAssignedPermissionGroupList({
+        workspaceId: workspace.resourceId,
+        entityId: userToken.forEntityId,
+        includeInheritedPermissionGroups: false,
+      });
     const assignedAdminPermissionGroup =
       userPermissionGroupsResult.permissionGroups.find(
         item => item.resourceId === adminPermissionGroup.resourceId

@@ -1,7 +1,6 @@
 ## Server
 
 - resumable uploads
-- image manipulation
 - authentication + authorization + workspaces
 - metered read & read capacity
 - set cookies
@@ -61,8 +60,35 @@
 - optimize copyFolderFiles because currently we fetch all local and fimidara files for diff
   - issue is diff will be incomplete when we diff on paged results
 - authentication + authorization + workspaces
-- image manipulation
 - mount external backends
+- image manipulation
+- reusable upload hardening
+  - set multipart lifecycle in s3
+  - cleanup parts on delete file
+  - complete multipart upload should be a job and should release file when done. this is primarily for memory and local fs providers
+  - write multiparts to local file and stream to backend when merging
+  - flush redis on complete testing, and use different database
+  - enforce minimum multipart upload size of 5mb bcos of s3
+    - if s3 has a 5mb minimum, then we may need to merge some parts internally
+- byte range download
+- connection pool for redis
+- hardening
+  - use shard runner for addFolder
+    - check if folder exists before sending to shard runner
+    - shard runner, who logs errors
+  - use shard runner for usage
+    - queue in handler by workspaceId + category + operation
+  - use shard runner for creating internal multipart ID
+    - queue in handler by fileId
+    - lock by fileId and get before creating
+  - use shard runner for prepare file
+    - queue in handler by fileId or filepath
+    - lock by fileId or filepath and get before creating
+  - concurrency with insertJob idempotency check
+  - cache calls to resolveBackendsMountsAndConfigs
+  - Mongo unique constraint can serve as an alternative to shard runner
+  - multipart file tests should check that binary is correct after upload
+- retry failed part uploads
 
 ## CLI
 
@@ -74,11 +100,23 @@
 - maybe add an option to show files and folders interacted with
 - show files and folders in sync it's working on
 
-## NextJs
+## Next.js client
 
+- workspace selector
+- increase file name limit
+- disable delete file when uploading
+- calculate upload time better, it doesn't reduce as expected
+- retry failed upload parts
+- show done after upload
+- use both upload event and part hooks to show progress
 - dark mode
 - select workspace from sidebar
 - remove page auth required from files and folders
+- it should be clearer when permissions are given to a resource, and when permissions are given to access a resource
+- add permissions assigned on accepting collaboration request
+- where to report issues
+- send email when permissions are assigned and removed
+- authentication + authorization + workspaces
 - image manipulation
 - add that you get $# free hosting for 1 year on fimidara as a banner
 - integrate sentry
@@ -88,7 +126,6 @@
   - hide agent token and toggle to see
 - new homepage with features + code
 - sample apps
-- image manipulation
 - report bug/request feature
 - prevent submit if error and data has not changed
 - group actions by resource type
@@ -143,3 +180,17 @@
 - icons to files, with size
 - open items in drawer panel
 - bolder font
+- mdx docs for sdk and rest api
+- error pages
+- new homepage with features + code
+- devlog and changelog
+- convert last of antd to shadcn
+- sidenav on mobile
+- usage page
+- select workspace from sidenav
+- integrate authjs
+- complete move to shadcn
+- share folder & files using presigned urls
+- allow public access to folders and files
+  - remove workspace id from url
+- allow obfuscation of file on upload and on download

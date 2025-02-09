@@ -3,6 +3,7 @@ import assert from 'assert';
 import {randomUUID} from 'crypto';
 import {createReadStream, ensureFile, rm} from 'fs-extra';
 import {readFile, writeFile} from 'fs/promises';
+import {intersection} from 'lodash-es';
 import path from 'path';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
@@ -35,7 +36,10 @@ let slopBuffer: Buffer | undefined;
 
 beforeAll(async () => {
   if (!(await hasTestSlop({filepath: slopFilepath, size: kMinSlopSize}))) {
-    await generateTestSlop({filepath: slopFilepath, minSize: kMinSlopSize});
+    await generateTestSlop({
+      filepath: slopFilepath,
+      minSize: kMinSlopSize,
+    });
   }
 
   slopBuffer = await readFile(slopFilepath);
@@ -128,24 +132,22 @@ describe.each([
     1000 * 60 * 5 // 5 minutes
   );
 
-  test(
-    'resume',
-    async () => {
-      // if (dataType === 'readable') {
-      //   // it's not easy to finely control the size of each part
-      //   // so we skip this test
-      //   return;
-      // }
-
+  test.each([
+    {resume: true, firePartEventsForResumedParts: true},
+    {resume: true, firePartEventsForResumedParts: false},
+    {resume: false, firePartEventsForResumedParts: true},
+  ])(
+    'resume: $resume, firePartEventsForResumedParts: $firePartEventsForResumedParts',
+    async ({resume, firePartEventsForResumedParts}) => {
       const {data, size, localFilepath} = getData();
-
       const filepath = fimidaraAddRootnameToPath(
         faker.system.filePath(),
         testVars.workspaceRootname
       );
-      const clientMultipartId = 'test-' + randomUUID();
 
-      const completedParts: number[] = [];
+      const clientMultipartId = 'test-' + randomUUID();
+      const firstTryCompletedParts: number[] = [];
+      const secondTryCompletedParts: number[] = [];
 
       try {
         await multipartUploadNode({
@@ -154,39 +156,71 @@ describe.each([
           localFilepath,
           filepath,
           clientMultipartId,
+          resume,
           endpoints: fimidara,
           numConcurrentParts: 1,
           afterPart: hookParams => {
-            completedParts.push(hookParams.part);
+            firstTryCompletedParts.push(hookParams.part);
           },
           beforePart: p => {
-            if (completedParts.length > 0) {
+            if (firstTryCompletedParts.length > 0) {
               throw new Error('Simulated error');
             }
           },
         });
         assert.fail('Expected error');
       } catch (e) {
+        assert(firstTryCompletedParts.length > 0);
+
         // Retry
         const reqAgain = getData();
         const retryResult = await multipartUploadNode({
           filepath,
+          resume,
           clientMultipartId,
           data: reqAgain.data,
           size: reqAgain.size,
           localFilepath: reqAgain.localFilepath,
           endpoints: fimidara,
+          firePartEventsForResumedParts,
+          beforePart: p => {
+            if (
+              firstTryCompletedParts.includes(p.part) &&
+              resume &&
+              !firePartEventsForResumedParts
+            ) {
+              throw new Error('Should not reupload completed parts');
+            }
+          },
           afterPart: hookParams => {
-            completedParts.push(hookParams.part);
+            secondTryCompletedParts.push(hookParams.part);
           },
         });
 
-        expect(
-          stringifyFimidaraFilepath(
-            retryResult.file,
-            testVars.workspaceRootname
-          )
-        ).toEqual(filepath);
+        const fp = stringifyFimidaraFilepath(
+          retryResult.file,
+          testVars.workspaceRootname
+        );
+
+        expect(fp).toEqual(filepath);
+
+        if (resume) {
+          if (firePartEventsForResumedParts) {
+            expect(
+              intersection(firstTryCompletedParts, secondTryCompletedParts)
+                .length
+            ).toBe(firstTryCompletedParts.length);
+          } else {
+            expect(
+              intersection(firstTryCompletedParts, secondTryCompletedParts)
+                .length
+            ).toBe(0);
+          }
+        } else {
+          expect(
+            intersection(firstTryCompletedParts, secondTryCompletedParts).length
+          ).toBe(firstTryCompletedParts.length);
+        }
 
         await expectReadEqualsBuffer(retryResult.file.resourceId, slopBuffer!);
       }

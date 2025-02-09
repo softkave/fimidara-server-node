@@ -9,6 +9,10 @@ import {
   PermissionItem,
 } from '../../../definitions/permissionItem.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
+import {
+  kPublicSessionAgent,
+  kSystemSessionAgent,
+} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {toCompactArray} from '../../../utils/fns.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -31,30 +35,37 @@ import {
 
 export class DataSemanticPermission implements SemanticPermissionProviderType {
   async getEntityInheritanceMap(
-    props: {entityId: string; fetchDeep?: boolean | undefined},
+    props: {
+      workspaceId: string;
+      entityId: string;
+      fetchDeep?: boolean | undefined;
+    },
     options?: SemanticProviderOpParams | undefined
   ): Promise<PermissionEntityInheritanceMap> {
     {
-      const entity = this.getEntity(props);
+      const entity = await this.getEntity(props);
       appAssert(entity, kReuseableErrors.entity.notFound(props.entityId));
 
+      const maxDepth = props.fetchDeep ? 20 : 1;
       let nextIdList = [props.entityId];
       const map: PermissionEntityInheritanceMap = {
         [props.entityId]: {id: props.entityId, items: [], resolvedOrder: 0},
       };
-      const maxDepth = props.fetchDeep ? 20 : 1;
 
       for (let depth = 0; nextIdList.length && depth < maxDepth; depth++) {
         const query = addIsDeletedIntoQuery<DataQuery<AssignedItem>>(
           {
+            workspaceId: props.workspaceId,
             assigneeId: {$in: nextIdList},
             assignedItemType: kFimidaraResourceType.PermissionGroup,
           },
           options?.includeDeleted || false
         );
+
         const assignedItems = await kSemanticModels
           .assignedItem()
           .getManyByQuery(query, options);
+
         const nextIdMap: Record<string, string> = {};
         assignedItems.forEach(item => {
           nextIdMap[item.assignedItemId] = item.assignedItemId;
@@ -63,6 +74,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
             items: [],
             resolvedOrder: depth + 1,
           };
+
           const entry = map[item.assigneeId];
 
           if (entry) {
@@ -84,7 +96,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
   }
 
   async getEntityAssignedPermissionGroups(
-    props: {entityId: string; fetchDeep?: boolean | undefined},
+    props: {
+      workspaceId: string;
+      entityId: string;
+      fetchDeep?: boolean | undefined;
+    },
     options?: SemanticProviderQueryListParams<PermissionGroup> | undefined
   ): Promise<{
     permissionGroups: PermissionGroup[];
@@ -96,9 +112,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       {resourceId: {$in: idList}},
       options?.includeDeleted || false
     );
+
     const permissionGroups = await kSemanticModels
       .permissionGroup()
       .getManyByQuery(query, options);
+
     return {permissionGroups, inheritanceMap: map};
   }
 
@@ -145,6 +163,14 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     props: {entityId: string},
     opts?: SemanticProviderQueryParams<Resource>
   ): Promise<Resource | null> {
+    if (props.entityId === kPublicSessionAgent.agentTokenId) {
+      return kPublicSessionAgent.agentToken;
+    }
+
+    if (props.entityId === kSystemSessionAgent.agentTokenId) {
+      return kSystemSessionAgent.agentToken;
+    }
+
     const type = getResourceTypeFromId(props.entityId);
     const query: LiteralDataQuery<Resource> = {resourceId: props.entityId};
     const dataQuery = addIsDeletedIntoQuery<DataQuery<Resource>>(

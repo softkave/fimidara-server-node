@@ -66,7 +66,7 @@ async function handleReadFileResponse(
   if (input.download) {
     const filename =
       result.name +
-      (result.ext ? `${kFileConstants.nameextSeparator}${result.ext}` : '');
+      (result.ext ? `${kFileConstants.nameExtSeparator}${result.ext}` : '');
 
     // TODO: correctly set filename and filename* based on
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#as_a_response_header_for_the_main_body

@@ -24,7 +24,7 @@ const clientLogInput = mddocConstruct
     ),
     service: mddocConstruct.constructFieldObjectField(
       true,
-      mddocConstruct.constructFieldString().setDescription('Fimidara service')
+      mddocConstruct.constructFieldString().setDescription('fimidara service')
     ),
     stack: mddocConstruct.constructFieldObjectField(
       false,
@@ -44,16 +44,24 @@ const ingestLogsParams = mddocConstruct
 
 export const ingestLogsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
-    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['requestHeaders']>,
-    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['pathParamaters']>,
-    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       IngestLogsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
       IngestLogsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      IngestLogsHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(clientLogsConstants.routes.ingestLogs)
   .setMethod(HttpEndpointMethod.Post)

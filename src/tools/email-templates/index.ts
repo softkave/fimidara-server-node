@@ -21,6 +21,10 @@ async function main() {
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
+    cacheProvider: kFimidaraConfigQueueProvider.memory,
+    redlockProvider: kFimidaraConfigQueueProvider.memory,
+    dsetProvider: kFimidaraConfigQueueProvider.memory,
+    redisURL: '',
   });
 
   kUtilsInjectables.logger().log('Writing templates');
