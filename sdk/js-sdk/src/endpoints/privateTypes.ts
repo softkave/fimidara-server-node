@@ -82,7 +82,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
-  passwordLastChangedAt: number;
+  passwordLastChangedAt?: number;
   requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number | null;
