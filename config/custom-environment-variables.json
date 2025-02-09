@@ -32,5 +32,6 @@
   "redlockProvider": "REDLOCK_PROVIDER",
   "dsetProvider": "DSET_PROVIDER",
   "redisURL": "REDIS_URL",
-  "redisDatabase": "REDIS_DATABASE"
+  "redisDatabase": "REDIS_DATABASE",
+  "interServerAuthSecret": "INTER_SERVER_AUTH_SECRET"
 }

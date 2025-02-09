@@ -77,7 +77,8 @@
 ## NextJs
 
 - dark mode
-- authentication + authorization + workspaces
+- select workspace from sidebar
+- remove page auth required from files and folders
 - image manipulation
 - add that you get $# free hosting for 1 year on fimidara as a banner
 - integrate sentry

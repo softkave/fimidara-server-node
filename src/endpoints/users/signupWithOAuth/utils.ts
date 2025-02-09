@@ -42,7 +42,6 @@ export const INTERNAL_signupUserWithOAuth = async (params: {
       firstName,
       lastName,
       createdAt: now,
-      passwordLastChangedAt: now,
       lastUpdatedAt: now,
       isOnWaitlist:
         kUtilsInjectables.suppliedConfig().FLAG_waitlistNewSignups || false,

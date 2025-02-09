@@ -74,7 +74,7 @@ describe('loginWithOAuth', () => {
       beforeAll(async () => {
         ({rawUser, oauthUserId} = await insertUserWithOAuthForTest({
           userInput: {
-            emailVerifiedAt,
+            emailVerifiedAt: userEmailVerified ? getTimestamp() : undefined,
           },
         }));
       });
@@ -86,7 +86,7 @@ describe('loginWithOAuth', () => {
         const reqData =
           RequestData.fromExpressRequest<LoginWithOAuthEndpointParams>(
             mockExpressRequest(),
-            {oauthUserId}
+            {oauthUserId, emailVerifiedAt}
           );
         const result = await login(reqData);
         assertEndpointResultOk(result);
@@ -94,6 +94,7 @@ describe('loginWithOAuth', () => {
         const savedUser = await kSemanticModels
           .user()
           .assertGetOneByQuery({resourceId: result.user.resourceId});
+
         expect(savedUser.isEmailVerified).toBe(
           userEmailVerified || !!emailVerifiedAt
         );

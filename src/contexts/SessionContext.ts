@@ -87,6 +87,15 @@ export interface SessionContextType {
 }
 
 export default class SessionContext implements SessionContextType {
+  constructor() {
+    const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+    appAssert(
+      interServerAuthSecret,
+      new ServerError(),
+      'interServerAuthSecret is not set'
+    );
+  }
+
   getAgentFromReqInterServer = async (req: RequestData) => {
     const inputSystemAuthId = req.getSystemAuthId();
     appAssert(inputSystemAuthId, new InvalidCredentialsError());

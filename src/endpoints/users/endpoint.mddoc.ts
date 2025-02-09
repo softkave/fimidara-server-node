@@ -70,7 +70,7 @@ const user = mddocConstruct
       fReusables.emailAddress
     ),
     passwordLastChangedAt: mddocConstruct.constructFieldObjectField(
-      true,
+      false,
       fReusables.date
     ),
     requiresPasswordChange: mddocConstruct.constructFieldObjectField(

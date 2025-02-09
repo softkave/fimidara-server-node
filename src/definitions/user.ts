@@ -10,7 +10,7 @@ export interface User extends Resource {
   lastName: string;
   email: string;
   hash: string;
-  passwordLastChangedAt: number;
+  passwordLastChangedAt?: number;
   requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number | null;
