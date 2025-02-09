@@ -69,6 +69,8 @@ import {BaseEndpointResult} from '../types.js';
 import INTERNAL_confirmEmailAddress from '../users/confirmEmailAddress/internalConfirmEmailAddress.js';
 import signup from '../users/signup/handler.js';
 import {SignupEndpointParams} from '../users/signup/types.js';
+import signupWithOAuth from '../users/signupWithOAuth/handler.js';
+import {SignupWithOAuthEndpointParams} from '../users/signupWithOAuth/types.js';
 import {assertUser} from '../users/utils.js';
 import addWorkspace from '../workspaces/addWorkspace/handler.js';
 import {AddWorkspaceEndpointParams} from '../workspaces/addWorkspace/types.js';
@@ -203,7 +205,6 @@ export interface IInsertUserForTestResult {
   token: string;
   clientAssignedToken: string;
   refreshToken: string;
-  reqData: RequestData<SignupEndpointParams>;
   sessionAgent: SessionAgent;
 }
 
@@ -264,7 +265,61 @@ export async function insertUserForTest(
     token: result.jwtToken,
     clientAssignedToken: result.clientJwtToken,
     refreshToken: result.refreshToken,
-    reqData: reqData,
+  };
+}
+
+export async function insertUserWithOAuthForTest(
+  params: {
+    userInput?: Partial<SignupWithOAuthEndpointParams>;
+  } = {}
+): Promise<IInsertUserForTestResult & {oauthUserId: string}> {
+  const {userInput} = params;
+  const reqData = RequestData.fromExpressRequest<SignupWithOAuthEndpointParams>(
+    mockExpressRequest(),
+    {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      emailVerifiedAt: getTimestamp(),
+      oauthUserId: faker.string.uuid(),
+      ...userInput,
+    }
+  );
+
+  const result = await signupWithOAuth(reqData);
+  assertEndpointResultOk(result);
+  let rawUser: UserWithWorkspace;
+
+  const user = await kSemanticModels.user().getOneById(result.user.resourceId);
+  assertUser(user);
+  rawUser = await populateUserWorkspaces(user);
+
+  const userTokenData = kUtilsInjectables
+    .session()
+    .decodeToken(result.jwtToken);
+  const clientTokenData = kUtilsInjectables
+    .session()
+    .decodeToken(result.clientJwtToken);
+  const [userToken, clientToken] = await Promise.all([
+    kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
+    kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
+  ]);
+  assertAgentToken(userToken);
+  assertAgentToken(clientToken);
+
+  const sessionAgent = makeUserSessionAgent(rawUser, userToken);
+  const oauthUserId = user.oauthUserId;
+  assert(oauthUserId);
+
+  return {
+    oauthUserId,
+    rawUser,
+    userToken,
+    clientToken,
+    sessionAgent,
+    user: {...result.user, isEmailVerified: rawUser.isEmailVerified},
+    token: result.jwtToken,
+    clientAssignedToken: result.clientJwtToken,
+    refreshToken: result.refreshToken,
   };
 }
 

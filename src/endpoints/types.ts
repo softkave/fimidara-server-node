@@ -91,6 +91,10 @@ export type HttpEndpointRequestHeaders_ContentType = {
   'Content-Type': string;
 };
 
+export type HttpEndpointRequestHeaders_InterServerAuth = {
+  'x-fimidara-inter-server-auth-secret': string;
+};
+
 export type HttpEndpointRequestHeaders_AuthOptional_ContentType =
   HttpEndpointRequestHeaders_ContentType &
     HttpEndpointRequestHeaders_AuthOptional;

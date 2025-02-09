@@ -69,6 +69,7 @@ export interface SessionContextType {
     permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[],
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => Promise<SessionAgent>;
+  getAgentFromReqInterServer: (data: RequestData) => Promise<SessionAgent>;
   getAgentByAgentTokenId: (agentTokenId: string) => Promise<SessionAgent>;
   getUser: (
     data: RequestData,
@@ -86,6 +87,33 @@ export interface SessionContextType {
 }
 
 export default class SessionContext implements SessionContextType {
+  constructor() {
+    const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+    appAssert(
+      interServerAuthSecret,
+      new ServerError(),
+      'interServerAuthSecret is not set'
+    );
+  }
+
+  getAgentFromReqInterServer = async (req: RequestData) => {
+    const inputSystemAuthId = req.getSystemAuthId();
+    appAssert(inputSystemAuthId, new InvalidCredentialsError());
+
+    const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+    appAssert(
+      interServerAuthSecret,
+      new ServerError(),
+      'interServerAuthSecret is not set'
+    );
+    appAssert(
+      inputSystemAuthId === interServerAuthSecret,
+      new InvalidCredentialsError()
+    );
+
+    return kSystemSessionAgent;
+  };
+
   getAgentFromReq = async (
     data: RequestData,
     permittedAgentTypes: FimidaraResourceType | FimidaraResourceType[],

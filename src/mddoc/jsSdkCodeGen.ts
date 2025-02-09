@@ -686,10 +686,9 @@ async function main() {
       [kEndpointTag.private]
     ),
   ]);
-
-  await globalDispose();
 }
 
 main()
   .then(() => kUtilsInjectables.logger().log('mddoc gen js sdk complete'))
-  .catch(kUtilsInjectables.logger().error.bind(kUtilsInjectables.logger()));
+  .catch(err => kUtilsInjectables.logger().error(err))
+  .finally(() => globalDispose());

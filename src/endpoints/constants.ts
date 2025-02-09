@@ -18,4 +18,8 @@ export const kEndpointConstants = {
   inputListMax: 1000,
   apiv1: '/v1',
   continuationTokenMaxLength: 100,
+  headers: {
+    contentType: 'Content-Type',
+    interServerAuthSecret: 'x-fimidara-inter-server-auth-secret',
+  } as const,
 };

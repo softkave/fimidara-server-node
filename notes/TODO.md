@@ -110,6 +110,8 @@
 - show done after upload
 - use both upload event and part hooks to show progress
 - dark mode
+- select workspace from sidebar
+- remove page auth required from files and folders
 - it should be clearer when permissions are given to a resource, and when permissions are given to access a resource
 - add permissions assigned on accepting collaboration request
 - where to report issues

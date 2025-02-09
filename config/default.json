@@ -67,5 +67,6 @@
   "prepareFilePubSubChannelPrefix": "prepareFilePubSub",
   "prepareFileQueueStart": 1,
   "prepareFileQueueEnd": 1,
-  "prepareFileQueueNo": [1]
+  "prepareFileQueueNo": [1],
+  "interServerAuthSecret": ""
 }

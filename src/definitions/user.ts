@@ -10,13 +10,14 @@ export interface User extends Resource {
   lastName: string;
   email: string;
   hash: string;
-  passwordLastChangedAt: number;
+  passwordLastChangedAt?: number;
   requiresPasswordChange?: boolean;
   isEmailVerified: boolean;
   emailVerifiedAt?: number | null;
   emailVerificationEmailSentAt?: number | null;
   isOnWaitlist: boolean;
   removedFromWaitlistOn?: number;
+  oauthUserId?: string | null;
 }
 
 export interface UserWithWorkspace extends User {

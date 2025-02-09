@@ -1,9 +1,7 @@
-import assert from 'assert';
-import {isNil, isString} from 'lodash-es';
-import {AnyObject} from 'softkave-js-utils';
+import type {AnyObject} from 'softkave-js-utils';
 import {FimidaraJsConfig, FimidaraJsConfigAuthToken} from './config.js';
 import {InvokeEndpointParams, invokeEndpoint} from './invokeEndpoint.js';
-import {FimidaraEndpointParamsOptional} from './types.js';
+import type {FimidaraEndpointParamsOptional} from './types.js';
 
 export type Mapping = Record<
   string,
@@ -13,7 +11,7 @@ export type Mapping = Record<
 export class FimidaraEndpointsBase extends FimidaraJsConfig {
   protected getAuthToken(params?: {authToken?: FimidaraJsConfigAuthToken}) {
     const authToken = params?.authToken || this.config.authToken;
-    return isString(authToken) ? authToken : authToken?.getJwtToken();
+    return typeof authToken === 'string' ? authToken : authToken?.getJwtToken();
   }
 
   protected getServerURL(params?: {serverURL?: string}) {
@@ -33,7 +31,7 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
       const path: AnyObject = {};
 
       function write(obj: AnyObject, field: string, value: any) {
-        if (isNil(obj[field])) obj[field] = value;
+        if (obj[field] === undefined || obj[field] === null) obj[field] = value;
         else if (value !== undefined) obj[field] = value;
       }
 
@@ -81,7 +79,10 @@ export class FimidaraEndpointsBase extends FimidaraJsConfig {
       >,
     mapping?: Mapping
   ) {
-    assert(p01.path, 'Endpoint path not provided');
+    if (!p01.path) {
+      throw new Error('Endpoint path not provided');
+    }
+
     const {headers, query, data, endpointPath} = this.applyMapping(
       p01.path,
       p01.data || p01.formdata,

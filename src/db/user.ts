@@ -15,6 +15,7 @@ const userSchema = ensureMongoTypeFields<User>({
   requiresPasswordChange: {type: Boolean},
   isOnWaitlist: {type: Boolean},
   removedFromWaitlistOn: {type: Number},
+  oauthUserId: {type: String, index: true},
 });
 
 export type UserDocument = Document<User>;

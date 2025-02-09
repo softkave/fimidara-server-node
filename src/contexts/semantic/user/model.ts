@@ -51,4 +51,16 @@ export class DataSemanticUser
 
     return await this.data.countByQuery(query, opts);
   }
+
+  async getByOAuthUserId(
+    oauthUserId: string,
+    opts?: SemanticProviderQueryParams<User>
+  ): Promise<User | null> {
+    const query = addIsDeletedIntoQuery<DataQuery<User>>(
+      {oauthUserId},
+      opts?.includeDeleted || false
+    );
+
+    return await this.data.getOneByQuery(query, opts);
+  }
 }
