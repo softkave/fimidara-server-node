@@ -44,6 +44,7 @@
   a job owned by a different workspace, like remove collaborator is linked to
   unassigning a permission group owned by fimidara
 - check that read available works for all file providers, local, s3, etc.
+- add a create empty file endpoint
 
 ## JS SDK
 
@@ -89,6 +90,7 @@
   - Mongo unique constraint can serve as an alternative to shard runner
   - multipart file tests should check that binary is correct after upload
 - retry failed part uploads
+- allow switching between axios and fetch
 
 ## CLI
 
@@ -103,11 +105,11 @@
 ## Next.js client
 
 - workspace selector
-- increase file name limit
-- disable delete file when uploading
 - calculate upload time better, it doesn't reduce as expected
 - retry failed upload parts
 - show done after upload
+- increase file name limit
+- disable delete file when uploading
 - use both upload event and part hooks to show progress
 - dark mode
 - select workspace from sidebar
@@ -194,3 +196,4 @@
 - allow public access to folders and files
   - remove workspace id from url
 - allow obfuscation of file on upload and on download
+- allow fine-specifying of file name and extension when uploading

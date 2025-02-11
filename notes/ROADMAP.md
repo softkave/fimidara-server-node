@@ -8,5 +8,8 @@
 
 ## Next.js client
 
-- integrate authjs
 - complete move to shadcn
+- remove page auth required from files and folders to allow public access to files and folders
+- select workspace from sidebar
+- better labeled node design
+- add sign in with Github

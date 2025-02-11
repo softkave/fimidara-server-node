@@ -534,9 +534,9 @@ export async function registerUtilsInjectables(
   kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));
   kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);
   kRegisterUtilsInjectables.locks(new LockStore());
+  kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
   kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
   kRegisterUtilsInjectables.session(new SessionContext());
-  kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
 
   const shardedRunner = new ShardedRunner();
   kRegisterUtilsInjectables.shardedRunner(shardedRunner);
