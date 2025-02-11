@@ -163,11 +163,11 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     props: {entityId: string},
     opts?: SemanticProviderQueryParams<Resource>
   ): Promise<Resource | null> {
-    if (props.entityId === kPublicSessionAgent.agentTokenId) {
+    if (props.entityId === kPublicSessionAgent.agentId) {
       return kPublicSessionAgent.agentToken;
     }
 
-    if (props.entityId === kSystemSessionAgent.agentTokenId) {
+    if (props.entityId === kSystemSessionAgent.agentId) {
       return kSystemSessionAgent.agentToken;
     }
 
