@@ -35,7 +35,12 @@ const updateTag: UpdateTagEndpoint = async reqData => {
   let tag = tag_;
   tag = await kSemanticModels.utils().withTxn(async opts => {
     if (tagUpdate.name && tagUpdate.name !== tag.name)
-      await checkTagNameExists(workspace.resourceId, tagUpdate.name, opts);
+      await checkTagNameExists({
+        workspaceId: workspace.resourceId,
+        name: tagUpdate.name,
+        resourceId: tag.resourceId,
+        opts,
+      });
     const updatedTag = await kSemanticModels
       .tag()
       .getAndUpdateOneById(data.tagId, tagUpdate, opts);

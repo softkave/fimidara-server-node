@@ -12,9 +12,9 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
-import {WorkspaceExistsError} from '../errors.js';
 import updateWorkspace from './handler.js';
 import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
+import {ResourceExistsError} from '../../errors.js';
 
 beforeAll(async () => {
   await initTests();
@@ -68,6 +68,6 @@ describe('updateWorkspce', () => {
         );
 
       await updateWorkspace(reqData);
-    }, [WorkspaceExistsError.name]);
+    }, [ResourceExistsError.name]);
   });
 });

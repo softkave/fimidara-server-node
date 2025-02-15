@@ -60,8 +60,14 @@ const INTERNAL_createWorkspace = async (
 ) => {
   assertIsNotOnWaitlist(agent);
   await Promise.all([
-    checkWorkspaceNameExists(data.name, opts),
-    checkWorkspaceRootnameExists(data.rootname, opts),
+    checkWorkspaceNameExists({
+      name: data.name,
+      opts,
+    }),
+    checkWorkspaceRootnameExists({
+      rootname: data.rootname,
+      opts,
+    }),
   ]);
 
   // TODO: replace with user defined usage thresholds when we implement billing

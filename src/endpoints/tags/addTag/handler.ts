@@ -41,7 +41,11 @@ const addTag: AddTagEndpoint = async reqData => {
     {...data}
   );
   await kSemanticModels.utils().withTxn(async opts => {
-    await checkTagNameExists(workspace.resourceId, data.name, opts);
+    await checkTagNameExists({
+      workspaceId: workspace.resourceId,
+      name: data.name,
+      opts,
+    });
     await kSemanticModels.tag().insertItem(tag, opts);
   });
 

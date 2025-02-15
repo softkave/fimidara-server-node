@@ -35,7 +35,11 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async reqData => {
   });
 
   let permissionGroup = await kSemanticModels.utils().withTxn(async opts => {
-    await checkPermissionGroupNameExists(workspace.resourceId, data.name, opts);
+    await checkPermissionGroupNameExists({
+      workspaceId: workspace.resourceId,
+      name: data.name,
+      opts,
+    });
     const permissionGroup = newWorkspaceResource<PermissionGroup>(
       agent,
       kFimidaraResourceType.PermissionGroup,

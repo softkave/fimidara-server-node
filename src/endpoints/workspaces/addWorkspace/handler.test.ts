@@ -9,6 +9,7 @@ import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
+import {ResourceExistsError} from '../../errors.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import EndpointReusableQueries from '../../queries.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
@@ -18,7 +19,6 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../testUtils/testUtils.js';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from '../errors.js';
 import {
   assertWorkspace,
   makeRootnameFromName,
@@ -109,7 +109,7 @@ describe('addWorkspace', () => {
       await insertWorkspaceForTest(userToken, {
         name: result.workspace.name,
       });
-    }, [WorkspaceExistsError.name]);
+    }, [ResourceExistsError.name]);
   });
 
   test('fails if workspace root name exists', async () => {
@@ -119,7 +119,7 @@ describe('addWorkspace', () => {
       await insertWorkspaceForTest(userToken, {
         rootname: result.workspace.rootname,
       });
-    }, [WorkspaceRootnameExistsError.name]);
+    }, [ResourceExistsError.name]);
   });
 
   test('fails if user is on waitlist', async () => {

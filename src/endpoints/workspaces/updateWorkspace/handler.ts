@@ -34,7 +34,11 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
   workspace = await kSemanticModels.utils().withTxn(async opts => {
     await Promise.all([
       data.workspace.name && data.workspace.name !== workspace.name
-        ? checkWorkspaceNameExists(data.workspace.name, opts)
+        ? checkWorkspaceNameExists({
+            name: data.workspace.name,
+            workspaceId: workspace.resourceId,
+            opts,
+          })
         : undefined,
     ]);
     const update: Partial<Workspace> = {

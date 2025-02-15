@@ -13,8 +13,14 @@ export const kAppMessages = {
         ? `Workspace with rootname ${rootname} not found`
         : 'Workspace not found';
     },
-    rootnameDoesNotMatchFolderRootname: (rootname: string, rootname02: string) =>
+    rootnameDoesNotMatchFolderRootname: (
+      rootname: string,
+      rootname02: string
+    ) =>
       `Workspace rootname ${rootname} does not match folder rootname ${rootname02}`,
+    workspaceExists() {
+      return 'Workspace exists';
+    },
   },
   entity: {
     notFound(id: string) {
@@ -47,7 +53,9 @@ export const kAppMessages = {
   },
   permissionItem: {
     notFound(id?: string) {
-      return id ? `Permission item with ID ${id} not found` : 'Permission item not found';
+      return id
+        ? `Permission item with ID ${id} not found`
+        : 'Permission item not found';
     },
   },
   collaborationRequest: {
@@ -61,6 +69,7 @@ export const kAppMessages = {
     notFound(id?: string) {
       return id ? `Folder with ID ${id} not found` : 'Folder not found';
     },
+    exists: 'Folder exists',
   },
   tag: {
     notFound(id?: string) {
@@ -69,7 +78,9 @@ export const kAppMessages = {
   },
   usageRecord: {
     notFound(id?: string) {
-      return id ? `Usage record with ID ${id} not found` : 'Usage record not found';
+      return id
+        ? `Usage record with ID ${id} not found`
+        : 'Usage record not found';
     },
   },
   file: {
@@ -78,7 +89,8 @@ export const kAppMessages = {
     },
     invalidMatcher: 'Invalid matcher',
     provideNamepath: 'Please provide a namepath',
-    multipleVolumeSeparators: "Supplied path has multiple volume separators ':'",
+    multipleVolumeSeparators:
+      "Supplied path has multiple volume separators ':'",
     unknownBackend(backend: string) {
       return backend ? `Backend ${backend} unknown` : 'Backend unknown';
     },
@@ -90,13 +102,17 @@ export const kAppMessages = {
   },
   agentToken: {
     notFound(id?: string) {
-      return id ? `Agent token with ID ${id} not found` : 'Agent token not found';
+      return id
+        ? `Agent token with ID ${id} not found`
+        : 'Agent token not found';
     },
     withIdExists(id?: string) {
       return id ? `Agent token with ID ${id} exists` : 'Agent token exists';
     },
     withProvidedIdExists(id?: string) {
-      return id ? `Agent token with provided ID ${id} exists` : 'Agent token exists';
+      return id
+        ? `Agent token with provided ID ${id} exists`
+        : 'Agent token exists';
     },
   },
   common: {
@@ -104,7 +120,9 @@ export const kAppMessages = {
       return id ? `Resource with ID ${id} not found` : 'Resource not found';
     },
     permissionDenied(id?: string) {
-      return id ? `Permission denied for resource with ID ${id}` : 'Permission denied';
+      return id
+        ? `Permission denied for resource with ID ${id}`
+        : 'Permission denied';
     },
     notImplementedYet(fnName?: string) {
       return fnName ? `${fnName} not implemented yet` : 'Not implemented yet';
@@ -149,9 +167,14 @@ export const kAppMessages = {
     },
     configMountBackendMismatch: (configBackend: string, mountBackend: string) =>
       `Config for backend ${configBackend} cannot be used for mount with backend ${mountBackend}`,
-    exactMountConfigExists: (mountedFrom: string, folderpath: string, backend: string) =>
+    exactMountConfigExists: (
+      mountedFrom: string,
+      folderpath: string,
+      backend: string
+    ) =>
       `Mount exists from ${mountedFrom} to ${folderpath} with backend ${backend}`,
     mountsNotSetup: 'File backend mounts not setup',
+    mountSourceMissingBucket: 'Mount source missing bucket',
   },
   email: {
     // TODO: add support email address they can reach out to

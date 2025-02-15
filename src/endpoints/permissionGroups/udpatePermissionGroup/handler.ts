@@ -42,11 +42,12 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async reqData => {
     };
 
     if (update.name && update.name !== permissionGroup.name) {
-      await checkPermissionGroupNameExists(
-        workspace.resourceId,
-        update.name,
-        opts
-      );
+      await checkPermissionGroupNameExists({
+        workspaceId: workspace.resourceId,
+        name: update.name,
+        resourceId: permissionGroup.resourceId,
+        opts,
+      });
     }
 
     const updatedPermissionGroup = await kSemanticModels

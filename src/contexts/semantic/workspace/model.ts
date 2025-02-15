@@ -2,10 +2,7 @@ import {Workspace} from '../../../definitions/workspace.js';
 import {DataQuery} from '../../data/types.js';
 import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
 import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
-import {
-  SemanticProviderOpParams,
-  SemanticProviderQueryParams,
-} from '../types.js';
+import {SemanticProviderQueryParams} from '../types.js';
 import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
 import {SemanticWorkspaceProviderType} from './types.js';
 
@@ -24,25 +21,14 @@ export class DataSemanticWorkspace
     return await this.data.getOneByQuery(query, opts);
   }
 
-  async existsByRootname(
+  async getByWorkspaceName(
     name: string,
-    opts?: SemanticProviderOpParams | undefined
-  ): Promise<boolean> {
-    const query = addIsDeletedIntoQuery<DataQuery<Workspace>>(
-      {rootname: getIgnoreCaseDataQueryRegExp(name)},
-      opts?.includeDeleted || false
-    );
-    return await this.data.existsByQuery(query, opts);
-  }
-
-  async workspaceExistsByName(
-    name: string,
-    opts?: SemanticProviderOpParams | undefined
-  ): Promise<boolean> {
+    opts?: SemanticProviderQueryParams<Workspace>
+  ): Promise<Workspace | null> {
     const query = addIsDeletedIntoQuery<DataQuery<Workspace>>(
       {name: getIgnoreCaseDataQueryRegExp(name)},
       opts?.includeDeleted || false
     );
-    return await this.data.existsByQuery(query, opts);
+    return await this.data.getOneByQuery(query, opts);
   }
 }

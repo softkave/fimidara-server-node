@@ -1,29 +1,33 @@
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
-import {WorkspaceExistsError, WorkspaceRootnameExistsError} from './errors.js';
+import {kReuseableErrors} from '../../utils/reusableErrors.js';
 
-export async function checkWorkspaceNameExists(
-  name: string,
-  opts?: SemanticProviderOpParams
-) {
-  const workspaceExists = await kSemanticModels
+export async function checkWorkspaceNameExists(params: {
+  name: string;
+  workspaceId?: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {name, workspaceId, opts} = params;
+  const workspace = await kSemanticModels
     .workspace()
-    .workspaceExistsByName(name, opts);
+    .getByWorkspaceName(name, {...opts, projection: {resourceId: true}});
 
-  if (workspaceExists) {
-    throw new WorkspaceExistsError();
+  if (workspace && workspace.resourceId !== workspaceId) {
+    throw kReuseableErrors.workspace.workspaceExists();
   }
 }
 
-export async function checkWorkspaceRootnameExists(
-  rootname: string,
-  opts?: SemanticProviderOpParams
-) {
-  const workspaceExists = await kSemanticModels
+export async function checkWorkspaceRootnameExists(params: {
+  rootname: string;
+  workspaceId?: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {rootname, workspaceId, opts} = params;
+  const workspace = await kSemanticModels
     .workspace()
-    .existsByRootname(rootname, opts);
+    .getByRootname(rootname, {...opts, projection: {resourceId: true}});
 
-  if (workspaceExists) {
-    throw new WorkspaceRootnameExistsError();
+  if (workspace && workspace.resourceId !== workspaceId) {
+    throw kReuseableErrors.workspace.workspaceExists();
   }
 }

@@ -55,7 +55,12 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
     appAssert(token.workspaceId);
     await Promise.all([
       isNameChanged &&
-        checkAgentTokenNameExists(token.workspaceId, tokenUpdate.name!, opts),
+        checkAgentTokenNameExists({
+          workspaceId: token.workspaceId,
+          name: tokenUpdate.name!,
+          resourceId: token.resourceId,
+          opts,
+        }),
     ]);
 
     const updatedToken = await kSemanticModels

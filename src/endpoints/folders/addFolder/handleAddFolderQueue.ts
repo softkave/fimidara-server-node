@@ -15,6 +15,7 @@ import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js
 import {Resource, SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {kAppMessages} from '../../../utils/messages.js';
+import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {
   multiItemsHandleShardQueue,
   startShardRunner,
@@ -28,7 +29,6 @@ import {
 import {NotFoundError} from '../../errors.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
-import {FolderExistsError} from '../errors.js';
 import {createNewFolder} from '../utils.js';
 import {getExistingFoldersAndArtifacts} from './getExistingFoldersAndArtifacts.js';
 import {prepareFolderInputList} from './prepareFolderInputList.js';
@@ -52,11 +52,6 @@ interface IPossibleNewFolder {
   folderpath: string;
   inputFolderpath: string;
 }
-
-type OutputByNamepath = Record<
-  string,
-  {isSuccess: true; folders: Folder[]} | {isSuccess: false; error: unknown}
->;
 
 async function checkAuthOnTarget(
   workspace: Workspace,
@@ -282,7 +277,7 @@ function bagAddFolderOutput(
     }
 
     if (inputAtIndex.item.throwIfFolderExists && !isNew) {
-      error = new FolderExistsError();
+      error = kReuseableErrors.folder.exists();
     }
 
     if (error) {
@@ -333,7 +328,7 @@ async function createFolderListWithWorkspace(
   const workspace = await kSemanticModels
     .workspace()
     .getOneById(input[0].workspaceId);
-  let result: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput> =
+  const result: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput> =
     {};
 
   if (!workspace) {

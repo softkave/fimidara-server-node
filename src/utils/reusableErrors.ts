@@ -34,6 +34,9 @@ export const kReuseableErrors = {
           rootname02
         )
       ),
+    workspaceExists() {
+      return new ResourceExistsError(kAppMessages.workspace.workspaceExists());
+    },
   },
   entity: {
     notFound(id: string) {
@@ -74,6 +77,9 @@ export const kReuseableErrors = {
   folder: {
     notFound(id?: string) {
       return new NotFoundError(kAppMessages.folder.notFound(id));
+    },
+    exists() {
+      return new ResourceExistsError(kAppMessages.folder.exists);
     },
   },
   tag: {

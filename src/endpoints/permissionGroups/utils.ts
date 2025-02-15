@@ -23,7 +23,6 @@ import {assertGetWorkspaceIdFromAgent} from '../../utils/sessionUtils.js';
 import {InvalidRequestError, NotFoundError} from '../errors.js';
 import {agentExtractor, workspaceResourceFields} from '../extractors.js';
 import {checkWorkspaceExists} from '../workspaces/utils.js';
-import {PermissionGroupDoesNotExistError} from './errors.js';
 
 const assignedPermissionGroupsFields =
   getFields<PublicAssignedPermissionGroupMeta>({
@@ -104,7 +103,7 @@ export async function checkPermissionGroupAuthorization03(
       .getByName(workspaceId, input.name, opts);
   }
 
-  appAssert(permissionGroup, new PermissionGroupDoesNotExistError());
+  appAssert(permissionGroup, kReuseableErrors.permissionGroup.notFound());
   return checkPermissionGroupAuthorization(agent, permissionGroup, action);
 }
 

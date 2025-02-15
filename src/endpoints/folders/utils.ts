@@ -46,7 +46,6 @@ import {
 import {assertRootname, checkWorkspaceExists} from '../workspaces/utils.js';
 import {createFolderList} from './addFolder/createFolderList.js';
 import {kFolderConstants} from './constants.js';
-import {FolderNotFoundError} from './errors.js';
 import {assertGetFolderWithMatcher} from './getFolderWithMatcher.js';
 
 const folderFields = getFields<PublicFolder>({
@@ -62,7 +61,7 @@ export const folderExtractor = makeExtract(folderFields);
 export const folderListExtractor = makeListExtract(folderFields);
 
 export function throwFolderNotFound() {
-  throw new FolderNotFoundError();
+  throw kReuseableErrors.folder.notFound();
 }
 
 export function splitFolderpath(path: string | string[]) {

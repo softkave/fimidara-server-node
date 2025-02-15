@@ -55,7 +55,12 @@ export const INTERNAL_createAgentToken = async (
   );
 
   await Promise.all([
-    data.name && checkAgentTokenNameExists(workspaceId, data.name, opts),
+    data.name &&
+      checkAgentTokenNameExists({
+        workspaceId,
+        name: data.name,
+        opts,
+      }),
   ]);
   await kSemanticModels.agentToken().insertItem(token, opts);
 
