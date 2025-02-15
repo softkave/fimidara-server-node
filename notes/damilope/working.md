@@ -22,5 +22,6 @@
 - simple file share
 - newly uploaded files do not show in the file list until refresh
 - upload new file through update fails
+- add web header to error page
 
 ## Implementation notes

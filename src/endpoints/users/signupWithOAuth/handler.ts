@@ -15,7 +15,7 @@ const signupWithOAuth: SignupWithOAuthEndpoint = async reqData => {
     .utils()
     .withTxn(opts => INTERNAL_signupUserWithOAuth({data, opts}));
 
-  if (!data.emailVerifiedAt) {
+  if (!data.emailVerifiedAt && !user.emailVerifiedAt) {
     kUtilsInjectables
       .promises()
       .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
