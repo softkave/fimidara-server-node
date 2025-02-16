@@ -35,7 +35,13 @@ export function resolveJWTError(err: unknown) {
   }
 }
 
-function handleErrors(err: unknown, req: Request, res: Response, next: AnyFn) {
+export function handleErrors(
+  err: unknown,
+  req: Request,
+  res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _next: AnyFn
+) {
   if (!err) {
     res.status(kEndpointConstants.httpStatusCode.serverError).send({
       errors: getPublicErrors([new ServerError()]),
@@ -57,4 +63,6 @@ function handleErrors(err: unknown, req: Request, res: Response, next: AnyFn) {
   }
 }
 
-export default handleErrors;
+export function handleNotFound(req: Request, res: Response) {
+  res.status(404).send('Not found');
+}

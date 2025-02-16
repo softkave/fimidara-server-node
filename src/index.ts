@@ -1,12 +1,13 @@
 import {expressjwt} from 'express-jwt';
 import fs from 'fs';
+import helmet from 'helmet';
 import {format} from 'util';
 import {globalDispose, globalSetup} from './contexts/globalUtils.js';
 import {kUtilsInjectables} from './contexts/injection/injectables.js';
 import {kEndpointConstants} from './endpoints/constants.js';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
-import handleErrors from './middlewares/handleErrors.js';
+import {handleErrors, handleNotFound} from './middlewares/handleErrors.js';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps.js';
 import {appAssert} from './utils/assertion.js';
 import cors = require('cors');
@@ -30,6 +31,8 @@ const corsOption: cors.CorsOptions = {
   credentials: true,
 };
 
+app.use(helmet());
+app.disable('x-powered-by');
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
@@ -118,9 +121,11 @@ async function setup() {
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
-  app.use(handleErrors);
 
   await setupHttpServer();
+
+  app.use(handleNotFound);
+  app.use(handleErrors);
 }
 
 // TODO: run global dispose on close/end server

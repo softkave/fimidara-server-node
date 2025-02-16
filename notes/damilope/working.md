@@ -5,12 +5,7 @@
 - remove page auth required from files and folders to allow public access to files and folders
 - select workspace from sidebar
 - better labeled node design
-- add sign in with Github
-- add OAuth sign in to main page
 - redesign main page
-- check that pointer after overlay is closed is working
-- downloading dot files removes the starting dot
-- test that a new user signing in with oauth works fine
 - don't count reused parts towards upload rate
 - provide a custom react upload component
 - provide a custom upload and download progress listener
@@ -23,5 +18,9 @@
 - newly uploaded files do not show in the file list until refresh
 - upload new file through update fails
 - add web header to error page
+- some docs are not working
+- fimidara sync is not working/slow
+- surface a percentage of completion for fimidara sync & upload api
+- a timestamp to logs
 
 ## Implementation notes

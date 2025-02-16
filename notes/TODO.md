@@ -197,3 +197,4 @@
   - remove workspace id from url
 - allow obfuscation of file on upload and on download
 - allow fine-specifying of file name and extension when uploading
+- get filesystem access and create/modify file when downloading directly to local filesystem instead of using presigned url or anchor tag
