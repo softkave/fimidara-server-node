@@ -9,7 +9,6 @@
 - don't count reused parts towards upload rate
 - provide a custom react upload component
 - provide a custom upload and download progress listener
-- retry failed parts
 - figure out how to resume download from browser
 - figure out thumbnail generation for download links
 - make it easier to make a file/resource public
@@ -22,5 +21,6 @@
 - fimidara sync is not working/slow
 - surface a percentage of completion for fimidara sync & upload api
 - a timestamp to logs
+- make sure presigned paths with single use last the duration of the upload multipart
 
 ## Implementation notes

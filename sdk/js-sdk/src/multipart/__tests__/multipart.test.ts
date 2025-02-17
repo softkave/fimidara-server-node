@@ -8,6 +8,8 @@ import path from 'path';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {
   FimidaraEndpoints,
+  IMultipartUploadHookFnParams,
+  IMultipartUploadParamsWithTestInstrumentation,
   fimidaraAddRootnameToPath,
   stringifyFimidaraFilepath,
 } from '../../indexNode.js';
@@ -63,40 +65,44 @@ async function expectReadEqualsBuffer(fileId: string, initialBuffer: Buffer) {
   expect(savedBuffer.equals(initialBuffer)).toBe(true);
 }
 
+function getReadableDataFromSlop() {
+  return {
+    localFilepath: undefined,
+    // data: Readable.from(slopBuffer!),
+    data: createReadStream(slopFilepath),
+    size: slopBuffer!.byteLength,
+  };
+}
+
+function getBufferDataFromSlop() {
+  return {
+    localFilepath: undefined,
+    data: slopBuffer!,
+    size: slopBuffer!.byteLength,
+  };
+}
+
+function getStringDataFromSlop() {
+  return {
+    localFilepath: undefined,
+    data: slopBuffer!.toString('utf-8'),
+    size: slopBuffer!.byteLength,
+  };
+}
+
+function getLocalFilepathDataFromSlop() {
+  return {
+    localFilepath: slopFilepath,
+    size: slopBuffer!.byteLength,
+    data: undefined,
+  };
+}
+
 describe.each([
-  {
-    data: 'readable',
-    getData: () => ({
-      localFilepath: undefined,
-      // data: Readable.from(slopBuffer!),
-      data: createReadStream(slopFilepath),
-      size: slopBuffer!.byteLength,
-    }),
-  },
-  {
-    data: 'buffer',
-    getData: () => ({
-      localFilepath: undefined,
-      data: slopBuffer!,
-      size: slopBuffer!.byteLength,
-    }),
-  },
-  {
-    data: 'string',
-    getData: () => ({
-      localFilepath: undefined,
-      data: slopBuffer!.toString('utf-8'),
-      size: slopBuffer!.byteLength,
-    }),
-  },
-  {
-    data: 'localFilepath',
-    getData: () => ({
-      localFilepath: slopFilepath,
-      size: slopBuffer!.byteLength,
-      data: undefined,
-    }),
-  },
+  {data: 'readable', getData: getReadableDataFromSlop},
+  {data: 'buffer', getData: getBufferDataFromSlop},
+  {data: 'string', getData: getStringDataFromSlop},
+  {data: 'localFilepath', getData: getLocalFilepathDataFromSlop},
 ])('multipartUploadNode, $data ', ({data: dataType, getData}) => {
   test(
     'upload',
@@ -159,6 +165,7 @@ describe.each([
           resume,
           endpoints: fimidara,
           numConcurrentParts: 1,
+          maxRetryCount: 0,
           afterPart: hookParams => {
             firstTryCompletedParts.push(hookParams.part);
           },
@@ -227,4 +234,219 @@ describe.each([
     },
     1000 * 60 * 5 // 5 minutes
   );
+});
+
+describe('multipartUploadNode, maxRetryCount', () => {
+  test('should fail if maxRetryCount is exceeded', async () => {
+    const {data, size} = getBufferDataFromSlop();
+    const filepath = fimidaraAddRootnameToPath(
+      crypto.randomUUID() + '/' + faker.system.filePath(),
+      testVars.workspaceRootname
+    );
+
+    const clientMultipartId = 'test-' + randomUUID();
+    const firstTryCompletedParts: number[] = [];
+
+    await expect(async () => {
+      const params: IMultipartUploadParamsWithTestInstrumentation &
+        Parameters<typeof multipartUploadNode>[0] = {
+        data,
+        size,
+        filepath,
+        clientMultipartId,
+        endpoints: fimidara,
+        maxRetryCount: 3,
+        __afterPart: hookParams => {
+          firstTryCompletedParts.push(hookParams.part);
+        },
+        __beforePart: p => {
+          if (firstTryCompletedParts.length > 0) {
+            throw new Error('Simulated error');
+          }
+        },
+      };
+
+      await multipartUploadNode(params);
+    }).rejects.toThrow('Simulated error');
+  });
+
+  test('should fail if a part fails more than 3 times', async () => {
+    const {data, size} = getBufferDataFromSlop();
+    const filepath = fimidaraAddRootnameToPath(
+      crypto.randomUUID() + '/' + faker.system.filePath(),
+      testVars.workspaceRootname
+    );
+
+    const clientMultipartId = 'test-' + randomUUID();
+
+    await expect(async () => {
+      const params: IMultipartUploadParamsWithTestInstrumentation &
+        Parameters<typeof multipartUploadNode>[0] = {
+        data,
+        size,
+        filepath,
+        clientMultipartId,
+        endpoints: fimidara,
+        maxRetryCount: 3,
+        __beforePart: p => {
+          if (p.part === 0) {
+            throw new Error('Simulated error');
+          }
+        },
+      };
+
+      await multipartUploadNode(params);
+    }).rejects.toThrow('Simulated error');
+  });
+
+  test('should succeed if maxRetryCount is not exceeded', async () => {
+    const {data, size} = getBufferDataFromSlop();
+    const description = faker.lorem.sentence();
+    const encoding = 'base64';
+    const filepath = fimidaraAddRootnameToPath(
+      crypto.randomUUID() + '/' + faker.system.filePath(),
+      testVars.workspaceRootname
+    );
+    const mimetype = faker.system.mimeType();
+
+    const clientMultipartId = 'test-' + randomUUID();
+    const firstTryCompletedParts: number[] = [];
+    let simulatedError = false;
+
+    const result = await multipartUploadNode({
+      data,
+      size,
+      filepath,
+      description,
+      encoding,
+      mimetype,
+      clientMultipartId,
+      endpoints: fimidara,
+      maxRetryCount: 3,
+      afterPart: hookParams => {
+        firstTryCompletedParts.push(hookParams.part);
+      },
+      beforePart: p => {
+        if (firstTryCompletedParts.length > 0 && !simulatedError) {
+          simulatedError = true;
+          throw new Error('Simulated error');
+        }
+      },
+    });
+
+    expect(result.file.description).toEqual(description);
+    expect(result.file.encoding).toEqual(encoding);
+    expect(result.file.mimetype).toEqual(mimetype);
+    expect(result.file.size).toEqual(size);
+
+    await expectReadEqualsBuffer(result.file.resourceId, slopBuffer!);
+  });
+});
+
+describe('multipartUploadNode, part events', () => {
+  test('should fire part events', async () => {
+    const {data, size} = getBufferDataFromSlop();
+    const filepath = fimidaraAddRootnameToPath(
+      faker.system.filePath(),
+      testVars.workspaceRootname
+    );
+
+    const clientMultipartId = 'test-' + randomUUID();
+    const beforePartEvents: IMultipartUploadHookFnParams[] = [];
+    const afterPartEvents: IMultipartUploadHookFnParams[] = [];
+
+    await multipartUploadNode({
+      data,
+      size,
+      filepath,
+      clientMultipartId,
+      endpoints: fimidara,
+      maxRetryCount: 3,
+      afterPart: hookParams => {
+        afterPartEvents.push(hookParams);
+      },
+      beforePart: hookParams => {
+        beforePartEvents.push(hookParams);
+      },
+    });
+
+    const lastAfterPartEvent = afterPartEvents[afterPartEvents.length - 1];
+    expect(lastAfterPartEvent.percentComplete).toBe(100);
+    expect(lastAfterPartEvent.sizeComplete).toBe(size);
+
+    const lastBeforePartEvent = beforePartEvents[beforePartEvents.length - 1];
+    expect(lastBeforePartEvent.percentComplete).not.toBe(100);
+    expect(lastBeforePartEvent.sizeComplete).not.toBe(size);
+
+    beforePartEvents.forEach((beforePartEvent, i) => {
+      const afterPartEvent = afterPartEvents.find(
+        p => p.part === beforePartEvent.part
+      );
+      expect(afterPartEvent?.percentComplete).toBeGreaterThan(
+        beforePartEvent.percentComplete
+      );
+      expect(afterPartEvent?.sizeComplete).toBeGreaterThan(
+        beforePartEvent.sizeComplete
+      );
+    });
+  });
+
+  test('should fire part events for resumed parts', async () => {
+    const {data, size} = getBufferDataFromSlop();
+    const filepath = fimidaraAddRootnameToPath(
+      faker.system.filePath(),
+      testVars.workspaceRootname
+    );
+
+    const clientMultipartId = 'test-' + randomUUID();
+    const afterPartEvents: IMultipartUploadHookFnParams[] = [];
+
+    try {
+      let hasOnePartUploaded = false;
+      await multipartUploadNode({
+        data,
+        size,
+        filepath,
+        clientMultipartId,
+        endpoints: fimidara,
+        maxRetryCount: 0,
+        afterPart: hookParams => {
+          hasOnePartUploaded = true;
+        },
+        beforePart: hookParams => {
+          if (hasOnePartUploaded) {
+            throw new Error('Simulated error');
+          }
+        },
+      });
+    } catch (e) {
+      await multipartUploadNode({
+        data,
+        size,
+        filepath,
+        clientMultipartId,
+        endpoints: fimidara,
+        maxRetryCount: 3,
+        afterPart: hookParams => {
+          afterPartEvents.push(hookParams);
+        },
+      });
+    }
+
+    const lastAfterPartEvent = afterPartEvents[afterPartEvents.length - 1];
+    expect(lastAfterPartEvent.percentComplete).toBe(100);
+    expect(lastAfterPartEvent.sizeComplete).toBe(size);
+
+    afterPartEvents.forEach((afterPartEvent, i) => {
+      const prevAfterPartEvent = afterPartEvents.find(
+        p => p.part === afterPartEvent.part - 1
+      );
+      expect(afterPartEvent?.percentComplete).toBeGreaterThan(
+        prevAfterPartEvent?.percentComplete ?? 0
+      );
+      expect(afterPartEvent?.sizeComplete).toBeGreaterThan(
+        prevAfterPartEvent?.sizeComplete ?? 0
+      );
+    });
+  });
 });
