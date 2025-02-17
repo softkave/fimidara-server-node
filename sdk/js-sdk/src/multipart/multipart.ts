@@ -82,7 +82,7 @@ export interface IMultipartUploadHookFnParams {
   size: number;
   estimatedNumParts: number;
   percentComplete: number;
-  sizeComplete: number;
+  sizeCompleted: number;
 }
 
 export interface IMultipartUploadParams
@@ -154,7 +154,7 @@ async function uploadOnce(params: IMultipartUploadParams) {
     size: partSize,
     estimatedNumParts: 1,
     percentComplete: 0,
-    sizeComplete: 0,
+    sizeCompleted: 0,
   };
 
   await fireBeforePart(beforePartHookParams);
@@ -171,7 +171,7 @@ async function uploadOnce(params: IMultipartUploadParams) {
   const afterPartHookParams: IMultipartUploadHookFnParams = {
     ...beforePartHookParams,
     percentComplete: 100,
-    sizeComplete: partSize,
+    sizeCompleted: partSize,
   };
 
   await fireAfterPart(afterPartHookParams);
@@ -267,7 +267,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
           size: part.size,
           estimatedNumParts: numParts,
           percentComplete,
-          sizeComplete,
+          sizeCompleted: sizeComplete,
         });
       }
     })
@@ -323,7 +323,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
         estimatedNumParts: numParts,
         // -1 because we're not counting the current part
         percentComplete: ((ranSet.size - 1) / numParts) * 100,
-        sizeComplete,
+        sizeCompleted: sizeComplete,
       };
 
       await fireBeforePart(
@@ -347,7 +347,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
       const afterPartHookParams: IMultipartUploadHookFnParams = {
         ...beforePartHookParams,
         percentComplete: (ranSet.size / numParts) * 100,
-        sizeComplete,
+        sizeCompleted: sizeComplete,
       };
 
       await fireAfterPart(afterPartHookParams);

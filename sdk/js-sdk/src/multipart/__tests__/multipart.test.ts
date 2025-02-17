@@ -372,11 +372,11 @@ describe('multipartUploadNode, part events', () => {
 
     const lastAfterPartEvent = afterPartEvents[afterPartEvents.length - 1];
     expect(lastAfterPartEvent.percentComplete).toBe(100);
-    expect(lastAfterPartEvent.sizeComplete).toBe(size);
+    expect(lastAfterPartEvent.sizeCompleted).toBe(size);
 
     const lastBeforePartEvent = beforePartEvents[beforePartEvents.length - 1];
     expect(lastBeforePartEvent.percentComplete).not.toBe(100);
-    expect(lastBeforePartEvent.sizeComplete).not.toBe(size);
+    expect(lastBeforePartEvent.sizeCompleted).not.toBe(size);
 
     beforePartEvents.forEach((beforePartEvent, i) => {
       const afterPartEvent = afterPartEvents.find(
@@ -385,8 +385,8 @@ describe('multipartUploadNode, part events', () => {
       expect(afterPartEvent?.percentComplete).toBeGreaterThan(
         beforePartEvent.percentComplete
       );
-      expect(afterPartEvent?.sizeComplete).toBeGreaterThan(
-        beforePartEvent.sizeComplete
+      expect(afterPartEvent?.sizeCompleted).toBeGreaterThan(
+        beforePartEvent.sizeCompleted
       );
     });
   });
@@ -435,7 +435,7 @@ describe('multipartUploadNode, part events', () => {
 
     const lastAfterPartEvent = afterPartEvents[afterPartEvents.length - 1];
     expect(lastAfterPartEvent.percentComplete).toBe(100);
-    expect(lastAfterPartEvent.sizeComplete).toBe(size);
+    expect(lastAfterPartEvent.sizeCompleted).toBe(size);
 
     afterPartEvents.forEach((afterPartEvent, i) => {
       const prevAfterPartEvent = afterPartEvents.find(
@@ -444,8 +444,8 @@ describe('multipartUploadNode, part events', () => {
       expect(afterPartEvent?.percentComplete).toBeGreaterThan(
         prevAfterPartEvent?.percentComplete ?? 0
       );
-      expect(afterPartEvent?.sizeComplete).toBeGreaterThan(
-        prevAfterPartEvent?.sizeComplete ?? 0
+      expect(afterPartEvent?.sizeCompleted).toBeGreaterThan(
+        prevAfterPartEvent?.sizeCompleted ?? 0
       );
     });
   });
