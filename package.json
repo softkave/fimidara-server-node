@@ -86,6 +86,7 @@
     "@types/validator": "^13.1.2",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
+    "commander": "^13.1.0",
     "env-cmd": "^10.1.0",
     "expect-type": "^0.19.0",
     "gts": "^5.3.0",

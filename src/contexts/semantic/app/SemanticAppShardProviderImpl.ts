@@ -6,9 +6,9 @@ import {newResource} from '../../../utils/resource.js';
 import {DataQuery} from '../../data/types.js';
 import {kSemanticModels} from '../../injection/injectables.js';
 import {
-  DataSemanticBaseProvider,
+  SemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider.js';
+} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
@@ -16,7 +16,7 @@ import {
 import {SemanticAppShardProvider} from './types.js';
 
 export class SemanticAppShardProviderImpl
-  extends DataSemanticBaseProvider<AppShard>
+  extends SemanticBaseProvider<AppShard>
   implements SemanticAppShardProvider
 {
   async acquireShard(

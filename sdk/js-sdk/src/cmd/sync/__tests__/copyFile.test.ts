@@ -5,11 +5,11 @@ import path from 'path-browserify';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {stringifyFimidaraFilepath} from '../../../path/index.js';
 import {uploadFileTestExecFn} from '../../../testutils/execFns/file.js';
+import {streamToString} from '../../../testutils/node/utils.js';
 import {
   fimidaraTestInstance,
   fimidaraTestVars,
 } from '../../../testutils/tests/file.js';
-import {streamToString} from '../../../testutils/utils.node.js';
 import {copyToFimidaraFile, copyToLocalFile} from '../copyFile.js';
 
 const kTestLocalFsDir = path.join(process.cwd(), 'testdir/copyFile');

@@ -3,6 +3,10 @@ import {invokeEndpoint} from '../invokeEndpoint.js';
 import {getFimidaraReadFileURL} from '../path/index.js';
 import {getTestFilepath} from '../testutils/execFns/file.js';
 import {
+  getTestFileByteLength,
+  getTestFileReadStream,
+} from '../testutils/node/utils.js';
+import {
   fimidaraTestInstance,
   fimidaraTestVars,
   test_deleteFile,
@@ -13,10 +17,6 @@ import {
   test_uploadFile_nodeReadableNotFromFile,
   test_uploadFile_string,
 } from '../testutils/tests/file.js';
-import {
-  getTestFileByteLength,
-  getTestFileReadStream,
-} from '../testutils/utils.node.js';
 
 // TODO: test upload file with browser readable, buffer, and integer arrays
 

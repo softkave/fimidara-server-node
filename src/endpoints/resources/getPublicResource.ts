@@ -57,6 +57,7 @@ const kResourceTypeToExtractorMap: Record<
   [kFimidaraResourceType.FileBackendConfig]: fileBackendConfigExtractor,
   [kFimidaraResourceType.FileBackendMount]: fileBackendMountExtractor,
   [kFimidaraResourceType.ResolvedMountEntry]: resolvedEntryExtractor,
+  [kFimidaraResourceType.script]: resourceExtractor,
 };
 
 export function getPublicResource(

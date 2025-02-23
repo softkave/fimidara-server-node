@@ -31,6 +31,7 @@ export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
   [kFimidaraResourceType.emailBlocklist]: noopDeleteCascadeEntry,
   [kFimidaraResourceType.appShard]: noopDeleteCascadeEntry,
   [kFimidaraResourceType.jobHistory]: noopDeleteCascadeEntry,
+  [kFimidaraResourceType.script]: noopDeleteCascadeEntry,
   [kFimidaraResourceType.Workspace]: deleteWorkspaceCascadeEntry,
   [kFimidaraResourceType.User]: deleteCollaboratorCascadeEntry,
   [kFimidaraResourceType.CollaborationRequest]:

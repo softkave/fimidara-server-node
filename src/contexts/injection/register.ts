@@ -39,6 +39,7 @@ import {getJobHistoryMongoModel} from '../../db/jobHistory.js';
 import {getPermissionGroupModel} from '../../db/permissionGroup.js';
 import {getPermissionItemModel} from '../../db/permissionItem.js';
 import {getPresignedPathMongoModel} from '../../db/presignedPath.js';
+import {getScriptMongoModel} from '../../db/script.js';
 import {getTagModel} from '../../db/tag.js';
 import {getUsageRecordModel} from '../../db/usageRecord.js';
 import {getUserModel} from '../../db/user.js';
@@ -93,6 +94,7 @@ import {
   PermissionItemMongoDataProvider,
   PresignedPathMongoDataProvider,
   ResolvedMountEntryMongoDataProvider,
+  ScriptMongoDataProvider,
   TagMongoDataProvider,
   UsageRecordMongoDataProvider,
   UserMongoDataProvider,
@@ -118,6 +120,7 @@ import {
   PermissionItemDataProvider,
   PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
+  ScriptDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
   UserDataProvider,
@@ -167,6 +170,10 @@ import {DataSemanticJob} from '../semantic/job/model.js';
 import {SemanticJobProvider} from '../semantic/job/types.js';
 import {DataSemanticJobHistory} from '../semantic/jobHistory/model.js';
 import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
+import {DataSemanticPermission} from '../semantic/permission/model.js';
+import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
+import {DataSemanticPermissionItem} from '../semantic/permissionItem/model.js';
+import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
 import {
   DataSemanticApp,
   DataSemanticFileBackendConfig,
@@ -174,25 +181,23 @@ import {
   DataSemanticPermissionGroup,
   DataSemanticTag,
   DataSemanticUsageRecord,
-} from '../semantic/models.js';
-import {DataSemanticPermission} from '../semantic/permission/model.js';
-import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
-import {DataSemanticPermissionItem} from '../semantic/permissionItem/model.js';
-import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
+} from '../semantic/providers.js';
 import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model.js';
 import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
+import {SemanticScriptProvider} from '../semantic/script/provider.js';
+import {ISemanticScriptProvider} from '../semantic/script/types.js';
 import {
+  ISemanticProviderUtils,
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticPermissionGroupProviderType,
-  SemanticProviderUtils,
   SemanticTagProviderType,
   SemanticUsageRecordProviderType,
 } from '../semantic/types.js';
 import {DataSemanticUser} from '../semantic/user/model.js';
 import {SemanticUserProviderType} from '../semantic/user/types.js';
-import {DataSemanticProviderUtils} from '../semantic/utils.js';
+import {SemanticProviderUtils} from '../semantic/utils.js';
 import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {UsageProvider} from '../usage/UsageProvider.js';
@@ -262,7 +267,9 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.appShard, item),
   jobHistory: (item: SemanticJobHistoryProvider) =>
     registerToken(kInjectionKeys.semantic.jobHistory, item),
-  utils: (item: SemanticProviderUtils) =>
+  script: (item: ISemanticScriptProvider) =>
+    registerToken(kInjectionKeys.semantic.script, item),
+  utils: (item: ISemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
 };
 
@@ -308,6 +315,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.appShard, item),
   jobHistory: (item: JobHistoryDataProvider) =>
     registerToken(kInjectionKeys.data.jobHistory, item),
+  script: (item: ScriptDataProvider) =>
+    registerToken(kInjectionKeys.data.script, item),
   utils: (item: DataProviderUtils) =>
     registerToken(kInjectionKeys.data.utils, item),
 };
@@ -424,6 +433,9 @@ export function registerDataModelInjectables() {
   kRegisterDataModels.jobHistory(
     new JobHistoryMongoDataProvider(getJobHistoryMongoModel(connection))
   );
+  kRegisterDataModels.script(
+    new ScriptMongoDataProvider(getScriptMongoModel(connection))
+  );
   kRegisterDataModels.utils(new MongoDataProviderUtils());
 }
 
@@ -519,7 +531,10 @@ export function registerSemanticModelInjectables() {
   kRegisterSemanticModels.jobHistory(
     new DataSemanticJobHistory(kDataModels.jobHistory(), assertNotFound)
   );
-  kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
+  kRegisterSemanticModels.script(
+    new SemanticScriptProvider(kDataModels.script(), assertNotFound)
+  );
+  kRegisterSemanticModels.utils(new SemanticProviderUtils());
 }
 
 export async function registerUtilsInjectables(
@@ -546,6 +561,9 @@ export async function registerUtilsInjectables(
       appId: getNewIdForResource(kFimidaraResourceType.App),
       shard: kAppPresetShards.fimidaraMain,
       type: kAppType.server,
+      heartbeatInterval: suppliedConfig.heartbeatIntervalMs,
+      activeAppHeartbeatDelayFactor:
+        suppliedConfig.activeAppHeartbeatDelayFactor,
     });
     kRegisterUtilsInjectables.serverApp(serverApp);
 

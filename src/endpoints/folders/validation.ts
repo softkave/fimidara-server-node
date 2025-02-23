@@ -17,6 +17,10 @@ const folderpath = Joi.string()
   .regex(pathRegex)
   .min(kFolderConstants.minFolderNameLength)
   .max(kFolderConstants.maxFolderNameLength * kFolderConstants.maxFolderDepth);
+const namepath = Joi.array()
+  .items(Joi.string().regex(nameRegex))
+  .min(1)
+  .max(kFolderConstants.maxFolderDepth);
 
 const folderMatcherParts = {
   folderpath,
@@ -30,6 +34,7 @@ const folderValidationSchemas = {
   nameRegex,
   pathRegex,
   notNameRegex,
+  namepath,
 };
 
 export default folderValidationSchemas;

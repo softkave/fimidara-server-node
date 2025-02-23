@@ -10,6 +10,7 @@ export const ImageResizeFitEnumMap = {
   inside: 'inside',
   outside: 'outside',
 } as const;
+
 export const ImageResizePositionEnumMap = {
   top: 'top',
   rightTop: 'right top',
@@ -36,6 +37,7 @@ export const ImageResizePositionEnumMap = {
    * saturation and presence of skin tones. */
   attention: 'attention',
 } as const;
+
 export type ImageResizeFitEnum = ValueOf<typeof ImageResizeFitEnumMap>;
 export type ImageResizePositionEnum = ValueOf<
   typeof ImageResizePositionEnumMap
@@ -68,9 +70,9 @@ export const ImageFormatEnumMap = {
   webp: 'webp',
   tiff: 'tiff',
   raw: 'raw',
-
   // TODO: support gif
 } as const;
+
 export type ImageFormatEnum = ValueOf<typeof ImageFormatEnumMap>;
 
 export type ReadFileEndpointParams = {
@@ -78,6 +80,10 @@ export type ReadFileEndpointParams = {
   imageFormat?: ImageFormatEnum;
   /** Used by HTTP layer to add `"Content-Disposition: attachment"` if `true` */
   download?: boolean;
+  /** pass clientMultipartId and part to read a specific part of a multipart
+   * upload */
+  clientMultipartId?: string;
+  part?: number;
 } & FileMatcher;
 
 export interface ReadFileEndpointResult {

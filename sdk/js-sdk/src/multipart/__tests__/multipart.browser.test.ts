@@ -3,6 +3,7 @@ import {server} from '@vitest/browser/context';
 import assert from 'assert';
 import path from 'path-browserify';
 import {beforeAll, describe, expect, test} from 'vitest';
+import {compareBlobs} from '../../browser/compareBlobs.js';
 import {
   FimidaraEndpoints,
   fimidaraAddRootnameToPath,
@@ -12,8 +13,9 @@ import {
   generateTestSlop,
   hasTestSlop,
 } from '../../testutils/generate/generateTestSlop.browser.js';
-import {getTestVars} from '../../testutils/utils.common.js';
+import {getTestVars} from '../../testutils/utils.js';
 import {multipartUploadBrowser} from '../multipartBrowser.js';
+import {printBufferDifferences} from '../../diff/printBufferDifferences.js';
 
 const testVars = getTestVars();
 const fimidara = new FimidaraEndpoints({
@@ -46,9 +48,16 @@ async function expectReadEqualsSlop(fileId: string) {
     {responseType: 'blob'}
   );
 
-  const savedString = await readResult.text();
+  // const savedString = await readResult.text();
+  // expect(savedString).toEqual(slopString);
 
-  expect(savedString).toEqual(slopString);
+  const result = await compareBlobs(readResult, slopBlob!);
+
+  if (!result.areEqual) {
+    console.log(printBufferDifferences(result.chunk1!, result.chunk2!));
+  }
+
+  expect(result.areEqual).toBe(true);
 }
 
 describe.each([

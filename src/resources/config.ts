@@ -105,6 +105,11 @@ export type FimidaraSuppliedConfig = Partial<{
   dateFormat: string;
   useFimidaraApp: boolean;
   useFimidaraWorkerPool: boolean;
+  heartbeatIntervalMs: number;
+  activeAppHeartbeatDelayFactor: number;
+
+  // Scripts
+  scriptPollIntervalMs: number;
 
   // URLs
   clientDomain: string;
@@ -120,9 +125,6 @@ export type FimidaraSuppliedConfig = Partial<{
   // Worker
   runnerLocation: string;
   runnerCount: number;
-
-  // Jobs
-  // newSignupsOnWaitlistJobIntervalMs: number;
 
   // AWS configs
   awsConfigs?: Partial<{

@@ -17,11 +17,11 @@ export type AppShardId = number | string;
 export interface App extends Resource {
   type: AppType;
   shard?: AppShardId;
-  // ipv4: string | undefined;
-  // ipv6: string | undefined;
-  // httpPort: string | undefined;
-  // httpsPort: string | undefined;
-  // version: string | undefined;
+  serverId: string | undefined;
+  ipv4: string | undefined;
+  ipv6: string | undefined;
+  httpPort: string | undefined;
+  httpsPort: string | undefined;
 }
 
 export interface AppShard extends Resource {

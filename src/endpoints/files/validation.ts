@@ -27,6 +27,13 @@ const readable = Joi.any().custom((value, helpers) => {
   throw new Error('Invalid data provided');
 });
 
+const multipartId = Joi.string().max(128);
+const partWithoutLastPart = Joi.number()
+  .integer()
+  .min(kFileConstants.minPartNumber)
+  .max(kFileConstants.maxPartNumber);
+const partWithLastPart = partWithoutLastPart.allow(-1);
+
 const fileMatcherParts = {
   filepath,
   fileId: kValidationSchemas.resourceId,
@@ -40,6 +47,9 @@ const fileValidationSchemas = {
   ext,
   readable,
   fileMatcherParts,
+  multipartId,
+  partWithoutLastPart,
+  partWithLastPart,
 };
 
 export default fileValidationSchemas;

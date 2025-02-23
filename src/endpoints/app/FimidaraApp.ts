@@ -75,6 +75,7 @@ export class FimidaraApp implements DisposableResource {
   /** By what factor is heartbeat interval multiplied by to determine a runner
    * is alive or not. */
   protected activeAppHeartbeatDelayFactor: number;
+  protected heartbeatCutoffMs: number | undefined;
 
   constructor(params: FimidaraAppParams) {
     this.appId = params.appId;
@@ -107,15 +108,25 @@ export class FimidaraApp implements DisposableResource {
     return this.activeAppIdList;
   }
 
+  getAppId() {
+    return this.appId;
+  }
+
+  isAppAlive(appId: string) {
+    return this.activeAppIdList.includes(appId);
+  }
+
+  getHeartbeatCutoffMs() {
+    return this.heartbeatCutoffMs ?? this.getActiveFromMs();
+  }
+
   protected startHeartbeat() {
     if (!this.recordHeartbeatIntervalHandle) {
       this.recordHeartbeatIntervalHandle = setInterval(() => {
-        kUtilsInjectables
-          .promises()
-          .callAndForget(() => this.recordInstanceHeartbeat());
-        kUtilsInjectables
-          .promises()
-          .callAndForget(() => this.refreshActiveAppIdList());
+        kUtilsInjectables.promises().callAndForget(async () => {
+          await this.recordInstanceHeartbeat();
+          await this.refreshActiveAppIdList();
+        });
       }, this.heartbeatInterval);
     }
   }
@@ -163,10 +174,15 @@ export class FimidaraApp implements DisposableResource {
   //     );
   // }
 
+  protected getActiveFromMs() {
+    const now = getTimestamp();
+    return now - this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
+  }
+
   protected async refreshActiveAppIdList() {
-    const activeFromMs =
-      getTimestamp() -
-      this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
+    const activeFromMs = this.getActiveFromMs();
+    this.heartbeatCutoffMs = activeFromMs;
+
     const appQuery: AppQuery = {
       lastUpdatedAt: {$gte: activeFromMs},
       shard: this.shard,

@@ -1,7 +1,7 @@
 import {createReadStream, ReadStream} from 'fs';
 import {Readable} from 'stream';
 import path = require('path-browserify');
-import {ITestVars} from './utils.common.js';
+import {ITestVars} from '../utils.js';
 
 export function makeTestFilepath(workspaceRootname: string, filepath: string) {
   return path.posix.normalize('/' + workspaceRootname + '/' + filepath);

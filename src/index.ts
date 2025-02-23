@@ -9,6 +9,8 @@ import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
 import {handleErrors, handleNotFound} from './middlewares/handleErrors.js';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps.js';
+import SCRIPT_moveFromS3ToLocalFS from './scripts/SCRIPT_moveFromS3ToLocalFS.js';
+import {runScript} from './scripts/runScript.js';
 import {appAssert} from './utils/assertion.js';
 import cors = require('cors');
 import express = require('express');
@@ -112,6 +114,21 @@ async function setup() {
   kUtilsInjectables.logger().log('Server initialization');
 
   // Run scripts here
+
+  // await runScript({
+  //   name: SCRIPT_clearFailedScripts.name,
+  //   fn: SCRIPT_clearFailedScripts,
+  //   isMandatory: false,
+  //   isUnique: false,
+  // });
+
+  await runScript({
+    name: SCRIPT_moveFromS3ToLocalFS.name,
+    fn: SCRIPT_moveFromS3ToLocalFS,
+    isMandatory: true,
+    isUnique: true,
+  });
+
   // End of scripts
 
   const defaultWorkspace = await initFimidara();

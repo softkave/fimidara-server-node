@@ -114,9 +114,9 @@ export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
   await initFimidara();
 }
 
-export async function initFnTests() {
+export async function initFnTests(overrides: FimidaraSuppliedConfig = {}) {
   await globalSetup(
-    {useFimidaraApp: false, useFimidaraWorkerPool: false},
+    {useFimidaraApp: false, useFimidaraWorkerPool: false, ...overrides},
     {
       useHandleFolderQueue: true,
       useHandleUsageRecordQueue: true,
@@ -287,11 +287,10 @@ export async function insertUserWithOAuthForTest(
 
   const result = await signupWithOAuth(reqData);
   assertEndpointResultOk(result);
-  let rawUser: UserWithWorkspace;
 
   const user = await kSemanticModels.user().getOneById(result.user.resourceId);
   assertUser(user);
-  rawUser = await populateUserWorkspaces(user);
+  const rawUser = await populateUserWorkspaces(user);
 
   const userTokenData = kUtilsInjectables
     .session()

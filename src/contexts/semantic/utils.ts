@@ -11,15 +11,15 @@ import {
 } from '../data/types.js';
 import {kDataModels} from '../injection/injectables.js';
 import {
+  ISemanticProviderUtils,
   SemanticProviderMutationParams,
-  SemanticProviderUtils,
 } from './types.js';
 
 interface InternalTxnStructure {
   __fimidaraTxnId?: string;
 }
 
-export class DataSemanticProviderUtils implements SemanticProviderUtils {
+export class SemanticProviderUtils implements ISemanticProviderUtils {
   useTxnId(txn: unknown): string | undefined {
     if (!txn) {
       return undefined;

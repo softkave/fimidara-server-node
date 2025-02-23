@@ -1,7 +1,7 @@
 import {CollaborationRequest} from '../../../definitions/collaborationRequest.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
@@ -11,7 +11,7 @@ import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
 import {SemanticCollaborationRequestProvider} from './types.js';
 
 export class DataSemanticCollaborationRequest
-  extends DataSemanticWorkspaceResourceProvider<CollaborationRequest>
+  extends SemanticWorkspaceResourceProvider<CollaborationRequest>
   implements SemanticCollaborationRequestProvider
 {
   async countByEmail(

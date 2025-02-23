@@ -13,7 +13,10 @@ import {
   getFolderpathInfo,
   stringifyFolderpath,
 } from '../../endpoints/folders/utils.js';
-import {kFimidaraConfigFilePersistenceProvider} from '../../resources/config.js';
+import {
+  FimidaraConfigFilePersistenceProvider,
+  kFimidaraConfigFilePersistenceProvider,
+} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
@@ -79,7 +82,7 @@ export class FimidaraFilePersistenceProvider
   backend: FilePersistenceProvider;
 
   constructor() {
-    this.backend = this.getBackend();
+    this.backend = FimidaraFilePersistenceProvider.getBackend();
   }
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -460,10 +463,13 @@ export class FimidaraFilePersistenceProvider
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected getBackend = (): FilePersistenceProvider => {
+  static getBackend = (
+    inputBackend?: FimidaraConfigFilePersistenceProvider
+  ): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
+    const backend = inputBackend || config.fileBackend;
 
-    switch (config.fileBackend) {
+    switch (backend) {
       case kFimidaraConfigFilePersistenceProvider.s3: {
         const awsCreds = merge(
           {},
@@ -502,7 +508,7 @@ export class FimidaraFilePersistenceProvider
         return new MemoryFilePersistenceProvider();
 
       default:
-        throw kReuseableErrors.file.unknownBackend(config.fileBackend || '');
+        throw kReuseableErrors.file.unknownBackend(backend || '');
     }
   };
 }

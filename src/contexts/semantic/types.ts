@@ -4,6 +4,7 @@ import {
   FileBackendMount,
 } from '../../definitions/fileBackend.js';
 import {PermissionGroup} from '../../definitions/permissionGroups.js';
+import {AppScript} from '../../definitions/script.js';
 import {Agent, AppRuntimeState, Resource} from '../../definitions/system.js';
 import {Tag} from '../../definitions/tag.js';
 import {UsageRecord} from '../../definitions/usageRecord.js';
@@ -163,7 +164,7 @@ export interface SemanticWorkspaceResourceProviderType<
   ): Promise<number>;
 }
 
-export interface SemanticProviderUtils {
+export interface ISemanticProviderUtils {
   useTxnId(txn: unknown): string | undefined;
   withTxn<TResult>(
     fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
@@ -190,3 +191,6 @@ export interface SemanticFileBackendConfigProvider
 
 export interface SemanticAppRuntimeStateProvider
   extends SemanticBaseProviderType<AppRuntimeState> {}
+
+export interface SemanticScriptProvider
+  extends SemanticBaseProviderType<AppScript> {}

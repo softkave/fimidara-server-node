@@ -10,13 +10,13 @@ import {
   updateFileDetailsTestExecFn,
   uploadFileTestExecFn,
 } from '../execFns/file.js';
-import {ITestVars, getTestVars} from '../utils.common.js';
 import {
   getTestFileReadStream,
   getTestFileString,
   getTestStreamByteLength,
   streamToString,
-} from '../utils.node.js';
+} from '../node/utils.js';
+import {ITestVars, getTestVars} from '../utils.js';
 
 export const fimidaraTestVars: ITestVars = getTestVars();
 export const fimidaraTestInstance = new FimidaraEndpoints({

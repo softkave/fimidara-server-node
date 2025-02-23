@@ -13,12 +13,14 @@ import {
   fimidaraAddRootnameToPath,
   stringifyFimidaraFilepath,
 } from '../../indexNode.js';
+import {compareStreams} from '../../node/compareStreams.js';
 import {
   generateTestSlop,
   hasTestSlop,
 } from '../../testutils/generate/generateTestSlop.node.js';
-import {getTestVars} from '../../testutils/utils.common.js';
+import {getTestVars} from '../../testutils/utils.js';
 import {multipartUploadNode} from '../multipartNode.js';
+import {printBufferDifferences} from '../../diff/printBufferDifferences.js';
 
 const kMinSlopSize = 20 * 1024 * 1024; // 20MB
 const testVars = getTestVars();
@@ -60,9 +62,20 @@ async function expectReadEqualsBuffer(fileId: string, initialBuffer: Buffer) {
   const dF = path.normalize(dFolderpath + '/' + randomUUID());
   await ensureFile(dF);
   await writeFile(dF, readResult);
-  const savedBuffer = await readFile(dF);
 
-  expect(savedBuffer.equals(initialBuffer)).toBe(true);
+  // const savedBuffer = await readFile(dF);
+  // expect(savedBuffer.equals(initialBuffer)).toBe(true);
+
+  const result = await compareStreams(
+    createReadStream(dF),
+    createReadStream(slopFilepath)
+  );
+
+  if (!result.areEqual) {
+    console.log(printBufferDifferences(result.chunk1!, result.chunk2!));
+  }
+
+  expect(result.areEqual).toBe(true);
 }
 
 function getReadableDataFromSlop() {

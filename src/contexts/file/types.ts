@@ -62,6 +62,8 @@ export interface FilePersistenceGetFileParams
   extends FilePersistenceDefaultParams,
     FilepathMatcher {
   fileId: string;
+  part?: number;
+  clientMultipartId?: string;
 }
 
 export interface FilePersistenceDescribeFileParams

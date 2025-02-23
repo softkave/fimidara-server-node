@@ -1,4 +1,3 @@
-import {compact} from 'lodash-es';
 import sharp from 'sharp';
 import {PassThrough, Readable} from 'stream';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
@@ -6,24 +5,17 @@ import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {PersistedFile} from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
 import {incrementBandwidthOutUsageRecord} from '../../../contexts/usage/usageFns.js';
-import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {isObjectFieldsEmpty} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
-import {getBackendConfigsWithIdList} from '../../fileBackends/configUtils.js';
-import {
-  getResolvedMountEntries,
-  initBackendProvidersForMounts,
-  resolveMountsForFolder,
-} from '../../fileBackends/mountUtils.js';
 import {getFileWithMatcher} from '../getFilesWithMatcher.js';
-import {assertFile, stringifyFilenamepath} from '../utils.js';
+import {assertFile} from '../utils.js';
+import {readPersistedFile} from './readPersistedFile.js';
 import {ReadFileEndpoint} from './types.js';
 import {readFileJoiSchema} from './validation.js';
 
@@ -76,7 +68,7 @@ const readFile: ReadFileEndpoint = async reqData => {
     kFimidaraPermissionActions.readFile
   );
 
-  const persistedFile = await readPersistedFile(file);
+  const persistedFile = await readPersistedFile({file});
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});
 
   if (persistedFile.body && (!isImageResizeEmpty || data.imageFormat)) {
@@ -118,54 +110,5 @@ const readFile: ReadFileEndpoint = async reqData => {
     };
   }
 };
-
-async function readPersistedFile(file: File): Promise<PersistedFile> {
-  const {mounts, mountsMap} = await resolveMountsForFolder({
-    workspaceId: file.workspaceId,
-    namepath: file.namepath.slice(0, -1),
-  });
-  const configs = await getBackendConfigsWithIdList(
-    compact(mounts.map(mount => mount.configId))
-  );
-  const providersMap = await initBackendProvidersForMounts(mounts, configs);
-  const resolvedEntries = await getResolvedMountEntries(file.resourceId);
-
-  for (const entry of resolvedEntries) {
-    const mount = mountsMap[entry.mountId];
-
-    if (!mount) {
-      continue;
-    }
-
-    const backend = providersMap[mount.resourceId];
-
-    if (!backend) {
-      continue;
-    }
-
-    try {
-      const persistedFile = await backend.readFile({
-        filepath: stringifyFilenamepath({
-          namepath: entry.backendNamepath,
-          ext: entry.backendExt,
-        }),
-        workspaceId: file.workspaceId,
-        fileId: entry.forId,
-        mount,
-      });
-
-      if (persistedFile?.body) {
-        return persistedFile;
-      }
-    } catch (error) {
-      kUtilsInjectables.logger().error(error);
-    }
-  }
-
-  return {
-    size: 0,
-    body: Readable.from([]),
-  };
-}
 
 export default readFile;

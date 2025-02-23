@@ -129,7 +129,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     const {mount, filepath} = params;
     const {nativePath} = this.toNativePath({
       fimidaraPath: filepath,
-      mount: mount,
+      mount,
     });
     const stat = await fse.promises.stat(nativePath);
 

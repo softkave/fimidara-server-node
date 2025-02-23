@@ -9,7 +9,7 @@ import {
   generateTestSlop,
   hasTestSlop,
 } from '../../testutils/generate/generateTestSlop.node.js';
-import {getTestVars} from '../../testutils/utils.common.js';
+import {getTestVars} from '../../testutils/utils.js';
 import {multipartUploadNode} from '../multipartNode.js';
 
 const kMinSlopSize = 9 * 1024 * 1024; // 9MB

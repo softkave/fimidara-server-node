@@ -20,7 +20,7 @@ import {getResourceTypeFromId} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {DataQuery, LiteralDataQuery} from '../../data/types.js';
 import {kSemanticModels} from '../../injection/injectables.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,

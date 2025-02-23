@@ -3,6 +3,7 @@
 import {Command, Option} from 'commander';
 import {fimidaraSyncCmdDef} from './sync/sync.js';
 import {IFimidaraCmdDef} from './types.js';
+import {fimidaraPrintLocalDiffCmdDef} from './printLocalDiff/printLocalDiff.js';
 
 const program = new Command();
 program.name('fimidara').description('fimidara CLI').version('1.23.0');
@@ -33,4 +34,5 @@ function addCmdToProgram(cmd: IFimidaraCmdDef) {
 }
 
 addCmdToProgram(fimidaraSyncCmdDef as IFimidaraCmdDef);
+addCmdToProgram(fimidaraPrintLocalDiffCmdDef as IFimidaraCmdDef);
 program.parse();

@@ -39,6 +39,7 @@ export const kInjectionKeys = {
     emailBlocklist: dataKey('emailBlocklist'),
     appShard: dataKey('appShard'),
     jobHistory: dataKey('jobHistory'),
+    script: dataKey('script'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -64,6 +65,7 @@ export const kInjectionKeys = {
     emailBlocklist: semanticKey('emailBlocklist'),
     appShard: semanticKey('appShard'),
     jobHistory: semanticKey('jobHistory'),
+    script: semanticKey('script'),
     utils: semanticKey('utils'),
   },
   encryption: 'encryption',

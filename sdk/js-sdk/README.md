@@ -38,3 +38,7 @@ const uploadFileURL = fimidara.getFimidaraUploadFileURL({
   filepath: 'workspace-rootname/folder/path/to/file.png',
 });
 ```
+
+```bash
+npm run cmd -- printLocalDiff -01 "/Users/abayomi/Downloads/AQOHCAoZ_6d41ArThbqO6kPPHZ7G0JrF9kdXa88HWFPLlhTYyDjv5EqvlAGxZnx.mp4" -02 "/Users/abayomi/Downloads/video-01.mp4"
+```

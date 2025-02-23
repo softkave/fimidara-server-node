@@ -13,7 +13,7 @@ import {
   test_listFolderContent,
   test_updateFolder,
 } from '../testutils/tests/folder.js';
-import {getTestVars} from '../testutils/utils.common.js';
+import {getTestVars} from '../testutils/utils.js';
 
 describe('folder', () => {
   test('add folder', async () => {

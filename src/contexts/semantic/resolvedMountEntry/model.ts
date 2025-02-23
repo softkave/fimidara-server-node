@@ -2,13 +2,13 @@ import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {FileBackendQueries} from '../../../endpoints/fileBackends/queries.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {DataQuery, ResolvedMountEntryQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {SemanticProviderQueryParams} from '../types.js';
 import {SemanticResolvedMountEntryProvider} from './types.js';
 
 export class DataSemanticResolvedMountEntry
-  extends DataSemanticWorkspaceResourceProvider<ResolvedMountEntry>
+  extends SemanticWorkspaceResourceProvider<ResolvedMountEntry>
   implements SemanticResolvedMountEntryProvider
 {
   getOneByMountIdAndFileId = async (

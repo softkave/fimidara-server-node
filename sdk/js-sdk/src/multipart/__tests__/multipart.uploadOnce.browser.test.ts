@@ -10,7 +10,7 @@ import {
   generateTestSlop,
   hasTestSlop,
 } from '../../testutils/generate/generateTestSlop.browser.js';
-import {getTestVars} from '../../testutils/utils.common.js';
+import {getTestVars} from '../../testutils/utils.js';
 import {multipartUploadBrowser} from '../multipartBrowser.js';
 
 const testVars = getTestVars();

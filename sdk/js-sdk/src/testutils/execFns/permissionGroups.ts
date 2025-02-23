@@ -11,7 +11,7 @@ import {
   GetWorkspacePermissionGroupsEndpointParams,
   UpdatePermissionGroupEndpointParams,
 } from '../../endpoints/publicTypes.js';
-import {ITestVars} from '../utils.common.js';
+import {ITestVars} from '../utils.js';
 
 export async function addPermissionGroupTestExecFn(
   endpoint: FimidaraEndpoints,

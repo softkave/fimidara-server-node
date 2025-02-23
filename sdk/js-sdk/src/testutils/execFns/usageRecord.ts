@@ -3,7 +3,7 @@ import {isNumber} from 'lodash-es';
 import {PartialDeep} from 'type-fest';
 import {FimidaraEndpoints} from '../../endpoints/publicEndpoints.js';
 import {GetWorkspaceSummedUsageEndpointParams} from '../../endpoints/publicTypes.js';
-import {ITestVars} from '../utils.common.js';
+import {ITestVars} from '../utils.js';
 
 export async function getWorkspaceSummedUsageTestExecFn(
   endpoint: FimidaraEndpoints,

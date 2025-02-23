@@ -2,13 +2,13 @@ import {first} from 'lodash-es';
 import {JobStatus} from '../../../definitions/job.js';
 import {JobHistory} from '../../../definitions/jobHistory.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {SemanticProviderQueryParams} from '../types.js';
 import {SemanticJobHistoryProvider} from './types.js';
 
 export class DataSemanticJobHistory
-  extends DataSemanticWorkspaceResourceProvider<JobHistory>
+  extends SemanticWorkspaceResourceProvider<JobHistory>
   implements SemanticJobHistoryProvider
 {
   async getJobLastHistoryItem(

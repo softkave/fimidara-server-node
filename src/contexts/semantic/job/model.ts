@@ -1,13 +1,13 @@
 import {AppShardId} from '../../../definitions/app.js';
 import {Job, kJobStatus} from '../../../definitions/job.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {SemanticProviderMutationParams} from '../types.js';
 import {SemanticJobProvider} from './types.js';
 
 export class DataSemanticJob
-  extends DataSemanticWorkspaceResourceProvider<Job>
+  extends SemanticWorkspaceResourceProvider<Job>
   implements SemanticJobProvider
 {
   async migrateShard(

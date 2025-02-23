@@ -3,8 +3,8 @@ import {TokenAccessScope} from '../../../definitions/system.js';
 import {AgentTokenQueries} from '../../../endpoints/agentTokens/queries.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
@@ -12,7 +12,7 @@ import {
 import {SemanticAgentTokenProvider} from './types.js';
 
 export class DataSemanticAgentToken
-  extends DataSemanticWorkspaceResourceProvider<AgentToken>
+  extends SemanticWorkspaceResourceProvider<AgentToken>
   implements SemanticAgentTokenProvider
 {
   async softDeleteAgentTokens(

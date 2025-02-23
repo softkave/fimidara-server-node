@@ -1,9 +1,9 @@
 import {User} from '../../../definitions/user.js';
 import {DataQuery} from '../../data/types.js';
 import {
-  DataSemanticBaseProvider,
+  SemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider.js';
+} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryParams,
@@ -12,7 +12,7 @@ import {getIgnoreCaseDataQueryRegExp} from '../utils.js';
 import {SemanticUserProviderType} from './types.js';
 
 export class DataSemanticUser
-  extends DataSemanticBaseProvider<User>
+  extends SemanticBaseProvider<User>
   implements SemanticUserProviderType
 {
   async getByEmail(

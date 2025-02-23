@@ -3,7 +3,7 @@ import {
   getUsageCostsTestExecFn,
   getWorkspaceSummedUsageTestExecFn,
 } from '../execFns/usageRecord.js';
-import {ITestVars, getTestVars} from '../utils.common.js';
+import {ITestVars, getTestVars} from '../utils.js';
 
 const vars: ITestVars = getTestVars();
 const fimidara = new FimidaraEndpoints({

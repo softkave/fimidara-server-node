@@ -21,6 +21,7 @@ import {Tag} from './tag.js';
 import {UsageRecord} from './usageRecord.js';
 import {User} from './user.js';
 import {Workspace} from './workspace.js';
+import {AppScript} from './script.js';
 
 export const kCurrentJWTTokenVersion = 1;
 
@@ -97,6 +98,7 @@ export const kFimidaraResourceType = {
   emailBlocklist: 'emailBlocklist',
   appShard: 'appShard',
   jobHistory: 'jobHistory',
+  script: 'script',
 } as const;
 
 export type FimidaraResourceType = ValueOf<typeof kFimidaraResourceType>;
@@ -263,6 +265,7 @@ export const kResourceTypeToPossibleChildren: Record<
   [kFimidaraResourceType.emailBlocklist]: [],
   [kFimidaraResourceType.appShard]: [],
   [kFimidaraResourceType.jobHistory]: [],
+  [kFimidaraResourceType.script]: [],
 };
 
 export const kFimidaraTypeToTSTypeNotFound = 1_000 as const;
@@ -310,4 +313,6 @@ export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
                                           ? AppShard
                                           : T extends typeof kFimidaraResourceType.jobHistory
                                             ? JobHistory
-                                            : typeof kFimidaraTypeToTSTypeNotFound;
+                                            : T extends typeof kFimidaraResourceType.script
+                                              ? AppScript
+                                              : typeof kFimidaraTypeToTSTypeNotFound;
