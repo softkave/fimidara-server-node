@@ -5,8 +5,8 @@ import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFil
 import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from '../../../../contexts/file/types.js';
 import {
   kSemanticModels,
@@ -85,7 +85,7 @@ describe('runIngestFolderpathJob', () => {
         expect(numCalls).toBeLessThan(2);
 
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
+        const pFiles: PersistedFileBackendMeta<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );
@@ -143,7 +143,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('files ingested', async () => {
     const {job, mount} = await setup01();
-    const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
+    const pFiles: PersistedFileBackendMeta<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFileDescriptionForTest({
           mountId: mount.resourceId,
@@ -204,7 +204,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('folders ingested', async () => {
     const {job, mount} = await setup01();
-    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
+    const pFolders: PersistedFolderBackendMeta<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -250,7 +250,7 @@ describe('runIngestFolderpathJob', () => {
 
   test('jobs added for children folders', async () => {
     const {job, mount, shard} = await setup01();
-    const pFolders: PersistedFolderDescription<undefined>[] = loopAndCollate(
+    const pFolders: PersistedFolderBackendMeta<undefined>[] = loopAndCollate(
       () =>
         generatePersistedFolderDescriptionForTest({
           mountId: mount.resourceId,
@@ -311,7 +311,7 @@ describe('runIngestFolderpathJob', () => {
         FilePersistenceDescribeFolderContentResult<undefined, undefined>
       > => {
         let {continuationToken} = params;
-        const pFiles: PersistedFileDescription<undefined>[] = loopAndCollate(
+        const pFiles: PersistedFileBackendMeta<undefined>[] = loopAndCollate(
           () => generatePersistedFileDescriptionForTest(),
           /** count */ 2
         );

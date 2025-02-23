@@ -1,7 +1,7 @@
 import {ValueOf} from 'type-fest';
 import {
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from '../contexts/file/types.js';
 import {
   FimidaraResourceType,
@@ -50,7 +50,7 @@ export interface ResolvedMountEntry extends WorkspaceResource {
   forId: string;
   /** Resource type */
   forType: FimidaraResourceType;
-  persisted: PersistedFileDescription | PersistedFolderDescription;
+  persisted: PersistedFileBackendMeta | PersistedFolderBackendMeta;
 }
 
 export type PublicFileBackendMount = PublicWorkspaceResource &

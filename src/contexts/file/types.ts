@@ -52,8 +52,8 @@ export interface FilePersistenceUploadFileParams
   multipartId?: string | null;
 }
 
-export type FilePersistenceUploadFileResult<TRaw = any> = Pick<
-  PersistedFileDescription<TRaw>,
+export type FilePersistenceUploadFileResult<TRaw = unknown> = Pick<
+  PersistedFileBackendMeta<TRaw>,
   'filepath' | 'raw'
 > &
   Partial<FilePersistenceUploadPartResult>;
@@ -84,7 +84,7 @@ export interface PersistedFile {
   size?: number;
 }
 
-export interface PersistedFileDescription<TRaw = any> {
+export interface PersistedFileBackendMeta<TRaw = unknown> {
   size?: number;
   lastUpdatedAt?: number;
   mimetype?: string;
@@ -95,7 +95,7 @@ export interface PersistedFileDescription<TRaw = any> {
   raw: TRaw;
 }
 
-export interface PersistedFolderDescription<TRaw = any> {
+export interface PersistedFolderBackendMeta<TRaw = unknown> {
   folderpath: string;
   mountId: string;
   /** Mount folder data */
@@ -131,24 +131,18 @@ export interface FilePersistenceDeleteFoldersParams
   folders: Array<FolderpathMatcher>;
 }
 
-export interface FilePersistenceDescribeFolderFilesResult<TRaw = any> {
-  files: PersistedFileDescription<TRaw>[];
-  /* `null` or `undefined` if content is exhausted */
-  continuationToken?: unknown | null;
-}
-
 export interface FilePersistenceDescribeFolderContentResult<
-  TFileRaw = any,
-  TFolderRaw = any,
+  TFileRaw = unknown,
+  TFolderRaw = unknown,
 > {
-  files: PersistedFileDescription<TFileRaw>[];
-  folders: PersistedFolderDescription<TFolderRaw>[];
+  files: PersistedFileBackendMeta<TFileRaw>[];
+  folders: PersistedFolderBackendMeta<TFolderRaw>[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
 
-export interface FilePersistenceDescribeFolderFoldersResult<TRaw = any> {
-  folders: PersistedFolderDescription<TRaw>[];
+export interface FilePersistenceDescribeFolderFoldersResult<TRaw = unknown> {
+  folders: PersistedFolderBackendMeta<TRaw>[];
   /* `null` or `undefined` if content is exhausted */
   continuationToken?: unknown | null;
 }
@@ -156,7 +150,7 @@ export interface FilePersistenceDescribeFolderFoldersResult<TRaw = any> {
 export interface FilePersistenceAddFolderParams extends FolderpathMatcher {}
 
 export interface FilePersistenceAddFolderResult<TRaw> {
-  folder?: PersistedFolderDescription<TRaw>;
+  folder?: PersistedFolderBackendMeta<TRaw>;
 }
 
 export interface FilePersistenceToFimidaraPathParams
@@ -185,9 +179,9 @@ export interface FilePersistenceCompleteMultipartUploadParams
   parts: FilePersistenceUploadPartResult[];
 }
 
-export interface FilePersistenceCompleteMultipartUploadResult {
+export interface FilePersistenceCompleteMultipartUploadResult<TRaw = unknown> {
   filepath: string;
-  raw: unknown;
+  raw: TRaw;
 }
 
 export interface FilePersistenceCleanupMultipartUploadParams
@@ -236,10 +230,10 @@ export interface FilePersistenceProvider extends DisposableResource {
   readFile: (params: FilePersistenceGetFileParams) => Promise<PersistedFile>;
   describeFile: (
     params: FilePersistenceDescribeFileParams
-  ) => Promise<PersistedFileDescription | undefined>;
+  ) => Promise<PersistedFileBackendMeta | undefined>;
   describeFolder: (
     params: FilePersistenceDescribeFolderParams
-  ) => Promise<PersistedFolderDescription | undefined>;
+  ) => Promise<PersistedFolderBackendMeta | undefined>;
   describeFolderContent: (
     params: FilePersistenceDescribeFolderContentParams
   ) => Promise<FilePersistenceDescribeFolderContentResult>;

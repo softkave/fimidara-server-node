@@ -14,8 +14,8 @@ import {
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from '../../../../contexts/file/types.js';
 import {noopAsync} from '../../../../utils/fns.js';
 
@@ -59,12 +59,12 @@ export default class NoopFilePersistenceProviderContext
       return {multipartId: ''};
     };
 
-  describeFile = async (): Promise<PersistedFileDescription | undefined> => {
+  describeFile = async (): Promise<PersistedFileBackendMeta | undefined> => {
     return undefined;
   };
 
   describeFolder = async (): Promise<
-    PersistedFolderDescription | undefined
+    PersistedFolderBackendMeta | undefined
   > => {
     return undefined;
   };

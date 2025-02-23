@@ -33,5 +33,6 @@
 - heartbeat from runner
 - cache locally from other servers
 - cache locally from s3 and write post using your own story
+- write script to change entry
 
 ## Implementation notes

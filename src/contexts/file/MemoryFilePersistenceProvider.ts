@@ -30,13 +30,13 @@ import {
   FimidaraToFilePersistencePathResult,
   IFilePersistenceProviderMount,
   PersistedFile,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
 type MemoryFilePersistenceProviderFile = OmitFrom<
-  PersistedFileDescription,
+  PersistedFileBackendMeta,
   'filepath' | 'raw'
 > & {
   body: Buffer;
@@ -182,7 +182,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFile = async (
     params: FilePersistenceDescribeFileParams
-  ): Promise<PersistedFileDescription<undefined> | undefined> => {
+  ): Promise<PersistedFileBackendMeta<undefined> | undefined> => {
     const file = this.getMemoryFile(params);
 
     if (file) {
@@ -206,7 +206,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
   describeFolder = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
+  ): Promise<PersistedFolderBackendMeta<undefined> | undefined> => {
     // not supported
     return undefined;
   };
@@ -219,7 +219,7 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     const {mount, folderpath, max, continuationToken} = params;
     const workspaceFilesMap = this.getWorkspaceFiles(params);
     const workspaceFiles = Object.values(workspaceFilesMap);
-    const files: PersistedFileDescription<undefined>[] = [];
+    const files: PersistedFileBackendMeta<undefined>[] = [];
 
     if (continuationToken) {
       appAssert(isNumber(continuationToken));

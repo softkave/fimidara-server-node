@@ -14,13 +14,15 @@ import {
   UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import {first} from 'lodash-es';
+import {first, merge} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {kFolderConstants} from '../../endpoints/folders/constants.js';
+import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
+import {kUtilsInjectables} from '../injection/injectables.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
@@ -44,8 +46,8 @@ import {
   FimidaraToFilePersistencePathParams,
   IFilePersistenceProviderMount,
   PersistedFile,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
@@ -212,7 +214,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
 
   describeFile = async (
     params: FilePersistenceDescribeFileParams
-  ): Promise<PersistedFileDescription<HeadObjectCommandOutput> | undefined> => {
+  ): Promise<PersistedFileBackendMeta<HeadObjectCommandOutput> | undefined> => {
     const {bucket, nativePath} = this.toNativePath({
       fimidaraPath: params.filepath,
       mount: params.mount,
@@ -281,8 +283,8 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     });
     const response = await this.s3.send(command);
 
-    const files: PersistedFileDescription<AnyObject>[] = [];
-    const folders: PersistedFolderDescription<AnyObject>[] = [];
+    const files: PersistedFileBackendMeta<AnyObject>[] = [];
+    const folders: PersistedFolderBackendMeta<AnyObject>[] = [];
 
     response.Contents?.forEach(content => {
       if (!content.Key) {
@@ -485,4 +487,30 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
     const response = await upload.done();
     return response;
   }
+}
+
+export function getAWSS3ConfigFromSuppliedConfig(
+  config: FimidaraSuppliedConfig = kUtilsInjectables.suppliedConfig()
+) {
+  const awsCreds = merge({}, config.awsConfigs?.all, config.awsConfigs?.s3);
+  const s3Bucket = config.awsConfigs?.s3Bucket;
+
+  appAssert(awsCreds, 'No AWS config provided for AWS S3 provider');
+  appAssert(
+    awsCreds?.accessKeyId,
+    'No AWS accessKeyId provided for AWS S3 provider'
+  );
+  appAssert(awsCreds?.region, 'No AWS region provided for AWS S3 provider');
+  appAssert(
+    awsCreds?.secretAccessKey,
+    'No AWS secretAccessKey provided for AWS S3 provider'
+  );
+  appAssert(s3Bucket, 'No AWS S3 bucket provided for AWS S3 provider');
+
+  return {
+    accessKeyId: awsCreds.accessKeyId,
+    secretAccessKey: awsCreds.secretAccessKey,
+    region: awsCreds.region,
+    bucket: s3Bucket,
+  };
 }

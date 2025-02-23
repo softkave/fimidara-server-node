@@ -1,6 +1,5 @@
 import assert from 'assert';
-import {isArray, isNumber, isObject, merge} from 'lodash-es';
-import path from 'path';
+import {isArray, isNumber, isObject} from 'lodash-es';
 import {pathJoin} from 'softkave-js-utils';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {FileBackendQueries} from '../../endpoints/fileBackends/queries.js';
@@ -20,12 +19,20 @@ import {
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
-import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
+import {
+  getLocalFsDirFromSuppliedConfig,
+  LocalFsFilePersistenceProvider,
+  LocalFSPersistedFileBackendMetaRaw,
+} from './LocalFsFilePersistenceProvider.js';
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
-import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
+import {
+  getAWSS3ConfigFromSuppliedConfig,
+  S3FilePersistenceProvider,
+} from './S3FilePersistenceProvider.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
+  FilePersistenceCompleteMultipartUploadResult,
   FilePersistenceDefaultParams,
   FilePersistenceDeleteFilesParams,
   FilePersistenceDeleteFoldersParams,
@@ -34,9 +41,7 @@ import {
   FilePersistenceDescribeFolderContentParams,
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceDescribeFolderFilesParams,
-  FilePersistenceDescribeFolderFilesResult,
   FilePersistenceDescribeFolderFoldersParams,
-  FilePersistenceDescribeFolderFoldersResult,
   FilePersistenceDescribeFolderParams,
   FilePersistenceGetFileParams,
   FilePersistenceProvider,
@@ -50,9 +55,54 @@ import {
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from './types.js';
+
+export type FimidaraPersistedFileBackendMetaRaw =
+  | {
+      backend: typeof kFimidaraConfigFilePersistenceProvider.fs;
+      raw: LocalFSPersistedFileBackendMetaRaw;
+    }
+  | {
+      backend: typeof kFimidaraConfigFilePersistenceProvider.memory;
+    }
+  | {
+      backend: typeof kFimidaraConfigFilePersistenceProvider.s3;
+      raw: unknown;
+    };
+
+export type FimidaraPersistedFolderBackendMetaRaw = undefined;
+
+export interface FimidaraPersistedFileBackendMeta
+  extends PersistedFileBackendMeta<FimidaraPersistedFileBackendMetaRaw> {}
+
+export interface FimidaraFilePersistenceUploadFileResult
+  extends FilePersistenceUploadFileResult<FimidaraPersistedFileBackendMetaRaw> {}
+
+export interface FimidaraPersistedFolderBackendMeta
+  extends PersistedFolderBackendMeta<FimidaraPersistedFolderBackendMetaRaw> {}
+
+export interface FimidaraFilePersistenceDescribeFolderContentResult
+  extends FilePersistenceDescribeFolderContentResult<
+    FimidaraPersistedFileBackendMetaRaw,
+    FimidaraPersistedFolderBackendMetaRaw
+  > {}
+
+export interface FimidaraFilePersistenceCompleteMultipartUploadResult
+  extends FilePersistenceCompleteMultipartUploadResult<FimidaraPersistedFileBackendMetaRaw> {}
+
+export interface FimidaraFilePersistenceDescribeFolderFilesResult {
+  files: FimidaraPersistedFileBackendMeta[];
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
+}
+
+export interface FimidaraFilePersistenceDescribeFolderFoldersResult {
+  folders: FimidaraPersistedFolderBackendMeta[];
+  /* `null` or `undefined` if content is exhausted */
+  continuationToken?: unknown | null;
+}
 
 /** Seeing the root folder is mounted on fimidara, when we ingest new files or
  * folders from other mounts, there's a possiblity they'll be re-fetched in
@@ -78,11 +128,15 @@ export class FimidaraFilePersistenceProvider
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   backend: FilePersistenceProvider;
+  backendType: FimidaraConfigFilePersistenceProvider;
 
   constructor() {
-    this.backend = FimidaraFilePersistenceProvider.getBackend();
+    const config = kUtilsInjectables.suppliedConfig();
+    const backendType = config.fileBackend;
+    appAssert(backendType, 'No file backend provided');
+    this.backend = FimidaraFilePersistenceProvider.getBackend(backendType);
+    this.backendType = backendType;
   }
 
   supportsFeature = (feature: FilePersistenceProviderFeature): boolean => {
@@ -100,10 +154,13 @@ export class FimidaraFilePersistenceProvider
 
   uploadFile = async (
     params: FilePersistenceUploadFileParams
-  ): Promise<FilePersistenceUploadFileResult> => {
+  ): Promise<FimidaraFilePersistenceUploadFileResult> => {
     const preparedParams = this.prepareParams(params);
     const result = await this.backend.uploadFile(preparedParams);
-    return result;
+    return {
+      ...result,
+      raw: this.prepareFileBackendMetaRaw(result.raw),
+    };
   };
 
   startMultipartUpload = async (
@@ -122,9 +179,13 @@ export class FimidaraFilePersistenceProvider
 
   completeMultipartUpload = async (
     params: FilePersistenceCompleteMultipartUploadParams
-  ) => {
+  ): Promise<FimidaraFilePersistenceCompleteMultipartUploadResult> => {
     const preparedParams = this.prepareParams(params);
-    return await this.backend.completeMultipartUpload(preparedParams);
+    const result = await this.backend.completeMultipartUpload(preparedParams);
+    return {
+      ...result,
+      raw: this.prepareFileBackendMetaRaw(result.raw),
+    };
   };
 
   cleanupMultipartUpload = (
@@ -142,12 +203,13 @@ export class FimidaraFilePersistenceProvider
 
   describeFile = async (
     params: FilePersistenceDescribeFileParams
-  ): Promise<PersistedFileDescription<undefined> | undefined> => {
+  ): Promise<FimidaraPersistedFileBackendMeta | undefined> => {
     const {workspaceId, filepath, mount} = params;
     const {namepath, ext} = getFilepathInfo(filepath, {
       containsRootname: false,
       allowRootFolder: false,
     });
+
     const entry = await kSemanticModels.resolvedMountEntry().getOneByQuery({
       ...FileBackendQueries.getByBackendNamepath({
         workspaceId,
@@ -159,10 +221,10 @@ export class FimidaraFilePersistenceProvider
 
     if (entry) {
       appAssert(entry.forType === kFimidaraResourceType.File);
-      const other = entry.persisted as PersistedFileDescription;
+      const other = entry.persisted as FimidaraPersistedFileBackendMeta;
       return {
         filepath,
-        raw: undefined,
+        raw: other.raw,
         lastUpdatedAt: entry.lastUpdatedAt,
         size: other.size,
         mimetype: other.mimetype,
@@ -176,12 +238,13 @@ export class FimidaraFilePersistenceProvider
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
+  ): Promise<FimidaraPersistedFolderBackendMeta | undefined> => {
     const {workspaceId, folderpath, mount} = params;
     const {namepath} = getFolderpathInfo(folderpath, {
       containsRootname: false,
       allowRootFolder: false,
     });
+
     const folder = await kSemanticModels
       .folder()
       .getOneByQuery(FolderQueries.getByNamepath({workspaceId, namepath}));
@@ -215,15 +278,13 @@ export class FimidaraFilePersistenceProvider
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<
-    FilePersistenceDescribeFolderContentResult<undefined, undefined>
-  > => {
+  ): Promise<FimidaraFilePersistenceDescribeFolderContentResult> => {
     const {continuationToken} = params;
     let filesResult:
-      | FilePersistenceDescribeFolderFilesResult<undefined>
+      | FimidaraFilePersistenceDescribeFolderFilesResult
       | undefined;
     let foldersResult:
-      | FilePersistenceDescribeFolderFoldersResult<undefined>
+      | FimidaraFilePersistenceDescribeFolderFoldersResult
       | undefined;
 
     if (FimidaraFilePersistenceProvider.isPage(continuationToken)) {
@@ -260,7 +321,7 @@ export class FimidaraFilePersistenceProvider
 
   describeFolderFiles = async (
     params: FilePersistenceDescribeFolderFilesParams
-  ): Promise<FilePersistenceDescribeFolderFilesResult<undefined>> => {
+  ): Promise<FimidaraFilePersistenceDescribeFolderFilesResult> => {
     const {
       folderpath,
       max,
@@ -268,6 +329,7 @@ export class FimidaraFilePersistenceProvider
       continuationToken: page,
       mount,
     } = params;
+
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -282,6 +344,7 @@ export class FimidaraFilePersistenceProvider
       containsRootname: false,
       allowRootFolder: false,
     });
+
     const entries = await kSemanticModels.resolvedMountEntry().getManyByQuery(
       {
         ...FileBackendQueries.getByParentBackendPath({
@@ -301,7 +364,7 @@ export class FimidaraFilePersistenceProvider
     let exclude: string[] = currentPage.exclude;
 
     const childrenFiles = entries.map(
-      (entry): PersistedFileDescription<undefined> => {
+      (entry): FimidaraPersistedFileBackendMeta => {
         if (entry.createdAt < createdAtN) {
           createdAtN = entry.createdAt;
           exclude = [];
@@ -309,9 +372,9 @@ export class FimidaraFilePersistenceProvider
 
         exclude.push(entry.resourceId);
         appAssert(entry.forType === kFimidaraResourceType.File);
-        const other = entry.persisted as PersistedFileDescription;
+        const other = entry.persisted as FimidaraPersistedFileBackendMeta;
         return {
-          raw: undefined,
+          raw: other.raw,
           filepath: stringifyFilenamepath({
             namepath: entry.backendNamepath,
             ext: entry.backendExt,
@@ -340,7 +403,7 @@ export class FimidaraFilePersistenceProvider
 
   describeFolderFolders = async (
     params: FilePersistenceDescribeFolderFoldersParams
-  ): Promise<FilePersistenceDescribeFolderFoldersResult<undefined>> => {
+  ): Promise<FimidaraFilePersistenceDescribeFolderFoldersResult> => {
     const {
       folderpath,
       max,
@@ -348,6 +411,7 @@ export class FimidaraFilePersistenceProvider
       continuationToken: page,
       mount,
     } = params;
+
     const currentPage: FimidaraFilePersistenceProviderPage =
       FimidaraFilePersistenceProvider.isPage(page)
         ? page
@@ -382,7 +446,7 @@ export class FimidaraFilePersistenceProvider
     let exclude: string[] = [];
 
     const childrenFolders = folders.map(
-      (folder): PersistedFolderDescription<undefined> => {
+      (folder): FimidaraPersistedFolderBackendMeta => {
         if (folder.createdAt < createdAtN) {
           createdAtN = folder.createdAt;
           exclude = [];
@@ -462,53 +526,65 @@ export class FimidaraFilePersistenceProvider
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  prepareFileBackendMetaRaw(raw: unknown): FimidaraPersistedFileBackendMetaRaw {
+    return {
+      backend: this.backendType,
+      raw,
+    } as FimidaraPersistedFileBackendMetaRaw;
+  }
+
+  prepareFolderBackendMetaRaw(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    raw: unknown
+  ): FimidaraPersistedFolderBackendMetaRaw {
+    return undefined;
+  }
+
+  prepareFileBackendMeta(
+    meta: PersistedFileBackendMeta<unknown>,
+    raw: unknown
+  ): FimidaraPersistedFileBackendMeta {
+    return {
+      ...meta,
+      raw: this.prepareFileBackendMetaRaw(raw),
+    } as FimidaraPersistedFileBackendMeta;
+  }
+
+  prepareFolderBackendMeta(
+    meta: PersistedFolderBackendMeta<unknown>,
+    raw: unknown
+  ): FimidaraPersistedFolderBackendMeta {
+    return {
+      ...meta,
+      raw: this.prepareFolderBackendMetaRaw(raw),
+    } as FimidaraPersistedFolderBackendMeta;
+  }
+
   static getBackend = (
-    inputBackend?: FimidaraConfigFilePersistenceProvider
+    inputBackendType?: FimidaraConfigFilePersistenceProvider
   ): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
-    const backend = inputBackend || config.fileBackend;
+    const backendType = inputBackendType || config.fileBackend;
 
-    switch (backend) {
+    switch (backendType) {
       case kFimidaraConfigFilePersistenceProvider.s3: {
-        const awsCreds = merge(
-          {},
-          config.awsConfigs?.all,
-          config.awsConfigs?.s3
-        );
-        const s3Bucket = config.awsConfigs?.s3Bucket;
-
-        appAssert(awsCreds, 'No AWS config provided for AWS S3 provider');
-        appAssert(
-          awsCreds?.accessKeyId,
-          'No AWS accessKeyId provided for AWS S3 provider'
-        );
-        appAssert(
-          awsCreds?.region,
-          'No AWS region provided for AWS S3 provider'
-        );
-        appAssert(
-          awsCreds?.secretAccessKey,
-          'No AWS secretAccessKey provided for AWS S3 provider'
-        );
-        appAssert(s3Bucket, 'No AWS S3 bucket provided for AWS S3 provider');
-
-        return new S3FilePersistenceProvider(awsCreds);
+        const s3Config = getAWSS3ConfigFromSuppliedConfig();
+        return new S3FilePersistenceProvider(s3Config);
       }
 
       case kFimidaraConfigFilePersistenceProvider.fs: {
-        appAssert(config.localFsDir);
-        appAssert(config.localPartsFsDir);
-        const dir = path.resolve(config.localFsDir);
-        const partsDir = path.resolve(config.localPartsFsDir);
-        return new LocalFsFilePersistenceProvider({dir, partsDir});
+        const {localFsDir, localPartsFsDir} = getLocalFsDirFromSuppliedConfig();
+        return new LocalFsFilePersistenceProvider({
+          dir: localFsDir,
+          partsDir: localPartsFsDir,
+        });
       }
 
       case kFimidaraConfigFilePersistenceProvider.memory:
         return new MemoryFilePersistenceProvider();
 
       default:
-        throw kReuseableErrors.file.unknownBackend(backend || '');
+        throw kReuseableErrors.file.unknownBackend(backendType || '');
     }
   };
 }

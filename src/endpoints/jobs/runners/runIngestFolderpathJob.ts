@@ -4,7 +4,7 @@ import {AnyObject} from 'softkave-js-utils';
 import {
   FilePersistenceDescribeFolderContentResult,
   FilePersistenceProvider,
-  PersistedFolderDescription,
+  PersistedFolderBackendMeta,
 } from '../../../contexts/file/types.js';
 import {
   kSemanticModels,
@@ -61,7 +61,7 @@ async function setContinuationTokenInJob(
 
 async function queueIngestFolderJobFor(
   parentJob: Job,
-  folders: PersistedFolderDescription[]
+  folders: PersistedFolderBackendMeta[]
 ) {
   await queueJobs(
     parentJob.workspaceId,

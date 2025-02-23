@@ -1,5 +1,8 @@
+import assert from 'assert';
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
+import path from 'path';
+import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
@@ -28,8 +31,8 @@ import {
   FimidaraToFilePersistencePathParams,
   FimidaraToFilePersistencePathResult,
   PersistedFile,
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
@@ -37,6 +40,32 @@ export interface LocalFsFilePersistenceProviderParams {
   dir: string;
   partsDir: string;
 }
+
+export interface LocalFSPersistedFileBackendMetaRaw {
+  serverId: string;
+}
+
+export interface LocalFSPersistedFolderBackendMetaRaw {
+  serverId: string;
+}
+
+export interface LocalFSPersistedFileBackendMeta
+  extends PersistedFileBackendMeta<LocalFSPersistedFileBackendMetaRaw> {}
+
+export interface LocalFSFilePersistenceUploadFileResult
+  extends FilePersistenceUploadFileResult<LocalFSPersistedFileBackendMetaRaw> {}
+
+export interface LocalFSPersistedFolderBackendMeta
+  extends PersistedFolderBackendMeta<LocalFSPersistedFileBackendMetaRaw> {}
+
+export interface LocalFSFilePersistenceDescribeFolderContentResult
+  extends FilePersistenceDescribeFolderContentResult<
+    LocalFSPersistedFileBackendMetaRaw,
+    LocalFSPersistedFolderBackendMetaRaw
+  > {}
+
+export interface LocalFSFilePersistenceCompleteMultipartUploadResult
+  extends FilePersistenceCompleteMultipartUploadResult<LocalFSPersistedFileBackendMetaRaw> {}
 
 /**
  * - Does not use the `bucket` param, so it's okay passing an empty string for
@@ -68,7 +97,11 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   uploadFile = async (
     params: FilePersistenceUploadFileParams
-  ): Promise<FilePersistenceUploadFileResult> => {
+  ): Promise<LocalFSFilePersistenceUploadFileResult> => {
+    const raw: LocalFSPersistedFileBackendMetaRaw = {
+      serverId: kUtilsInjectables.serverApp().getServerId(),
+    };
+
     if (params.multipartId) {
       await this.writeStreamToPartsFile(params);
       appAssert(isNumber(params.part));
@@ -77,7 +110,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         part: params.part,
         partId: params.part.toString(),
         filepath: params.filepath,
-        raw: undefined,
+        raw,
       };
     } else {
       const {mount, filepath} = params;
@@ -87,15 +120,19 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       });
 
       await this.writeStreamToFile(nativePath, params);
-      return {filepath, raw: undefined};
+      return {filepath, raw};
     }
   };
 
   async completeMultipartUpload(
     params: FilePersistenceCompleteMultipartUploadParams
-  ): Promise<FilePersistenceCompleteMultipartUploadResult> {
+  ): Promise<LocalFSFilePersistenceCompleteMultipartUploadResult> {
+    const raw: LocalFSPersistedFileBackendMetaRaw = {
+      serverId: kUtilsInjectables.serverApp().getServerId(),
+    };
+
     await this.completePartsFile(params);
-    return {filepath: params.filepath, raw: undefined};
+    return {filepath: params.filepath, raw};
   }
 
   async cleanupMultipartUpload(
@@ -131,8 +168,8 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: filepath,
       mount,
     });
-    const stat = await fse.promises.stat(nativePath);
 
+    const stat = await fse.promises.stat(nativePath);
     if (!stat.isFile()) {
       return {body: undefined};
     }
@@ -152,6 +189,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         fimidaraPath: key,
         mount: params.mount,
       });
+
       await fse.promises.rm(nativePath, {force: true});
     });
 
@@ -169,6 +207,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         fimidaraPath: key,
         mount: params.mount,
       });
+
       await fse.promises.rm(nativePath, {recursive: true, force: true});
     });
 
@@ -177,23 +216,28 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFile = async (
     params: FilePersistenceDescribeFileParams
-  ): Promise<PersistedFileDescription<undefined> | undefined> => {
+  ): Promise<LocalFSPersistedFileBackendMeta | undefined> => {
     const {mount, filepath} = params;
     const {nativePath} = this.toNativePath({
       fimidaraPath: filepath,
       mount: mount,
     });
+
+    const raw: LocalFSPersistedFileBackendMetaRaw = {
+      serverId: kUtilsInjectables.serverApp().getServerId(),
+    };
+
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFileDescription<undefined> | undefined => {
+        (stat): LocalFSPersistedFileBackendMeta | undefined => {
           if (stat.isFile()) {
             return {
               filepath,
               size: stat.size,
               lastUpdatedAt: stat.mtimeMs,
               mountId: mount.resourceId,
-              raw: undefined,
+              raw,
             };
           }
 
@@ -205,21 +249,26 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolder = async (
     params: FilePersistenceDescribeFolderParams
-  ): Promise<PersistedFolderDescription<undefined> | undefined> => {
+  ): Promise<LocalFSPersistedFolderBackendMeta | undefined> => {
     const {mount, folderpath} = params;
     const {nativePath} = this.toNativePath({
       fimidaraPath: folderpath,
       mount: mount,
     });
+
+    const raw: LocalFSPersistedFolderBackendMetaRaw = {
+      serverId: kUtilsInjectables.serverApp().getServerId(),
+    };
+
     return first(
       await this.getLocalStats(
         [nativePath],
-        (stat): PersistedFolderDescription<undefined> | undefined => {
+        (stat): LocalFSPersistedFolderBackendMeta | undefined => {
           if (stat.isDirectory()) {
             return {
               folderpath: params.folderpath,
               mountId: params.mount.resourceId,
-              raw: undefined,
+              raw,
             };
           }
 
@@ -231,12 +280,14 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   describeFolderContent = async (
     params: FilePersistenceDescribeFolderContentParams
-  ): Promise<
-    FilePersistenceDescribeFolderContentResult<undefined, undefined>
-  > => {
+  ): Promise<LocalFSFilePersistenceDescribeFolderContentResult> => {
     const {mount, max} = params;
-    const files: PersistedFileDescription<undefined>[] = [];
-    const folders: PersistedFolderDescription<undefined>[] = [];
+    const files: LocalFSPersistedFileBackendMeta[] = [];
+    const folders: LocalFSPersistedFolderBackendMeta[] = [];
+    const raw: LocalFSPersistedFileBackendMetaRaw = {
+      serverId: kUtilsInjectables.serverApp().getServerId(),
+    };
+
     const {continuationToken} = await this.produceFromChildren(
       params,
       (stat, nativePath) => {
@@ -246,13 +297,13 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
             size: stat.size,
             lastUpdatedAt: stat.mtimeMs,
             mountId: mount.resourceId,
-            raw: undefined,
+            raw,
           });
         } else if (stat.isDirectory()) {
           folders.push({
             folderpath: this.toFimidaraPath({nativePath, mount}).fimidaraPath,
             mountId: mount.resourceId,
-            raw: undefined,
+            raw,
           });
         }
 
@@ -372,6 +423,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         autoClose: true,
         emitClose: true,
       });
+
       writeStream.on('close', resolve);
       writeStream.on('error', reject);
       params.body.pipe(writeStream);
@@ -401,6 +453,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       params.filepath,
       params.multipartId
     );
+
     await fse.promises.rm(partsDir, {recursive: true, force: true});
   }
 
@@ -411,6 +464,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     await fse.ensureFile(nativePath);
     const writeStream = fse.createWriteStream(nativePath, {
       autoClose: true,
@@ -443,4 +497,19 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       .promises()
       .callAndForget(() => this.cleanupPartsFile(params));
   }
+}
+
+export function getLocalFsDirFromSuppliedConfig(
+  config: FimidaraSuppliedConfig = kUtilsInjectables.suppliedConfig()
+) {
+  const configLocalFsDir = config.localFsDir;
+  const configLocalPartsFsDir = config.localPartsFsDir;
+
+  assert(configLocalFsDir, 'localFsDir is required');
+  assert(configLocalPartsFsDir, 'localPartsFsDir is required');
+
+  const localFsDir = path.resolve(configLocalFsDir);
+  const localPartsFsDir = path.resolve(configLocalPartsFsDir);
+
+  return {localFsDir, localPartsFsDir};
 }

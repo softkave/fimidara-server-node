@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {S3FilePersistenceProviderInitParams} from '../../../contexts/file/S3FilePersistenceProvider.js';
 import {
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from '../../../contexts/file/types.js';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {
@@ -174,8 +174,8 @@ export function generateResolvedMountEntryForTest(
 }
 
 export function generatePersistedFolderDescriptionForTest<T = undefined>(
-  seed: Partial<PersistedFolderDescription<T>> = {}
-): PersistedFolderDescription<T> {
+  seed: Partial<PersistedFolderBackendMeta<T>> = {}
+): PersistedFolderBackendMeta<T> {
   return {
     folderpath: generateTestFolderpathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
@@ -185,8 +185,8 @@ export function generatePersistedFolderDescriptionForTest<T = undefined>(
 }
 
 export function generatePersistedFileDescriptionForTest<T = undefined>(
-  seed: Partial<PersistedFileDescription<T>> = {}
-): PersistedFileDescription<T> {
+  seed: Partial<PersistedFileBackendMeta<T>> = {}
+): PersistedFileBackendMeta<T> {
   return {
     filepath: generateTestFilepathString(),
     mountId: getNewIdForResource(kFimidaraResourceType.FileBackendMount),
@@ -240,9 +240,9 @@ export function generateResolvedMountEntryListForTest(
 
 export function generatePersistedFolderDescriptionListForTest(
   count = 20,
-  seed: Partial<PersistedFolderDescription> = {}
+  seed: Partial<PersistedFolderBackendMeta> = {}
 ) {
-  const items: PersistedFolderDescription[] = [];
+  const items: PersistedFolderBackendMeta[] = [];
 
   for (let i = 0; i < count; i++) {
     items.push(generatePersistedFolderDescriptionForTest(seed));
@@ -253,9 +253,9 @@ export function generatePersistedFolderDescriptionListForTest(
 
 export function generatePersistedFileDescriptionListForTest(
   count = 20,
-  seed: Partial<PersistedFileDescription> = {}
+  seed: Partial<PersistedFileBackendMeta> = {}
 ) {
-  const items: PersistedFileDescription[] = [];
+  const items: PersistedFileBackendMeta[] = [];
 
   for (let i = 0; i < count; i++) {
     items.push(generatePersistedFileDescriptionForTest(seed));

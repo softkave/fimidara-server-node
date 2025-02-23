@@ -1,4 +1,5 @@
-import assert from 'assert';
+import {getLocalFsDirFromSuppliedConfig} from '../contexts/file/LocalFsFilePersistenceProvider.js';
+import {getAWSS3ConfigFromSuppliedConfig} from '../contexts/file/S3FilePersistenceProvider.js';
 import {kUtilsInjectables} from '../contexts/injection/injectables.js';
 import {
   MoveFromS3Config,
@@ -12,25 +13,17 @@ export default async function SCRIPT_moveFromS3ToLocalFS() {
   }
 
   const config = kUtilsInjectables.suppliedConfig();
-  const awsConfig = config.awsConfigs?.all;
-
-  assert(awsConfig, 'awsConfig is required');
-  assert(config.localFsDir, 'localFsDir is required');
-  assert(config.awsConfigs?.s3Bucket, 's3Bucket is required');
-
-  const {region, accessKeyId, secretAccessKey} = awsConfig;
-  assert(region, 'region is required');
-  assert(accessKeyId, 'accessKeyId is required');
-  assert(secretAccessKey, 'secretAccessKey is required');
+  const s3Config = getAWSS3ConfigFromSuppliedConfig(config);
+  const {localFsDir} = getLocalFsDirFromSuppliedConfig();
 
   const options: MoveFromS3Config = {
-    bucketName: config.awsConfigs.s3Bucket,
-    destinationPath: config.localFsDir,
+    bucketName: s3Config.bucket,
+    destinationPath: localFsDir,
     awsConfig: {
-      region,
+      region: s3Config.region,
       credentials: {
-        accessKeyId,
-        secretAccessKey,
+        accessKeyId: s3Config.accessKeyId,
+        secretAccessKey: s3Config.secretAccessKey,
       },
     },
     concurrency: 10,

@@ -107,6 +107,7 @@ export type FimidaraSuppliedConfig = Partial<{
   useFimidaraWorkerPool: boolean;
   heartbeatIntervalMs: number;
   activeAppHeartbeatDelayFactor: number;
+  serverId: string;
 
   // Scripts
   scriptPollIntervalMs: number;

@@ -7,9 +7,11 @@ import {
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {App, AppShardId, AppType} from '../../definitions/app.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
 import {kAppConstants} from './constants.js';
+import {getServerInfo} from './serverInfo.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
 //   [
@@ -112,6 +114,13 @@ export class FimidaraApp implements DisposableResource {
     return this.appId;
   }
 
+  getServerId() {
+    const config = kUtilsInjectables.suppliedConfig();
+    const serverId = config.serverId;
+    appAssert(serverId, 'serverId not set in config');
+    return serverId;
+  }
+
   isAppAlive(appId: string) {
     return this.activeAppIdList.includes(appId);
   }
@@ -147,18 +156,21 @@ export class FimidaraApp implements DisposableResource {
   };
 
   protected async insertAppInDB(opts: SemanticProviderMutationParams) {
-    // const config = kUtilsInjectables.suppliedConfig();
-    // const serverInfo = await getServerInfo({
-    //   httpPort: config.httpPort,
-    //   httpsPort: config.httpsPort,
-    // });
+    const config = kUtilsInjectables.suppliedConfig();
+    const serverId = this.getServerId();
+    const serverInfo = await getServerInfo({
+      httpPort: config.httpPort,
+      httpsPort: config.httpsPort,
+    });
 
     const app = newResource<App>(kFimidaraResourceType.App, {
-      // ...serverInfo,
+      ...serverInfo,
       type: this.type,
       shard: this.shard,
       resourceId: this.appId,
+      serverId,
     });
+
     await kSemanticModels.app().insertItem(app, opts);
   }
 

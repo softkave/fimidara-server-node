@@ -1,7 +1,7 @@
 import {keyBy} from 'lodash-es';
 import {
-  PersistedFileDescription,
-  PersistedFolderDescription,
+  PersistedFileBackendMeta,
+  PersistedFolderBackendMeta,
 } from '../../contexts/file/types.js';
 import {kSemanticModels} from '../../contexts/injection/injectables.js';
 import {File} from '../../definitions/file.js';
@@ -27,7 +27,7 @@ import {addRootnameToPath} from '../folders/utils.js';
 export async function ingestPersistedFolders(
   agent: SessionAgent,
   workspace: Workspace,
-  pFolders: PersistedFolderDescription[]
+  pFolders: PersistedFolderBackendMeta[]
 ) {
   if (!pFolders.length) {
     return;
@@ -123,7 +123,7 @@ export async function ingestPersistedFolders(
 export async function ingestPersistedFiles(
   agent: SessionAgent,
   workspace: Workspace,
-  pFiles: PersistedFileDescription[]
+  pFiles: PersistedFileBackendMeta[]
 ) {
   if (!pFiles.length) {
     return;
