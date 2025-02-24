@@ -204,7 +204,7 @@ const deleteFileParams = mddocConstruct
   .setName('DeleteFileEndpointParams')
   .setFields({
     ...fileMatcherParts,
-    clientMultipartId: mddocConstruct.constructFieldObjectField(
+    multipartId: mddocConstruct.constructFieldObjectField(
       false,
       mddocConstruct
         .constructFieldString()

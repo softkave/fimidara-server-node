@@ -4,17 +4,21 @@ import {
   kSemanticModels,
   kUtilsInjectables,
 } from '../../../contexts/injection/injectables.js';
+import {PublicFilePart} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
+import {appAssert} from '../../../utils/assertion.js';
 import {getFields} from '../../../utils/extract.js';
 import {validate} from '../../../utils/validate.js';
-import {kEndpointConstants} from '../../constants.js';
+import {InvalidRequestError} from '../../errors.js';
+import {getEndpointPageFromInput} from '../../pagination.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {getMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
-import {GetPartDetailsEndpoint, PublicPartDetails} from './types.js';
+import {GetPartDetailsEndpoint} from './types.js';
 import {getPartDetailsJoiSchema} from './validation.js';
 
-const extractPartDetailFields = getFields<PublicPartDetails>({
+const extractPartDetailFields = getFields<PublicFilePart>({
   part: true,
+  partId: true,
   size: true,
 });
 
@@ -40,24 +44,31 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
       matcher: data,
       action: kFimidaraPermissionActions.readFile,
       incrementPresignedPathUsageCount: false,
+      shouldIngestFile: false,
     })
   );
 
-  if (!file.internalMultipartId) {
-    return {details: []};
+  if (!file.multipartId) {
+    return {parts: []};
   }
 
-  const {parts, continuationToken, isDone} = await getMultipartUploadPartMetas({
-    multipartId: file.internalMultipartId,
-    pageSize: kEndpointConstants.maxPageSize,
-    cursor: data.continuationToken ? parseInt(data.continuationToken) : null,
+  if (data.multipartId && data.multipartId !== file.multipartId) {
+    throw new InvalidRequestError(
+      'Input multipartId does not match file multipartId'
+    );
+  }
+
+  const multipartId = data.multipartId || file.multipartId;
+  appAssert(multipartId, new InvalidRequestError('MultipartId is required'));
+  const parts = await getMultipartUploadPartMetas({
+    ...data,
+    multipartId,
   });
 
   return {
-    isDone,
-    continuationToken: continuationToken?.toString() || undefined,
-    clientMultipartId: file.clientMultipartId || undefined,
-    details: partDetailsListExtractor(parts),
+    multipartId,
+    page: getEndpointPageFromInput(data),
+    parts: partDetailsListExtractor(parts),
   };
 };
 

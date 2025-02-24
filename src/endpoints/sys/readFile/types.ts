@@ -7,8 +7,7 @@ export type SysReadFileEndpointParams = {
   mountId: string;
   part?: number;
   multipartId?: string;
-  namepath: string[];
-  ext?: string;
+  mountFilepath: string;
 };
 
 export interface SysReadFileEndpointResult {

@@ -83,6 +83,8 @@ const fileFields = getFields<PublicFile>({
   idPath: true,
   namepath: true,
   version: true,
+  multipartId: true,
+  multipartTimeout: true,
 });
 
 export const fileExtractor = makeExtract(fileFields);
@@ -125,6 +127,7 @@ export async function getAndCheckFileAuthorization(props: {
     incrementPresignedPathUsageCount,
     shouldIngestFile = true,
   } = props;
+
   const {file, presignedPath} = await getFileWithMatcher({
     matcher,
     opts,
@@ -133,8 +136,8 @@ export async function getAndCheckFileAuthorization(props: {
     presignedPathAction: action,
     incrementPresignedPathUsageCount: incrementPresignedPathUsageCount,
   });
-  assertFile(file);
 
+  assertFile(file);
   if (!presignedPath) {
     // Permission is already checked if there's a `presignedPath`
     await checkFileAuthorization(agent, file, action);
@@ -153,8 +156,8 @@ export function getFilenameInfo(providedName: string): FilenameInfo {
   providedName = providedName.startsWith('/')
     ? providedName.slice(1)
     : providedName;
-  const {basename, ext} = pathBasename(providedName);
 
+  const {basename, ext} = pathBasename(providedName);
   return {
     providedName,
     ext,
@@ -195,12 +198,14 @@ export async function getWorkspaceFromFilepath(
     allowRootFolder: false,
     containsRootname: true,
   });
+
   assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
   appAssert(
     workspace,
     kReuseableErrors.workspace.withRootnameNotFound(pathinfo.rootname)
   );
+
   return workspace;
 }
 
@@ -365,6 +370,7 @@ export async function ingestFileByFilepath(props: {
     mounts.map(async mount => {
       const provider = providersMap[mount.resourceId];
       const mountEntry = mountEntriesMapByMountId[mount.resourceId];
+
       appAssert(provider);
       appAssert(workspace);
 
@@ -383,7 +389,6 @@ export async function ingestFileByFilepath(props: {
   );
 
   const fileEntry0 = first(persistedFileList);
-
   if (fileEntry0) {
     await ingestPersistedFiles(agent, workspace, compact(persistedFileList));
   }

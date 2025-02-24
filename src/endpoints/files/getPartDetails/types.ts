@@ -1,18 +1,15 @@
-import {FileMatcher} from '../../../definitions/file.js';
-import {Endpoint} from '../../types.js';
-import {FilePartMeta} from '../utils/multipartUploadMeta.js';
+import {FileMatcher, PublicFilePart} from '../../../definitions/file.js';
+import {Endpoint, PaginatedResult, PaginationQuery} from '../../types.js';
 
-export interface GetPartDetailsEndpointParams extends FileMatcher {
-  continuationToken?: string;
+export interface GetPartDetailsEndpointParams
+  extends FileMatcher,
+    PaginationQuery {
+  multipartId?: string;
 }
 
-export type PublicPartDetails = Pick<FilePartMeta, 'part' | 'size'>;
-
-export interface GetPartDetailsEndpointResult {
-  clientMultipartId?: string;
-  continuationToken?: string;
-  isDone?: boolean;
-  details: PublicPartDetails[];
+export interface GetPartDetailsEndpointResult extends Partial<PaginatedResult> {
+  multipartId?: string;
+  parts: PublicFilePart[];
 }
 
 export type GetPartDetailsEndpoint = Endpoint<

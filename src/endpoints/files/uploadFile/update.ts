@@ -1,4 +1,4 @@
-import {isNumber, pick} from 'lodash-es';
+import {pick} from 'lodash-es';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
@@ -19,7 +19,7 @@ import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {getCleanupMultipartFileUpdate} from '../deleteFile/deleteMultipartUpload.js';
 import {assertFile} from '../utils.js';
 import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
-import {writeMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
+import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
 import {UploadFileEndpointParams} from './types.js';
 
 export async function setFileWritable(fileId: string) {
@@ -34,14 +34,12 @@ async function insertFileMountEntry(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
-  filepath: string;
-  namepath: string[];
-  ext: string;
+  backendFilepath: string;
   opts: SemanticProviderMutationParams;
   raw: unknown;
 }) {
-  const {agent, file, primaryMount, filepath, namepath, ext, opts, raw} =
-    params;
+  const {agent, file, primaryMount, backendFilepath, opts, raw} = params;
+  const {namepath, ext} = pathExtract(backendFilepath);
   const newMountEntry = newWorkspaceResource<ResolvedMountEntry>(
     agent,
     kFimidaraResourceType.ResolvedMountEntry,
@@ -56,7 +54,7 @@ async function insertFileMountEntry(params: {
       backendExt: ext,
       persisted: {
         raw,
-        filepath,
+        filepath: backendFilepath,
         lastUpdatedAt: file.lastUpdatedAt,
         mountId: primaryMount.resourceId,
         encoding: file.encoding,
@@ -73,21 +71,15 @@ export async function completeUploadFile(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
-  pMountData: FilePersistenceUploadFileResult<unknown>;
   update: Partial<File>;
   shouldInsertMountEntry: boolean;
+  raw: unknown;
 }) {
-  const {
-    agent,
-    file,
-    primaryMount,
-    pMountData,
-    update,
-    shouldInsertMountEntry,
-  } = params;
+  const {agent, file, primaryMount, update, shouldInsertMountEntry, raw} =
+    params;
 
+  const backendFilepath = await prepareMountFilepath({primaryMount, file});
   return await kSemanticModels.utils().withTxn(async opts => {
-    const {namepath, ext} = pathExtract(pMountData.filepath);
     const [savedFile] = await Promise.all([
       kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
       shouldInsertMountEntry &&
@@ -95,11 +87,9 @@ export async function completeUploadFile(params: {
           agent,
           file,
           primaryMount,
-          namepath,
-          ext,
+          backendFilepath,
           opts,
-          filepath: pMountData.filepath,
-          raw: pMountData.raw,
+          raw,
         }),
     ]);
 
@@ -108,46 +98,23 @@ export async function completeUploadFile(params: {
   });
 }
 
-export async function saveFilePartData(params: {
-  pMountData: FilePersistenceUploadFileResult<unknown>;
-  size: number;
-}) {
-  const {pMountData, size} = params;
-  appAssert(isNumber(pMountData.part));
-  appAssert(pMountData.multipartId && pMountData.partId);
-
-  await writeMultipartUploadPartMetas({
-    multipartId: pMountData.multipartId,
-    parts: [
-      {
-        size,
-        part: pMountData.part,
-        multipartId: pMountData.multipartId,
-        partId: pMountData.partId,
-      },
-    ],
-  });
-}
-
 export function getFileUpdate(params: {
   agent: SessionAgent;
   file: File;
   data: UploadFileEndpointParams;
-  isMultipart: boolean;
-  isLastPart?: boolean;
+  multipartId?: string;
   persistedMountData?: FilePersistenceUploadFileResult<unknown>;
   size: number;
 }) {
-  const {agent, file, data, isMultipart, persistedMountData, size, isLastPart} =
-    params;
+  const {agent, file, data, persistedMountData, size, multipartId} = params;
   const update: Partial<File> = {
     lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     lastUpdatedAt: getTimestamp(),
   };
 
-  if (isMultipart && !isLastPart) {
+  if (multipartId) {
     appAssert(persistedMountData);
-    update.internalMultipartId = persistedMountData.multipartId;
+    update.multipartId = multipartId;
     update.isWriteAvailable = false;
     update.multipartTimeout = getNextMultipartTimeout();
   } else {

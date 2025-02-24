@@ -32,6 +32,7 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
+  FilePartDataProvider,
   FolderDataProvider,
   JobDataProvider,
   JobHistoryDataProvider,
@@ -62,6 +63,7 @@ import {
   SemanticEmailMessageProvider,
 } from '../semantic/email/types.js';
 import {
+  SemanticFilePartProvider,
   SemanticFileProvider,
   SemanticPresignedPathProvider,
 } from '../semantic/file/types.js';
@@ -165,6 +167,10 @@ export const kSemanticModels = {
     ),
   script: () =>
     container.resolve<ISemanticScriptProvider>(kInjectionKeys.semantic.script),
+  filePart: () =>
+    container.resolve<SemanticFilePartProvider>(
+      kInjectionKeys.semantic.filePart
+    ),
   utils: () =>
     container.resolve<ISemanticProviderUtils>(kInjectionKeys.semantic.utils),
 };
@@ -233,6 +239,8 @@ export const kDataModels = {
     container.resolve<JobHistoryDataProvider>(kInjectionKeys.data.jobHistory),
   script: () =>
     container.resolve<ScriptDataProvider>(kInjectionKeys.data.script),
+  filePart: () =>
+    container.resolve<FilePartDataProvider>(kInjectionKeys.data.filePart),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
 };
 

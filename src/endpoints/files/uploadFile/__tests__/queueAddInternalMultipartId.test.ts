@@ -10,7 +10,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../testUtils/testUtils.js';
-import {prepareFilepath} from '../../utils/prepareFilepath.js';
+import {prepareMountFilepath} from '../../utils/prepareMountFilepath.js';
 import {queueAddInternalMultipartId} from '../queueAddInternalMultipartId.js';
 
 beforeAll(async () => {
@@ -34,7 +34,7 @@ describe('queueAddInternalMultipartId', () => {
       /** initPrimaryBackendOnly */ true
     );
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
@@ -75,7 +75,7 @@ describe('queueAddInternalMultipartId', () => {
         );
     });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
@@ -105,7 +105,7 @@ describe('queueAddInternalMultipartId', () => {
       /** initPrimaryBackendOnly */ true
     );
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
 
     async function addMultipartId() {
       const {multipartId} = await queueAddInternalMultipartId({

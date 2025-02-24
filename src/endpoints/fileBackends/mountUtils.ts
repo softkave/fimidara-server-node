@@ -119,6 +119,7 @@ export async function initBackendProvidersForMounts(
         .getSecret({
           secretId: config.secretId,
         });
+
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};
     })
@@ -133,6 +134,7 @@ export async function initBackendProvidersForMounts(
         .log(
           `mount ${mount.resourceId} is not fimidara, and is without config`
         );
+
       throw new ServerError();
     }
 
@@ -153,6 +155,7 @@ export async function resolveBackendsMountsAndConfigs(
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),
   });
+
   const requiredMounts = initPrimaryBackendOnly ? mounts.slice(0, 1) : mounts;
   appAssert(requiredMounts.length, kReuseableErrors.mount.mountsNotSetup());
 
@@ -162,6 +165,7 @@ export async function resolveBackendsMountsAndConfigs(
      * mount does not use configs. */
     false
   );
+
   const providersMap = await initBackendProvidersForMounts(
     requiredMounts,
     configs
@@ -169,6 +173,7 @@ export async function resolveBackendsMountsAndConfigs(
 
   const primaryMount = first(mounts);
   appAssert(primaryMount);
+
   const primaryBackend = providersMap[primaryMount.resourceId];
   appAssert(primaryBackend);
 
@@ -219,6 +224,7 @@ export function resolvedMountsHaveUnsupportedFeatures(
     .asyncLocalStorage()
     .disposables()
     .getList();
+
   const fileProviders = disposables.filter(disposable =>
     isFilePersistenceProvider(disposable)
   ) as FilePersistenceProvider[];
@@ -236,7 +242,6 @@ export function populateMountUnsupportedOpNoteInNotFoundError(
   errors: FimidaraExternalError[]
 ) {
   const notFoundError = errors.find(error => error instanceof NotFoundError);
-
   if (!notFoundError) {
     return;
   }

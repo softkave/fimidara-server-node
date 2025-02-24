@@ -34,5 +34,8 @@
 - cache locally from other servers
 - cache locally from s3 and write post using your own story
 - write script to change entry
+- a possibility is a last upload is requested on a server and other parts on other servers are not done
+- save metas
+- validate parts in complete multipart upload
 
 ## Implementation notes

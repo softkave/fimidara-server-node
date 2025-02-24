@@ -8,7 +8,6 @@ import {Job} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
-import {InvalidRequestError} from '../../errors.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
 import {beginDeleteFile} from './beginDeleteFile.js';
 import {deleteMultipartUpload} from './deleteMultipartUpload.js';
@@ -37,14 +36,10 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
   });
 
   let job: Job | undefined;
-  if (data.clientMultipartId) {
-    appAssert(
-      file.internalMultipartId,
-      new InvalidRequestError('File is not a multipart upload')
-    );
+  if (data.multipartId) {
     await deleteMultipartUpload({
       file,
-      multipartId: file.internalMultipartId,
+      multipartId: data.multipartId,
       part: data.part,
       shouldCleanupFile: true,
     });
@@ -56,6 +51,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       workspaceId: file.workspaceId,
       resources: [file],
     });
+
     job = first(jobs);
     appAssert(job);
     return {jobId: job.resourceId};

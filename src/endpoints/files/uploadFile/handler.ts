@@ -1,6 +1,5 @@
 import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
@@ -10,21 +9,14 @@ import {validate} from '../../../utils/validate.js';
 import RequestData from '../../RequestData.js';
 import {InvalidRequestError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {kFileConstants} from '../constants.js';
 import {fileExtractor} from '../utils.js';
-import {prepareFilepath} from '../utils/prepareFilepath.js';
-import {
-  fireAndForgetHandleMultipartCleanup,
-  handleLastMultipartUpload,
-} from './multipart.js';
+import {writeMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
+import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
+import {fireAndForgetHandleMultipartCleanup} from './multipart.js';
 import {prepareFileForUpload} from './prepare.js';
-import {queueAddInternalMultipartId} from './queueAddInternalMultipartId.js';
 import {UploadFileEndpoint, UploadFileEndpointParams} from './types.js';
-import {
-  completeUploadFile,
-  getFileUpdate,
-  saveFilePartData,
-  setFileWritable,
-} from './update.js';
+import {completeUploadFile, getFileUpdate, setFileWritable} from './update.js';
 import {
   handleFinalStorageUsageRecords,
   handleIntermediateStorageUsageRecords,
@@ -38,141 +30,98 @@ async function handleUploadFile(params: {
   isNewFile: boolean;
   reqData: RequestData<UploadFileEndpointParams>;
 }) {
-  const {data, agent, reqData, isNewFile} = params;
+  const {data, agent, reqData} = params;
   let {file} = params;
 
-  const isMultipart = isString(data.clientMultipartId);
+  const isMultipart = isString(data.multipartId);
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
     file,
     /** initPrimaryBackendOnly */ true
   );
 
   try {
-    const filepath = await prepareFilepath({primaryMount, file});
-    let internalMultipartId = file.internalMultipartId;
-    const isSilentPart = isMultipart && data.part === -1;
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
 
     if (isMultipart) {
       appAssert(
         isNumber(data.part),
         new InvalidRequestError('part is required for multipart uploads')
       );
-
-      if (!internalMultipartId) {
-        appAssert(
-          !isSilentPart,
-          new InvalidRequestError('No pending multipart upload')
-        );
-
-        const {multipartId} = await queueAddInternalMultipartId({
-          agent,
-          input: {
-            filepath,
-            fileId: file.resourceId,
-            workspaceId: file.workspaceId,
-            mount: {
-              backend: primaryMount.backend,
-              namepath: primaryMount.namepath,
-              resourceId: primaryMount.resourceId,
-              mountedFrom: primaryMount.mountedFrom,
-            },
-            namepath: file.namepath,
-          },
-        });
-
-        file.internalMultipartId = internalMultipartId = multipartId;
-      }
     }
 
     fireAndForgetHandleMultipartCleanup({
       primaryBackend,
       primaryMount,
-      filepath,
-      data,
+      backendFilepath: mountFilepath,
       file: file as FileWithRuntimeData,
     });
 
-    let size = 0;
-    let pMountData:
-      | Pick<FilePersistenceUploadFileResult<unknown>, 'filepath' | 'raw'>
-      | undefined;
+    // TODO: compare bytecounter and size input to make sure they match or
+    // update usage record
+    const bytesCounterStream = new ByteCounterPassThroughStream();
+    data.data.pipe(bytesCounterStream);
+    const uploadResult = await primaryBackend.uploadFile({
+      filepath: mountFilepath,
+      workspaceId: file.workspaceId,
+      body: bytesCounterStream,
+      fileId: file.resourceId,
+      mount: primaryMount,
+      part: data.part,
+      multipartId: data.multipartId,
+    });
 
-    if (isSilentPart) {
-      // avoid memory leak by destroying the stream
-      data.data.destroy();
-    }
-
-    if (!isSilentPart) {
-      // TODO: compare bytecounter and size input to make sure they match or
-      // update usage record
-      const bytesCounterStream = new ByteCounterPassThroughStream();
-      data.data.pipe(bytesCounterStream);
-
-      pMountData = await primaryBackend.uploadFile({
-        filepath,
-        workspaceId: file.workspaceId,
-        body: bytesCounterStream,
-        fileId: file.resourceId,
-        mount: primaryMount,
-        part: data.part,
-        multipartId: internalMultipartId,
-      });
-
-      await handleIntermediateStorageUsageRecords({
-        reqData,
-        file,
-        isNewFile,
-        size: bytesCounterStream.contentLength,
-      });
-
-      size = bytesCounterStream.contentLength;
-    }
-
-    if (isMultipart) {
-      if (!isSilentPart) {
-        appAssert(pMountData);
-        await saveFilePartData({pMountData: pMountData, size});
-      }
-
-      if (data.isLastPart) {
-        const completePartResult = await handleLastMultipartUpload({
-          file,
-          primaryBackend,
-          primaryMount,
-          filepath,
-          data,
-        });
-        size = completePartResult.size;
-        pMountData = completePartResult.pMountData;
-      }
-    }
-
-    await handleFinalStorageUsageRecords({
+    const size = bytesCounterStream.contentLength;
+    await handleIntermediateStorageUsageRecords({
       reqData,
       file,
-      isMultipart,
       size,
-      isLastPart: data.isLastPart,
     });
+
+    if (isMultipart) {
+      appAssert(
+        uploadResult.multipartId &&
+          uploadResult.partId &&
+          isNumber(uploadResult.part)
+      );
+
+      await writeMultipartUploadPartMetas({
+        agent,
+        fileId: file.resourceId,
+        multipartId: uploadResult.multipartId,
+        parts: [
+          {
+            size,
+            part: uploadResult.part,
+            multipartId: uploadResult.multipartId,
+            partId: uploadResult.partId,
+          },
+        ],
+      });
+    } else {
+      await handleFinalStorageUsageRecords({
+        reqData,
+        file,
+        size,
+      });
+    }
 
     const update = getFileUpdate({
       agent,
       file,
       data,
-      isMultipart,
-      persistedMountData: pMountData,
+      multipartId: data.multipartId,
+      persistedMountData: uploadResult,
       size,
-      isLastPart: data.isLastPart,
     });
 
-    appAssert(pMountData);
+    appAssert(uploadResult);
     file = await completeUploadFile({
       agent,
       file,
       primaryMount,
-      pMountData,
+      raw: uploadResult.raw,
       update,
-      shouldInsertMountEntry: !isMultipart || !!data.isLastPart,
+      shouldInsertMountEntry: !isMultipart,
     });
 
     return {file: fileExtractor(file)};
@@ -196,17 +145,14 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  // TODO: use a lock on the file using path, because it's still possible to
-  // have concurrency issues in the prepare stage. for that, we need to resolve
-  // a filepath as quickly as possible and lock on that.
 
   // eslint-disable-next-line prefer-const
   let {file, isNewFile} = await prepareFileForUpload(data, agent);
-  const isMultipart = isString(data.clientMultipartId);
+  const isMultipart = isString(data.multipartId);
 
-  if (isMultipart) {
+  if (isNumber(data.part) && isMultipart) {
     const result = await kUtilsInjectables.redlock().using(
-      `upload-file-${file.resourceId}-${data.part}`,
+      kFileConstants.multipartUploadLockKey(file.resourceId, data.part),
       /** durationMs */ 10 * 60 * 1000, // 10 minutes
       () => handleUploadFile({file, data, agent, isNewFile, reqData})
     );

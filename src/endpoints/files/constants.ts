@@ -43,45 +43,6 @@ export const kFileConstants = {
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
   maxPartLength: 10_000,
-  partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
-  getPartCacheKey: (multipartId: string, part: number) => {
-    return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;
-  },
-  addInternalMultipartIdQueueTimeout: 30_000,
-  addInternalMultipartIdProcessCount: 100,
-  getAddInternalMultipartIdPubSubChannel: (workspaceId: string) =>
-    `${
-      kUtilsInjectables.suppliedConfig()
-        .addInternalMultipartIdPubSubChannelPrefix
-    }-${workspaceId}`,
-  getAddInternalMultipartIdQueueWithNo: (num: number) =>
-    `${
-      kUtilsInjectables.suppliedConfig().addInternalMultipartIdQueuePrefix
-    }${num}`,
-  getAddInternalMultipartIdQueueKey: (workspaceId: string) => {
-    const {addInternalMultipartIdQueueStart, addInternalMultipartIdQueueEnd} =
-      kUtilsInjectables.suppliedConfig();
-
-    assert.ok(addInternalMultipartIdQueueStart);
-    assert.ok(addInternalMultipartIdQueueEnd);
-
-    const queueCount =
-      addInternalMultipartIdQueueEnd - addInternalMultipartIdQueueStart + 1;
-    assert.ok(queueCount > 0);
-
-    const hash = workspaceId.split('').reduce((acc, char) => {
-      return acc + char.charCodeAt(0);
-    }, 0);
-
-    const key = kFileConstants.getAddInternalMultipartIdQueueWithNo(
-      (hash % queueCount) + addInternalMultipartIdQueueStart
-    );
-
-    return key;
-  },
-  getAddInternalMultipartIdLockName: (fileId: string) =>
-    `addInternalMultipartId:${fileId}`,
-  getAddInternalMultipartIdLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
   prepareFileQueueTimeout: 1000 * 60 * 1, // 1 minute
   prepareFileProcessCount: 100,
   getPrepareFilePubSubChannel: (workspaceId: string) =>
@@ -115,4 +76,6 @@ export const kFileConstants = {
   getPrepareFileLockWaitTimeoutMs: 1000 * 60 * 1, // 1 minute
   minPartNumber: 1,
   maxPartNumber: 10_000,
+  multipartUploadLockKey: (fileId: string, part: number) =>
+    `multipartUpload:${fileId}:${part}`,
 };

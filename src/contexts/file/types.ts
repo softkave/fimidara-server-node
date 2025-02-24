@@ -36,7 +36,7 @@ interface FolderpathMatcher {
 }
 
 export interface FilePersistenceUploadPartResult {
-  part: number | number;
+  part: number;
   multipartId: string;
   partId: string;
 }
@@ -63,7 +63,7 @@ export interface FilePersistenceGetFileParams
     FilepathMatcher {
   fileId: string;
   part?: number;
-  clientMultipartId?: string;
+  multipartId?: string;
 }
 
 export interface FilePersistenceDescribeFileParams

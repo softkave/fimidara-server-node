@@ -11,17 +11,14 @@ import {UploadFileEndpointParams} from './types.js';
 
 async function checkFileWriteAvailable(params: {
   file: File;
-  clientMultipartId: string | undefined;
+  multipartId: string | undefined;
   opts: SemanticProviderMutationParams;
 }) {
-  const {file, clientMultipartId, opts} = params;
+  const {file, multipartId, opts} = params;
 
   if (file.isWriteAvailable) {
     return;
-  } else if (
-    file.clientMultipartId &&
-    file.clientMultipartId === clientMultipartId
-  ) {
+  } else if (file.multipartId && file.multipartId === multipartId) {
     return;
   } else if (file.multipartTimeout && file.multipartTimeout < Date.now()) {
     await beginCleanupExpiredMultipartUpload(file, opts);
@@ -35,7 +32,7 @@ export async function checkoutFileForUpload(params: {
   agent: SessionAgent;
   workspace: Workspace;
   file: File;
-  data: Pick<UploadFileEndpointParams, 'clientMultipartId'>;
+  data: Pick<UploadFileEndpointParams, 'multipartId'>;
   skipAuth?: boolean;
   opts: SemanticProviderMutationParams;
   closestExistingFolder?: Folder | null;
@@ -46,7 +43,7 @@ export async function checkoutFileForUpload(params: {
   await checkFileWriteAvailable({
     file,
     opts,
-    clientMultipartId: data.clientMultipartId,
+    multipartId: data.multipartId,
   });
 
   if (!skipAuth) {
@@ -63,7 +60,7 @@ export async function checkoutFileForUpload(params: {
     .file()
     .getAndUpdateOneById(
       file.resourceId,
-      {isWriteAvailable: false, clientMultipartId: data.clientMultipartId},
+      {isWriteAvailable: false, multipartId: data.multipartId},
       opts
     );
 }

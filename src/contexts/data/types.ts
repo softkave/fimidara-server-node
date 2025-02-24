@@ -6,7 +6,7 @@ import {App, AppShard} from '../../definitions/app.js';
 import {AssignedItem} from '../../definitions/assignedItem.js';
 import {CollaborationRequest} from '../../definitions/collaborationRequest.js';
 import {EmailBlocklist, EmailMessage} from '../../definitions/email.js';
-import {File} from '../../definitions/file.js';
+import {File, FilePart} from '../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -264,6 +264,7 @@ export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
 export type AppShardQuery = DataQuery<AppShard>;
 export type JobHistoryQuery = DataQuery<JobHistory>;
 export type ScriptQuery = DataQuery<AppScript>;
+export type FilePartQuery = DataQuery<FilePart>;
 
 export type AgentTokenDataProvider = BaseDataProvider<
   AgentToken,
@@ -342,4 +343,8 @@ export type JobHistoryDataProvider = BaseDataProvider<
 export type ScriptDataProvider = BaseDataProvider<
   AppScript,
   DataQuery<AppScript>
+>;
+export type FilePartDataProvider = BaseDataProvider<
+  FilePart,
+  DataQuery<FilePart>
 >;

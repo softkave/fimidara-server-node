@@ -28,11 +28,10 @@ const readable = Joi.any().custom((value, helpers) => {
 });
 
 const multipartId = Joi.string().max(128);
-const partWithoutLastPart = Joi.number()
+const part = Joi.number()
   .integer()
   .min(kFileConstants.minPartNumber)
   .max(kFileConstants.maxPartNumber);
-const partWithLastPart = partWithoutLastPart.allow(-1);
 
 const fileMatcherParts = {
   filepath,
@@ -48,8 +47,7 @@ const fileValidationSchemas = {
   readable,
   fileMatcherParts,
   multipartId,
-  partWithoutLastPart,
-  partWithLastPart,
+  part,
 };
 
 export default fileValidationSchemas;

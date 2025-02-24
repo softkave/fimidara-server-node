@@ -6,7 +6,6 @@ import {validate} from '../../../utils/validate.js';
 import {getSysOpMount} from '../utils/getSysOpMount.js';
 import {SysReadFileEndpoint} from './types.js';
 import {sysReadFileJoiSchema} from './validation.js';
-import {stringifyFilenamepath} from '../../files/utils.js';
 
 const sysReadFile: SysReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, sysReadFileJoiSchema);
@@ -18,15 +17,12 @@ const sysReadFile: SysReadFileEndpoint = async reqData => {
   );
 
   const persistedFile = await backend.readFile({
-    filepath: stringifyFilenamepath({
-      namepath: data.namepath,
-      ext: data.ext,
-    }),
+    filepath: data.mountFilepath,
     workspaceId: data.workspaceId,
     fileId: data.fileId,
     mount,
     part: data.part,
-    clientMultipartId: data.multipartId,
+    multipartId: data.multipartId,
   });
 
   return {

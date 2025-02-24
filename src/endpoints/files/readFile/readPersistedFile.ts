@@ -50,7 +50,7 @@ export async function readPersistedFile(params: {
         fileId: entry.forId,
         mount,
         part,
-        clientMultipartId,
+        multipartId: clientMultipartId,
       });
 
       if (persistedFile?.body) {

@@ -12,13 +12,8 @@ export async function handleIntermediateStorageUsageRecords(params: {
   reqData: RequestData;
   file: File;
   size: number;
-  isNewFile: boolean;
 }) {
-  const {reqData, file, size, isNewFile} = params;
-
-  if (!isNewFile) {
-    await decrementStorageUsageRecord(reqData, file);
-  }
+  const {reqData, file, size} = params;
 
   // TODO: why is resourceId undefined?
   const fileWithSize = {...file, size, resourceId: undefined};
@@ -40,17 +35,17 @@ export async function handleFinalStorageUsageRecords(params: {
   reqData: RequestData;
   file: File;
   size: number;
-  isMultipart: boolean;
-  isLastPart?: boolean;
 }) {
-  const {reqData, file, size, isMultipart, isLastPart} = params;
-  const fileWithSize = {...file, size, resourceId: undefined};
+  const {reqData, file, size} = params;
 
-  if (!isMultipart || isLastPart) {
-    await incrementStorageUsageRecord(
-      reqData,
-      fileWithSize,
-      kFimidaraPermissionActions.uploadFile
-    );
+  if (file.size) {
+    await decrementStorageUsageRecord(reqData, file);
   }
+
+  const fileWithSize = {...file, size, resourceId: undefined};
+  await incrementStorageUsageRecord(
+    reqData,
+    fileWithSize,
+    kFimidaraPermissionActions.uploadFile
+  );
 }

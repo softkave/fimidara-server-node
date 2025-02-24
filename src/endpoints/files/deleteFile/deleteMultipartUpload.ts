@@ -6,13 +6,12 @@ import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {deleteMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
-import {prepareFilepath} from '../utils/prepareFilepath.js';
+import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
 
 export function getCleanupMultipartFileUpdate(): Partial<File> {
   return {
     isWriteAvailable: true,
-    internalMultipartId: null,
-    clientMultipartId: null,
+    multipartId: null,
     multipartTimeout: null,
   };
 }
@@ -21,13 +20,13 @@ export async function deleteMultipartUpload(props: {
   file: File;
   primaryBackend?: FilePersistenceProvider;
   primaryMount?: FileBackendMount;
-  filepath?: string;
+  backendFilepath?: string;
   multipartId?: string;
   shouldCleanupFile?: boolean;
   part?: number;
 }) {
   const {file, multipartId, shouldCleanupFile, part} = props;
-  let {primaryBackend, primaryMount, filepath} = props;
+  let {primaryBackend, primaryMount, backendFilepath: filepath} = props;
 
   if (!primaryBackend || !primaryMount) {
     ({primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
@@ -37,10 +36,10 @@ export async function deleteMultipartUpload(props: {
   }
 
   if (!filepath) {
-    filepath = await prepareFilepath({primaryMount, file});
+    filepath = await prepareMountFilepath({primaryMount, file});
   }
 
-  const multipartIdToUse = multipartId ?? file.internalMultipartId;
+  const multipartIdToUse = multipartId ?? file.multipartId;
   appAssert(isString(multipartIdToUse));
   await Promise.all([
     isNumber(part)

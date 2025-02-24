@@ -93,7 +93,7 @@ describe('deleteFile', () => {
     const reqData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        clientMultipartId,
+        multipartId: clientMultipartId,
         part: 1,
         filepath: stringifyFilenamepath(file, workspace.rootname),
       }
@@ -148,7 +148,7 @@ describe('deleteFile', () => {
     const reqData = RequestData.fromExpressRequest<DeleteFileEndpointParams>(
       mockExpressRequestWithAgentToken(userToken),
       {
-        clientMultipartId,
+        multipartId: clientMultipartId,
         filepath: stringifyFilenamepath(file, workspace.rootname),
       }
     );

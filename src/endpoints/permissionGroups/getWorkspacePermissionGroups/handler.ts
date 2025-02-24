@@ -24,12 +24,14 @@ const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint =
         kSessionUtils.permittedAgentTypes.api,
         kSessionUtils.accessScopes.api
       );
+
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspacePermissionGroupsQuery(agent, workspace);
     applyDefaultEndpointPaginationOptions(data);
     const items = await kSemanticModels
       .permissionGroup()
       .getManyByWorkspaceAndIdList(q, data);
+
     return {
       page: getEndpointPageFromInput(data),
       permissionGroups: permissionGroupListExtractor(items),

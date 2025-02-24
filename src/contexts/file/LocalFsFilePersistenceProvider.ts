@@ -2,6 +2,7 @@ import assert from 'assert';
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
 import path from 'path';
+import {Readable} from 'stream';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
@@ -39,6 +40,13 @@ import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
   partsDir: string;
+  /** for use primarily by FimidaraFilePersistenceProvider when using local fs
+   * as it's internal storage in a distributed setup */
+  getPartStream: (
+    params: FilePersistenceCompleteMultipartUploadParams & {
+      part: number;
+    }
+  ) => Readable;
 }
 
 export interface LocalFSPersistedFileBackendMetaRaw {
@@ -75,7 +83,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   protected dirNamepath: string;
   protected partsNamepath: string;
 
-  constructor(private params: LocalFsFilePersistenceProviderParams) {
+  constructor(protected params: LocalFsFilePersistenceProviderParams) {
     fse.ensureDirSync(params.dir);
     fse.ensureDirSync(params.partsDir);
     this.dirNamepath = params.dir;
@@ -430,17 +438,35 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     });
   }
 
+  protected getMultipartInstancePartsDir(params: {
+    filepath: string;
+    multipartId: string;
+  }) {
+    return pathJoin(this.partsNamepath, params.filepath, params.multipartId);
+  }
+
+  protected getPartPath(params: {
+    filepath: string;
+    multipartId: string;
+    part: number;
+  }) {
+    return pathJoin(
+      this.getMultipartInstancePartsDir(params),
+      params.part.toString()
+    );
+  }
+
   protected async writeStreamToPartsFile(
     params: FilePersistenceUploadFileParams
   ) {
     appAssert(isNumber(params.part));
     appAssert(params.multipartId);
-    const partPath = pathJoin(
-      this.partsNamepath,
-      params.filepath,
-      params.multipartId,
-      params.part.toString()
-    );
+
+    const partPath = this.getPartPath({
+      filepath: params.filepath,
+      multipartId: params.multipartId,
+      part: params.part,
+    });
 
     return this.writeStreamToFile(partPath, params);
   }
@@ -448,13 +474,30 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
   protected async cleanupPartsFile(
     params: FilePersistenceCleanupMultipartUploadParams
   ) {
-    const partsDir = pathJoin(
-      this.partsNamepath,
-      params.filepath,
-      params.multipartId
-    );
+    const partsDir = this.getMultipartInstancePartsDir({
+      filepath: params.filepath,
+      multipartId: params.multipartId,
+    });
 
     await fse.promises.rm(partsDir, {recursive: true, force: true});
+  }
+
+  protected async getPartStream(
+    params: FilePersistenceCompleteMultipartUploadParams & {
+      part: number;
+    }
+  ) {
+    const partPath = this.getPartPath({
+      filepath: params.filepath,
+      multipartId: params.multipartId,
+      part: params.part,
+    });
+
+    if (await fse.pathExists(partPath)) {
+      return fse.createReadStream(partPath, {autoClose: true});
+    }
+
+    return this.params.getPartStream(params);
   }
 
   protected async completePartsFile(
@@ -471,18 +514,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       emitClose: true,
     });
 
-    const partsDir = pathJoin(
-      this.partsNamepath,
-      params.filepath,
-      params.multipartId
-    );
+    for (const part of params.parts) {
+      const partStream = await this.getPartStream({
+        ...params,
+        part: part.part,
+      });
 
-    // TODO: this is not efficient because it reads the entire directory into
-    // memory. Also, it writes the parts in order, which I think prolly there's a
-    // better way to do this.
-    for (const entry of await fse.promises.readdir(partsDir)) {
-      const partPath = pathJoin(partsDir, entry);
-      const partStream = fse.createReadStream(partPath, {autoClose: true});
       partStream.pipe(writeStream, {end: false});
       const promise = new Promise<void>((resolve, reject) => {
         partStream.on('end', resolve);

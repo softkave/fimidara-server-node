@@ -140,10 +140,12 @@ export async function ingestPersistedFiles(
             containsRootname: false,
             allowRootFolder: false,
           });
+
           return {fimidaraNamepath: namepath, fimidaraExt: ext};
         }),
         opts
       );
+
     const mountEntriesMapByBackendNamepath: Record<
       string,
       ResolvedMountEntry | undefined
@@ -164,6 +166,7 @@ export async function ingestPersistedFiles(
           containsRootname: false,
           allowRootFolder: false,
         });
+
         folderpathsToEnsure.push({
           folderpath: addRootnameToPath(parentStringPath, workspace.rootname),
         });
@@ -186,6 +189,7 @@ export async function ingestPersistedFiles(
 
     const newFiles: File[] = [];
     const newMountEntries: ResolvedMountEntry[] = [];
+
     pFiles.map(pFile => {
       const mountEntry = mountEntriesMapByBackendNamepath[pFile.filepath];
       let newFile: File | undefined;

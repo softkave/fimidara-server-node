@@ -70,6 +70,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       bucket?.length,
       kReuseableErrors.mount.s3MountSourceMissingBucket()
     );
+
     return {bucket, prefix};
   }
 
@@ -115,6 +116,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         params.multipartId,
         params
       );
+
       return {
         filepath: params.filepath,
         raw: response,
@@ -135,11 +137,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     const key = this.formatKey(nativePath, {removeStartingSeparator: true});
     const command = new CreateMultipartUploadCommand({
       Bucket: bucket,
       Key: key,
     });
+
     const response = await this.s3.send(command);
     appAssert(response.UploadId);
     return {multipartId: response.UploadId};
@@ -159,12 +163,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     const command = new GetObjectCommand({
       Bucket: bucket,
       Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
     });
-    const response = await this.s3.send(command);
 
+    const response = await this.s3.send(command);
     return {
       body: <Readable | undefined>response.Body,
       size: response.ContentLength,
@@ -183,6 +188,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         fimidaraPath: filepath,
         mount: params.mount,
       });
+
       bucket = nativeInfo.bucket;
       return {
         Key: this.formatKey(nativeInfo.nativePath, {
@@ -205,6 +211,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         Objects: params.ids,
       },
     });
+
     await this.s3.send(command);
   };
 
@@ -219,12 +226,13 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     const command = new HeadObjectCommand({
       Bucket: bucket,
       Key: this.formatKey(nativePath, {removeStartingSeparator: true}),
     });
-    const response = await this.s3.send(command);
 
+    const response = await this.s3.send(command);
     return {
       filepath: params.filepath,
       size: response.ContentLength,
@@ -243,16 +251,19 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.folderpath,
       mount: params.mount,
     });
+
     const prefix = this.formatKey(nativePath, {
       removeStartingSeparator: true,
       addEndingSeparator: true,
     });
+
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       MaxKeys: 1,
       Prefix: prefix,
       Delimiter: kFolderConstants.separator,
     });
+
     const response = await this.s3.send(command);
 
     // As long as it doesn't throw a NoSuchKey error, then it exists
@@ -270,10 +281,12 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.folderpath,
       mount: params.mount,
     });
+
     const prefix = this.formatKey(nativePath, {
       removeStartingSeparator: true,
       addEndingSeparator: true,
     });
+
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       MaxKeys: params.max,
@@ -281,8 +294,8 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       Delimiter: kFolderConstants.separator,
       ContinuationToken: params.continuationToken as string | undefined,
     });
-    const response = await this.s3.send(command);
 
+    const response = await this.s3.send(command);
     const files: PersistedFileBackendMeta<AnyObject>[] = [];
     const folders: PersistedFolderBackendMeta<AnyObject>[] = [];
 
@@ -347,6 +360,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath,
       prefix
     );
+
     return {nativePath, bucket, prefix};
   };
 
@@ -360,6 +374,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       nativePath,
       prefix
     );
+
     return {fimidaraPath};
   };
 
@@ -377,6 +392,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
         ETag: part.partId,
       })
     );
+
     const key = this.formatKey(nativePath, {removeStartingSeparator: true});
     const command = new CompleteMultipartUploadCommand({
       Bucket: bucket,
@@ -399,6 +415,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     const key = this.formatKey(nativePath, {removeStartingSeparator: true});
     const command = new AbortMultipartUploadCommand({
       Bucket: bucket,
@@ -439,6 +456,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
       Prefix: key,
       MaxUploads: 1,
     });
+
     const response = await this.s3.send(command);
     return !!response.Uploads?.length;
   }

@@ -40,6 +40,7 @@ export const kInjectionKeys = {
     appShard: dataKey('appShard'),
     jobHistory: dataKey('jobHistory'),
     script: dataKey('script'),
+    filePart: dataKey('filePart'),
     utils: dataKey('utils'),
   },
   semantic: {
@@ -67,6 +68,7 @@ export const kInjectionKeys = {
     jobHistory: semanticKey('jobHistory'),
     script: semanticKey('script'),
     utils: semanticKey('utils'),
+    filePart: semanticKey('filePart'),
   },
   encryption: 'encryption',
   // config: 'config',
