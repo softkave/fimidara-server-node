@@ -426,8 +426,8 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     // TODO: this is not efficient because it reads the entire directory into
     // memory. Also, it writes the parts in order, which I think prolly there's a
     // better way to do this.
-    for (const entry of await fse.promises.readdir(partsDir)) {
-      const partPath = pathJoin(partsDir, entry);
+    for (const part of params.parts) {
+      const partPath = pathJoin(partsDir, part.part.toString());
       const partStream = fse.createReadStream(partPath, {autoClose: true});
       partStream.pipe(writeStream, {end: false});
       const promise = new Promise<void>((resolve, reject) => {

@@ -60,7 +60,7 @@ export const singleFileUpload = async (params: {
     );
 
     await afterEach?.(result);
-    return {...result, part: 0};
+    return {...result, part: 1};
   };
 
   const runAll: RunAllFn = async runParams => {
@@ -109,9 +109,10 @@ export const multipartFileUpload = async (params: {
   const partLengthOrDefault = partLength ?? 3;
   const clientMultipartIdOrDefault = clientMultipartId ?? getNewId();
   const uploadPart = async (part: number) => {
+    const slicePart = part - 1;
     const partData = dataBuffer.subarray(
-      part * (dataBuffer.byteLength / partLengthOrDefault),
-      (part + 1) * (dataBuffer.byteLength / partLengthOrDefault)
+      slicePart * (dataBuffer.byteLength / partLengthOrDefault),
+      (slicePart + 1) * (dataBuffer.byteLength / partLengthOrDefault)
     );
     const result = await insertFileForTest(userToken, workspace, {
       clientMultipartId: clientMultipartIdOrDefault,
@@ -135,7 +136,7 @@ export const multipartFileUpload = async (params: {
     });
   };
 
-  const runOrder = Array.from({length: partLengthOrDefault}, (_, i) => i);
+  const runOrder = Array.from({length: partLengthOrDefault}, (_, i) => i + 1);
   const ranSet = new Set<number>();
 
   const getNextPart = () => {
@@ -155,7 +156,7 @@ export const multipartFileUpload = async (params: {
 
     if (
       !isNumber(part) ||
-      part >= partLengthOrDefault ||
+      part > partLengthOrDefault ||
       (ranSet.has(part) && !forceRun)
     ) {
       return null;

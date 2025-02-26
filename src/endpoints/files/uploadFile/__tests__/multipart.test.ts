@@ -127,7 +127,7 @@ describe('multipart.uploadFile', () => {
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
     const buf01 = Buffer.from('01');
     const {rawFile: rf01} = await insertFileForTest(userToken, rawWorkspace, {
-      part: 0,
+      part: 1,
       data: Readable.from(buf01),
       size: buf01.byteLength,
       clientMultipartId: '1',
@@ -137,7 +137,7 @@ describe('multipart.uploadFile', () => {
     assert.ok(rf01.internalMultipartId);
     const partMeta = await getMultipartUploadPartMeta({
       multipartId: rf01.internalMultipartId,
-      part: 0,
+      part: 1,
     });
     assert.ok(partMeta);
     expect(partMeta.size).toBe(buf01.byteLength);
@@ -145,7 +145,7 @@ describe('multipart.uploadFile', () => {
 
     const buf02 = Buffer.from('02 03 04 05');
     const {rawFile: rf02} = await insertFileForTest(userToken, rawWorkspace, {
-      part: 0,
+      part: 1,
       data: Readable.from(buf02),
       size: buf02.byteLength,
       clientMultipartId: '1',
@@ -156,7 +156,7 @@ describe('multipart.uploadFile', () => {
     assert.ok(rf02.internalMultipartId);
     const partMeta2 = await getMultipartUploadPartMeta({
       multipartId: rf02.internalMultipartId,
-      part: 0,
+      part: 1,
     });
     assert.ok(partMeta2);
     expect(rf01.internalMultipartId).toBe(rf02.internalMultipartId);
