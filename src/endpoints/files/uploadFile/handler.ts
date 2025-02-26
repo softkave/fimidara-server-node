@@ -96,6 +96,8 @@ async function handleUploadFile(params: {
             partId: uploadResult.partId,
           },
         ],
+        backend: primaryBackend.type,
+        raw: uploadResult.raw,
       });
     } else {
       await handleFinalStorageUsageRecords({

@@ -1,3 +1,4 @@
+import {FileBackendType} from './fileBackend.js';
 import {
   PublicWorkspaceResource,
   ToPublicDefinitions,
@@ -36,6 +37,9 @@ export interface FilePart extends WorkspaceResource {
   size: number;
   partId: string;
   multipartId: string;
+  backend: FileBackendType;
+  /** backend-specific raw data */
+  raw: unknown;
 }
 
 export type PublicFile = PublicWorkspaceResource &

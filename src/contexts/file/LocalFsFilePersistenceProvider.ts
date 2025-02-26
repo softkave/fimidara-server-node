@@ -2,7 +2,7 @@ import assert from 'assert';
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
 import path from 'path';
-import {Readable} from 'stream';
+import {FilePart} from '../../definitions/file.js';
 import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
@@ -37,25 +37,26 @@ import {
 } from './types.js';
 import {defaultToFimidaraPath, defaultToNativePath} from './utils.js';
 
+export type LocalFsFilePersistenceProviderGetPartStream = (
+  params: FilePersistenceCompleteMultipartUploadParams & {
+    part: FilePart;
+  }
+) => Promise<NodeJS.ReadableStream>;
+
 export interface LocalFsFilePersistenceProviderParams {
   dir: string;
   partsDir: string;
   /** for use primarily by FimidaraFilePersistenceProvider when using local fs
    * as it's internal storage in a distributed setup */
-  getPartStream: (
-    params: FilePersistenceCompleteMultipartUploadParams & {
-      part: number;
-    }
-  ) => Readable;
+  getPartStream: LocalFsFilePersistenceProviderGetPartStream;
 }
 
-export interface LocalFSPersistedFileBackendMetaRaw {
+export interface LocalFSPersistedFileLocation {
   serverId: string;
 }
 
-export interface LocalFSPersistedFolderBackendMetaRaw {
-  serverId: string;
-}
+export type LocalFSPersistedFileBackendMetaRaw = LocalFSPersistedFileLocation;
+export type LocalFSPersistedFolderBackendMetaRaw = LocalFSPersistedFileLocation;
 
 export interface LocalFSPersistedFileBackendMeta
   extends PersistedFileBackendMeta<LocalFSPersistedFileBackendMetaRaw> {}
@@ -484,13 +485,13 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
 
   protected async getPartStream(
     params: FilePersistenceCompleteMultipartUploadParams & {
-      part: number;
+      part: FilePart;
     }
   ) {
     const partPath = this.getPartPath({
       filepath: params.filepath,
       multipartId: params.multipartId,
-      part: params.part,
+      part: params.part.part,
     });
 
     if (await fse.pathExists(partPath)) {
@@ -517,7 +518,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
     for (const part of params.parts) {
       const partStream = await this.getPartStream({
         ...params,
-        part: part.part,
+        part,
       });
 
       partStream.pipe(writeStream, {end: false});

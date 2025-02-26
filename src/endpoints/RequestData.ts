@@ -6,8 +6,9 @@ import {
 } from '../definitions/system.js';
 import {User} from '../definitions/user.js';
 import {getNewIdForResource} from '../utils/resource.js';
+import {kEndpointConstants} from './constants.js';
 
-export interface IRequestContructorParams<T = any> {
+export interface IRequestContructorParams<T = unknown> {
   req?: IServerRequest | null;
   data?: T;
   incomingTokenData?: BaseTokenData | null;
@@ -15,13 +16,13 @@ export interface IRequestContructorParams<T = any> {
   user?: User | null;
 }
 
-export default class RequestData<T = any> {
+export default class RequestData<T = unknown> {
   static fromExpressRequest(req: IServerRequest): RequestData<{}>;
-  static fromExpressRequest<DataType = any>(
+  static fromExpressRequest<DataType = unknown>(
     req: IServerRequest,
     data: DataType
   ): RequestData<DataType>;
-  static fromExpressRequest<DataType = any>(
+  static fromExpressRequest<DataType = unknown>(
     ...args: [IServerRequest] | [IServerRequest, DataType]
   ): RequestData<DataType> {
     const [req, data] = args;
@@ -81,13 +82,13 @@ export default class RequestData<T = any> {
   }
 
   getUserAgent() {
-    if (this.req) return this.req.headers['user-agent'];
+    if (this.req) return this.req.headers[kEndpointConstants.headers.userAgent];
     return null;
   }
 
   getSystemAuthId() {
     if (this.req) {
-      return this.req.headers['x-system-auth-id'];
+      return this.req.headers[kEndpointConstants.headers.interServerAuthSecret];
     }
 
     return null;

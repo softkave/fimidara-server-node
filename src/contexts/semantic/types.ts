@@ -1,4 +1,3 @@
-import {App} from '../../definitions/app.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -174,8 +173,6 @@ export interface ISemanticProviderUtils {
 
 export type SemanticFileBackendMountProvider =
   SemanticWorkspaceResourceProviderType<FileBackendMount>;
-
-export type SemanticAppProvider = SemanticWorkspaceResourceProviderType<App>;
 
 export interface SemanticTagProviderType
   extends SemanticWorkspaceResourceProviderType<Tag> {}

@@ -145,7 +145,10 @@ import {getSecretsProvider} from '../secrets/utils.js';
 import {DataSemanticAgentToken} from '../semantic/agentToken/model.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
 import {SemanticAppShardProviderImpl} from '../semantic/app/SemanticAppShardProviderImpl.js';
-import {SemanticAppShardProvider} from '../semantic/app/types.js';
+import {
+  ISemanticAppProvider,
+  SemanticAppShardProvider,
+} from '../semantic/app/types.js';
 import {DataSemanticAssignedItem} from '../semantic/assignedItem/model.js';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
 import {DataSemanticCollaborationRequest} from '../semantic/collaborationRequest/model.js';
@@ -188,7 +191,6 @@ import {SemanticScriptProvider} from '../semantic/script/provider.js';
 import {ISemanticScriptProvider} from '../semantic/script/types.js';
 import {
   ISemanticProviderUtils,
-  SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticPermissionGroupProviderType,
@@ -257,7 +259,7 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.usageRecord, item),
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
     registerToken(kInjectionKeys.semantic.resolvedMountEntry, item),
-  app: (item: SemanticAppProvider) =>
+  app: (item: ISemanticAppProvider) =>
     registerToken(kInjectionKeys.semantic.app, item),
   emailMessage: (item: SemanticEmailMessageProvider) =>
     registerToken(kInjectionKeys.semantic.emailMessage, item),

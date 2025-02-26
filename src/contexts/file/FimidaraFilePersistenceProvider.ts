@@ -1,7 +1,11 @@
 import assert from 'assert';
 import {isArray, isNumber, isObject} from 'lodash-es';
+import fetch from 'node-fetch';
 import {pathJoin} from 'softkave-js-utils';
+import {FilePart} from '../../definitions/file.js';
+import {kFileBackendType} from '../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
+import {kEndpointConstants} from '../../endpoints/constants.js';
 import {FileBackendQueries} from '../../endpoints/fileBackends/queries.js';
 import {
   getFilepathInfo,
@@ -12,16 +16,20 @@ import {
   getFolderpathInfo,
   stringifyFolderpath,
 } from '../../endpoints/folders/utils.js';
+import {SysDeleteFileEndpointParams} from '../../endpoints/sys/deleteFile/types.js';
+import {SysReadFileEndpointParams} from '../../endpoints/sys/readFile/types.js';
 import {
   FimidaraConfigFilePersistenceProvider,
   kFimidaraConfigFilePersistenceProvider,
 } from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
+import {ServerError} from '../../utils/errors.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
 import {
   getLocalFsDirFromSuppliedConfig,
   LocalFsFilePersistenceProvider,
+  LocalFsFilePersistenceProviderGetPartStream,
   LocalFSPersistedFileBackendMetaRaw,
 } from './LocalFsFilePersistenceProvider.js';
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
@@ -135,7 +143,10 @@ export class FimidaraFilePersistenceProvider
     const config = kUtilsInjectables.suppliedConfig();
     const backendType = config.fileBackend;
     appAssert(backendType, 'No file backend provided');
-    this.backend = FimidaraFilePersistenceProvider.getBackend(backendType);
+    this.backend = FimidaraFilePersistenceProvider.getBackend({
+      backendType,
+      getPartStreamForLocalFS: sysReadPartDistributed,
+    });
     this.backendType = backendType;
   }
 
@@ -174,7 +185,20 @@ export class FimidaraFilePersistenceProvider
     params: FilePersistenceDeleteMultipartUploadPartParams
   ) => {
     const preparedParams = this.prepareParams(params);
-    return this.backend.deleteMultipartUploadPart(preparedParams);
+
+    switch (this.backendType) {
+      case kFimidaraConfigFilePersistenceProvider.fs: {
+        const serverId = getServerIdForPart(preparedParams.part);
+
+        if (serverId === kUtilsInjectables.serverApp().getServerId()) {
+          return this.backend.deleteMultipartUploadPart(preparedParams);
+        } else {
+          return sysDeletePartDistributed(preparedParams);
+        }
+      }
+      default:
+        return this.backend.deleteMultipartUploadPart(preparedParams);
+    }
   };
 
   completeMultipartUpload = async (
@@ -188,11 +212,39 @@ export class FimidaraFilePersistenceProvider
     };
   };
 
-  cleanupMultipartUpload = (
+  cleanupMultipartUpload = async (
     params: FilePersistenceCleanupMultipartUploadParams
   ) => {
     const preparedParams = this.prepareParams(params);
-    return this.backend.cleanupMultipartUpload(preparedParams);
+
+    switch (this.backendType) {
+      case kFimidaraConfigFilePersistenceProvider.fs: {
+        const parts = await kSemanticModels.filePart().getManyByQuery({
+          multipartId: preparedParams.multipartId,
+        });
+
+        const serverIds = new Set<string>();
+        for (const part of parts) {
+          const serverId = getServerIdForPart(part);
+          serverIds.add(serverId);
+        }
+
+        for (const serverId of serverIds) {
+          if (serverId === kUtilsInjectables.serverApp().getServerId()) {
+            await this.backend.cleanupMultipartUpload(preparedParams);
+          } else {
+            await sysCleanupMultipartUploadDistributed({
+              ...preparedParams,
+              serverId,
+            });
+          }
+        }
+
+        return;
+      }
+      default:
+        return this.backend.cleanupMultipartUpload(preparedParams);
+    }
   };
 
   readFile = async (
@@ -513,7 +565,7 @@ export class FimidaraFilePersistenceProvider
     const config = kUtilsInjectables.suppliedConfig();
     let mount = params.mount;
 
-    if (config.fileBackend === kFimidaraConfigFilePersistenceProvider.s3) {
+    if (this.backendType === kFimidaraConfigFilePersistenceProvider.s3) {
       const s3Bucket = config.awsConfigs?.s3Bucket;
       assert(s3Bucket);
       mount = {...mount, mountedFrom: [s3Bucket]};
@@ -560,11 +612,12 @@ export class FimidaraFilePersistenceProvider
     } as FimidaraPersistedFolderBackendMeta;
   }
 
-  static getBackend = (
-    inputBackendType?: FimidaraConfigFilePersistenceProvider
-  ): FilePersistenceProvider => {
+  static getBackend = (params: {
+    backendType?: FimidaraConfigFilePersistenceProvider;
+    getPartStreamForLocalFS: LocalFsFilePersistenceProviderGetPartStream;
+  }): FilePersistenceProvider => {
     const config = kUtilsInjectables.suppliedConfig();
-    const backendType = inputBackendType || config.fileBackend;
+    const backendType = params.backendType || config.fileBackend;
 
     switch (backendType) {
       case kFimidaraConfigFilePersistenceProvider.s3: {
@@ -577,6 +630,7 @@ export class FimidaraFilePersistenceProvider
         return new LocalFsFilePersistenceProvider({
           dir: localFsDir,
           partsDir: localPartsFsDir,
+          getPartStream: params.getPartStreamForLocalFS,
         });
       }
 
@@ -587,4 +641,132 @@ export class FimidaraFilePersistenceProvider
         throw kReuseableErrors.file.unknownBackend(backendType || '');
     }
   };
+}
+
+function getServerIdForPart(part: FilePart): string {
+  appAssert(part.backend === kFileBackendType.fimidara);
+  const partRaw = part.raw as FimidaraPersistedFileBackendMetaRaw;
+
+  appAssert(partRaw.backend === kFimidaraConfigFilePersistenceProvider.fs);
+  return partRaw.raw.serverId;
+}
+
+async function getIpAndPortForServerId(
+  serverId: string
+): Promise<{ip: string; port: string}> {
+  const app = await kSemanticModels
+    .app()
+    .getLatestAppInstanceForServerId(serverId);
+
+  appAssert(app);
+  const ip = app.ipv4 || app.ipv6;
+  const httpsPort = app.httpsPort;
+
+  appAssert(ip);
+  appAssert(httpsPort);
+
+  return {
+    ip,
+    port: httpsPort,
+  };
+}
+
+export async function sysReadPartDistributed(
+  params: FilePersistenceCompleteMultipartUploadParams & {
+    part: FilePart;
+  }
+): Promise<NodeJS.ReadableStream> {
+  const {workspaceId, filepath, fileId, part, multipartId, mount} = params;
+  const serverId = getServerIdForPart(part);
+  const {ip, port} = await getIpAndPortForServerId(serverId);
+  const url = `https://${ip}:${port}/api/v1/sys/readFile`;
+  const body: SysReadFileEndpointParams = {
+    workspaceId,
+    fileId,
+    part: part.part,
+    multipartId,
+    mountFilepath: filepath,
+    mountId: mount.resourceId,
+  };
+
+  const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+  appAssert(interServerAuthSecret);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      [kEndpointConstants.headers.interServerAuthSecret]: interServerAuthSecret,
+    },
+  });
+
+  if (!response.ok || !response.body) {
+    throw new ServerError();
+  }
+
+  return response.body;
+}
+
+export async function sysDeletePartDistributed(
+  params: FilePersistenceDeleteMultipartUploadPartParams
+) {
+  const {workspaceId, filepath, fileId, part, multipartId, mount} = params;
+  const serverId = getServerIdForPart(part);
+  const {ip, port} = await getIpAndPortForServerId(serverId);
+  const url = `https://${ip}:${port}/api/v1/sys/deletePart`;
+  const body: SysDeleteFileEndpointParams = {
+    workspaceId,
+    fileId,
+    part: part.part,
+    multipartId,
+    mountFilepath: filepath,
+    mountId: mount.resourceId,
+  };
+
+  const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+  appAssert(interServerAuthSecret);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      [kEndpointConstants.headers.interServerAuthSecret]: interServerAuthSecret,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ServerError();
+  }
+}
+
+export async function sysCleanupMultipartUploadDistributed(
+  params: FilePersistenceCleanupMultipartUploadParams & {
+    serverId: string;
+  }
+) {
+  const {workspaceId, filepath, fileId, multipartId, mount} = params;
+  const {ip, port} = await getIpAndPortForServerId(params.serverId);
+  const url = `https://${ip}:${port}/api/v1/sys/deletePart`;
+  const body: SysDeleteFileEndpointParams = {
+    workspaceId,
+    fileId,
+    multipartId,
+    mountFilepath: filepath,
+    mountId: mount.resourceId,
+  };
+
+  const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+  appAssert(interServerAuthSecret);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      [kEndpointConstants.headers.interServerAuthSecret]: interServerAuthSecret,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ServerError();
+  }
 }

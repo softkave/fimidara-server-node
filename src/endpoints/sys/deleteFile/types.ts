@@ -7,8 +7,7 @@ export interface SysDeleteFileEndpointParams extends FileMatcher {
   mountId: string;
   part?: number;
   multipartId?: string;
-  namepath: string[];
-  ext?: string;
+  mountFilepath: string;
 }
 
 export type SysDeleteFileEndpoint = Endpoint<SysDeleteFileEndpointParams>;

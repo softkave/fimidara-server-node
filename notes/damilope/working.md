@@ -37,5 +37,8 @@
 - a possibility is a last upload is requested on a server and other parts on other servers are not done
 - save metas
 - validate parts in complete multipart upload
+- discrepancy between inter-server auth header names
+- a different design for namepath to allow changing the namepath of a file
+- whitelist local for http, everything else is https
 
 ## Implementation notes

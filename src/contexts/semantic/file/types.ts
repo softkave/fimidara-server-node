@@ -71,6 +71,13 @@ export interface SemanticFilePartProvider
     },
     opts?: SemanticProviderQueryListParams<FilePart>
   ): Promise<FilePart[]>;
+  getOneByMultipartIdAndPart(
+    params: {
+      multipartId: string;
+      part: number;
+    },
+    opts?: SemanticProviderQueryParams<FilePart>
+  ): Promise<FilePart | null>;
   deleteManyByMultipartId(
     params: {
       multipartId: string;

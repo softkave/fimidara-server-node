@@ -1,5 +1,6 @@
 import {DisposableResource} from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {FilePart} from '../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -176,7 +177,7 @@ export interface FilePersistenceCompleteMultipartUploadParams
     FilepathMatcher {
   fileId: string;
   multipartId: string;
-  parts: FilePersistenceUploadPartResult[];
+  parts: FilePart[];
 }
 
 export interface FilePersistenceCompleteMultipartUploadResult<TRaw = unknown> {
@@ -206,7 +207,7 @@ export interface FilePersistenceDeleteMultipartUploadPartParams
     FilepathMatcher {
   fileId: string;
   multipartId: string;
-  part: number;
+  part: FilePart;
 }
 
 // TODO: implement a better way to specify TRaw

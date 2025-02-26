@@ -2,6 +2,7 @@ import {Readable} from 'stream';
 import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
 import {kFimidaraConfigFilePersistenceProvider} from '../../../resources/config.js';
+import {ServerError} from '../../../utils/errors.js';
 import {validate} from '../../../utils/validate.js';
 import {getSysOpMount} from '../utils/getSysOpMount.js';
 import {SysReadFileEndpoint} from './types.js';
@@ -12,9 +13,12 @@ const sysReadFile: SysReadFileEndpoint = async reqData => {
   await kUtilsInjectables.session().getAgentFromReqInterServer(reqData);
 
   const mount = await getSysOpMount(data);
-  const backend = FimidaraFilePersistenceProvider.getBackend(
-    kFimidaraConfigFilePersistenceProvider.fs
-  );
+  const backend = FimidaraFilePersistenceProvider.getBackend({
+    backendType: kFimidaraConfigFilePersistenceProvider.fs,
+    getPartStreamForLocalFS: () => {
+      throw new ServerError();
+    },
+  });
 
   const persistedFile = await backend.readFile({
     filepath: data.mountFilepath,

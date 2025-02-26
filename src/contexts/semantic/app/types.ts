@@ -1,8 +1,9 @@
-import {AppShard, AppShardId} from '../../../definitions/app.js';
+import {App, AppShard, AppShardId} from '../../../definitions/app.js';
 import {
   SemanticBaseProviderType,
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
+  SemanticProviderQueryParams,
 } from '../types.js';
 
 export interface SemanticAppShardProvider
@@ -23,4 +24,11 @@ export interface SemanticAppShardProvider
     count: number,
     opts?: SemanticProviderQueryListParams<AppShard>
   ): Promise<AppShard[]>;
+}
+
+export interface ISemanticAppProvider extends SemanticBaseProviderType<App> {
+  getLatestAppInstanceForServerId(
+    serverId: string,
+    opts?: SemanticProviderQueryParams<App>
+  ): Promise<App | null>;
 }

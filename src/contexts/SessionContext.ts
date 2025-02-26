@@ -106,6 +106,7 @@ export default class SessionContext implements SessionContextType {
       new ServerError(),
       'interServerAuthSecret is not set'
     );
+
     appAssert(
       inputSystemAuthId === interServerAuthSecret,
       new InvalidCredentialsError()

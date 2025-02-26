@@ -9,6 +9,7 @@ import {
   kFimidaraResourceType,
   SessionAgent,
 } from '../../../definitions/system.js';
+import {FimidaraConfigFilePersistenceProvider} from '../../../resources/config.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
 import {applyDefaultEndpointPaginationOptions} from '../../pagination.js';
 import {PaginationQuery} from '../../types.js';
@@ -34,6 +35,8 @@ export async function writeMultipartUploadPartMetas(params: {
   multipartId: string;
   parts: FilePartMeta[];
   fileId: string;
+  backend: FimidaraConfigFilePersistenceProvider;
+  raw: unknown;
   opts?: SemanticProviderMutationParams;
 }) {
   const parts = params.parts.map(part => {
@@ -47,6 +50,8 @@ export async function writeMultipartUploadPartMetas(params: {
         partId: part.partId,
         multipartId: part.multipartId,
         fileId: params.fileId,
+        backend: params.backend,
+        raw: params.raw,
       }
     );
   });

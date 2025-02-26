@@ -55,7 +55,10 @@ import {IRedlockContext} from '../redlock/types.js';
 import {IServerRuntimeState} from '../runtime.js';
 import {SecretsManagerProvider} from '../secrets/types.js';
 import {SemanticAgentTokenProvider} from '../semantic/agentToken/types.js';
-import {SemanticAppShardProvider} from '../semantic/app/types.js';
+import {
+  ISemanticAppProvider,
+  SemanticAppShardProvider,
+} from '../semantic/app/types.js';
 import {SemanticAssignedItemProvider} from '../semantic/assignedItem/types.js';
 import {SemanticCollaborationRequestProvider} from '../semantic/collaborationRequest/types.js';
 import {
@@ -76,7 +79,6 @@ import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry
 import {ISemanticScriptProvider} from '../semantic/script/types.js';
 import {
   ISemanticProviderUtils,
-  SemanticAppProvider,
   SemanticFileBackendConfigProvider,
   SemanticFileBackendMountProvider,
   SemanticPermissionGroupProviderType,
@@ -148,7 +150,7 @@ export const kSemanticModels = {
       kInjectionKeys.semantic.resolvedMountEntry
     ),
   app: () =>
-    container.resolve<SemanticAppProvider>(kInjectionKeys.semantic.app),
+    container.resolve<ISemanticAppProvider>(kInjectionKeys.semantic.app),
   emailMessage: () =>
     container.resolve<SemanticEmailMessageProvider>(
       kInjectionKeys.semantic.emailMessage
