@@ -60,6 +60,7 @@ export const kResourceTypeShortNames: Record<FimidaraResourceType, string> = {
   [kFimidaraResourceType.emailBlocklist]: padShortName('emailbl'),
   [kFimidaraResourceType.appShard]: padShortName('appshrd'),
   [kFimidaraResourceType.jobHistory]: padShortName('jbhist'),
+  [kFimidaraResourceType.script]: padShortName('script'),
 };
 
 export const kShortNameToResourceType = invert(

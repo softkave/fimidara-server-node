@@ -15,6 +15,8 @@ import express = require('express');
 import http = require('http');
 import https = require('https');
 import process = require('process');
+import {runScript} from './scripts/runScript.js';
+import SCRIPT_moveFromS3ToLocalFS from './scripts/SCRIPT_moveFromS3ToLocalFS.js';
 
 interface RuntimeArtifacts {
   httpServer?: http.Server;
@@ -112,6 +114,12 @@ async function setup() {
   kUtilsInjectables.logger().log('Server initialization');
 
   // Run scripts here
+  await runScript({
+    name: SCRIPT_moveFromS3ToLocalFS.name,
+    fn: SCRIPT_moveFromS3ToLocalFS,
+    isMandatory: true,
+    isUnique: true,
+  });
   // End of scripts
 
   const defaultWorkspace = await initFimidara();

@@ -105,6 +105,12 @@ export type FimidaraSuppliedConfig = Partial<{
   dateFormat: string;
   useFimidaraApp: boolean;
   useFimidaraWorkerPool: boolean;
+  heartbeatIntervalMs: number;
+  activeAppHeartbeatDelayFactor: number;
+  serverId: string;
+
+  // Scripts
+  scriptPollIntervalMs: number;
 
   // URLs
   clientDomain: string;

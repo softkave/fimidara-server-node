@@ -18,6 +18,7 @@ import {JobHistory} from '../../definitions/jobHistory.js';
 import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {PermissionItem} from '../../definitions/permissionItem.js';
 import {PresignedPath} from '../../definitions/presignedPath.js';
+import {AppScript} from '../../definitions/script.js';
 import {
   AppRuntimeState,
   Resource,
@@ -236,6 +237,7 @@ export interface DataProviderUtils {
     fn: AnyFn<[txn: unknown], Promise<TResult>>,
     existingSession?: unknown
   ): Promise<TResult>;
+  isUniqueConstraintViolation(error: unknown): boolean;
 }
 
 export type AgentTokenQuery = DataQuery<AgentToken>;
@@ -261,6 +263,7 @@ export type EmailMessageQuery = DataQuery<EmailMessage>;
 export type EmailBlocklistQuery = DataQuery<EmailBlocklist>;
 export type AppShardQuery = DataQuery<AppShard>;
 export type JobHistoryQuery = DataQuery<JobHistory>;
+export type AppScriptQuery = DataQuery<AppScript>;
 
 export type AgentTokenDataProvider = BaseDataProvider<
   AgentToken,
@@ -335,4 +338,8 @@ export type AppShardDataProvider = BaseDataProvider<
 export type JobHistoryDataProvider = BaseDataProvider<
   JobHistory,
   DataQuery<JobHistory>
+>;
+export type ScriptDataProvider = BaseDataProvider<
+  AppScript,
+  DataQuery<AppScript>
 >;

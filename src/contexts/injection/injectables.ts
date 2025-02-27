@@ -39,6 +39,7 @@ import {
   PermissionItemDataProvider,
   PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
+  ScriptDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
   UserDataProvider,
@@ -70,6 +71,7 @@ import {SemanticJobHistoryProvider} from '../semantic/jobHistory/types.js';
 import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
 import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
+import {ISemanticScriptProvider} from '../semantic/script/types.js';
 import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
@@ -163,6 +165,8 @@ export const kSemanticModels = {
     ),
   utils: () =>
     container.resolve<SemanticProviderUtils>(kInjectionKeys.semantic.utils),
+  script: () =>
+    container.resolve<ISemanticScriptProvider>(kInjectionKeys.semantic.script),
 };
 
 export const kDataModels = {
@@ -228,6 +232,8 @@ export const kDataModels = {
   jobHistory: () =>
     container.resolve<JobHistoryDataProvider>(kInjectionKeys.data.jobHistory),
   utils: () => container.resolve<DataProviderUtils>(kInjectionKeys.data.utils),
+  script: () =>
+    container.resolve<ScriptDataProvider>(kInjectionKeys.data.script),
 };
 
 export const kUtilsInjectables = {

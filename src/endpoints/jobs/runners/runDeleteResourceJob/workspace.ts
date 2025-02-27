@@ -40,6 +40,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   [kFimidaraResourceType.Workspace]: null,
   [kFimidaraResourceType.emailBlocklist]: null,
   [kFimidaraResourceType.appShard]: null,
+  [kFimidaraResourceType.script]: null,
   [kFimidaraResourceType.emailMessage]: ({args, helpers}) =>
     helpers.withTxn(opts =>
       kSemanticModels

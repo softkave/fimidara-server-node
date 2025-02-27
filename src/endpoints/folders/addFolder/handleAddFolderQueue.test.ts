@@ -687,7 +687,9 @@ describe('handleAddFolderQueue', () => {
         .forEach(outputItem => {
           if (throwIfFolderExists) {
             assert.ok(outputItem.type === kShardRunnerOutputType.error);
-            expect((outputItem.error as Error).name).toBe('FolderExistsError');
+            expect((outputItem.error as Error).name).toBe(
+              'ResourceExistsError'
+            );
           } else {
             assert.ok(outputItem.type === kShardRunnerOutputType.success);
             expect(last(outputItem.item)!.resourceId).toEqual(f2.resourceId);

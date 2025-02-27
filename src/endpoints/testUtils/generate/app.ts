@@ -1,4 +1,5 @@
 import {faker} from '@faker-js/faker';
+import {getNewId} from 'softkave-js-utils';
 import {kSemanticModels} from '../../../contexts/injection/injectables.js';
 import {App, kAppPresetShards, kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -18,6 +19,12 @@ export function generateAppForTest(seed: Partial<App> = {}) {
     type: getRandomAppType(),
     shard: kAppPresetShards.fimidaraMain,
     isDeleted: false,
+    serverId: getNewId(),
+    httpPort: faker.number.int({min: 1024, max: 65535}).toString(),
+    httpsPort: faker.number.int({min: 1024, max: 65535}).toString(),
+    ipv4: faker.internet.ip(),
+    ipv6: faker.internet.ip(),
+    version: faker.system.semver(),
     ...seed,
   };
   return app;

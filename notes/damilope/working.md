@@ -22,5 +22,23 @@
 - surface a percentage of completion for fimidara sync & upload api
 - a timestamp to logs
 - make sure presigned paths with single use last the duration of the upload multipart
+- encountered a resource is locked by another consumer error though I was the only consumer
+- cleanup parts after TTL
+- cleanup transfer progress after upload is retried
+- counter in transfer progress is not working
+- don't show time remaining for upload if it's done
+- a quick way to see if a file/folder is public and to make it public
+- add change log
+- config generation
+- heartbeat from runner
+- cache locally from other servers
+- cache locally from s3 and write post using your own story
+- write script to change entry
+- a possibility is a last upload is requested on a server and other parts on other servers are not done
+- save metas
+- validate parts in complete multipart upload
+- discrepancy between inter-server auth header names
+- a different design for namepath to allow changing the namepath of a file
+- whitelist local for http, everything else is https
 
 ## Implementation notes

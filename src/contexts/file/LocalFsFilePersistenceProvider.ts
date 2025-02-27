@@ -1,5 +1,8 @@
+import assert from 'assert';
 import fse from 'fs-extra';
 import {compact, first, isNumber} from 'lodash-es';
+import path from 'path';
+import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
@@ -423,10 +426,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       params.multipartId
     );
 
+    const sortedParts = params.parts.sort((a, b) => a.part - b.part);
+
     // TODO: this is not efficient because it reads the entire directory into
     // memory. Also, it writes the parts in order, which I think prolly there's a
     // better way to do this.
-    for (const part of params.parts) {
+    for (const part of sortedParts) {
       const partPath = pathJoin(partsDir, part.part.toString());
       const partStream = fse.createReadStream(partPath, {autoClose: true});
       partStream.pipe(writeStream, {end: false});
@@ -443,4 +448,19 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       .promises()
       .callAndForget(() => this.cleanupPartsFile(params));
   }
+}
+
+export function getLocalFsDirFromSuppliedConfig(
+  config: FimidaraSuppliedConfig = kUtilsInjectables.suppliedConfig()
+) {
+  const configLocalFsDir = config.localFsDir;
+  const configLocalPartsFsDir = config.localPartsFsDir;
+
+  assert(configLocalFsDir, 'localFsDir is required');
+  assert(configLocalPartsFsDir, 'localPartsFsDir is required');
+
+  const localFsDir = path.resolve(configLocalFsDir);
+  const localPartsFsDir = path.resolve(configLocalPartsFsDir);
+
+  return {localFsDir, localPartsFsDir};
 }

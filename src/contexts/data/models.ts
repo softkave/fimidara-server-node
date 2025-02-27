@@ -15,6 +15,7 @@ import {JobHistory} from '../../definitions/jobHistory.js';
 import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {PermissionItem} from '../../definitions/permissionItem.js';
 import {PresignedPath} from '../../definitions/presignedPath.js';
+import {AppScript} from '../../definitions/script.js';
 import {AppRuntimeState, ResourceWrapper} from '../../definitions/system.js';
 import {Tag} from '../../definitions/tag.js';
 import {UsageRecord} from '../../definitions/usageRecord.js';
@@ -56,6 +57,7 @@ import {
   PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
   ResourceDataProvider,
+  ScriptDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
   UserDataProvider,
@@ -219,6 +221,13 @@ export class AppShardMongoDataProvider
 export class JobHistoryMongoDataProvider
   extends BaseMongoDataProvider<JobHistory>
   implements JobHistoryDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class ScriptMongoDataProvider
+  extends BaseMongoDataProvider<AppScript>
+  implements ScriptDataProvider
 {
   throwNotFound = throwNotFound;
 }

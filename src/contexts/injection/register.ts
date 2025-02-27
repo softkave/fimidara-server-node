@@ -39,6 +39,7 @@ import {getJobHistoryMongoModel} from '../../db/jobHistory.js';
 import {getPermissionGroupModel} from '../../db/permissionGroup.js';
 import {getPermissionItemModel} from '../../db/permissionItem.js';
 import {getPresignedPathMongoModel} from '../../db/presignedPath.js';
+import {getScriptMongoModel} from '../../db/script.js';
 import {getTagModel} from '../../db/tag.js';
 import {getUsageRecordModel} from '../../db/usageRecord.js';
 import {getUserModel} from '../../db/user.js';
@@ -93,6 +94,7 @@ import {
   PermissionItemMongoDataProvider,
   PresignedPathMongoDataProvider,
   ResolvedMountEntryMongoDataProvider,
+  ScriptMongoDataProvider,
   TagMongoDataProvider,
   UsageRecordMongoDataProvider,
   UserMongoDataProvider,
@@ -118,6 +120,7 @@ import {
   PermissionItemDataProvider,
   PresignedPathDataProvider,
   ResolvedMountEntryDataProvider,
+  ScriptDataProvider,
   TagDataProvider,
   UsageRecordDataProvider,
   UserDataProvider,
@@ -181,6 +184,8 @@ import {DataSemanticPermissionItem} from '../semantic/permissionItem/model.js';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
 import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model.js';
 import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
+import {SemanticScriptProvider} from '../semantic/script/provider.js';
+import {ISemanticScriptProvider} from '../semantic/script/types.js';
 import {
   SemanticAppProvider,
   SemanticFileBackendConfigProvider,
@@ -264,6 +269,8 @@ export const kRegisterSemanticModels = {
     registerToken(kInjectionKeys.semantic.jobHistory, item),
   utils: (item: SemanticProviderUtils) =>
     registerToken(kInjectionKeys.semantic.utils, item),
+  script: (item: ISemanticScriptProvider) =>
+    registerToken(kInjectionKeys.semantic.script, item),
 };
 
 export const kRegisterDataModels = {
@@ -310,6 +317,8 @@ export const kRegisterDataModels = {
     registerToken(kInjectionKeys.data.jobHistory, item),
   utils: (item: DataProviderUtils) =>
     registerToken(kInjectionKeys.data.utils, item),
+  script: (item: ScriptDataProvider) =>
+    registerToken(kInjectionKeys.data.script, item),
 };
 
 export const kRegisterUtilsInjectables = {
@@ -425,6 +434,9 @@ export function registerDataModelInjectables() {
     new JobHistoryMongoDataProvider(getJobHistoryMongoModel(connection))
   );
   kRegisterDataModels.utils(new MongoDataProviderUtils());
+  kRegisterDataModels.script(
+    new ScriptMongoDataProvider(getScriptMongoModel(connection))
+  );
 }
 
 export function registerSemanticModelInjectables() {
@@ -520,6 +532,9 @@ export function registerSemanticModelInjectables() {
     new DataSemanticJobHistory(kDataModels.jobHistory(), assertNotFound)
   );
   kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
+  kRegisterSemanticModels.script(
+    new SemanticScriptProvider(kDataModels.script(), assertNotFound)
+  );
 }
 
 export async function registerUtilsInjectables(
@@ -546,7 +561,11 @@ export async function registerUtilsInjectables(
       appId: getNewIdForResource(kFimidaraResourceType.App),
       shard: kAppPresetShards.fimidaraMain,
       type: kAppType.server,
+      heartbeatInterval: suppliedConfig.heartbeatIntervalMs,
+      activeAppHeartbeatDelayFactor:
+        suppliedConfig.activeAppHeartbeatDelayFactor,
     });
+
     kRegisterUtilsInjectables.serverApp(serverApp);
 
     if (suppliedConfig.useFimidaraWorkerPool) {

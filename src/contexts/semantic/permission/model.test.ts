@@ -316,9 +316,16 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityInheritanceMap, shallow', async () => {
-    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1, {
+      workspaceId,
+    });
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
     const assignedAt = getTimestamp();
     const assignedBy = generateAgent();
 
@@ -328,36 +335,42 @@ describe('DataSemanticPermission', () => {
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
         createdAt: assignedAt,
         createdBy: assignedBy,
+        workspaceId,
       }),
     ]);
 
@@ -400,34 +413,47 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityInheritanceMap, deep', async () => {
-    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1, {
+      workspaceId,
+    });
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
 
     await Promise.all([
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
+        workspaceId,
       }),
     ]);
 
@@ -486,34 +512,47 @@ describe('DataSemanticPermission', () => {
   });
 
   test('getEntityAssignedPermissionGroups, shallow', async () => {
-    const [pg] = await generateAndInsertPermissionGroupListForTest(1);
-    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2);
-    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2);
+    const workspaceId = getNewIdForResource(kFimidaraResourceType.Workspace);
+    const [pg] = await generateAndInsertPermissionGroupListForTest(1, {
+      workspaceId,
+    });
+    const [pg02, pg03] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
+    const [pg04, pg05] = await generateAndInsertPermissionGroupListForTest(2, {
+      workspaceId,
+    });
 
     await Promise.all([
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg02.resourceId,
         assigneeId: pg.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg03.resourceId,
         assigneeId: pg.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg02.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg04.resourceId,
         assigneeId: pg03.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg02.resourceId,
+        workspaceId,
       }),
       generateAndInsertAssignedItemListForTest(1, {
         assignedItemId: pg05.resourceId,
         assigneeId: pg03.resourceId,
+        workspaceId,
       }),
     ]);
 

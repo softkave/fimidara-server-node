@@ -68,5 +68,8 @@
   "prepareFileQueueStart": 1,
   "prepareFileQueueEnd": 1,
   "prepareFileQueueNo": [1],
-  "interServerAuthSecret": ""
+  "interServerAuthSecret": "",
+  "heartbeatIntervalMs": 300000,
+  "activeAppHeartbeatDelayFactor": 3,
+  "serverId": "default"
 }

@@ -6,6 +6,7 @@ import {
 } from '../definitions/system.js';
 import {User} from '../definitions/user.js';
 import {getNewIdForResource} from '../utils/resource.js';
+import {kEndpointConstants} from './constants.js';
 
 export interface IRequestContructorParams<T = any> {
   req?: IServerRequest | null;
@@ -81,13 +82,13 @@ export default class RequestData<T = any> {
   }
 
   getUserAgent() {
-    if (this.req) return this.req.headers['user-agent'];
+    if (this.req) return this.req.headers[kEndpointConstants.headers.userAgent];
     return null;
   }
 
   getSystemAuthId() {
     if (this.req) {
-      return this.req.headers['x-system-auth-id'];
+      return this.req.headers[kEndpointConstants.headers.interServerAuthSecret];
     }
 
     return null;

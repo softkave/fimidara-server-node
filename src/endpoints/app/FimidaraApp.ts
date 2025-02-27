@@ -10,6 +10,8 @@ import {kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
 import {kAppConstants} from './constants.js';
+import {appAssert} from '../../utils/assertion.js';
+import {getServerInfo} from './serverInfo.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
 //   [
@@ -75,6 +77,7 @@ export class FimidaraApp implements DisposableResource {
   /** By what factor is heartbeat interval multiplied by to determine a runner
    * is alive or not. */
   protected activeAppHeartbeatDelayFactor: number;
+  protected heartbeatCutoffMs: number | undefined;
 
   constructor(params: FimidaraAppParams) {
     this.appId = params.appId;
@@ -107,15 +110,32 @@ export class FimidaraApp implements DisposableResource {
     return this.activeAppIdList;
   }
 
+  getAppId() {
+    return this.appId;
+  }
+
+  getServerId() {
+    const config = kUtilsInjectables.suppliedConfig();
+    const serverId = config.serverId;
+    appAssert(serverId, 'serverId not set in config');
+    return serverId;
+  }
+
+  isAppAlive(appId: string) {
+    return this.activeAppIdList.includes(appId);
+  }
+
+  getHeartbeatCutoffMs() {
+    return this.heartbeatCutoffMs ?? this.getActiveFromMs();
+  }
+
   protected startHeartbeat() {
     if (!this.recordHeartbeatIntervalHandle) {
       this.recordHeartbeatIntervalHandle = setInterval(() => {
-        kUtilsInjectables
-          .promises()
-          .callAndForget(() => this.recordInstanceHeartbeat());
-        kUtilsInjectables
-          .promises()
-          .callAndForget(() => this.refreshActiveAppIdList());
+        kUtilsInjectables.promises().callAndForget(async () => {
+          await this.recordInstanceHeartbeat();
+          await this.refreshActiveAppIdList();
+        });
       }, this.heartbeatInterval);
     }
   }
@@ -136,18 +156,21 @@ export class FimidaraApp implements DisposableResource {
   };
 
   protected async insertAppInDB(opts: SemanticProviderMutationParams) {
-    // const config = kUtilsInjectables.suppliedConfig();
-    // const serverInfo = await getServerInfo({
-    //   httpPort: config.httpPort,
-    //   httpsPort: config.httpsPort,
-    // });
+    const config = kUtilsInjectables.suppliedConfig();
+    const serverId = this.getServerId();
+    const serverInfo = await getServerInfo({
+      httpPort: config.httpPort,
+      httpsPort: config.httpsPort,
+    });
 
     const app = newResource<App>(kFimidaraResourceType.App, {
-      // ...serverInfo,
+      ...serverInfo,
       type: this.type,
       shard: this.shard,
       resourceId: this.appId,
+      serverId,
     });
+
     await kSemanticModels.app().insertItem(app, opts);
   }
 
@@ -163,14 +186,19 @@ export class FimidaraApp implements DisposableResource {
   //     );
   // }
 
+  protected getActiveFromMs() {
+    const now = getTimestamp();
+    return now - this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
+  }
+
   protected async refreshActiveAppIdList() {
-    const activeFromMs =
-      getTimestamp() -
-      this.heartbeatInterval * this.activeAppHeartbeatDelayFactor;
+    const activeFromMs = this.getActiveFromMs();
+    this.heartbeatCutoffMs = activeFromMs;
     const appQuery: AppQuery = {
       lastUpdatedAt: {$gte: activeFromMs},
       shard: this.shard,
     };
+
     const app = await kSemanticModels.app().getManyByQuery(appQuery);
     this.activeAppIdList = app.map(runner => runner.resourceId);
   }

@@ -21,5 +21,6 @@ export const kEndpointConstants = {
   headers: {
     contentType: 'Content-Type',
     interServerAuthSecret: 'x-fimidara-inter-server-auth-secret',
+    userAgent: 'user-agent',
   } as const,
 };
