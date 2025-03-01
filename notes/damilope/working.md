@@ -40,5 +40,6 @@
 - discrepancy between inter-server auth header names
 - a different design for namepath to allow changing the namepath of a file
 - whitelist local for http, everything else is https
+- there is an infinite loop when logging in
 
 ## Implementation notes
