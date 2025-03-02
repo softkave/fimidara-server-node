@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -35,7 +35,7 @@ test('collaborator returned', async () => {
   expect(result.collaborator).toMatchObject(
     collaboratorExtractor(
       await populateUserWorkspaces(
-        await kSemanticModels
+        await kIjxSemantic
           .user()
           .assertGetOneByQuery({resourceId: user.resourceId})
       ),

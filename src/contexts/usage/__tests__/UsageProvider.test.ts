@@ -35,10 +35,7 @@ import {
   getUsageRecordReportingPeriod,
 } from '../../../endpoints/usageRecords/utils.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
 import {UsageProvider} from '../UsageProvider.js';
 
 const kUsageCommitIntervalMs = 50;
@@ -78,14 +75,14 @@ async function expectUsageDropped(props: {
 
   const [usageL1, usageFulfilledL2, usageDroppedL2, usageFulfilledTotal] =
     await Promise.all([
-      kSemanticModels.usageRecord().getOneByQuery({
+      kIjxSemantic.usageRecord().getOneByQuery({
         year,
         month,
         category,
         workspaceId: workspace.resourceId,
         summationType: kUsageSummationType.instance,
       }),
-      kSemanticModels.usageRecord().getOneByQuery({
+      kIjxSemantic.usageRecord().getOneByQuery({
         year,
         month,
         category,
@@ -93,7 +90,7 @@ async function expectUsageDropped(props: {
         summationType: kUsageSummationType.month,
         status: kUsageRecordFulfillmentStatus.fulfilled,
       }),
-      kSemanticModels.usageRecord().getOneByQuery({
+      kIjxSemantic.usageRecord().getOneByQuery({
         year,
         month,
         category,
@@ -101,7 +98,7 @@ async function expectUsageDropped(props: {
         summationType: kUsageSummationType.month,
         status: kUsageRecordFulfillmentStatus.dropped,
       }),
-      kSemanticModels.usageRecord().getOneByQuery({
+      kIjxSemantic.usageRecord().getOneByQuery({
         year,
         month,
         workspaceId: workspace.resourceId,
@@ -157,7 +154,7 @@ async function expectUsageFulfilled(props: {
   const {workspace, month, year, category, usage} = props;
 
   const [usageL1, usageL2, usageTotal] = await Promise.all([
-    kSemanticModels.usageRecord().getOneByQuery({
+    kIjxSemantic.usageRecord().getOneByQuery({
       year,
       month,
       category,
@@ -165,7 +162,7 @@ async function expectUsageFulfilled(props: {
       summationType: kUsageSummationType.instance,
       status: kUsageRecordFulfillmentStatus.fulfilled,
     }),
-    kSemanticModels.usageRecord().getOneByQuery({
+    kIjxSemantic.usageRecord().getOneByQuery({
       year,
       month,
       category,
@@ -173,7 +170,7 @@ async function expectUsageFulfilled(props: {
       summationType: kUsageSummationType.month,
       status: kUsageRecordFulfillmentStatus.fulfilled,
     }),
-    kSemanticModels.usageRecord().getOneByQuery({
+    kIjxSemantic.usageRecord().getOneByQuery({
       year,
       month,
       workspaceId: workspace.resourceId,
@@ -255,13 +252,11 @@ describe.each(usageWithoutTotalList)(
           max: params.threshold ? params.threshold - 1 : undefined,
         });
 
-        const result = await kUtilsInjectables
-          .usage()
-          .increment(kSystemSessionAgent, {
-            workspaceId: workspace.resourceId,
-            category,
-            usage,
-          });
+        const result = await kIkxUtils.usage().increment(kSystemSessionAgent, {
+          workspaceId: workspace.resourceId,
+          category,
+          usage,
+        });
 
         assert(result.permitted);
 
@@ -300,7 +295,7 @@ describe.each(usageWithoutTotalList)(
             });
 
           const usage = faker.number.int({min: 5});
-          const result = await kUtilsInjectables
+          const result = await kIkxUtils
             .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
@@ -340,13 +335,11 @@ describe.each(usageWithoutTotalList)(
 
         const {month, year} = getUsageRecordReportingPeriod();
         const usage = faker.number.int({min: 1});
-        const result = await kUtilsInjectables
-          .usage()
-          .increment(kSystemSessionAgent, {
-            workspaceId: workspace.resourceId,
-            category,
-            usage,
-          });
+        const result = await kIkxUtils.usage().increment(kSystemSessionAgent, {
+          workspaceId: workspace.resourceId,
+          category,
+          usage,
+        });
 
         assert(result.permitted === false);
         expect(result.reason).toBe(kUsageRecordDropReason.billOverdue);
@@ -393,7 +386,7 @@ describe.each(usageWithoutTotalList)(
             });
 
           const usage = faker.number.int({min: 1, max: usageThreshold - 1});
-          const result = await kUtilsInjectables
+          const result = await kIkxUtils
             .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
@@ -461,7 +454,7 @@ describe.each(usageWithoutTotalList)(
 
           const usage = faker.number.int();
           const usageCost = getCostForUsage(category, usage);
-          await kUtilsInjectables.usage().decrement(kSystemSessionAgent, {
+          await kIkxUtils.usage().decrement(kSystemSessionAgent, {
             workspaceId: workspace.resourceId,
             category,
             usage,
@@ -469,7 +462,7 @@ describe.each(usageWithoutTotalList)(
 
           await waitUntilUsageIsCommitted();
 
-          const dbRecord = await kSemanticModels.usageRecord().getOneByQuery({
+          const dbRecord = await kIjxSemantic.usageRecord().getOneByQuery({
             status: kUsageRecordFulfillmentStatus.fulfilled,
             summationType: kUsageSummationType.month,
             workspaceId: workspace.resourceId,

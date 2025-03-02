@@ -31,7 +31,7 @@ import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../utils/sessionUtils.js';
-import {kSemanticModels, kUtilsInjectables} from './injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from './ijx/injectables.js';
 
 export const kSessionUtils = {
   permittedAgentTypes: {
@@ -88,7 +88,7 @@ export interface SessionContextType {
 
 export default class SessionContext implements SessionContextType {
   constructor() {
-    const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+    const {interServerAuthSecret} = kIkxUtils.suppliedConfig();
     appAssert(
       interServerAuthSecret,
       new ServerError(),
@@ -100,7 +100,7 @@ export default class SessionContext implements SessionContextType {
     const inputSystemAuthId = req.getSystemAuthId();
     appAssert(inputSystemAuthId, new InvalidCredentialsError());
 
-    const {interServerAuthSecret} = kUtilsInjectables.suppliedConfig();
+    const {interServerAuthSecret} = kIkxUtils.suppliedConfig();
     appAssert(
       interServerAuthSecret,
       new ServerError(),
@@ -126,14 +126,14 @@ export default class SessionContext implements SessionContextType {
       if (incomingTokenData) {
         this.checkTokenDataVersion(incomingTokenData);
 
-        const agentToken = await kSemanticModels
+        const agentToken = await kIjxSemantic
           .agentToken()
           .getOneById(incomingTokenData.sub.id);
         appAssert(agentToken, new InvalidCredentialsError());
 
         if (agentToken.entityType === kFimidaraResourceType.User) {
           appAssert(agentToken.forEntityId);
-          const user = await kSemanticModels
+          const user = await kIjxSemantic
             .user()
             .getOneById(agentToken.forEntityId);
           appAssert(user, kReuseableErrors.user.notFound());
@@ -162,16 +162,12 @@ export default class SessionContext implements SessionContextType {
       return kPublicSessionAgent;
     }
 
-    const agentToken = await kSemanticModels
-      .agentToken()
-      .getOneById(agentTokenId);
+    const agentToken = await kIjxSemantic.agentToken().getOneById(agentTokenId);
     appAssert(agentToken, new InvalidCredentialsError());
 
     if (agentToken.entityType === kFimidaraResourceType.User) {
       appAssert(agentToken.forEntityId);
-      const user = await kSemanticModels
-        .user()
-        .getOneById(agentToken.forEntityId);
+      const user = await kIjxSemantic.user().getOneById(agentToken.forEntityId);
       appAssert(user, kReuseableErrors.user.notFound());
       return makeUserSessionAgent(user, agentToken);
     } else {
@@ -183,7 +179,7 @@ export default class SessionContext implements SessionContextType {
     data: RequestData,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(data, [kFimidaraResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
@@ -191,7 +187,7 @@ export default class SessionContext implements SessionContextType {
   };
 
   decodeToken = (token: string) => {
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    const suppliedConfig = kIkxUtils.suppliedConfig();
     appAssert(suppliedConfig.jwtSecret);
 
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
@@ -222,7 +218,7 @@ export default class SessionContext implements SessionContextType {
   encodeToken = async (props: ISessionContextEncodeTokenParams) => {
     const {tokenId, shouldRefresh, expiresAt, issuedAt} = props;
 
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    const suppliedConfig = kIkxUtils.suppliedConfig();
     appAssert(suppliedConfig.jwtSecret);
 
     const payload: Omit<BaseTokenData, 'iat'> & {iat?: number} = {
@@ -280,7 +276,7 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    const containsScope = kUtilsInjectables
+    const containsScope = kIkxUtils
       .session()
       .tokenContainsScope(agent.agentToken, tokenAccessScope);
     appAssert(

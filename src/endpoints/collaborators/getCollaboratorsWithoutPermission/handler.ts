@@ -1,10 +1,7 @@
 import {uniq} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -22,7 +19,7 @@ const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoi
       reqData.data,
       getCollaboratorsWithoutPermissionJoiSchema
     );
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -47,7 +44,7 @@ export async function getPagedCollaboratorsWithoutPermission(
   assignedItemsQuery: DataQuery<AssignedItem>,
   page?: PaginationQuery
 ) {
-  const assignedItems_collaborators = await kSemanticModels
+  const assignedItems_collaborators = await kIjxSemantic
     .assignedItem()
     .getManyByQuery(assignedItemsQuery, page);
 
@@ -59,7 +56,7 @@ export async function getPagedCollaboratorsWithoutPermission(
   let collaboratorIdList = assignedItems_collaborators.map(
     nextItem => nextItem.assigneeId
   );
-  const assignedItems_permissionGroups = await kSemanticModels
+  const assignedItems_permissionGroups = await kIjxSemantic
     .assignedItem()
     .getManyByQuery(
       {
@@ -79,11 +76,9 @@ export async function getPagedCollaboratorsWithoutPermission(
   // TODO: that they have permission groups do not mean they have permission
 
   // Check that collaborators do not have permission items assigned
-  const permissionItems = await kSemanticModels
-    .permissionItem()
-    .getManyByQuery({
-      entityId: {$in: collaboratorIdList},
-    });
+  const permissionItems = await kIjxSemantic.permissionItem().getManyByQuery({
+    entityId: {$in: collaboratorIdList},
+  });
   const permissionItemsMap = indexArray(permissionItems, {path: 'entityId'});
   collaboratorIdList = collaboratorIdList.filter(
     nextId => !permissionItemsMap[nextId]

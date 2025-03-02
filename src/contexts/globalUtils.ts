@@ -2,25 +2,25 @@ import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadF
 import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
-import {kUtilsInjectables} from './injection/injectables.js';
-import {clearInjectables, registerInjectables} from './injection/register.js';
+import {kIkxUtils} from './ijx/injectables.js';
+import {clearIjx, registerIjx} from './ijx/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
-  kUtilsInjectables.runtimeState().setIsEnded(true);
-  await kUtilsInjectables.disposables().awaitDisposeAll();
-  await kUtilsInjectables.promises().close().flush();
+  kIkxUtils.runtimeState().setIsEnded(true);
+  await kIkxUtils.disposables().awaitDisposeAll();
+  await kIkxUtils.promises().close().flush();
 
-  const {redisURL} = kUtilsInjectables.suppliedConfig();
+  const {redisURL} = kIkxUtils.suppliedConfig();
   if (redisURL) {
     await Promise.allSettled([
-      ...kUtilsInjectables.redis().map(redis => redis.quit()),
-      ...kUtilsInjectables.ioredis().map(redis => redis.quit()),
+      ...kIkxUtils.redis().map(redis => redis.quit()),
+      ...kIkxUtils.ioredis().map(redis => redis.quit()),
     ]);
   }
 
-  await kUtilsInjectables.dbConnection().close();
-  clearInjectables();
+  await kIkxUtils.dbConnection().close();
+  clearIjx();
 }
 
 export async function globalSetup(
@@ -32,20 +32,20 @@ export async function globalSetup(
     useHandlePrepareFileQueue?: boolean;
   }
 ) {
-  await registerInjectables(overrideConfig);
-  await kUtilsInjectables.dbConnection().wait();
+  await registerIjx(overrideConfig);
+  await kIkxUtils.dbConnection().wait();
 
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  const logger = kUtilsInjectables.logger();
+  const suppliedConfig = kIkxUtils.suppliedConfig();
+  const logger = kIkxUtils.logger();
 
   if (suppliedConfig.useFimidaraApp) {
     logger.log('starting server app');
-    await kUtilsInjectables.serverApp().startApp();
+    await kIkxUtils.serverApp().startApp();
     logger.log('started server app');
 
     if (suppliedConfig.useFimidaraWorkerPool) {
       logger.log('starting worker pool');
-      await kUtilsInjectables.workerPool().startPool();
+      await kIkxUtils.workerPool().startPool();
       logger.log('started worker pool');
     }
   }
@@ -60,8 +60,8 @@ export async function globalSetup(
     suppliedConfig.addUsageRecordQueueNo?.map(queueNo => {
       startHandleUsageRecordQueue(queueNo);
     });
-    kUtilsInjectables.usage().startCommitBatchedUsageL1Interval();
-    kUtilsInjectables.usage().startCommitBatchedUsageL2Interval();
+    kIkxUtils.usage().startCommitBatchedUsageL1Interval();
+    kIkxUtils.usage().startCommitBatchedUsageL2Interval();
   }
 
   if (otherConfig.useHandleAddInternalMultipartIdQueue) {

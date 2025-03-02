@@ -1,6 +1,6 @@
 import {globalDispose} from '../contexts/globalUtils.js';
-import {kUtilsInjectables} from '../contexts/injection/injectables.js';
-import {registerUtilsInjectables} from '../contexts/injection/register.js';
+import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {registerIjxUtils} from '../contexts/ijx/register.js';
 import {
   kFimidaraConfigDbType,
   kFimidaraConfigQueueProvider,
@@ -9,7 +9,7 @@ import {restApiEndpointsInfoGen} from './restApiEndpointsInfoGen.js';
 import {restApiTableOfContentGen} from './restApiTableOfContentGen.js';
 
 async function main() {
-  await registerUtilsInjectables({
+  await registerIjxUtils({
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
@@ -21,7 +21,7 @@ async function main() {
 
   try {
     await Promise.all([restApiEndpointsInfoGen(), restApiTableOfContentGen()]);
-    kUtilsInjectables.logger().log('mddoc gen rest api complete');
+    kIkxUtils.logger().log('mddoc gen rest api complete');
   } finally {
     await globalDispose();
   }

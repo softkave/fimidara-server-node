@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -44,7 +44,7 @@ test('password changed with current password', async () => {
   const oldHash = rawUser.hash;
   const result = await changePasswordWithCurrentPassword(reqData);
   assertEndpointResultOk(result);
-  const updatedUser = await kSemanticModels
+  const updatedUser = await kIjxSemantic
     .user()
     .assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(result.user.resourceId)

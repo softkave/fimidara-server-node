@@ -6,7 +6,7 @@ import {
   kResolvedTargetChildrenAccess,
 } from '../contexts/authorizationChecks/checkAuthorizaton.js';
 import {DataQuery} from '../contexts/data/types.js';
-import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {kIkxUtils} from '../contexts/ijx/injectables.js';
 import {getInAndNinQuery} from '../contexts/semantic/utils.js';
 import {IServerRequest} from '../contexts/types.js';
 import {Agent, WorkspaceResource} from '../definitions/system.js';
@@ -88,7 +88,7 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => unknown) => {
   return async (req: Request, res: Response) => {
-    await kUtilsInjectables.asyncLocalStorage().run(async () => {
+    await kIkxUtils.asyncLocalStorage().run(async () => {
       try {
         const data = await (getData ? getData(req) : req.body);
         const reqData = RequestData.fromExpressRequest(
@@ -104,10 +104,10 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         }
       } catch (error: unknown) {
         try {
-          kUtilsInjectables
+          kIkxUtils
             .logger()
             .log(`error with ${endpoint.name}, URL: ${req.url}`);
-          kUtilsInjectables.logger().error(error);
+          kIkxUtils.logger().error(error);
 
           const {statusCode, preppedErrors} = prepareResponseError(error);
 
@@ -129,12 +129,12 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
             }
           }
         } catch (serverError) {
-          kUtilsInjectables.logger().error(serverError);
+          kIkxUtils.logger().error(serverError);
           res.end();
         }
       } finally {
         toCompactArray(cleanup).forEach(fn =>
-          kUtilsInjectables.promises().callAndForget(() => fn(req, res))
+          kIkxUtils.promises().callAndForget(() => fn(req, res))
         );
       }
     });

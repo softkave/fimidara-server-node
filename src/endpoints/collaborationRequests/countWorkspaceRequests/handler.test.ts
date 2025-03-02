@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -28,7 +28,7 @@ describe('countWorkspaceRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(15, () => ({
       workspaceId: workspace.resourceId,
     }));
-    const count = await kSemanticModels.collaborationRequest().countByQuery({
+    const count = await kIjxSemantic.collaborationRequest().countByQuery({
       workspaceId: workspace.resourceId,
     });
     const reqData =

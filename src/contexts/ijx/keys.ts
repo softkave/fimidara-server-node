@@ -10,7 +10,7 @@ function logicKey(name: string) {
   return `logic_${name}`;
 }
 
-export const kInjectionKeys = {
+export const kIjxKeys = {
   logic: {
     permissions: logicKey('permissions'),
     jobs: logicKey('jobs'),

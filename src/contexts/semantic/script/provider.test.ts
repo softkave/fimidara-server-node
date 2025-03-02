@@ -11,10 +11,7 @@ import {generateAndInsertAppScriptListForTest} from '../../../endpoints/testUtil
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
 import {SemanticScriptStatus} from './types.js';
 
 const kHeartbeatIntervalMs = 100;
@@ -34,7 +31,7 @@ afterAll(async () => {
 
 describe('SemanticScriptProvider', () => {
   test('should be able to start a script', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const name = 'test-script' + getNewId();
     const result = await scriptProvider.tryStartScript({name});
 
@@ -42,15 +39,15 @@ describe('SemanticScriptProvider', () => {
     expect(result.script).toBeDefined();
     expect(result.script.name).toBe(name);
 
-    const appId = kUtilsInjectables.serverApp().getAppId();
-    const dbScript = await kSemanticModels.script().getScript({name});
+    const appId = kIkxUtils.serverApp().getAppId();
+    const dbScript = await kIjxSemantic.script().getScript({name});
     expect(dbScript).toBeDefined();
     expect(dbScript?.name).toBe(name);
     expect(dbScript?.appId).toBe(appId);
   });
 
   test('it should return script id if unique script already exists', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const name = 'test-script' + getNewId();
     const result = await scriptProvider.tryStartScript({name});
 
@@ -67,7 +64,7 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to poll a script', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const name = 'test-script' + getNewId();
     const result = await scriptProvider.tryStartScript({name});
 
@@ -92,7 +89,7 @@ describe('SemanticScriptProvider', () => {
       cb: pollCb,
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       return await scriptProvider.endScript(
         {
           scriptId: result.script.resourceId,
@@ -115,7 +112,7 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should stop polling when stop is called ', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const name = 'test-script' + getNewId();
     const result = await scriptProvider.tryStartScript({name});
 
@@ -137,13 +134,13 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to end a script', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const [script] = await generateAndInsertAppScriptListForTest(1, {
       name: 'test-script' + getNewId(),
       status: kJobStatus.pending,
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       return await scriptProvider.endScript(
         {
           scriptId: script.resourceId,
@@ -163,7 +160,7 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to get a script', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const [script] = await generateAndInsertAppScriptListForTest(1, {
       name: 'test-script' + getNewId(),
       status: kJobStatus.pending,
@@ -176,7 +173,7 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to get a script status', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const [app] = await generateAndInsertAppListForTest(1, {
       lastUpdatedAt: getTimestamp() + kHeartbeatIntervalMs * 10,
     });
@@ -192,8 +189,8 @@ describe('SemanticScriptProvider', () => {
     expect(status.isRunnerHeartbeatStale).toBe(false);
 
     const newLastUpdatedAt = getTimestamp() - kHeartbeatIntervalMs * 10;
-    await kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels.app().updateOneById(
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic.app().updateOneById(
         app.resourceId,
         {
           lastUpdatedAt: newLastUpdatedAt,
@@ -210,13 +207,13 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to delete failed scripts', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const scripts = await generateAndInsertAppScriptListForTest(5, {
       name: 'test-script' + getNewId(),
       status: kJobStatus.failed,
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       await scriptProvider.deleteFailedScripts(opts);
     });
 
@@ -227,14 +224,14 @@ describe('SemanticScriptProvider', () => {
   });
 
   test('should be able to delete stale scripts', async () => {
-    const scriptProvider = kSemanticModels.script();
+    const scriptProvider = kIjxSemantic.script();
     const scripts = await generateAndInsertAppScriptListForTest(5, {
       name: 'test-script' + getNewId(),
       status: kJobStatus.pending,
       statusLastUpdatedAt: getTimestamp() - kHeartbeatIntervalMs * 10,
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       await scriptProvider.deleteStaleScripts(opts);
     });
 

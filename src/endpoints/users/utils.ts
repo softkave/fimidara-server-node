@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {PublicUser, User, UserWithWorkspace} from '../../definitions/user.js';
 import {appAssert} from '../../utils/assertion.js';
@@ -46,7 +46,7 @@ export async function getCompleteUserDataByEmail(
   email: string,
   opts?: SemanticProviderOpParams
 ) {
-  const user = await kSemanticModels.user().getByEmail(email, opts);
+  const user = await kIjxSemantic.user().getByEmail(email, opts);
   assertUser(user);
   return await populateUserWorkspaces(user);
 }
@@ -55,7 +55,7 @@ export async function assertEmailAddressAvailable(
   email: string,
   opts?: SemanticProviderOpParams
 ) {
-  const userExists = await kSemanticModels.user().existsByEmail(email, opts);
+  const userExists = await kIjxSemantic.user().existsByEmail(email, opts);
   if (userExists) {
     throw new EmailAddressNotAvailableError();
   }

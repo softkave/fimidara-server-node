@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -24,7 +24,7 @@ const kAllowedTypes = [
 
 const getResources: GetResourcesEndpoint = async reqData => {
   const data = validate(reqData.data, getResourcesJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

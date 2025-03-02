@@ -1,6 +1,6 @@
 import {defaultTo, isArray, keyBy} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {AppShardId, kAppPresetShards} from '../../definitions/app.js';
 import {
@@ -56,7 +56,7 @@ export async function queueJobs<
   }
 
   const parentJob = parentJobId
-    ? await kSemanticModels.job().getOneById(parentJobId)
+    ? await kIjxSemantic.job().getOneById(parentJobId)
     : undefined;
   const parents = defaultTo(parentJob?.parents, []).concat(parentJobId ?? []);
   const idempotencyTokens: string[] = [];
@@ -88,8 +88,8 @@ export async function queueJobs<
     });
   });
 
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const existingJobs = await kSemanticModels
+  return await kIjxSemantic.utils().withTxn(async opts => {
+    const existingJobs = await kIjxSemantic
       .job()
       .getManyByQuery({idempotencyToken: {$in: idempotencyTokens}}, opts);
     const existingJobsByIdempotencyToken = keyBy(
@@ -119,8 +119,8 @@ export async function queueJobs<
     );
 
     await Promise.all([
-      kSemanticModels.job().insertItem(uniqueJobs, opts),
-      kSemanticModels.jobHistory().insertItem(jobHistories, opts),
+      kIjxSemantic.job().insertItem(uniqueJobs, opts),
+      kIjxSemantic.jobHistory().insertItem(jobHistories, opts),
     ]);
 
     return (jobsToReturn === 'all' ? jobs : uniqueJobs) as Array<

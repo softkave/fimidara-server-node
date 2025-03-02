@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
@@ -42,7 +42,7 @@ export async function checkAndIncrementPresignedPathUsageCount(
     throw kReuseableErrors.file.notFound();
   }
 
-  const updatedPresignedPath = await kSemanticModels
+  const updatedPresignedPath = await kIjxSemantic
     .presignedPath()
     .getAndUpdateOneById(
       presignedPath.resourceId,
@@ -79,7 +79,7 @@ export async function getFileByPresignedPath(props: {
   }
 
   const resourceId = extractPresignedPathIdFromFilepath(filepath);
-  let presignedPath = await kSemanticModels
+  let presignedPath = await kIjxSemantic
     .presignedPath()
     .assertGetOneByQuery({resourceId}, opts);
   const now = Date.now();
@@ -101,7 +101,7 @@ export async function getFileByPresignedPath(props: {
     );
   }
 
-  const file = await kSemanticModels.file().getOneByNamepath(
+  const file = await kIjxSemantic.file().getOneByNamepath(
     {
       workspaceId: presignedPath.workspaceId,
       namepath: presignedPath.namepath,
@@ -118,7 +118,7 @@ export async function getFileByPresignedPath(props: {
   // deleted, etc. We don't need to explicitly handle invalidating presigned
   // paths through these multiple surface areas seeing we can just simply check
   // if the issuing agent token exists and still has permission.
-  const agentToken = await kSemanticModels
+  const agentToken = await kIjxSemantic
     .agentToken()
     .assertGetOneByQuery({resourceId: presignedPath.issuerAgentTokenId}, opts);
 
@@ -126,7 +126,7 @@ export async function getFileByPresignedPath(props: {
     agentToken.entityType === kFimidaraResourceType.User
       ? makeUserSessionAgent(
           // TODO: how can we reduce all the db fetches in this function
-          await kSemanticModels.user().assertGetOneByQuery({
+          await kIjxSemantic.user().assertGetOneByQuery({
             resourceId: agentToken.forEntityId,
           }),
           agentToken
@@ -146,7 +146,7 @@ export async function getFileByFilepath(props: {
   opts: SemanticProviderMutationParams;
   workspaceId?: string;
 }) {
-  const fileModel = kSemanticModels.file();
+  const fileModel = kIjxSemantic.file();
   const {filepath, opts} = props;
   let {workspaceId} = props;
   let workspace: Workspace | undefined;
@@ -191,7 +191,7 @@ export async function getFileWithMatcher(props: {
   } = props;
 
   if (matcher.fileId) {
-    const file = await kSemanticModels.file().getOneById(matcher.fileId, opts);
+    const file = await kIjxSemantic.file().getOneById(matcher.fileId, opts);
     return {file};
   } else if (matcher.filepath) {
     if (supportPresignedPath) {

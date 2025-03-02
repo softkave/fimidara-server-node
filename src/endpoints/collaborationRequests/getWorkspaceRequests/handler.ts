@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -20,7 +17,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
       reqData.data,
       getWorkspaceCollaborationRequestsJoiSchema
     );
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -30,7 +27,7 @@ const getWorkspaceCollaborationRequests: GetWorkspaceCollaborationRequestsEndpoi
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspaceCollaborationRequestsQuery(agent, workspace);
     applyDefaultEndpointPaginationOptions(data);
-    const requests = await kSemanticModels
+    const requests = await kIjxSemantic
       .collaborationRequest()
       .getManyByWorkspaceAndIdList(q, data);
     return {

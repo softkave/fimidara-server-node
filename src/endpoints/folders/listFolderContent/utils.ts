@@ -4,7 +4,7 @@ import {
   kResolvedTargetChildrenAccess,
   resolveTargetChildrenAccessCheckWithAgent,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder, FolderMatcher} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -84,9 +84,7 @@ export async function getWorkspaceAndParentFolder(
       first(splitPath) === rootname && splitPath.length === 1;
 
     if (containsRootnameOnly) {
-      workspace = await kSemanticModels
-        .workspace()
-        .getByRootname(rootname, opts);
+      workspace = await kIjxSemantic.workspace().getByRootname(rootname, opts);
       parentFolder = null;
     }
   }
@@ -102,7 +100,7 @@ export async function getWorkspaceAndParentFolder(
     );
 
     if (parentFolder && !workspace) {
-      workspace = await kSemanticModels
+      workspace = await kIjxSemantic
         .workspace()
         .getOneById(parentFolder.workspaceId, opts);
     }

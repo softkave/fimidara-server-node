@@ -1,6 +1,6 @@
 import {map} from 'lodash-es';
 import {DisposableResource} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -28,10 +28,10 @@ export class FimidaraWorkerPool implements DisposableResource {
   constructor(params: FimidaraWorkerPoolParams) {
     this.server = params.server;
 
-    const runnerLocation = kUtilsInjectables.suppliedConfig().runnerLocation;
+    const runnerLocation = kIkxUtils.suppliedConfig().runnerLocation;
     appAssert(runnerLocation, 'runnerLocation not present in config');
     this.workerPool = new FWorkerPool({
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       workerCount: params.workerCount || kAppConstants.defaultRunnerCount,
       filepath: runnerLocation,
       gracefulTerminateTimeoutMs:
@@ -47,7 +47,7 @@ export class FimidaraWorkerPool implements DisposableResource {
     const startWorkerAppsPromiseList = map(workers, async worker => {
       appAssert(worker, 'worker is undefined');
       worker.port.on('message', message =>
-        kUtilsInjectables
+        kIkxUtils
           .promises()
           .callAndForget(() => this.handleMessage(worker, message))
       );
@@ -61,7 +61,7 @@ export class FimidaraWorkerPool implements DisposableResource {
       this.workerApps[worker.id] = workerApp;
 
       worker.worker.on('exit', () => {
-        kUtilsInjectables.promises().callAndForget(() => workerApp.dispose());
+        kIkxUtils.promises().callAndForget(() => workerApp.dispose());
         delete this.workerApps[worker.id];
       });
     });
@@ -115,7 +115,7 @@ export class FimidaraWorkerPool implements DisposableResource {
         /** pick from shards */ [this.server.getShard()]
       );
     } catch (error: unknown) {
-      kUtilsInjectables.logger().error(error);
+      kIkxUtils.logger().error(error);
       return undefined;
     }
   }

@@ -1,17 +1,14 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {SessionAgent} from '../../definitions/system.js';
 import {appAssert} from '../../utils/assertion.js';
 import {PermissionDeniedError} from '../users/errors.js';
 
 export async function assertUserIsPartOfRootWorkspace(agent: SessionAgent) {
   appAssert(agent.user, new PermissionDeniedError());
-  const workspaceAssignedItem = await kSemanticModels
+  const workspaceAssignedItem = await kIjxSemantic
     .assignedItem()
     .getOneByQuery({
-      assignedItemId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
+      assignedItemId: kIkxUtils.runtimeConfig().appWorkspaceId,
       assigneeId: agent.user.resourceId,
     });
   appAssert(workspaceAssignedItem, new PermissionDeniedError());

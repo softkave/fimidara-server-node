@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';
@@ -44,7 +44,7 @@ describe('updateTag', () => {
     const result = await updateTag(reqData);
     assertEndpointResultOk(result);
 
-    const updatedTag = await kSemanticModels
+    const updatedTag = await kIjxSemantic
       .tag()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(tag01.resourceId)

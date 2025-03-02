@@ -3,10 +3,10 @@ import {URL} from 'url';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
 import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
@@ -49,9 +49,9 @@ async function createTestEmailVerificationToken(userId: string) {
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
+    .withTxn(opts => kIjxSemantic.agentToken().insertItem(token, opts));
   return token;
 }
 
@@ -100,7 +100,7 @@ describe('sendConfirmEmailAddressEmail', () => {
       {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
-    const encodedToken = await kUtilsInjectables
+    const encodedToken = await kIkxUtils
       .session()
       .encodeToken({tokenId: token.resourceId, expiresAt: token.expiresAt});
     assertLinkWithToken(link, encodedToken.jwtToken, prevLink);
@@ -111,7 +111,7 @@ describe('sendConfirmEmailAddressEmail', () => {
       emailVerificationEmailSentAt: Date.now(),
     }));
     const testEmailProvider = new MockTestEmailProviderContext();
-    kRegisterUtilsInjectables.email(testEmailProvider);
+    kRegisterIjxUtils.email(testEmailProvider);
 
     await sendConfirmEmailAddressEmail(
       getNewIdForResource(kFimidaraResourceType.Job),
@@ -130,17 +130,15 @@ describe('sendConfirmEmailAddressEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kConfirmEmailAddressEmail.title);
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().senderEmailAddress
-    );
+    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
 
-    await kUtilsInjectables.promises().flush();
-    const dbUser = await kSemanticModels.user().getOneById(user.resourceId);
+    await kIkxUtils.promises().flush();
+    const dbUser = await kIjxSemantic.user().getOneById(user.resourceId);
     expect(dbUser?.emailVerificationEmailSentAt).toBeGreaterThan(
       user.emailVerificationEmailSentAt || 0
     );
 
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
+    const suppliedConfig = kIkxUtils.suppliedConfig();
     assert(suppliedConfig.verifyEmailLink);
     const link = await getLinkWithConfirmEmailToken(
       user,

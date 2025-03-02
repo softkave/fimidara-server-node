@@ -1,4 +1,4 @@
-import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {kIkxUtils} from '../contexts/ijx/injectables.js';
 import {
   emailHelperChars,
   emailStylingHelpers,
@@ -17,7 +17,7 @@ export const kUpgradeFromWaitlistEmailArtifacts = {
   title: "You've been upgraded from the waitlist",
   message: () =>
     `You've been upgraded from the waitlist, now you have full access to ${
-      kUtilsInjectables.suppliedConfig().appName
+      kIkxUtils.suppliedConfig().appName
     }`,
 };
 

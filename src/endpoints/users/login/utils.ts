@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
@@ -55,18 +52,14 @@ export async function getExistingUserClientAssignedToken(
   opts: SemanticProviderMutationParams
 ) {
   appAssert(
-    kUtilsInjectables.runtimeConfig().appWorkspaceId,
+    kIkxUtils.runtimeConfig().appWorkspaceId,
     new ServerError(),
     'App workspace ID not set'
   );
 
-  const token = await kSemanticModels
+  const token = await kIjxSemantic
     .agentToken()
-    .getByProvidedId(
-      kUtilsInjectables.runtimeConfig().appWorkspaceId,
-      userId,
-      opts
-    );
+    .getByProvidedId(kIkxUtils.runtimeConfig().appWorkspaceId, userId, opts);
 
   return token;
 }
@@ -80,7 +73,7 @@ export async function getUserClientAssignedToken(
   if (!token?.shouldRefresh) {
     token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
       providedResourceId: userId,
-      workspaceId: kUtilsInjectables.runtimeConfig().appWorkspaceId,
+      workspaceId: kIkxUtils.runtimeConfig().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
       forEntityId: userId,
       entityType: kFimidaraResourceType.User,
@@ -91,7 +84,7 @@ export async function getUserClientAssignedToken(
       refreshDuration: kAgentTokenConstants.refreshDurationMs,
     });
 
-    await kSemanticModels.agentToken().insertItem(token, opts);
+    await kIjxSemantic.agentToken().insertItem(token, opts);
   }
 
   return token;
@@ -101,7 +94,7 @@ export async function getExistingUserToken(
   userId: string,
   opts: SemanticProviderMutationParams
 ) {
-  const userToken = await kSemanticModels
+  const userToken = await kIjxSemantic
     .agentToken()
     .getUserAgentToken(userId, kTokenAccessScope.login, opts);
 
@@ -127,14 +120,14 @@ export async function getUserToken(
       refreshDuration: kAgentTokenConstants.refreshDurationMs,
     });
 
-    await kSemanticModels.agentToken().insertItem(userToken, opts);
+    await kIjxSemantic.agentToken().insertItem(userToken, opts);
   }
 
   return userToken;
 }
 
 export async function getLoginResult(user: User) {
-  const [userToken, clientAssignedToken] = await kSemanticModels
+  const [userToken, clientAssignedToken] = await kIjxSemantic
     .utils()
     .withTxn(opts =>
       Promise.all([

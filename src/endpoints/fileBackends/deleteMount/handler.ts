@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -16,9 +13,9 @@ import {deleteFileBackendMountJoiSchema} from './validation.js';
 
 const deleteFileBackendMount: DeleteFileBackendMountEndpoint =
   async reqData => {
-    const mountModel = kSemanticModels.fileBackendMount();
+    const mountModel = kIjxSemantic.fileBackendMount();
     const data = validate(reqData.data, deleteFileBackendMountJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,

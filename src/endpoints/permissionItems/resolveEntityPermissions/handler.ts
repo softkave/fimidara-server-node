@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {ResolveEntityPermissionsEndpoint} from './types.js';
@@ -12,7 +12,7 @@ import {resolveEntityPermissionsJoiSchema} from './validation.js';
 const resolveEntityPermissions: ResolveEntityPermissionsEndpoint =
   async reqData => {
     const data = validate(reqData.data, resolveEntityPermissionsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,

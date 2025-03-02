@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
 
@@ -8,7 +8,7 @@ export async function checkWorkspaceNameExists(params: {
   opts?: SemanticProviderOpParams;
 }) {
   const {name, workspaceId, opts} = params;
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getByWorkspaceName(name, {...opts, projection: {resourceId: true}});
 
@@ -23,7 +23,7 @@ export async function checkWorkspaceRootnameExists(params: {
   opts?: SemanticProviderOpParams;
 }) {
   const {rootname, workspaceId, opts} = params;
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getByRootname(rootname, {...opts, projection: {resourceId: true}});
 

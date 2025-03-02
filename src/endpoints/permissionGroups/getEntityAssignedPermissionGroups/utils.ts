@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {Workspace} from '../../../definitions/workspace.js';
@@ -44,7 +44,7 @@ export async function fetchEntityAssignedPermissionGroupList(params: {
     opts,
   } = params;
 
-  return await kSemanticModels.permissions().getEntityAssignedPermissionGroups(
+  return await kIjxSemantic.permissions().getEntityAssignedPermissionGroups(
     {
       workspaceId,
       entityId,

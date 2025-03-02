@@ -7,7 +7,7 @@ import {
   waitTimeout,
 } from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {kJobStatus} from '../../definitions/job.js';
 import {generateAndInsertAppScriptListForTest} from '../../endpoints/testUtils/generate/script.js';
 import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
@@ -43,7 +43,7 @@ describe('runScript', () => {
 
     expect(fn).toHaveBeenCalled();
 
-    const dbScript = await kSemanticModels.script().getScript({name});
+    const dbScript = await kIjxSemantic.script().getScript({name});
     assert(dbScript);
     expect(dbScript.status).toBe(kJobStatus.completed);
   });
@@ -186,7 +186,7 @@ describe('runScript', () => {
       isMandatory: false,
     });
 
-    const dbScript = await kSemanticModels.script().getScript({name});
+    const dbScript = await kIjxSemantic.script().getScript({name});
     assert(dbScript);
     expect(dbScript.status).toBe(kJobStatus.failed);
   });

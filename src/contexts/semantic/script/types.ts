@@ -1,6 +1,6 @@
 import {JobStatus} from '../../../definitions/job.js';
 import {AppScript} from '../../../definitions/script.js';
-import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider.js';
+import {SemanticBaseProvider} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
@@ -16,7 +16,7 @@ export interface SemanticScriptPollStatus extends SemanticScriptStatus {
 }
 
 export interface ISemanticScriptProvider
-  extends DataSemanticBaseProvider<AppScript> {
+  extends SemanticBaseProvider<AppScript> {
   tryStartScript(params: {name: string; uniqueId?: string}): Promise<{
     inserted: boolean;
     script: AppScript;

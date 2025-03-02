@@ -7,10 +7,7 @@ import {
   getFilePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {PersistedFile} from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {incrementBandwidthOutUsageRecord} from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -32,7 +29,7 @@ import {readFileJoiSchema} from './validation.js';
 
 const readFile: ReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, readFileJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -40,7 +37,7 @@ const readFile: ReadFileEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const file = await await kSemanticModels.utils().withTxn(async opts => {
+  const file = await await kIjxSemantic.utils().withTxn(async opts => {
     const {file, presignedPath} = await getFileWithMatcher({
       presignedPathAction: kFimidaraPermissionActions.readFile,
       incrementPresignedPathUsageCount: true,
@@ -158,7 +155,7 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
         return persistedFile;
       }
     } catch (error) {
-      kUtilsInjectables.logger().error(error);
+      kIkxUtils.logger().error(error);
     }
   }
 

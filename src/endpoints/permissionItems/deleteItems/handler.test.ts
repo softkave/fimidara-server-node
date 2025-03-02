@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Job, kJobType} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -71,7 +71,7 @@ test('permission items deleted', async () => {
   const result = await deletePermissionItems(reqData);
   assertEndpointResultOk(result);
 
-  const jobs = (await kSemanticModels.job().getManyByQuery({
+  const jobs = (await kIjxSemantic.job().getManyByQuery({
     type: kJobType.deletePermissionItem,
     resourceId: {$in: result.jobIds},
     workspaceId: workspace.resourceId,

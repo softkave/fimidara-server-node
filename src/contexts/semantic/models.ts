@@ -7,8 +7,8 @@ import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {AppRuntimeState} from '../../definitions/system.js';
 import {Tag} from '../../definitions/tag.js';
 import {UsageRecord} from '../../definitions/usageRecord.js';
-import {DataSemanticBaseProvider} from './DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from './DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {SemanticBaseProvider} from './SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from './SemanticWorkspaceResourceProvider.js';
 import {
   SemanticAppProvider,
   SemanticAppRuntimeStateProvider,
@@ -20,29 +20,29 @@ import {
 } from './types.js';
 
 export class DataSemanticFileBackendMount
-  extends DataSemanticWorkspaceResourceProvider<FileBackendMount>
+  extends SemanticWorkspaceResourceProvider<FileBackendMount>
   implements SemanticFileBackendMountProvider {}
 
 export class DataSemanticApp
-  extends DataSemanticWorkspaceResourceProvider<App>
+  extends SemanticWorkspaceResourceProvider<App>
   implements SemanticAppProvider {}
 
 export class DataSemanticTag
-  extends DataSemanticWorkspaceResourceProvider<Tag>
+  extends SemanticWorkspaceResourceProvider<Tag>
   implements SemanticTagProviderType {}
 
 export class DataSemanticUsageRecord
-  extends DataSemanticWorkspaceResourceProvider<UsageRecord>
+  extends SemanticWorkspaceResourceProvider<UsageRecord>
   implements SemanticUsageRecordProviderType {}
 
 export class DataSemanticPermissionGroup
-  extends DataSemanticWorkspaceResourceProvider<PermissionGroup>
+  extends SemanticWorkspaceResourceProvider<PermissionGroup>
   implements SemanticPermissionGroupProviderType {}
 
 export class DataSemanticFileBackendConfig
-  extends DataSemanticWorkspaceResourceProvider<FileBackendConfig>
+  extends SemanticWorkspaceResourceProvider<FileBackendConfig>
   implements SemanticFileBackendConfigProvider {}
 
 export class DataSemanticAppRuntimeState
-  extends DataSemanticBaseProvider<AppRuntimeState>
+  extends SemanticBaseProvider<AppRuntimeState>
   implements SemanticAppRuntimeStateProvider {}

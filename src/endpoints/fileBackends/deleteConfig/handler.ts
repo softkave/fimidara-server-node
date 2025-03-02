@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
@@ -15,9 +12,9 @@ import {deleteFileBackendConfigJoiSchema} from './validation.js';
 
 const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint =
   async reqData => {
-    const configModel = kSemanticModels.fileBackendConfig();
+    const configModel = kIjxSemantic.fileBackendConfig();
     const data = validate(reqData.data, deleteFileBackendConfigJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -38,7 +35,7 @@ const deleteFileBackendConfig: DeleteFileBackendConfigEndpoint =
     const config = await configModel.getOneById(data.configId);
     appAssert(config, kReuseableErrors.config.notFound());
 
-    const configMountsCount = await kSemanticModels
+    const configMountsCount = await kIjxSemantic
       .fileBackendMount()
       .countByQuery({configId: config.resourceId});
 

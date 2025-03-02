@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {map} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {waitTimeout} from '../../../../utils/fns.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
@@ -23,7 +23,7 @@ describe('FWorkerPool', () => {
   test('ensureWorkerCount', async () => {
     let workerId = 0;
     const workerPool = new FWorkerPool({
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       filepath: kWorkerTestFilepath,
       workerCount: 2,
       generateWorkerId: () => {
@@ -45,7 +45,7 @@ describe('FWorkerPool', () => {
   test('terminate', async () => {
     let workerId = 1;
     const workerPool = new FWorkerPool({
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       filepath: kWorkerTestFilepath,
       workerCount: 2,
       generateWorkerId: () => {
@@ -67,7 +67,7 @@ describe('FWorkerPool', () => {
     const gracefulTerminateFn = vi.fn();
     const workerPool = new FWorkerPool({
       gracefulTerminateFn,
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       filepath: kWorkerTestFilepath,
       workerCount: 2,
       generateWorkerId: () => {
@@ -94,7 +94,7 @@ describe('FWorkerPool', () => {
     const workerPool = new FWorkerPool({
       gracefulTerminateFn,
       gracefulTerminateTimeoutMs,
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       filepath: kWorkerTestFilepath,
       workerCount: 2,
       generateWorkerId: () => {
@@ -120,7 +120,7 @@ describe('FWorkerPool', () => {
   test('message worker', async () => {
     let workerId = 1;
     const workerPool = new FWorkerPool({
-      promises: kUtilsInjectables.promises(),
+      promises: kIkxUtils.promises(),
       filepath: kWorkerTestFilepath,
       workerCount: 2,
       generateWorkerId: () => {

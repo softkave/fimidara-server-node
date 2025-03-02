@@ -2,8 +2,8 @@ import {Folder} from '../../../definitions/folder.js';
 import {Resource} from '../../../definitions/system.js';
 import {FolderQueries} from '../../../endpoints/folders/queries.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
@@ -13,7 +13,7 @@ import {getInAndNinQuery} from '../utils.js';
 import {SemanticFolderProvider} from './types.js';
 
 export class DataSemanticFolder
-  extends DataSemanticWorkspaceResourceProvider<Folder>
+  extends SemanticWorkspaceResourceProvider<Folder>
   implements SemanticFolderProvider
 {
   async getOneByNamepath(

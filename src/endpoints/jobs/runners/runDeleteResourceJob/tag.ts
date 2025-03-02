@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {
   genericDeleteArtifacts,
   genericGetArtifacts,
@@ -8,7 +8,7 @@ import {DeleteResourceCascadeEntry, DeleteResourceFn} from './types.js';
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
-    kSemanticModels.tag().deleteOneById(args.resourceId, opts)
+    kIjxSemantic.tag().deleteOneById(args.resourceId, opts)
   );
 
 export const deleteTagCascadeEntry: DeleteResourceCascadeEntry = {

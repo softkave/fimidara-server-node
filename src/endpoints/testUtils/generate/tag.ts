@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -40,8 +40,8 @@ export async function generateAndInsertTagListForTest(
   seed: Partial<Tag> = {}
 ) {
   const items = generateTagListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.tag().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.tag().insertItem(items, opts));
   return items;
 }

@@ -1,6 +1,6 @@
 import {TimeoutError, waitTimeout} from 'softkave-js-utils';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {createOrRetrieve, kAckMessage} from '../createOrRetrieve.js';
@@ -24,7 +24,7 @@ describe('createOrRetrieve', () => {
     expect(result).toBe('test01');
 
     const ackKey = `ack-${key}`;
-    const isAcked = await kUtilsInjectables.cache().get(ackKey);
+    const isAcked = await kIkxUtils.cache().get(ackKey);
     expect(isAcked).toBe(kAckMessage);
   });
 

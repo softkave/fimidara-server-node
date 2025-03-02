@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {JobHistory} from '../../../definitions/jobHistory.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getNewIdForResource, newResource} from '../../../utils/resource.js';
@@ -35,11 +35,9 @@ export async function generateAndInsertJobHistoryListForTest(
   seed: Partial<JobHistory> = {}
 ) {
   const items = generateJobHistoryListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts =>
-      kSemanticModels.jobHistory().insertItem(items, opts)
-    );
+    .withTxn(async opts => kIjxSemantic.jobHistory().insertItem(items, opts));
 
   return items;
 }

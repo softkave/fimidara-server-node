@@ -1,10 +1,7 @@
 import {compact, keyBy, map, uniqBy} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {FileMatcher} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
@@ -27,7 +24,7 @@ import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
   async reqData => {
     const data = validate(reqData.data, getPresignedPathsForFilesJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -52,7 +49,7 @@ const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
       ));
     } else {
       // Fetch agent's presigned paths with optional workspaceId.
-      pList = await kSemanticModels.presignedPath().getManyByQuery({
+      pList = await kIjxSemantic.presignedPath().getManyByQuery({
         issuerAgentTokenId: agent.agentTokenId,
         workspaceId: data.workspaceId,
       });
@@ -98,12 +95,12 @@ async function getPresignedPathsByFileMatchers(
   workspaceId?: string
 ) {
   const workspaceDict: Record<string, Workspace> = {};
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const fileIdList = compact(matchers.map(m => m.fileId));
     let pList: PresignedPath[] = [];
 
     if (fileIdList.length) {
-      pList = await kSemanticModels
+      pList = await kIjxSemantic
         .presignedPath()
         .getManyByQuery({workspaceId, fileId: {$in: fileIdList}}, opts);
     }
@@ -122,7 +119,7 @@ async function getPresignedPathsByFileMatchers(
 
         if (!workspaceId) {
           assertRootname(pathinfo.rootname);
-          workspace = await kSemanticModels
+          workspace = await kIjxSemantic
             .workspace()
             .getByRootname(pathinfo.rootname);
           appAssert(
@@ -135,7 +132,7 @@ async function getPresignedPathsByFileMatchers(
           workspaceId = workspace.resourceId;
         }
 
-        const presignedPath = await kSemanticModels
+        const presignedPath = await kIjxSemantic
           .presignedPath()
           .getOneByFilepath(
             {
@@ -169,9 +166,7 @@ async function fetchAndMergeUnfetchedWorkspaces(
   mergeData(
     workspaceDict,
     keyBy(
-      await kSemanticModels
-        .workspace()
-        .getManyByIdList(unfetchedWorkspaceIdList),
+      await kIjxSemantic.workspace().getManyByIdList(unfetchedWorkspaceIdList),
       w => w.resourceId
     ),
     {arrayUpdateStrategy: 'replace'}

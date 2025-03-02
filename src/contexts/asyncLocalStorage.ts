@@ -2,7 +2,7 @@ import {AsyncLocalStorage} from 'async_hooks';
 import {get, set} from 'lodash-es';
 import {AnyFn, AnyObject, DisposablesStore} from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
-import {kUtilsInjectables} from './injection/injectables.js';
+import {kIkxUtils} from './ijx/injectables.js';
 
 export type FimidaraAsyncLocalStorageStore = Record<string, unknown>;
 export type FimidaraAsyncLocalStorage =
@@ -72,7 +72,7 @@ export const kAsyncLocalStorageUtils: AsyncLocalStorageUtils = {
       this.get(kAsyncLocalStorageKeys.disposables) ||
       this.set(
         kAsyncLocalStorageKeys.disposables,
-        new DisposablesStore(kUtilsInjectables.promises())
+        new DisposablesStore(kIkxUtils.promises())
       )
     );
   },

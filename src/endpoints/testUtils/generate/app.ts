@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {getNewId} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {App, kAppPresetShards, kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -45,9 +45,9 @@ export async function generateAndInsertAppListForTest(
   seed: Partial<App> = {}
 ) {
   const items = generateAppListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.app().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.app().insertItem(items, opts));
 
   return items;
 }

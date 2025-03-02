@@ -1,9 +1,6 @@
 import {isString} from 'lodash-es';
 import {FilePersistenceProvider} from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File, FileWithRuntimeData} from '../../../definitions/file.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
@@ -26,7 +23,7 @@ export async function beginCleanupExpiredMultipartUpload(
 ) {
   const update = getCleanupMultipartFileUpdate();
   appAssert(isString(file.internalMultipartId));
-  await kSemanticModels.file().updateOneById(file.resourceId, update, opts);
+  await kIjxSemantic.file().updateOneById(file.resourceId, update, opts);
 
   (file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart = true;
   (file as FileWithRuntimeData).RUNTIME_ONLY_internalMultipartId =
@@ -48,7 +45,7 @@ export function fireAndForgetHandleMultipartCleanup(params: {
     file.RUNTIME_ONLY_shouldCleanupMultipart = false;
     appAssert(isString(file.RUNTIME_ONLY_internalMultipartId));
 
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       Promise.all([
         cleanupConcurrencyKeys({file, data}),
         deleteMultipartUpload({
@@ -91,7 +88,7 @@ export async function handleLastMultipartUpload(params: {
     workspaceId: file.workspaceId,
   });
 
-  kUtilsInjectables.promises().callAndForget(() =>
+  kIkxUtils.promises().callAndForget(() =>
     Promise.all([
       cleanupConcurrencyKeys({file, data}),
       deleteMultipartUploadPartMetas({

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {BusboyConfig} from 'busboy';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
@@ -51,16 +51,13 @@ export const kFileConstants = {
   addInternalMultipartIdProcessCount: 100,
   getAddInternalMultipartIdPubSubChannel: (workspaceId: string) =>
     `${
-      kUtilsInjectables.suppliedConfig()
-        .addInternalMultipartIdPubSubChannelPrefix
+      kIkxUtils.suppliedConfig().addInternalMultipartIdPubSubChannelPrefix
     }-${workspaceId}`,
   getAddInternalMultipartIdQueueWithNo: (num: number) =>
-    `${
-      kUtilsInjectables.suppliedConfig().addInternalMultipartIdQueuePrefix
-    }${num}`,
+    `${kIkxUtils.suppliedConfig().addInternalMultipartIdQueuePrefix}${num}`,
   getAddInternalMultipartIdQueueKey: (workspaceId: string) => {
     const {addInternalMultipartIdQueueStart, addInternalMultipartIdQueueEnd} =
-      kUtilsInjectables.suppliedConfig();
+      kIkxUtils.suppliedConfig();
 
     assert.ok(addInternalMultipartIdQueueStart);
     assert.ok(addInternalMultipartIdQueueEnd);
@@ -86,13 +83,13 @@ export const kFileConstants = {
   prepareFileProcessCount: 100,
   getPrepareFilePubSubChannel: (workspaceId: string) =>
     `${
-      kUtilsInjectables.suppliedConfig().prepareFilePubSubChannelPrefix
+      kIkxUtils.suppliedConfig().prepareFilePubSubChannelPrefix
     }-${workspaceId}`,
   getPrepareFileQueueWithNo: (num: number) =>
-    `${kUtilsInjectables.suppliedConfig().prepareFileQueuePrefix}${num}`,
+    `${kIkxUtils.suppliedConfig().prepareFileQueuePrefix}${num}`,
   getPrepareFileQueueKey: (workspaceId: string) => {
     const {prepareFileQueueStart, prepareFileQueueEnd} =
-      kUtilsInjectables.suppliedConfig();
+      kIkxUtils.suppliedConfig();
 
     assert.ok(prepareFileQueueStart);
     assert.ok(prepareFileQueueEnd);

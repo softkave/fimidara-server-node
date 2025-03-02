@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
@@ -50,7 +50,7 @@ export async function checkTagAuthorization02(
   id: string,
   action: FimidaraPermissionAction
 ) {
-  const tag = await kSemanticModels.tag().getOneById(id);
+  const tag = await kIjxSemantic.tag().getOneById(id);
   assertTag(tag);
   return checkTagAuthorization(agent, tag, action);
 }

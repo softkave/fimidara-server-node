@@ -1,6 +1,6 @@
 import {addMinutes, isBefore} from 'date-fns';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -17,7 +17,7 @@ import {SendEmailVerificationCodeEndpoint} from './types.js';
 
 const sendEmailVerificationCode: SendEmailVerificationCodeEndpoint =
   async reqData => {
-    const user = await kUtilsInjectables
+    const user = await kIkxUtils
       .session()
       .getUser(reqData, kSessionUtils.accessScopes.user);
     await INTERNAL_sendEmailVerificationCode(user);
@@ -46,7 +46,7 @@ export async function INTERNAL_sendEmailVerificationCode(user: User) {
     }
   }
 
-  kUtilsInjectables.promises().callAndForget(() =>
+  kIkxUtils.promises().callAndForget(() =>
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

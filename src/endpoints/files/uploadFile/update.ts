@@ -1,6 +1,6 @@
 import {isNumber, pick} from 'lodash-es';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {
@@ -23,8 +23,8 @@ import {writeMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 import {UploadFileEndpointParams} from './types.js';
 
 export async function setFileWritable(fileId: string) {
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
+  await kIjxSemantic.utils().withTxn(async opts => {
+    await kIjxSemantic
       .file()
       .getAndUpdateOneById(fileId, {isWriteAvailable: true}, opts);
   });
@@ -66,7 +66,7 @@ async function insertFileMountEntry(params: {
     }
   );
 
-  await kSemanticModels.resolvedMountEntry().insertItem(newMountEntry, opts);
+  await kIjxSemantic.resolvedMountEntry().insertItem(newMountEntry, opts);
 }
 
 export async function completeUploadFile(params: {
@@ -86,10 +86,10 @@ export async function completeUploadFile(params: {
     shouldInsertMountEntry,
   } = params;
 
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const {namepath, ext} = pathExtract(pMountData.filepath);
     const [savedFile] = await Promise.all([
-      kSemanticModels.file().getAndUpdateOneById(file.resourceId, update, opts),
+      kIjxSemantic.file().getAndUpdateOneById(file.resourceId, update, opts),
       shouldInsertMountEntry &&
         insertFileMountEntry({
           agent,

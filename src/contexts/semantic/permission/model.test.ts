@@ -24,7 +24,7 @@ import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../injection/injectables.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
 import {DataSemanticPermission} from './model.js';
 
 const model = new DataSemanticPermission();
@@ -298,10 +298,10 @@ describe('DataSemanticPermission', () => {
         }),
       count
     );
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(async opts =>
-        kSemanticModels.permissionItem().insertItem(rawItems, opts)
+        kIjxSemantic.permissionItem().insertItem(rawItems, opts)
       );
 
     const items = await model.getPermissionItems({

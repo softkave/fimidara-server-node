@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {User} from '../../../../../definitions/user.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
@@ -58,9 +58,7 @@ async function findWorkspaceCollaboratorAssignedItem(
   id: string,
   workspaceId: string
 ) {
-  const assignedItems = await kSemanticModels
-    .assignedItem()
-    .getUserWorkspaces(id);
+  const assignedItems = await kIjxSemantic.assignedItem().getUserWorkspaces(id);
   return assignedItems.find(item => item.workspaceId === workspaceId);
 }
 
@@ -72,7 +70,7 @@ async function generateNonWorkspaceResources(id: string) {
       workspaceId: otherWorkspaceId,
       parentId: null,
     }),
-    kSemanticModels
+    kIjxSemantic
       .utils()
       .withTxn(opts =>
         assignWorkspaceToUser(kSystemSessionAgent, otherWorkspaceId, id, opts)
@@ -96,10 +94,10 @@ async function expectNonWorkspaceUserResourcesRemain(
   const {pItems, files, otherWorkspaceId} = resources;
   const [dbAssignedItem, dbPItems, dbFiles] = await Promise.all([
     findWorkspaceCollaboratorAssignedItem(id, otherWorkspaceId),
-    kSemanticModels
+    kIjxSemantic
       .permissionItem()
       .getManyByIdList(extractResourceIdList(pItems)),
-    kSemanticModels.file().getManyByIdList(extractResourceIdList(files)),
+    kIjxSemantic.file().getManyByIdList(extractResourceIdList(files)),
   ]);
 
   expect(dbAssignedItem).toBeTruthy();
@@ -134,7 +132,7 @@ describe('runDeleteResourceJob, agent token', () => {
       nonWorkspaceResources
     );
 
-    const dbUser = await kSemanticModels
+    const dbUser = await kIjxSemantic
       .user()
       .getOneById(collaborator.resourceId);
     expect(dbUser).toBeTruthy();

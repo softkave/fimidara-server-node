@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {ResourceExistsError} from '../../errors.js';
@@ -29,7 +29,7 @@ describe('addMount', () => {
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {mount} = await insertFileBackendMountForTest(userToken, workspace);
     const savedMount = fileBackendMountExtractor(
-      await kSemanticModels
+      await kIjxSemantic
         .fileBackendMount()
         .assertGetOneByQuery({resourceId: mount.resourceId})
     );
@@ -105,7 +105,7 @@ describe('addMount', () => {
       ),
     });
 
-    const folder = await kSemanticModels.folder().getOneByNamepath({
+    const folder = await kIjxSemantic.folder().getOneByNamepath({
       workspaceId: workspace.resourceId,
       namepath: folderpath,
     });

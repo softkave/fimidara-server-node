@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {
   FileBackendMount,
@@ -24,8 +24,8 @@ export const INTERNAL_addFileBackendMount = async (
   data: NewFileBackendMountInput,
   opts: SemanticProviderMutationParams
 ) => {
-  const fileBackendMountModel = kSemanticModels.fileBackendMount();
-  const fileBackendConfigModel = kSemanticModels.fileBackendConfig();
+  const fileBackendMountModel = kIjxSemantic.fileBackendMount();
+  const fileBackendConfigModel = kIjxSemantic.fileBackendConfig();
 
   const folderpathinfo = getFolderpathInfo(data.folderpath, {
     allowRootFolder: true,

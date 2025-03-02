@@ -1,10 +1,7 @@
 import {pick} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   FileBackendMount,
   kFileBackendType,
@@ -42,11 +39,11 @@ import {updateFileBackendMountJoiSchema} from './validation.js';
 
 const updateFileBackendMount: UpdateFileBackendMountEndpoint =
   async reqData => {
-    const mountModel = kSemanticModels.fileBackendMount();
-    const semanticUtils = kSemanticModels.utils();
+    const mountModel = kIjxSemantic.fileBackendMount();
+    const semanticUtils = kIjxSemantic.utils();
 
     const data = validate(reqData.data, updateFileBackendMountJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -73,7 +70,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
       }
 
       if (data.mount.configId) {
-        const backendConfig = await kSemanticModels
+        const backendConfig = await kIjxSemantic
           .fileBackendConfig()
           .getOneByQuery(
             {

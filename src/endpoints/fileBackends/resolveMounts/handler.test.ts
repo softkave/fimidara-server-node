@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {pathSplit} from '../../../utils/fns.js';
@@ -97,9 +97,7 @@ describe('resolveMounts', () => {
           {
             matcher: params => !!params.fileId,
             generator: async params => {
-              const file = await kSemanticModels
-                .file()
-                .getOneById(params.fileId!);
+              const file = await kIjxSemantic.file().getOneById(params.fileId!);
               assert(file);
               return {namepath: file.namepath.slice(0, -1)};
             },
@@ -107,7 +105,7 @@ describe('resolveMounts', () => {
           {
             matcher: params => !!params.folderId,
             generator: async params => {
-              const folder = await kSemanticModels
+              const folder = await kIjxSemantic
                 .folder()
                 .getOneById(params.folderId!);
               assert(folder);
@@ -169,7 +167,7 @@ describe('resolveMounts', () => {
           {
             matcher: input => !!input.folderId,
             expect: async (input, result) => {
-              const folder = await kSemanticModels
+              const folder = await kIjxSemantic
                 .folder()
                 .getOneById(input.folderId!);
 
@@ -189,9 +187,7 @@ describe('resolveMounts', () => {
           {
             matcher: input => !!input.fileId,
             expect: async (input, result) => {
-              const file = await kSemanticModels
-                .file()
-                .getOneById(input.fileId!);
+              const file = await kIjxSemantic.file().getOneById(input.fileId!);
 
               result.mounts.forEach(mount => {
                 expectListSubsetMatch(

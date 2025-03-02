@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
@@ -59,7 +59,7 @@ test('permissionGroup updated', async () => {
 
   const updatedPermissionGroup = await populateAssignedTags(
     workspace.resourceId,
-    await kSemanticModels
+    await kIjxSemantic
       .permissionGroup()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(permissionGroup00.resourceId)

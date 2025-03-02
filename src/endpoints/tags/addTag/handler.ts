@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
@@ -16,7 +13,7 @@ import {addTagJoiSchema} from './validation.js';
 
 const addTag: AddTagEndpoint = async reqData => {
   const data = validate(reqData.data, addTagJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -40,13 +37,13 @@ const addTag: AddTagEndpoint = async reqData => {
     workspace.resourceId,
     {...data}
   );
-  await kSemanticModels.utils().withTxn(async opts => {
+  await kIjxSemantic.utils().withTxn(async opts => {
     await checkTagNameExists({
       workspaceId: workspace.resourceId,
       name: data.name,
       opts,
     });
-    await kSemanticModels.tag().insertItem(tag, opts);
+    await kIjxSemantic.tag().insertItem(tag, opts);
   });
 
   return {tag: tagExtractor(tag)};

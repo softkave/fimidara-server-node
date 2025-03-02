@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {difference} from 'lodash-es';
 import {convertToArray} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   FimidaraPermissionAction,
   PermissionItem,
@@ -65,10 +65,10 @@ export async function generateAndInsertPermissionItemListForTest(
   seed: Partial<PermissionItem> = {}
 ) {
   const items = generatePermissionItemListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts =>
-      kSemanticModels.permissionItem().insertItem(items, opts)
+      kIjxSemantic.permissionItem().insertItem(items, opts)
     );
   return items;
 }

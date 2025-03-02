@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -48,7 +48,7 @@ test('folder deleted', async () => {
   assertEndpointResultOk(result);
 
   appAssert(result.jobId);
-  const job = (await kSemanticModels.job().getOneByQuery({
+  const job = (await kIjxSemantic.job().getOneByQuery({
     type: kJobType.deleteResource,
     resourceId: result.jobId,
     params: {
@@ -61,7 +61,7 @@ test('folder deleted', async () => {
     workspaceId: workspace.resourceId,
   });
 
-  const dbItem = await kSemanticModels
+  const dbItem = await kIjxSemantic
     .folder()
     .getOneByQuery({resourceId: folder01.resourceId, isDeleted: true});
   expect(dbItem).toBeTruthy();

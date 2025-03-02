@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {FimidaraResourceType} from '../../definitions/system.js';
 
@@ -8,7 +8,7 @@ export async function deleteResourceAssignedItems(
   assignedItemTypes: FimidaraResourceType[] | undefined,
   opts: SemanticProviderMutationParams
 ) {
-  await kSemanticModels
+  await kIjxSemantic
     .assignedItem()
     .deleteByAssigned(workspaceId, resourceId, assignedItemTypes, opts);
 }

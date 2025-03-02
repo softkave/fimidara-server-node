@@ -1,6 +1,6 @@
 import {isUndefined} from 'lodash-es';
 import {AnyFn} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {
   IShardRunnerEntry,
   IShardRunnerMessage,
@@ -20,7 +20,7 @@ import {
 
 async function getNextItems(params: {queueKey: string; readCount: number}) {
   const {queueKey, readCount} = params;
-  const rawItems = await kUtilsInjectables
+  const rawItems = await kIkxUtils
     .queue()
     .getMessages(queueKey, readCount, /** remove */ true);
   const items = rawItems.map(next => {
@@ -35,21 +35,19 @@ async function getNextItems(params: {queueKey: string; readCount: number}) {
 function ackItems(params: {items: IShardRunnerEntry<unknown>[]}) {
   const {items} = params;
 
-  if (kUtilsInjectables.runtimeState().getIsEnded()) {
-    kUtilsInjectables
-      .logger()
-      .log('dropping ack items because server is ending');
-    kUtilsInjectables.logger().log(JSON.stringify(items, null, 2));
+  if (kIkxUtils.runtimeState().getIsEnded()) {
+    kIkxUtils.logger().log('dropping ack items because server is ending');
+    kIkxUtils.logger().log(JSON.stringify(items, null, 2));
     return;
   }
 
-  kUtilsInjectables.promises().callAndForget(() =>
+  kIkxUtils.promises().callAndForget(() =>
     items.map(async next => {
       const ack: IShardRunnerOutput<unknown> = {
         type: kShardRunnerOutputType.ack,
         id: next.id,
       };
-      await kUtilsInjectables.pubsub().publish(next.outputChannel, ack);
+      await kIkxUtils.pubsub().publish(next.outputChannel, ack);
     })
   );
 }
@@ -60,16 +58,14 @@ function outputItems(params: {
 }) {
   const {items, resultsMap} = params;
 
-  if (kUtilsInjectables.runtimeState().getIsEnded()) {
-    kUtilsInjectables
-      .logger()
-      .log('dropping output items because server is ending');
-    kUtilsInjectables.logger().log(JSON.stringify(items, null, 2));
-    kUtilsInjectables.logger().log(JSON.stringify(resultsMap, null, 2));
+  if (kIkxUtils.runtimeState().getIsEnded()) {
+    kIkxUtils.logger().log('dropping output items because server is ending');
+    kIkxUtils.logger().log(JSON.stringify(items, null, 2));
+    kIkxUtils.logger().log(JSON.stringify(resultsMap, null, 2));
     return;
   }
 
-  kUtilsInjectables.promises().callAndForget(() =>
+  kIkxUtils.promises().callAndForget(() =>
     items.map(async next => {
       const result = resultsMap[next.id];
       let output: IShardRunnerOutput<unknown> | undefined;
@@ -89,7 +85,7 @@ function outputItems(params: {
       }
 
       if (output) {
-        await kUtilsInjectables.pubsub().publish(next.outputChannel, output);
+        await kIkxUtils.pubsub().publish(next.outputChannel, output);
       }
     })
   );
@@ -114,9 +110,9 @@ export async function handleShardQueue(params: {
     isUndefined(__previousRunHasItems) ||
     items.length
   ) {
-    const isEnded = kUtilsInjectables.runtimeState().getIsEnded();
+    const isEnded = kIkxUtils.runtimeState().getIsEnded();
     if (!isEnded) {
-      kUtilsInjectables
+      kIkxUtils
         .promises()
         .callAndForget(() =>
           handleShardQueue({...params, __previousRunHasItems: !!items.length})
@@ -141,7 +137,7 @@ export async function multiItemsHandleShardQueue(params: {
         const resultsMap = await providedHandler({items});
         outputItems({items, resultsMap});
       } catch (error) {
-        kUtilsInjectables.logger().error(error);
+        kIkxUtils.logger().error(error);
         outputItems({
           items,
           resultsMap: items.reduce(
@@ -172,7 +168,7 @@ export async function singleItemHandleShardQueue(params: {
           const result = await providedHandler({item});
           outputItems({items: [item], resultsMap: {[item.id]: result}});
         } catch (error) {
-          kUtilsInjectables.logger().error(error);
+          kIkxUtils.logger().error(error);
           outputItems({
             items: [item],
             resultsMap: {
@@ -189,14 +185,14 @@ export function startShardRunner(params: {queueKey: string; handlerFn: AnyFn}) {
   const {queueKey, handlerFn} = params;
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
 
-  const isServerEnded = () => kUtilsInjectables.runtimeState().getIsEnded();
+  const isServerEnded = () => kIkxUtils.runtimeState().getIsEnded();
 
   const runHandler = () => {
     const isActive = isActiveShardRunner({queueKey});
 
     if (!isActive && !isServerEnded()) {
       setActiveShardRunner({queueKey});
-      kUtilsInjectables.promises().callAndForget(handlerFn);
+      kIkxUtils.promises().callAndForget(handlerFn);
     }
   };
 
@@ -205,7 +201,7 @@ export function startShardRunner(params: {queueKey: string; handlerFn: AnyFn}) {
     runHandler();
 
     // subscribe to wakeup channel to run handler when new items are added
-    kUtilsInjectables.pubsub().subscribe(wakeupChannel, msg => {
+    kIkxUtils.pubsub().subscribe(wakeupChannel, msg => {
       if (msg === kShardRunnerPubSubAlertMessage) {
         runHandler();
       }
@@ -216,6 +212,6 @@ export function startShardRunner(params: {queueKey: string; handlerFn: AnyFn}) {
 export async function stopShardRunner(params: {queueKey: string}) {
   const {queueKey} = params;
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
-  await kUtilsInjectables.pubsub().unsubscribe(wakeupChannel);
+  await kIkxUtils.pubsub().unsubscribe(wakeupChannel);
   unsetActiveShardRunner({queueKey});
 }

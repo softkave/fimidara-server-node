@@ -1,6 +1,6 @@
 import {compact, shuffle} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {initTests} from '../../../testUtils/testUtils.js';
 import {kFileConstants} from '../../constants.js';
@@ -36,10 +36,10 @@ describe('multipartUploadMeta', () => {
     const keys = parts.map(part =>
       kFileConstants.getPartCacheKey(multipartId, part.part)
     );
-    const cachedParts = await kUtilsInjectables.cache().getJsonList(keys);
+    const cachedParts = await kIkxUtils.cache().getJsonList(keys);
     expect(cachedParts).toEqual(parts);
 
-    const set = await kUtilsInjectables.dset().getAll(multipartId);
+    const set = await kIkxUtils.dset().getAll(multipartId);
     expect(set).toEqual(partNums.map(partNum => partNum.toString()));
   });
 
@@ -73,13 +73,11 @@ describe('multipartUploadMeta', () => {
     const key0 = kFileConstants.getPartCacheKey(multipartId, 1);
     const key1 = kFileConstants.getPartCacheKey(multipartId, 2);
     const key2 = kFileConstants.getPartCacheKey(multipartId, 3);
-    const cachedParts = await kUtilsInjectables
-      .cache()
-      .getJsonList([key0, key1, key2]);
+    const cachedParts = await kIkxUtils.cache().getJsonList([key0, key1, key2]);
     const remainingParts = parts.filter(part => part.part !== 3);
     expect(compact(cachedParts)).toEqual(remainingParts);
 
-    const set = await kUtilsInjectables.dset().getAll(multipartId);
+    const set = await kIkxUtils.dset().getAll(multipartId);
     expect(set).toEqual(['1', '2']);
   });
 
@@ -113,12 +111,10 @@ describe('multipartUploadMeta', () => {
     const key0 = kFileConstants.getPartCacheKey(multipartId, 1);
     const key1 = kFileConstants.getPartCacheKey(multipartId, 2);
     const key2 = kFileConstants.getPartCacheKey(multipartId, 3);
-    const cachedParts = await kUtilsInjectables
-      .cache()
-      .getJsonList([key0, key1, key2]);
+    const cachedParts = await kIkxUtils.cache().getJsonList([key0, key1, key2]);
     expect(compact(cachedParts)).toEqual([]);
 
-    const set = await kUtilsInjectables.dset().getAll(multipartId);
+    const set = await kIkxUtils.dset().getAll(multipartId);
     expect(set).toEqual([]);
   });
 

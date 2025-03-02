@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -19,7 +16,7 @@ import {upgradeWaitlistedUsersJoiSchema} from './validation.js';
 const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
   async reqData => {
     const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -27,15 +24,15 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
         kSessionUtils.accessScopes.user
       );
     await assertUserIsPartOfRootWorkspace(agent);
-    const users = await kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels
+    const users = await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic
         .user()
         .updateManyByQuery(
           {resourceId: {$in: data.userIds}},
           {isOnWaitlist: false, removedFromWaitlistOn: getTimestamp()},
           opts
         );
-      const userList = await kSemanticModels.user().getManyByQuery(
+      const userList = await kIjxSemantic.user().getManyByQuery(
         {resourceId: {$in: data.userIds}},
         {
           ...opts,
@@ -48,7 +45,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
     });
 
     users.map(user => {
-      kUtilsInjectables.promises().callAndForget(() =>
+      kIkxUtils.promises().callAndForget(() =>
         queueJobs<EmailJobParams>(
           /** workspace ID */ undefined,
           /** parent job ID */ undefined,

@@ -1,10 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
@@ -51,7 +48,7 @@ describe('addWorkspace', () => {
     const result = await insertWorkspaceForTest(userToken, companyInput);
     expect(result.workspace).toMatchObject(companyInput);
     expect(result.workspace.publicPermissionGroupId).toBeTruthy();
-    const workspace = await kSemanticModels
+    const workspace = await kIjxSemantic
       .workspace()
       .getOneByQuery(
         EndpointReusableQueries.getByResourceId(result.workspace.resourceId)
@@ -59,7 +56,7 @@ describe('addWorkspace', () => {
     assertWorkspace(workspace);
     expect(workspaceExtractor(workspace)).toMatchObject(result.workspace);
 
-    const adminPermissionGroup = await kSemanticModels
+    const adminPermissionGroup = await kIjxSemantic
       .permissionGroup()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByWorkspaceIdAndName(
@@ -67,7 +64,7 @@ describe('addWorkspace', () => {
           DEFAULT_ADMIN_PERMISSION_GROUP_NAME
         )
       );
-    await kSemanticModels
+    await kIjxSemantic
       .permissionGroup()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByWorkspaceIdAndName(
@@ -78,7 +75,7 @@ describe('addWorkspace', () => {
 
     appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(
-      await kSemanticModels
+      await kIjxSemantic
         .user()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(userToken.forEntityId)
@@ -123,9 +120,9 @@ describe('addWorkspace', () => {
   });
 
   test('fails if user is on waitlist', async () => {
-    kRegisterUtilsInjectables.suppliedConfig(
+    kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kUtilsInjectables.suppliedConfig(),
+        kIkxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -143,9 +140,9 @@ describe('addWorkspace', () => {
       () => {
         // TODO: if we ever switch to concurrent tests, then create a context
         // for this test instead
-        kRegisterUtilsInjectables.suppliedConfig(
+        kRegisterIjxUtils.suppliedConfig(
           mergeData(
-            kUtilsInjectables.suppliedConfig(),
+            kIkxUtils.suppliedConfig(),
             {FLAG_waitlistNewSignups: false},
             {arrayUpdateStrategy: 'replace'}
           )

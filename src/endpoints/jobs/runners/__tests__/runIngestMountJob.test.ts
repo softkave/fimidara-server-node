@@ -1,9 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobParams,
@@ -73,13 +70,13 @@ describe('runIngestMountJob', () => {
     );
 
     await runIngestMountJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     const injestFolderpathJobParams: IngestFolderpathJobParams = {
       ingestFrom: mountedFrom,
       mountId: mount.resourceId,
     };
-    const injestFolderpathJobs = await kSemanticModels.job().getManyByQuery({
+    const injestFolderpathJobs = await kIjxSemantic.job().getManyByQuery({
       shard,
       type: kJobType.ingestFolderpath,
       params: {

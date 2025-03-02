@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job.js';
 import {
   Agent,
@@ -15,9 +15,9 @@ export async function beginDeleteCollaborator(props: {
   parentJobId?: string;
 }) {
   const {workspaceId, resources, agent, parentJobId} = props;
-  const jobs = await kSemanticModels.utils().withTxn(async opts => {
+  const jobs = await kIjxSemantic.utils().withTxn(async opts => {
     const [, jobs] = await Promise.all([
-      kSemanticModels
+      kIjxSemantic
         .assignedItem()
         .softDeleteWorkspaceCollaborators(
           workspaceId,

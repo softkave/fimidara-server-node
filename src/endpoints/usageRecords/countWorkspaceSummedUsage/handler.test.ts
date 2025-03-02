@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   kUsageRecordFulfillmentStatus,
   kUsageSummationType,
@@ -35,7 +35,7 @@ describe('countWorkspaceSummedUsage', () => {
       summationType: kUsageSummationType.month,
       status: kUsageRecordFulfillmentStatus.fulfilled,
     });
-    const count = await kSemanticModels.usageRecord().countByQuery({
+    const count = await kIjxSemantic.usageRecord().countByQuery({
       workspaceId: workspace.resourceId,
       summationType: kUsageSummationType.month,
       status: kUsageRecordFulfillmentStatus.fulfilled,

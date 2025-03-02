@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {fileBackendMountExtractor} from '../utils.js';
@@ -14,7 +11,7 @@ import {addFileBackendMountJoiSchema} from './validation.js';
 const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
   async reqData => {
     const data = validate(reqData.data, addFileBackendMountJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -29,7 +26,7 @@ const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
       target: {action: 'addFileBackendMount', targetId: workspace.resourceId},
     });
 
-    const mount = await kSemanticModels.utils().withTxn(async opts => {
+    const mount = await kIjxSemantic.utils().withTxn(async opts => {
       return await INTERNAL_addFileBackendMount(agent, workspace, data, opts);
     });
 

@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -51,10 +51,10 @@ export async function generateAndInsertPermissionGroupListForTest(
   seed: Partial<PermissionGroup> = {}
 ) {
   const items = generatePermissionGroupListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts =>
-      kSemanticModels.permissionGroup().insertItem(items, opts)
+      kIjxSemantic.permissionGroup().insertItem(items, opts)
     );
   return items;
 }
@@ -106,10 +106,8 @@ export async function generateAndInsertAssignedItemListForTest(
   seed: Partial<AssignedItem> = {}
 ) {
   const items = generateAssignedItemListForTest(seed, count);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts =>
-      kSemanticModels.assignedItem().insertItem(items, opts)
-    );
+    .withTxn(async opts => kIjxSemantic.assignedItem().insertItem(items, opts));
   return items;
 }

@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getFileBackendMountsQuery} from '../getMounts/utils.js';
@@ -11,9 +8,9 @@ import {countFileBackendMountsJoiSchema} from './validation.js';
 
 const countFileBackendMounts: CountFileBackendMountsEndpoint =
   async reqData => {
-    const mountModel = kSemanticModels.fileBackendMount();
+    const mountModel = kIjxSemantic.fileBackendMount();
     const data = validate(reqData.data, countFileBackendMountsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,

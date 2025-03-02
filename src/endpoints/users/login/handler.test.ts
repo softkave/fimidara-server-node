@@ -1,9 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -51,16 +48,16 @@ describe('login', () => {
     expect(result.refreshToken).toBeTruthy();
     expect(result.jwtTokenExpiresAt).toBeTruthy();
 
-    const jwtToken = kUtilsInjectables.session().decodeToken(result.jwtToken);
+    const jwtToken = kIkxUtils.session().decodeToken(result.jwtToken);
     expect(jwtToken.sub.id).toBe(userToken.resourceId);
   });
 
   test('getUserToken does not return deleted token', async () => {
     const {user, userToken} = await insertUserForTest();
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels
+        kIjxSemantic
           .agentToken()
           .softDeleteManyByIdList(
             [userToken.resourceId],
@@ -69,7 +66,7 @@ describe('login', () => {
           )
       );
 
-    const activeUserToken = await kSemanticModels
+    const activeUserToken = await kIjxSemantic
       .utils()
       .withTxn(opts => getUserToken(user.resourceId, opts));
 
@@ -79,10 +76,10 @@ describe('login', () => {
 
   test('getUserClientAssignedToken does not return deleted token', async () => {
     const {user, clientToken} = await insertUserForTest();
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels
+        kIjxSemantic
           .agentToken()
           .softDeleteManyByIdList(
             [clientToken.resourceId],
@@ -91,7 +88,7 @@ describe('login', () => {
           )
       );
 
-    const activeClientToken = await kSemanticModels
+    const activeClientToken = await kIjxSemantic
       .utils()
       .withTxn(opts => getUserClientAssignedToken(user.resourceId, opts));
 

@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -15,11 +12,11 @@ import {getUserRequestsJoiSchema} from './validation.js';
 const getUserCollaborationRequests: GetUserCollaborationRequestsEndpoint =
   async reqData => {
     const data = validate(reqData.data, getUserRequestsJoiSchema);
-    const user = await kUtilsInjectables
+    const user = await kIkxUtils
       .session()
       .getUser(reqData, kSessionUtils.accessScopes.user);
     applyDefaultEndpointPaginationOptions(data);
-    const requests = await kSemanticModels
+    const requests = await kIjxSemantic
       .collaborationRequest()
       .getManyByEmail(user.email, data);
     return {

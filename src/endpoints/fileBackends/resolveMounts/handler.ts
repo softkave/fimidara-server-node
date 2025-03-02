@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -22,12 +19,12 @@ import {resolveWorkspaceFileBackendMountJoiSchema} from './validation.js';
 
 const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
   async reqData => {
-    const fileModel = kSemanticModels.file();
+    const fileModel = kIjxSemantic.file();
     const data = validate(
       reqData.data,
       resolveWorkspaceFileBackendMountJoiSchema
     );
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -44,7 +41,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
         containsRootname: true,
         allowRootFolder: false,
       });
-      fileOrFolder = await kSemanticModels.folder().getOneByNamepath({
+      fileOrFolder = await kIjxSemantic.folder().getOneByNamepath({
         workspaceId: workspace.resourceId,
         namepath: pathinfo.namepath,
       });
@@ -59,7 +56,7 @@ const resolveFileBackendMounts: ResolveFileBackendMountsEndpoint =
         ext: pathinfo.ext,
       });
     } else if (data.folderId) {
-      fileOrFolder = await kSemanticModels.folder().getOneById(data.folderId);
+      fileOrFolder = await kIjxSemantic.folder().getOneById(data.folderId);
     } else if (data.fileId) {
       fileOrFolder = await fileModel.getOneById(data.fileId);
     } else {

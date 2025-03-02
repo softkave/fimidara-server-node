@@ -1,6 +1,6 @@
 import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertTagListForTest} from '../../testUtils/generate/tag.js';
 import {insertTagForTest} from '../../testUtils/helpers/tag.js';
@@ -52,7 +52,7 @@ describe('getWorkspaceTags', () => {
     await generateAndInsertTagListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await kSemanticModels.tag().countByQuery({
+    const count = await kIjxSemantic.tag().countByQuery({
       workspaceId: workspace.resourceId,
     });
     const pageSize = 10;

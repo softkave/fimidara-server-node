@@ -2,10 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {omit} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   JobStatus,
   kJobRunCategory,
@@ -38,7 +35,7 @@ describe('completeJob', () => {
     });
 
     const completedJob = await completeJob(job.resourceId);
-    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(job.resourceId);
 
     assert(completedJob);
     assert(dbJob);
@@ -61,7 +58,7 @@ describe('completeJob', () => {
       kJobStatus.failed,
     ]);
     const completedJob = await completeJob(job.resourceId, status);
-    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(job.resourceId);
 
     assert(completedJob);
     assert(dbJob);
@@ -159,8 +156,8 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kUtilsInjectables.promises().flush();
-      const dbParentJob = await kSemanticModels
+      await kIkxUtils.promises().flush();
+      const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);
       const endStatus = params.endParentStatus(status);
@@ -253,8 +250,8 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kUtilsInjectables.promises().flush();
-      const dbParentJob = await kSemanticModels
+      await kIkxUtils.promises().flush();
+      const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);
 
@@ -285,7 +282,7 @@ describe('completeJob', () => {
       kJobStatus.failed,
     ]);
     const completedJob = await completeJob(job.resourceId, status);
-    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(job.resourceId);
 
     assert(completedJob);
     assert(dbJob);

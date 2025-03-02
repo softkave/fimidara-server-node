@@ -1,8 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
@@ -33,10 +30,10 @@ describe('getUsers', () => {
     const {userToken, user} = await insertUserForTest();
     const [users] = await Promise.all([
       generateAndInsertUserListForTest(/** count */ 2),
-      kSemanticModels.utils().withTxn(opts => {
+      kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kUtilsInjectables.runtimeConfig().appWorkspaceId,
+          kIkxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );

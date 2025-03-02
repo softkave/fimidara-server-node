@@ -16,7 +16,7 @@ import {
 import {kFimidaraConfigFilePersistenceProvider} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {kSemanticModels, kUtilsInjectables} from '../injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
@@ -145,7 +145,7 @@ export class FimidaraFilePersistenceProvider
       containsRootname: false,
       allowRootFolder: false,
     });
-    const entry = await kSemanticModels.resolvedMountEntry().getOneByQuery({
+    const entry = await kIjxSemantic.resolvedMountEntry().getOneByQuery({
       ...FileBackendQueries.getByBackendNamepath({
         workspaceId,
         backendNamepath: namepath,
@@ -179,7 +179,7 @@ export class FimidaraFilePersistenceProvider
       containsRootname: false,
       allowRootFolder: false,
     });
-    const folder = await kSemanticModels
+    const folder = await kIjxSemantic
       .folder()
       .getOneByQuery(FolderQueries.getByNamepath({workspaceId, namepath}));
 
@@ -279,7 +279,7 @@ export class FimidaraFilePersistenceProvider
       containsRootname: false,
       allowRootFolder: false,
     });
-    const entries = await kSemanticModels.resolvedMountEntry().getManyByQuery(
+    const entries = await kIjxSemantic.resolvedMountEntry().getManyByQuery(
       {
         ...FileBackendQueries.getByParentBackendPath({
           workspaceId,
@@ -361,7 +361,7 @@ export class FimidaraFilePersistenceProvider
     });
 
     // TODO: we use should resolve mount entries instead
-    const folders = await kSemanticModels.folder().getManyByQuery(
+    const folders = await kIjxSemantic.folder().getManyByQuery(
       {
         ...FolderQueries.getByParentPath({
           workspaceId,
@@ -443,7 +443,7 @@ export class FimidaraFilePersistenceProvider
       filepath: string;
     },
   >(params: TParams): TParams {
-    const config = kUtilsInjectables.suppliedConfig();
+    const config = kIkxUtils.suppliedConfig();
     let mount = params.mount;
 
     if (config.fileBackend === kFimidaraConfigFilePersistenceProvider.s3) {
@@ -461,7 +461,7 @@ export class FimidaraFilePersistenceProvider
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getBackend = (): FilePersistenceProvider => {
-    const config = kUtilsInjectables.suppliedConfig();
+    const config = kIkxUtils.suppliedConfig();
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3: {

@@ -11,7 +11,7 @@ import {
 } from 'vitest';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kUtilsInjectables} from '../../injection/injectables.js';
+import {kIkxUtils} from '../../ijx/injectables.js';
 import {RedisPubSubContext} from '../RedisPubSubContext.js';
 
 beforeAll(async () => {
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
-  const [redis, redis02] = kUtilsInjectables.redis();
+  const [redis, redis02] = kIkxUtils.redis();
   assert.ok(redis);
   assert.ok(redis02);
   await redis?.unsubscribe();
@@ -32,7 +32,7 @@ afterAll(async () => {
 
 describe('RedisPubSubContext', () => {
   test('subscribe + publish', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     assert.ok(redis);
     assert.ok(redis02);
     const context01 = new RedisPubSubContext(redis, redis02);
@@ -54,7 +54,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('subscribe + publish json', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context01 = new RedisPubSubContext(redis, redis02);
     const json = {key: 'value'};
     const fn = vi.fn();
@@ -75,7 +75,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('unsubscribe', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -86,7 +86,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('unsubscribe without fn', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -97,7 +97,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('unsubscribe without channel and fn', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -108,7 +108,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('unsubscribe json listener', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();
@@ -119,7 +119,7 @@ describe('RedisPubSubContext', () => {
   });
 
   test('subscribeJson with invalid message', async () => {
-    const [redis, redis02] = kUtilsInjectables.redis();
+    const [redis, redis02] = kIkxUtils.redis();
     const context01 = new RedisPubSubContext(redis, redis02);
     const fn = vi.fn();
     const channel = 'channel' + Math.random();

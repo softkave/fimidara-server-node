@@ -8,8 +8,8 @@ import {
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {convertToArray, toCompactArray} from '../../../utils/fns.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -19,7 +19,7 @@ import {getInAndNinQuery} from '../utils.js';
 import {SemanticAssignedItemProvider} from './types.js';
 
 export class DataSemanticAssignedItem
-  extends DataSemanticWorkspaceResourceProvider<AssignedItem>
+  extends SemanticWorkspaceResourceProvider<AssignedItem>
   implements SemanticAssignedItemProvider
 {
   async getByWorkspaceAssignedAndAssigneeIds(

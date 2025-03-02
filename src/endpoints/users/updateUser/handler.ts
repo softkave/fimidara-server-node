@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {isStringEqual} from '../../../utils/fns.js';
@@ -18,7 +15,7 @@ import {UpdateUserEndpoint} from './types.js';
 import {updateUserJoiSchema} from './validation.js';
 
 const updateUser: UpdateUserEndpoint = async reqData => {
-  let user = await kUtilsInjectables
+  let user = await kIkxUtils
     .session()
     .getUser(reqData, kSessionUtils.accessScopes.user);
   const data = validate(reqData.data, updateUserJoiSchema);
@@ -33,8 +30,8 @@ const updateUser: UpdateUserEndpoint = async reqData => {
     update.emailVerificationEmailSentAt = null;
   }
 
-  user = await kSemanticModels.utils().withTxn(async opts => {
-    const updatedUser = await kSemanticModels
+  user = await kIjxSemantic.utils().withTxn(async opts => {
+    const updatedUser = await kIjxSemantic
       .user()
       .getAndUpdateOneById(user.resourceId, update, opts);
     assertUser(updatedUser);
@@ -42,7 +39,7 @@ const updateUser: UpdateUserEndpoint = async reqData => {
   });
 
   if (isEmailAddressUpdated) {
-    kUtilsInjectables
+    kIkxUtils
       .promises()
       .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   }

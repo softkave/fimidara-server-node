@@ -2,14 +2,14 @@ import {
   FimidaraSuppliedConfig,
   kFimidaraConfigQueueProvider,
 } from '../../resources/config.js';
-import {kUtilsInjectables} from '../injection/injectables.js';
+import {kIkxUtils} from '../ijx/injectables.js';
 import {MemoryDSetProvider} from './MemoryDSetProvider.js';
 import {RedisDSetProvider} from './RedisDSetProvider.js';
 
 export async function getDSetContext(config: FimidaraSuppliedConfig) {
   switch (config.dsetProvider) {
     case kFimidaraConfigQueueProvider.redis: {
-      const [redis] = kUtilsInjectables.redis();
+      const [redis] = kIkxUtils.redis();
       return new RedisDSetProvider(redis);
     }
     case kFimidaraConfigQueueProvider.memory:

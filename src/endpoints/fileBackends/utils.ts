@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   FileBackendConfig,
@@ -58,7 +58,7 @@ export async function mountNameExists(
   mount: Pick<FileBackendMount, 'workspaceId' | 'name'>,
   opts?: SemanticProviderOpParams
 ): Promise<boolean> {
-  return await kSemanticModels
+  return await kIjxSemantic
     .fileBackendMount()
     .existsByName(mount.workspaceId, mount.name, opts);
 }
@@ -67,7 +67,7 @@ export async function configNameExists(
   config: Pick<FileBackendConfig, 'workspaceId' | 'name'>,
   opts?: SemanticProviderOpParams
 ): Promise<boolean> {
-  return await kSemanticModels
+  return await kIjxSemantic
     .fileBackendConfig()
     .existsByName(config.workspaceId, config.name, opts);
 }
@@ -79,7 +79,7 @@ export async function mountExists(
   >,
   opts?: SemanticProviderOpParams
 ) {
-  const mountModel = kSemanticModels.fileBackendMount();
+  const mountModel = kIjxSemantic.fileBackendMount();
   return await mountModel.existsByQuery(
     FileMountQueries.getBySignature(data),
     opts
@@ -90,7 +90,7 @@ export async function countFolderAttachedMounts(
   folderpath: string[],
   opts?: SemanticProviderOpParams
 ) {
-  return await kSemanticModels
+  return await kIjxSemantic
     .fileBackendMount()
     .existsByQuery(
       FolderQueries.getByNamepathOnly({namepath: folderpath}),

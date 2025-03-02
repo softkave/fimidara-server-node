@@ -1,10 +1,7 @@
 import {pick} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -19,11 +16,11 @@ import {updateFileBackendConfigJoiSchema} from './validation.js';
 
 const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
   async reqData => {
-    const configModel = kSemanticModels.fileBackendConfig();
-    const secretsManager = kUtilsInjectables.secretsManager();
+    const configModel = kIjxSemantic.fileBackendConfig();
+    const secretsManager = kIkxUtils.secretsManager();
 
     const data = validate(reqData.data, updateFileBackendConfigJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -41,7 +38,7 @@ const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
       },
     });
 
-    const updatedConfig = await kSemanticModels.utils().withTxn(async opts => {
+    const updatedConfig = await kIjxSemantic.utils().withTxn(async opts => {
       const config = await configModel.getOneById(data.configId, opts);
       appAssert(config, kReuseableErrors.config.notFound());
 

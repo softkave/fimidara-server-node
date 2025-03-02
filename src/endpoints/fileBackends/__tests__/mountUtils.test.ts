@@ -11,8 +11,9 @@ import {
 } from 'vitest';
 import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from '../../../contexts/file/S3FilePersistenceProvider.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {IFilePersistenceProviderMount} from '../../../contexts/file/types.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   FileBackendConfig,
   kFileBackendType,
@@ -45,7 +46,6 @@ import {
   resolveMountsForFolder,
   sortMounts,
 } from '../mountUtils.js';
-import {IFilePersistenceProviderMount} from '../../../contexts/file/types.js';
 
 describe('file backend mount utils', () => {
   beforeAll(async () => {
@@ -120,7 +120,7 @@ describe('file backend mount utils', () => {
   });
 
   test.only('initBackendProvidersForMounts', async () => {
-    await kUtilsInjectables.asyncLocalStorage().run(async () => {
+    await kIkxUtils.asyncLocalStorage().run(async () => {
       const {userToken} = await insertUserForTest();
       const {workspace} = await insertWorkspaceForTest(userToken);
       const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
@@ -145,7 +145,7 @@ describe('file backend mount utils', () => {
 
       const fimidaraProvider = result[fimidaraMount.resourceId];
       const s3Provider = result[s3Mount.resourceId];
-      const disposablesMap = kUtilsInjectables
+      const disposablesMap = kIkxUtils
         .asyncLocalStorage()
         .disposables()
         .getMap();
@@ -292,7 +292,7 @@ describe('file backend mount utils, mutates injectables', () => {
       }),
     ]);
 
-    kRegisterUtilsInjectables.fileProviderResolver(
+    kRegisterIjxUtils.fileProviderResolver(
       (
         mount: IFilePersistenceProviderMount,
         initParams: unknown,

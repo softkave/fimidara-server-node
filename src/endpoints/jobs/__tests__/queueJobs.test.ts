@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Job} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
@@ -35,7 +35,7 @@ describe('queueJobs', () => {
     });
 
     const jobs = await queueJobs(workspaceId, parentJobId, [input01, input02]);
-    const dbJobs = await kSemanticModels.job().getManyByQuery({
+    const dbJobs = await kIjxSemantic.job().getManyByQuery({
       $or: [
         {
           params: {$objMatch: {id: internalParamId01}},
@@ -66,7 +66,7 @@ describe('queueJobs', () => {
     const jobs02 = await queueJobs(workspaceId, parentJobId, [input01], {
       jobsToReturn: 'new',
     });
-    const dbJobs = await kSemanticModels.job().getManyByQuery({
+    const dbJobs = await kIjxSemantic.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
       resourceId: {$in: extractResourceIdList(jobs01)},
     });
@@ -85,7 +85,7 @@ describe('queueJobs', () => {
     const input01 = generateJobInput({params: {id: internalParamId}});
 
     const jobs = await queueJobs(workspaceId, parentJob.resourceId, [input01]);
-    const dbJobs = await kSemanticModels.job().getManyByQuery({
+    const dbJobs = await kIjxSemantic.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
       resourceId: {$in: extractResourceIdList(jobs)},
     });
@@ -123,7 +123,7 @@ describe('queueJobs', () => {
       /** parent job ID */ undefined,
       [input02]
     );
-    const dbJobs = await kSemanticModels.job().getManyByQuery({
+    const dbJobs = await kIjxSemantic.job().getManyByQuery({
       params: {$objMatch: {id: internalParamId}},
     });
 
@@ -142,7 +142,7 @@ describe('queueJobs', () => {
       seed: {resourceId: jobId},
     });
 
-    const dbJob = await kSemanticModels.job().getOneByQuery({
+    const dbJob = await kIjxSemantic.job().getOneByQuery({
       resourceId: jobId,
     });
     expect(dbJob).toBeTruthy();

@@ -1,6 +1,6 @@
 import {identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {extractResourceIdList, makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
@@ -53,7 +53,7 @@ describe('addAssignedItems', () => {
       pgListAssignedTo01Input
     );
 
-    const assignedItems = await kSemanticModels.utils().withTxn(opts =>
+    const assignedItems = await kIjxSemantic.utils().withTxn(opts =>
       addAssignedPermissionGroupList(
         agent,
         workspace.resourceId,
@@ -73,7 +73,7 @@ describe('addAssignedItems', () => {
       identity
     );
 
-    const savedItems = await kSemanticModels.assignedItem().getManyByQuery({
+    const savedItems = await kIjxSemantic.assignedItem().getManyByQuery({
       assigneeId: {$in: pgList01IdList},
     });
     expectContainsEveryItemInForAnyType(

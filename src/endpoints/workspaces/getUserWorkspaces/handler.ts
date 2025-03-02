@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -14,15 +11,15 @@ import {getUserWorkspacesJoiSchema} from './validation.js';
 
 const getUserWorkspaces: GetUserWorkspacesEndpoint = async reqData => {
   const data = validate(reqData.data, getUserWorkspacesJoiSchema);
-  const user = await kUtilsInjectables
+  const user = await kIkxUtils
     .session()
     .getUser(reqData, kSessionUtils.accessScopes.user);
   applyDefaultEndpointPaginationOptions(data);
-  const assignedItems = await kSemanticModels
+  const assignedItems = await kIjxSemantic
     .assignedItem()
     .getUserWorkspaces(user.resourceId, data);
   const workspaceIdList = assignedItems.map(item => item.assignedItemId);
-  const workspaces = await kSemanticModels
+  const workspaces = await kIjxSemantic
     .workspace()
     .getManyByIdList(workspaceIdList);
   return {

@@ -1,5 +1,6 @@
+import {getRandomIntInclusive} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {getStringListQuery} from '../../contexts/semantic/utils.js';
 import {Folder} from '../../definitions/folder.js';
 import {
@@ -8,7 +9,6 @@ import {
 } from '../testUtils/generate/folder.js';
 import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';
-import {getRandomIntInclusive} from 'softkave-js-utils';
 
 beforeAll(async () => {
   await initTests();
@@ -29,7 +29,7 @@ describe('utils', () => {
       {parentNamepath}
     );
     const folderNamepathList = folders.map(folder => folder.namepath);
-    const foldersByParent = await kSemanticModels
+    const foldersByParent = await kIjxSemantic
       .folder()
       .getManyByQuery(
         getStringListQuery<Folder>(
@@ -40,7 +40,7 @@ describe('utils', () => {
       );
     const returnedFolders = await Promise.all(
       folderNamepathList.map(namepath =>
-        kSemanticModels
+        kIjxSemantic
           .folder()
           .getOneByQuery(
             getStringListQuery<Folder>(

@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -19,7 +16,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, updateCollaborationRequestJoiSchema);
     assertUpdateNotEmpty(data.request);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -27,7 +24,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
         kSessionUtils.accessScopes.api
       );
 
-    const {request} = await kSemanticModels.utils().withTxn(async opts => {
+    const {request} = await kIjxSemantic.utils().withTxn(async opts => {
       const {request, workspace} =
         await checkCollaborationRequestAuthorization02(
           agent,
@@ -36,7 +33,7 @@ const updateCollaborationRequest: UpdateCollaborationRequestEndpoint =
           opts
         );
 
-      const updatedRequest = await kSemanticModels
+      const updatedRequest = await kIjxSemantic
         .collaborationRequest()
         .getAndUpdateOneById(
           data.requestId,

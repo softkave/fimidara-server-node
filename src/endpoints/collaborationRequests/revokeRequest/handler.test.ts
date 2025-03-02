@@ -1,9 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -50,7 +47,7 @@ test('collaboration request revoked', async () => {
   const result = await revokeCollaborationRequest(reqData);
   assertEndpointResultOk(result);
 
-  const updatedRequest = await kSemanticModels
+  const updatedRequest = await kIjxSemantic
     .collaborationRequest()
     .assertGetOneByQuery({resourceId: request01.resourceId});
   expect(result.request.resourceId).toEqual(request01.resourceId);
@@ -61,7 +58,7 @@ test('collaboration request revoked', async () => {
     kCollaborationRequestStatusTypeMap.Revoked
   );
 
-  await kUtilsInjectables.promises().flush();
+  await kIkxUtils.promises().flush();
   // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
   //   type: kEmailMessageType.collaborationRequestRevoked,
   //   emailAddress: {$all: [user02.email]},
@@ -80,6 +77,6 @@ test('collaboration request revoked', async () => {
       },
     },
   };
-  const dbJob = await kSemanticModels.job().getOneByQuery(query);
+  const dbJob = await kIjxSemantic.job().getOneByQuery(query);
   expect(dbJob).toBeTruthy();
 });

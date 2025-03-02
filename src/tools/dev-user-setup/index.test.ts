@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user.js';
 import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../endpoints/testUtils/testUtils.js';
@@ -45,7 +45,7 @@ describe('dev user setup', () => {
       ...appOptions,
       getUserEmail: () => Promise.resolve({email: userEmail.email}),
     });
-    const user = await kSemanticModels.user().assertGetOneByQuery({
+    const user = await kIjxSemantic.user().assertGetOneByQuery({
       email: userEmail.email,
     });
     expect(user.requiresPasswordChange).toBeFalsy();

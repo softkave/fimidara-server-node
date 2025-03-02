@@ -1,6 +1,6 @@
 import {defaultTo, omit} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
@@ -25,7 +25,7 @@ export const INTERNAL_createAgentToken = async (
   let token: AgentToken | null = null;
 
   if (data.providedResourceId) {
-    token = await kSemanticModels
+    token = await kIjxSemantic
       .agentToken()
       .getByProvidedId(workspaceId, data.providedResourceId, opts);
   }
@@ -62,7 +62,7 @@ export const INTERNAL_createAgentToken = async (
         opts,
       }),
   ]);
-  await kSemanticModels.agentToken().insertItem(token, opts);
+  await kIjxSemantic.agentToken().insertItem(token, opts);
 
   return token;
 };

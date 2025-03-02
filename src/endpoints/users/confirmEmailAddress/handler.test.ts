@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
@@ -42,9 +42,9 @@ test('email address is confirmed', async () => {
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
+    .withTxn(opts => kIjxSemantic.agentToken().insertItem(token, opts));
 
   const result = await confirmEmailAddress(
     RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(token))

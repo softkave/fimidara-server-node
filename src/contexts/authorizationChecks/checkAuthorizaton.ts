@@ -25,7 +25,7 @@ import {convertToArray, toCompactArray, toUniqArray} from '../../utils/fns.js';
 import {sortPermissionEntityInheritanceMap} from '../../utils/permissionEntityUtils.js';
 import {getResourceTypeFromId} from '../../utils/resource.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {kSemanticModels} from '../injection/injectables.js';
+import {kIjxSemantic} from '../ijx/injectables.js';
 import {SemanticProviderOpParams} from '../semantic/types.js';
 
 export interface AccessCheckTarget {
@@ -169,8 +169,8 @@ export async function resolveEntityData(
 ) {
   const {target} = params;
 
-  const workspaceModel = kSemanticModels.workspace();
-  const permissionsModel = kSemanticModels.permissions();
+  const workspaceModel = kIjxSemantic.workspace();
+  const permissionsModel = kIjxSemantic.permissions();
 
   const workspace =
     params.workspace ??
@@ -223,7 +223,7 @@ export async function fetchAgentPermissionItems(
     targetId = toUniqArray(target.targetId, workspaceId);
   const {entityIdList} = await resolveEntityData(params);
 
-  return await kSemanticModels.permissions().getPermissionItems(
+  return await kIjxSemantic.permissions().getPermissionItems(
     {
       action,
       targetId,
@@ -286,7 +286,7 @@ async function resolveTargetChildrenPartialAccessCheck(
     ...params,
     fetchEntitiesDeep: true,
   });
-  const items = await kSemanticModels.permissions().getPermissionItems(
+  const items = await kIjxSemantic.permissions().getPermissionItems(
     {
       action,
       targetParentId,

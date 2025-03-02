@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {ValidationError} from '../../../utils/errors.js';
 import {ResourceExistsError} from '../../errors.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
@@ -29,7 +29,7 @@ describe('addConfig', () => {
       workspace.resourceId
     );
     const savedConfig = fileBackendConfigExtractor(
-      await kSemanticModels
+      await kIjxSemantic
         .fileBackendConfig()
         .assertGetOneByQuery({resourceId: config.resourceId})
     );

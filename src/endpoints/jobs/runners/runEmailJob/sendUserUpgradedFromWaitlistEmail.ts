@@ -1,4 +1,4 @@
-import {kUtilsInjectables} from '../../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   UpgradedFromWaitlistEmailProps,
@@ -29,7 +29,7 @@ export async function sendUserUpgradedFromWaitlistEmail(
   };
   const html = upgradedFromWaitlistEmailHTML(emailProps);
   const text = upgradedFromWaitlistEmailText(emailProps);
-  return await kUtilsInjectables.email().sendEmail({
+  return await kIkxUtils.email().sendEmail({
     source,
     subject: kUpgradeFromWaitlistEmailArtifacts.title,
     body: {html, text},

@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {kJobStatus} from '../../definitions/job.js';
 import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
@@ -16,10 +16,10 @@ export async function waitForJob(
   const startMs = getTimestamp();
 
   if (bumpPriority) {
-    await kSemanticModels.utils().withTxn(async opts => {
-      const sampleJob = await kSemanticModels.job().getOneById(jobId, opts);
+    await kIjxSemantic.utils().withTxn(async opts => {
+      const sampleJob = await kIjxSemantic.job().getOneById(jobId, opts);
       appAssert(sampleJob, `Job with ID ${jobId} not found`);
-      await kSemanticModels.job().updateManyByQuery(
+      await kIjxSemantic.job().updateManyByQuery(
         {
           $or: [
             // Bump children priority
@@ -40,9 +40,7 @@ export async function waitForJob(
 
   return new Promise<void>((resolve, reject) => {
     const waitFn = async () => {
-      const job = await kSemanticModels
-        .job()
-        .getOneByQuery({resourceId: jobId});
+      const job = await kIjxSemantic.job().getOneByQuery({resourceId: jobId});
 
       if (
         !job ||

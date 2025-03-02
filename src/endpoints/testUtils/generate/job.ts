@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {difference} from 'lodash-es';
 import {convertToArray} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kAppPresetShards} from '../../../definitions/app.js';
 import {
   Job,
@@ -84,9 +84,9 @@ export async function generateAndInsertJobListForTest(
   seed: Partial<Job> = {}
 ) {
   const items = generateJobListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.job().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.job().insertItem(items, opts));
 
   return items;
 }

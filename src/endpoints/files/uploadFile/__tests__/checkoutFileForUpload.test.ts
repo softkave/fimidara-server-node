@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
@@ -31,7 +31,7 @@ describe('checkoutFileForUpload', () => {
         workspaceId: workspace.resourceId,
       });
 
-      const checkedFile = await kSemanticModels.utils().withTxn(async opts => {
+      const checkedFile = await kIjxSemantic.utils().withTxn(async opts => {
         return await checkoutFileForUpload({
           agent: sessionAgent,
           workspace,
@@ -46,7 +46,7 @@ describe('checkoutFileForUpload', () => {
       expect(checkedFile.isWriteAvailable).toEqual(false);
       expect(file.resourceId).toEqual(checkedFile.resourceId);
 
-      const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+      const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
       assert(dbFile);
       expect(dbFile.clientMultipartId).toEqual(clientMultipartId);
       expect(dbFile.isWriteAvailable).toEqual(false);
@@ -63,7 +63,7 @@ describe('checkoutFileForUpload', () => {
     });
 
     await expect(async () => {
-      await kSemanticModels.utils().withTxn(async opts => {
+      await kIjxSemantic.utils().withTxn(async opts => {
         const result = await checkoutFileForUpload({
           agent: sessionAgent,
           workspace,
@@ -87,7 +87,7 @@ describe('checkoutFileForUpload', () => {
       clientMultipartId,
     });
 
-    const checkedFile = await kSemanticModels.utils().withTxn(async opts => {
+    const checkedFile = await kIjxSemantic.utils().withTxn(async opts => {
       return await checkoutFileForUpload({
         agent: sessionAgent,
         workspace,
@@ -117,7 +117,7 @@ describe('checkoutFileForUpload', () => {
       multipartTimeout: Date.now() - 1000,
     });
 
-    const checkedFile = await kSemanticModels.utils().withTxn(async opts => {
+    const checkedFile = await kIjxSemantic.utils().withTxn(async opts => {
       return await checkoutFileForUpload({
         agent: sessionAgent,
         workspace,
@@ -143,7 +143,7 @@ describe('checkoutFileForUpload', () => {
     });
 
     await expect(async () => {
-      await kSemanticModels.utils().withTxn(async opts => {
+      await kIjxSemantic.utils().withTxn(async opts => {
         return await checkoutFileForUpload({
           agent: otherUserSessionAgent,
           workspace,
@@ -164,7 +164,7 @@ describe('checkoutFileForUpload', () => {
       workspaceId: workspace.resourceId,
     });
 
-    const checkedFile = await kSemanticModels.utils().withTxn(async opts => {
+    const checkedFile = await kIjxSemantic.utils().withTxn(async opts => {
       return await checkoutFileForUpload({
         agent: otherUserSessionAgent,
         workspace,

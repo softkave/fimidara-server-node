@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
@@ -56,10 +56,10 @@ export async function generateAndInsertCollaborationRequestListForTest(
   genPartial: GeneratePartialTestDataFn<CollaborationRequest> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateCollaborationRequestListForTest(count, genPartial);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts =>
-      kSemanticModels.collaborationRequest().insertItem(items, opts)
+      kIjxSemantic.collaborationRequest().insertItem(items, opts)
     );
   return items;
 }

@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
-  kDataModels,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+  kIjxData,
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../queries.js';
 import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';
@@ -20,17 +20,17 @@ afterEach(async () => {
 describe('init app setup', () => {
   test('app is setup', async () => {
     // setupApp is called internally when getting test context
-    const suppliedConfig = kUtilsInjectables.suppliedConfig();
-    const runtimeVars = await kDataModels
+    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const runtimeVars = await kIjxData
       .appRuntimeState()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
       );
     await Promise.all([
-      kSemanticModels.user().assertGetOneByQuery({
+      kIjxSemantic.user().assertGetOneByQuery({
         email: suppliedConfig.rootUserEmail,
       }),
-      kSemanticModels.workspace().assertGetOneByQuery({
+      kIjxSemantic.workspace().assertGetOneByQuery({
         resourceId: runtimeVars.appWorkspaceId,
       }),
     ]);
@@ -39,7 +39,7 @@ describe('init app setup', () => {
   });
 
   test('app not setup a second time', async () => {
-    const workspaceId = kUtilsInjectables.runtimeConfig().appWorkspaceId;
+    const workspaceId = kIkxUtils.runtimeConfig().appWorkspaceId;
     const workspace = await initFimidara();
     expect(workspace.resourceId).toBe(workspaceId);
   });

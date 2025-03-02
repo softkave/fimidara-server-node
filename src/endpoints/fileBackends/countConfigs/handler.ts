@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getFileBackendConfigsQuery} from '../getConfigs/utils.js';
@@ -11,9 +8,9 @@ import {countWorkspaceAgentTokenJoiSchema} from './validation.js';
 
 const countFileBackendConfigs: CountFileBackendConfigsEndpoint =
   async reqData => {
-    const configModel = kSemanticModels.fileBackendConfig();
+    const configModel = kIjxSemantic.fileBackendConfig();
     const data = validate(reqData.data, countWorkspaceAgentTokenJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,

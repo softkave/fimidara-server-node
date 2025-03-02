@@ -6,10 +6,10 @@ import {
   SendEmailParams,
 } from '../../../../../contexts/email/types.js';
 import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {
   kEmailBlocklistReason,
   kEmailBlocklistTrailType,
@@ -31,7 +31,7 @@ import {runEmailJob} from '../runEmailJob.js';
 
 beforeAll(async () => {
   await initTests();
-  kRegisterUtilsInjectables.email(new TestEmailProviderContext());
+  kRegisterIjxUtils.email(new TestEmailProviderContext());
 });
 
 afterAll(async () => {
@@ -71,9 +71,9 @@ describe('runEmailJob', () => {
     );
 
     await runEmailJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
-    const blocklistItem = await kSemanticModels.emailBlocklist().getOneByQuery({
+    const blocklistItem = await kIjxSemantic.emailBlocklist().getOneByQuery({
       emailAddress: user.email,
       reason: kEmailBlocklistReason.bounce,
       trail: {
@@ -118,9 +118,9 @@ describe('runEmailJob', () => {
     );
 
     await runEmailJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .job()
       .getOneByQuery({resourceId: job.resourceId});
     expect(dbJob?.meta).toMatchObject({

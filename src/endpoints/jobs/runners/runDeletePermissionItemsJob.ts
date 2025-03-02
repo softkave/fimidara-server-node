@@ -1,10 +1,7 @@
 import assert from 'assert';
 import {isUndefined} from 'lodash-es';
 import {DataQuery, kIncludeInProjection} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {AppShardId} from '../../../definitions/app.js';
 import {
   DeleteResourceJobParams,
@@ -87,8 +84,8 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
   FetchResult
 > = async props => {
   const {args, page, pageSize} = props;
-  return kSemanticModels.utils().withTxn(async opts => {
-    const items = await kSemanticModels
+  return kIjxSemantic.utils().withTxn(async opts => {
+    const items = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(args.query, {
         page,
@@ -96,7 +93,7 @@ const getPermissionItemsByQuery: PaginatedFetchGetFn<
         projection: {resourceId: kIncludeInProjection},
         ...opts,
       });
-    await kSemanticModels
+    await kIjxSemantic
       .permissionItem()
       .updateManyByQuery(
         {resourceId: {$in: extractResourceIdList(items)}},
@@ -144,10 +141,8 @@ export async function runDeletePermissionItemsJob(
   appAssert(job.createdBy, 'agent not present in job');
 
   const [workspace, agent] = await Promise.all([
-    kSemanticModels.workspace().getOneById(workspaceId),
-    kUtilsInjectables
-      .session()
-      .getAgentByAgentTokenId(job.createdBy.agentTokenId),
+    kIjxSemantic.workspace().getOneById(workspaceId),
+    kIkxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
   ]);
   appAssert(workspace, 'workspace not found');
 

@@ -4,8 +4,8 @@ import {Readable} from 'stream';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FilePersistenceProvider} from '../../../../../contexts/file/types.js';
-import {kSemanticModels} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+import {kIjxSemantic} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {File} from '../../../../../definitions/file.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {
@@ -69,7 +69,7 @@ async function expectStorageUsageRecord(params: {
 
   await waitTimeout(kUsageCommitIntervalMs * 1.5);
 
-  const usageL2 = await kSemanticModels.usageRecord().getOneByQuery({
+  const usageL2 = await kIjxSemantic.usageRecord().getOneByQuery({
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.month,
     category: kUsageRecordCategory.storage,
@@ -90,7 +90,7 @@ async function expectStorageUsageRecord(params: {
 describe('runDeleteResourceJob, file', () => {
   test('runDeleteResourceJobArtifacts', async () => {
     const mountToProviderMap: Record<string, FilePersistenceProvider> = {};
-    kRegisterUtilsInjectables.fileProviderResolver(mount => {
+    kRegisterIjxUtils.fileProviderResolver(mount => {
       if (mountToProviderMap[mount.resourceId]) {
         return mountToProviderMap[mount.resourceId];
       }

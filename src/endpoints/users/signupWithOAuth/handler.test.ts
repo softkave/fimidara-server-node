@@ -1,11 +1,8 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
   Job,
@@ -34,7 +31,7 @@ describe('signupWithOAuth', () => {
   test('user signup successful with token creation', async () => {
     const result = await insertUserWithOAuthForTest();
 
-    const savedUser = await kSemanticModels
+    const savedUser = await kIjxSemantic
       .user()
       .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser).toBeTruthy();
@@ -49,7 +46,7 @@ describe('signupWithOAuth', () => {
       },
     });
 
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {
@@ -61,14 +58,14 @@ describe('signupWithOAuth', () => {
       },
     };
 
-    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    const dbJob = await kIjxSemantic.job().getOneByQuery(query);
     expect(dbJob).toBeTruthy();
   });
 
   test('new signups are waitlisted', async () => {
-    kRegisterUtilsInjectables.suppliedConfig(
+    kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kUtilsInjectables.suppliedConfig(),
+        kIkxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -76,16 +73,16 @@ describe('signupWithOAuth', () => {
 
     const result = await insertUserWithOAuthForTest();
 
-    const savedUser = await kSemanticModels
+    const savedUser = await kIjxSemantic
       .user()
       .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser.isOnWaitlist).toBeTruthy();
 
     // TODO: if we ever switch to concurrent tests, then create a context for
     // this test instead
-    kRegisterUtilsInjectables.suppliedConfig(
+    kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kUtilsInjectables.suppliedConfig(),
+        kIkxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: false},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -101,7 +98,7 @@ describe('signupWithOAuth', () => {
       },
     });
 
-    const savedUser = await kSemanticModels
+    const savedUser = await kIjxSemantic
       .user()
       .assertGetOneByQuery({resourceId: result.user.resourceId});
     expect(savedUser.isEmailVerified).toBeTruthy();
@@ -147,7 +144,7 @@ describe('signupWithOAuth', () => {
           },
         });
 
-        const savedUser = await kSemanticModels
+        const savedUser = await kIjxSemantic
           .user()
           .assertGetOneByQuery({resourceId: result.user.resourceId});
         expect(savedUser.isEmailVerified).toBe(

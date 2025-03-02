@@ -4,7 +4,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {
@@ -203,7 +203,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.Workspace: {
         promises.push({
           id: kFimidaraResourceType.Workspace,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .workspace()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -213,7 +213,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.CollaborationRequest: {
         promises.push({
           id: kFimidaraResourceType.CollaborationRequest,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .collaborationRequest()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -223,7 +223,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.AgentToken: {
         promises.push({
           id: kFimidaraResourceType.AgentToken,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .agentToken()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -233,7 +233,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.PermissionGroup: {
         promises.push({
           id: kFimidaraResourceType.PermissionGroup,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .permissionGroup()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -243,7 +243,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.PermissionItem: {
         promises.push({
           id: kFimidaraResourceType.PermissionItem,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .permissionItem()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -253,7 +253,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.Folder: {
         promises.push({
           id: kFimidaraResourceType.Folder,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .folder()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -263,7 +263,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.File: {
         promises.push({
           id: kFimidaraResourceType.File,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .file()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -273,7 +273,7 @@ async function fetchResourcesById(
       case kFimidaraResourceType.User: {
         promises.push({
           id: kFimidaraResourceType.User,
-          promise: kSemanticModels
+          promise: kIjxSemantic
             .user()
             .getManyByIdList(Object.keys(typeMap), opts),
           resourceType: type,
@@ -320,7 +320,7 @@ const fetchFiles = async (workspaceId: string, filepathsMap: FilePathsMap) => {
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(filepathsMap, (action, filepath) =>
-      kSemanticModels.file().getOneByNamepath({
+      kIjxSemantic.file().getOneByNamepath({
         workspaceId,
         ...getFilepathInfo(filepath, {
           containsRootname: false,
@@ -351,7 +351,7 @@ const fetchFolders = async (
   const result = await Promise.all(
     // TODO: can we have $or or implement $in for array of arrays?
     map(folderpathsMap, (action, folderpath) =>
-      kSemanticModels.folder().getOneByNamepath({
+      kIjxSemantic.folder().getOneByNamepath({
         workspaceId,
         ...getFolderpathInfo(folderpath, {
           containsRootname: false,
@@ -380,7 +380,7 @@ const fetchWorkspace = async (
     return [];
   }
 
-  const result = await kSemanticModels
+  const result = await kIjxSemantic
     .workspace()
     .getByRootname(workspaceRootname.workspaceRootname);
   const resources: GetResourcesResourceWrapper[] = result

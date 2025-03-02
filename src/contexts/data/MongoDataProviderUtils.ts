@@ -4,7 +4,7 @@ import {isMongoClientSession, isMongoConnection} from '../../db/connection.js';
 import mongoConstants from '../../db/constants.js';
 import {appAssert} from '../../utils/assertion.js';
 import {AnyFn} from '../../utils/types.js';
-import {kUtilsInjectables} from '../injection/injectables.js';
+import {kIkxUtils} from '../ijx/injectables.js';
 import {DataProviderUtils} from './types.js';
 
 export class MongoDataProviderUtils implements DataProviderUtils {
@@ -16,7 +16,7 @@ export class MongoDataProviderUtils implements DataProviderUtils {
       appAssert(isMongoClientSession(existingSession));
       return await fn(existingSession);
     } else {
-      const connection = kUtilsInjectables.dbConnection().get();
+      const connection = kIkxUtils.dbConnection().get();
       appAssert(isMongoConnection(connection));
       const session = await connection.startSession();
 

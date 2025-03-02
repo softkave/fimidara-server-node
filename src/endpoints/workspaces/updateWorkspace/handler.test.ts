@@ -1,6 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {ResourceExistsError} from '../../errors.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
 import {expectErrorThrown} from '../../testUtils/helpers/error.js';
@@ -14,7 +15,6 @@ import {
 } from '../../testUtils/testUtils.js';
 import updateWorkspace from './handler.js';
 import {UpdateWorkspaceEndpointParams, UpdateWorkspaceInput} from './types.js';
-import {ResourceExistsError} from '../../errors.js';
 
 beforeAll(async () => {
   await initTests();
@@ -48,7 +48,7 @@ describe('updateWorkspce', () => {
     const result = await updateWorkspace(reqData);
     assertEndpointResultOk(result);
     expect(result.workspace).toMatchObject(workspaceUpdateInput);
-    const updatedWorkspace = await kSemanticModels
+    const updatedWorkspace = await kIjxSemantic
       .workspace()
       .getOneByQuery(
         EndpointReusableQueries.getByResourceId(workspace.resourceId)

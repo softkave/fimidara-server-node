@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
@@ -14,7 +11,7 @@ import {addConfigJoiSchema} from './validation.js';
 
 const addFileBackendConfig: AddFileBackendConfigEndpoint = async reqData => {
   const data = validate(reqData.data, addConfigJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -32,7 +29,7 @@ const addFileBackendConfig: AddFileBackendConfigEndpoint = async reqData => {
     },
   });
 
-  const backend = await kSemanticModels.utils().withTxn(async opts => {
+  const backend = await kIjxSemantic.utils().withTxn(async opts => {
     return await INTERNAL_addConfig(agent, workspace, data, opts);
   });
 

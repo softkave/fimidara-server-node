@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -25,7 +22,7 @@ import {revokeCollaborationRequestJoiSchema} from './validation.js';
 const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, revokeCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -33,7 +30,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
         kSessionUtils.accessScopes.api
       );
 
-    const {request, workspace} = await kSemanticModels
+    const {request, workspace} = await kIjxSemantic
       .utils()
       .withTxn(async opts => {
         const {request, workspace} =
@@ -50,7 +47,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
           isRevoked === false,
           new InvalidRequestError('Collaboration request already revoked')
         );
-        const updatedRequest = await kSemanticModels
+        const updatedRequest = await kIjxSemantic
           .collaborationRequest()
           .getAndUpdateOneById(
             data.requestId,
@@ -65,7 +62,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
         return {workspace, request: updatedRequest};
       });
 
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         type: kJobType.email,
         createdBy: agent,

@@ -5,10 +5,7 @@ import {IInternalMultipartIdQueueOutput} from './types.js';
 import assert from 'assert';
 import {isNumber} from 'lodash-es';
 import {kIncludeInProjection} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kUsageProviderConstants} from '../../../contexts/usage/constants.js';
 import {
   singleItemHandleShardQueue,
@@ -44,8 +41,8 @@ async function addFileInternalMultipartId(params: {
     mount: primaryMount,
   });
 
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
+  await kIjxSemantic.utils().withTxn(async opts => {
+    await kIjxSemantic
       .file()
       .updateOneById(
         input.fileId,
@@ -61,7 +58,7 @@ async function getFileInternalMultipartId(params: {
   input: IInternalMultipartIdQueueInput;
 }): Promise<string | undefined> {
   const {input} = params;
-  const dbFile = await kSemanticModels.file().getOneById(input.fileId, {
+  const dbFile = await kIjxSemantic.file().getOneById(input.fileId, {
     projection: {internalMultipartId: kIncludeInProjection},
   });
 
@@ -88,8 +85,8 @@ async function handleAddInternalMultipartIdEntry(params: {
     };
   }
 
-  if (kUtilsInjectables.locks().has(lockName)) {
-    await kUtilsInjectables.locks().wait({
+  if (kIkxUtils.locks().has(lockName)) {
+    await kIkxUtils.locks().wait({
       name: lockName,
       timeoutMs: kFileConstants.getAddInternalMultipartIdLockWaitTimeoutMs,
     });
@@ -105,7 +102,7 @@ async function handleAddInternalMultipartIdEntry(params: {
     };
   }
 
-  return await kUtilsInjectables.locks().run(lockName, async () => {
+  return await kIkxUtils.locks().run(lockName, async () => {
     const result = await addFileInternalMultipartId({input});
     return {
       type: kShardRunnerOutputType.success,

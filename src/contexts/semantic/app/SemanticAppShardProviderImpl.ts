@@ -4,11 +4,11 @@ import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {waitTimeout} from '../../../utils/fns.js';
 import {newResource} from '../../../utils/resource.js';
 import {DataQuery} from '../../data/types.js';
-import {kSemanticModels} from '../../injection/injectables.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
 import {
-  DataSemanticBaseProvider,
+  SemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from '../DataSemanticDataAccessBaseProvider.js';
+} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
@@ -16,7 +16,7 @@ import {
 import {SemanticAppShardProvider} from './types.js';
 
 export class SemanticAppShardProviderImpl
-  extends DataSemanticBaseProvider<AppShard>
+  extends SemanticBaseProvider<AppShard>
   implements SemanticAppShardProvider
 {
   async acquireShard(
@@ -61,7 +61,7 @@ export class SemanticAppShardProviderImpl
     shardId: string,
     opts?: SemanticProviderMutationParams
   ): Promise<void> {
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       const shard = (await this.getOneById(shardId, {
         ...opts,
         projection: {occupantCount: true},

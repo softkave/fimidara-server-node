@@ -1,10 +1,7 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
   Job,
@@ -39,7 +36,7 @@ afterEach(async () => {
 
 describe('forgotPassword', () => {
   test('forgot password with email sent', async () => {
-    kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
+    kRegisterIjxUtils.email(new MockTestEmailProviderContext());
 
     const {user} = await insertUserForTest();
     const reqData =
@@ -50,7 +47,7 @@ describe('forgotPassword', () => {
     const result = await forgotPassword(reqData);
     assertEndpointResultOk(result);
 
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.forgotPassword,
     //   emailAddress: {$all: [user.email]},
@@ -69,7 +66,7 @@ describe('forgotPassword', () => {
         },
       },
     };
-    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    const dbJob = await kIjxSemantic.job().getOneByQuery(query);
     expect(dbJob).toBeTruthy();
   });
 });

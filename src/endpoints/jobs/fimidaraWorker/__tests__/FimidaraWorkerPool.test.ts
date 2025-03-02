@@ -1,9 +1,6 @@
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {kAppType} from '../../../../definitions/app.js';
 import {Job, kJobStatus, kJobType} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -23,8 +20,8 @@ let server: FimidaraApp | undefined;
 beforeAll(async () => {
   await initTests();
 
-  const conf = kUtilsInjectables.suppliedConfig();
-  kRegisterUtilsInjectables.suppliedConfig({
+  const conf = kIkxUtils.suppliedConfig();
+  kRegisterIjxUtils.suppliedConfig({
     ...conf,
     runnerLocation: kWorkerTestFilepath,
   });
@@ -68,7 +65,7 @@ describe('FimidaraWorkerPool', () => {
     const workerId = getNewIdForResource(kFimidaraResourceType.Job);
     await testPool.expectNextJob(job, workerId);
 
-    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(job.resourceId);
     expect(dbJob?.runnerId).toBe(workerId);
   });
 

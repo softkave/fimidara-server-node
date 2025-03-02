@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {stringifyFilenamepath} from '../utils.js';
@@ -8,7 +8,7 @@ export async function prepareFilepath(params: {
   file: File;
 }) {
   const {primaryMount, file} = params;
-  const mountEntry = await kSemanticModels
+  const mountEntry = await kIjxSemantic
     .resolvedMountEntry()
     .getOneByMountIdAndFileId(primaryMount.resourceId, file.resourceId);
 

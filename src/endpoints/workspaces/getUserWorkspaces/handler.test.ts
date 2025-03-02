@@ -1,6 +1,6 @@
 import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getResourceId} from '../../../utils/fns.js';
@@ -51,7 +51,7 @@ describe('getUserWorkspaces', () => {
   test('pagination', async () => {
     const {userToken, rawUser} = await insertUserForTest();
     const workspaces = await generateAndInsertWorkspaceListForTest(15);
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(opts =>
         Promise.all(
@@ -68,7 +68,7 @@ describe('getUserWorkspaces', () => {
 
     appAssert(userToken.forEntityId);
     const user = await populateUserWorkspaces(
-      await kSemanticModels
+      await kIjxSemantic
         .user()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(userToken.forEntityId)

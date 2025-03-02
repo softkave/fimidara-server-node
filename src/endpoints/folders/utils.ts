@@ -10,7 +10,7 @@ import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -306,7 +306,7 @@ export async function ensureFolders(
 export async function getWorkspaceFromFolderpath(
   folderpath: string
 ): Promise<Workspace> {
-  const workspaceModel = kSemanticModels.workspace();
+  const workspaceModel = kIjxSemantic.workspace();
   const pathinfo = getFolderpathInfo(folderpath, {
     allowRootFolder: false,
     containsRootname: true,
@@ -383,7 +383,7 @@ export async function ingestFolderByFolderpath(
       compact(mounts.map(mount => mount.configId)),
       /** throw error is config is not found */ true
     ),
-    kSemanticModels
+    kIjxSemantic
       .resolvedMountEntry()
       .getLatestByFimidaraNamepathAndExt(
         workspace.resourceId,
@@ -432,7 +432,7 @@ export async function readOrIngestFolderByFolderpath(
   opts?: SemanticProviderOpParams,
   workspaceId?: string
 ) {
-  const folderModel = kSemanticModels.folder();
+  const folderModel = kIjxSemantic.folder();
   let workspace: Workspace | undefined;
 
   if (!workspaceId) {

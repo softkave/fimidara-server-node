@@ -1,16 +1,13 @@
 import {DisposableResource} from 'softkave-js-utils';
 import {AppQuery} from '../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {App, AppShardId, AppType} from '../../definitions/app.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
+import {appAssert} from '../../utils/assertion.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {newResource} from '../../utils/resource.js';
 import {kAppConstants} from './constants.js';
-import {appAssert} from '../../utils/assertion.js';
 import {getServerInfo} from './serverInfo.js';
 
 // type ShardedDbResourceMigrationFn = AnyFn<
@@ -91,7 +88,7 @@ export class FimidaraApp implements DisposableResource {
   }
 
   async startApp() {
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       // await this.acquireShard(opts);
       await this.insertAppInDB(opts);
     });
@@ -115,7 +112,7 @@ export class FimidaraApp implements DisposableResource {
   }
 
   getServerId() {
-    const config = kUtilsInjectables.suppliedConfig();
+    const config = kIkxUtils.suppliedConfig();
     const serverId = config.serverId;
     appAssert(serverId, 'serverId not set in config');
     return serverId;
@@ -132,7 +129,7 @@ export class FimidaraApp implements DisposableResource {
   protected startHeartbeat() {
     if (!this.recordHeartbeatIntervalHandle) {
       this.recordHeartbeatIntervalHandle = setInterval(() => {
-        kUtilsInjectables.promises().callAndForget(async () => {
+        kIkxUtils.promises().callAndForget(async () => {
           await this.recordInstanceHeartbeat();
           await this.refreshActiveAppIdList();
         });
@@ -148,15 +145,15 @@ export class FimidaraApp implements DisposableResource {
   }
 
   protected recordInstanceHeartbeat = async () => {
-    await kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic
         .app()
         .updateOneById(this.appId, {lastUpdatedAt: getTimestamp()}, opts);
     });
   };
 
   protected async insertAppInDB(opts: SemanticProviderMutationParams) {
-    const config = kUtilsInjectables.suppliedConfig();
+    const config = kIkxUtils.suppliedConfig();
     const serverId = this.getServerId();
     const serverInfo = await getServerInfo({
       httpPort: config.httpPort,
@@ -171,7 +168,7 @@ export class FimidaraApp implements DisposableResource {
       serverId,
     });
 
-    await kSemanticModels.app().insertItem(app, opts);
+    await kIjxSemantic.app().insertItem(app, opts);
   }
 
   // protected async acquireShard(opts: SemanticProviderMutationParams) {
@@ -199,7 +196,7 @@ export class FimidaraApp implements DisposableResource {
       shard: this.shard,
     };
 
-    const app = await kSemanticModels.app().getManyByQuery(appQuery);
+    const app = await kIjxSemantic.app().getManyByQuery(appQuery);
     this.activeAppIdList = app.map(runner => runner.resourceId);
   }
 }

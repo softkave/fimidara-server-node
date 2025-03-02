@@ -1,9 +1,6 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {waitTimeout} from '../../../utils/fns.js';
@@ -35,7 +32,7 @@ describe('FimidaraApp', () => {
 
     await app.startApp();
 
-    const dbApp = await kSemanticModels.app().getOneById(appId);
+    const dbApp = await kIjxSemantic.app().getOneById(appId);
     expect(dbApp).toBeTruthy();
     expect(dbApp?.shard).toBe(shard);
     expect(dbApp?.type).toBe(kAppType.runner);
@@ -56,22 +53,22 @@ describe('FimidaraApp', () => {
 
     await app.startApp();
 
-    let dbApp = await kSemanticModels.app().getOneById(appId);
+    let dbApp = await kIjxSemantic.app().getOneById(appId);
     const startingHeartbeatMs = dbApp?.lastUpdatedAt;
     await waitTimeout(heartbeatIntervalMs * 2);
-    dbApp = await kSemanticModels.app().getOneById(appId);
+    dbApp = await kIjxSemantic.app().getOneById(appId);
     const preStopHeartbeatMs = dbApp?.lastUpdatedAt;
     assert(startingHeartbeatMs);
     expect(preStopHeartbeatMs).toBeGreaterThan(startingHeartbeatMs);
 
     await app.dispose();
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     // No more heartbeat after closing app
-    dbApp = await kSemanticModels.app().getOneById(appId);
+    dbApp = await kIjxSemantic.app().getOneById(appId);
     const postStopHeartbeatMs01 = dbApp?.lastUpdatedAt;
     await waitTimeout(heartbeatIntervalMs * 2);
-    dbApp = await kSemanticModels.app().getOneById(appId);
+    dbApp = await kIjxSemantic.app().getOneById(appId);
     const postStopHeartbeatMs02 = dbApp?.lastUpdatedAt;
     expect(postStopHeartbeatMs01).toBe(postStopHeartbeatMs02);
   });

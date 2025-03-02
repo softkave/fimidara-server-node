@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -18,7 +15,7 @@ import {updateWorkspaceJoiSchema} from './validation.js';
 
 const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, updateWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -31,7 +28,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
     data.workspaceId
   );
 
-  workspace = await kSemanticModels.utils().withTxn(async opts => {
+  workspace = await kIjxSemantic.utils().withTxn(async opts => {
     await Promise.all([
       data.workspace.name && data.workspace.name !== workspace.name
         ? checkWorkspaceNameExists({
@@ -46,7 +43,7 @@ const updateWorkspace: UpdateWorkspaceEndpoint = async reqData => {
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };
-    const updatedWorkspace = await kSemanticModels
+    const updatedWorkspace = await kIjxSemantic
       .workspace()
       .getAndUpdateOneById(workspace.resourceId, update, opts);
     assertWorkspace(updatedWorkspace);

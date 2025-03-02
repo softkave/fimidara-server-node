@@ -22,7 +22,7 @@ import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kUtilsInjectables} from '../../injection/injectables.js';
+import {kIkxUtils} from '../../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';
 
 // TODO: there're times FS tests fail not because of code bugs but data issues,
@@ -34,7 +34,7 @@ let testPartsDir: string | undefined;
 
 beforeAll(async () => {
   await initTests();
-  const {localFsDir, localPartsFsDir} = kUtilsInjectables.suppliedConfig();
+  const {localFsDir, localPartsFsDir} = kIkxUtils.suppliedConfig();
   assert.ok(localFsDir);
   assert.ok(localPartsFsDir);
   testDir = path.normalize(path.resolve(localFsDir) + '/' + testDirName);

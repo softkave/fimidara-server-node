@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   genericDeleteArtifacts,
@@ -15,7 +15,7 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.ResolvedMountEntry]: ({args}) =>
-    kSemanticModels
+    kIjxSemantic
       .resolvedMountEntry()
       .getManyByQuery({mountId: args.resourceId}),
   // TODO: should we delete files from mount?
@@ -25,7 +25,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
   [kFimidaraResourceType.ResolvedMountEntry]: ({args, helpers}) =>
     helpers.withTxn(opts =>
-      kSemanticModels
+      kIjxSemantic
         .resolvedMountEntry()
         .deleteManyByQuery({mountId: args.resourceId}, opts)
     ),
@@ -33,7 +33,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
-    kSemanticModels.fileBackendMount().deleteOneById(args.resourceId, opts)
+    kIjxSemantic.fileBackendMount().deleteOneById(args.resourceId, opts)
   );
 
 export const deleteFileBackendMountCascadeEntry: DeleteResourceCascadeEntry = {

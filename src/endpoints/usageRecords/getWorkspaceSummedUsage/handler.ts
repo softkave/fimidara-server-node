@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {
@@ -17,7 +14,7 @@ import {getWorkspaceSummedUsageJoiSchema} from './validation.js';
 const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint =
   async reqData => {
     const data = validate(reqData.data, getWorkspaceSummedUsageJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -31,7 +28,7 @@ const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint =
       workspaceId,
       data
     );
-    const records = await kSemanticModels
+    const records = await kIjxSemantic
       .usageRecord()
       .getManyByQuery(query, data);
     return {

@@ -1,9 +1,6 @@
 import assert from 'assert';
 import {isNumber} from 'lodash-es';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kUsageProviderConstants} from '../../../contexts/usage/constants.js';
 import {File} from '../../../definitions/file.js';
@@ -56,7 +53,7 @@ async function createAndInsertNewFile(params: {
     /** parentFolder */ null
   );
 
-  await kSemanticModels.file().insertItem(file, opts);
+  await kIjxSemantic.file().insertItem(file, opts);
   return {file, parentFolder};
 }
 
@@ -69,7 +66,7 @@ async function getAndPrepareExistingFile(params: {
   >;
 }) {
   const {agent, workspace, data} = params;
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const {file} = await tryGetFile(
       {workspaceId: workspace.resourceId, ...data},
       opts
@@ -113,7 +110,7 @@ async function createAndPrepareNewFile(params: {
     allowRootFolder: false,
   });
 
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     // it's safe (but a bit costly and confusing) to create parent folders and
     // file before checking auth. whatsoever queue and handler that's creating the
     // parent folders will fail if the user doesn't have permission to create
@@ -154,8 +151,8 @@ async function handlePrepareFileEntry(params: {
   const lockName = kFileConstants.getPrepareFileLockName(filepathOrId);
 
   const [sessionAgent, workspace] = await Promise.all([
-    kUtilsInjectables.session().getAgentByAgentTokenId(agent.agentTokenId),
-    kSemanticModels.workspace().getOneById(input.workspace.resourceId),
+    kIkxUtils.session().getAgentByAgentTokenId(agent.agentTokenId),
+    kIjxSemantic.workspace().getOneById(input.workspace.resourceId),
   ]);
   assert.ok(workspace);
 
@@ -172,8 +169,8 @@ async function handlePrepareFileEntry(params: {
     };
   }
 
-  if (kUtilsInjectables.locks().has(lockName)) {
-    await kUtilsInjectables.locks().wait({
+  if (kIkxUtils.locks().has(lockName)) {
+    await kIkxUtils.locks().wait({
       name: lockName,
       timeoutMs: kFileConstants.getPrepareFileLockWaitTimeoutMs,
     });
@@ -191,7 +188,7 @@ async function handlePrepareFileEntry(params: {
     };
   }
 
-  return await kUtilsInjectables.locks().run(lockName, async () => {
+  return await kIkxUtils.locks().run(lockName, async () => {
     const result = await createAndPrepareNewFile({
       agent: sessionAgent,
       workspace,

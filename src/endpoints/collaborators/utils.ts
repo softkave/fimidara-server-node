@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
@@ -65,7 +65,7 @@ export async function checkCollaboratorAuthorization02(
   collaboratorId: string,
   action: FimidaraPermissionAction
 ) {
-  const user = await kSemanticModels.user().getOneById(collaboratorId);
+  const user = await kIjxSemantic.user().getOneById(collaboratorId);
   assertUser(user);
   const collaborator = await populateUserWorkspaces(user);
   return checkCollaboratorAuthorization(

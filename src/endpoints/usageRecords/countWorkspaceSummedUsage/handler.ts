@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceSummedUsageQuery} from '../getWorkspaceSummedUsage/utils.js';
@@ -12,7 +9,7 @@ import {countWorkspaceSummedUsageJoiSchema} from './validation.js';
 const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint =
   async reqData => {
     const data = validate(reqData.data, countWorkspaceSummedUsageJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -25,7 +22,7 @@ const countWorkspaceSummedUsage: CountWorkspaceSummedUsageEndpoint =
       workspaceId,
       data
     );
-    const count = await kSemanticModels.usageRecord().countByQuery(query);
+    const count = await kIjxSemantic.usageRecord().countByQuery(query);
     return {count};
   };
 

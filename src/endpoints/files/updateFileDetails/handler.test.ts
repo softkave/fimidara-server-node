@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
@@ -53,7 +53,7 @@ describe('updateFileDetails', () => {
 
     const updatedFile = await populateAssignedTags(
       workspace.resourceId,
-      await kSemanticModels
+      await kIjxSemantic
         .file()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(file.resourceId)

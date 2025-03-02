@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Agent} from '../../../definitions/system.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
 import {generateAndInsertUserListForTest} from './user.js';
@@ -9,7 +9,7 @@ export async function generateAndInsertCollaboratorListForTest(
   count = 20
 ) {
   const users = await generateAndInsertUserListForTest(count);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(opts =>
       Promise.all(

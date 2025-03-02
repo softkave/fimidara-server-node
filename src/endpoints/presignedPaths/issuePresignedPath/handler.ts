@@ -3,10 +3,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -25,7 +22,7 @@ import {issuePresignedPathJoiSchema} from './validation.js';
 
 const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
   const data = validate(reqData.data, issuePresignedPathJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -34,7 +31,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
     );
   const actions = data.action || [kFimidaraPermissionActions.readFile];
 
-  const resource = await await kSemanticModels.utils().withTxn(async opts => {
+  const resource = await await kIjxSemantic.utils().withTxn(async opts => {
     const {file} = await getFileWithMatcher({
       opts,
       matcher: data,
@@ -70,7 +67,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
       ({namepath, ext} = pathinfo);
 
       assertRootname(pathinfo.rootname);
-      workspace = await kSemanticModels
+      workspace = await kIjxSemantic
         .workspace()
         .getByRootname(pathinfo.rootname, opts);
       assertWorkspace(workspace);
@@ -126,7 +123,7 @@ const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
         spentUsageCount: 0,
       }
     );
-    await kSemanticModels.presignedPath().insertItem(presignedPath, opts);
+    await kIjxSemantic.presignedPath().insertItem(presignedPath, opts);
     return presignedPath;
   });
 

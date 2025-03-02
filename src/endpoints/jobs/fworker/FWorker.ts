@@ -3,7 +3,7 @@ import {isObject} from 'lodash-es';
 import {DisposableResource} from 'softkave-js-utils';
 import {ReadonlyDeep, ValueOf} from 'type-fest';
 import {MessagePort, isMainThread, workerData} from 'worker_threads';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {FWorkerMessager} from './FWorkerMessager.js';
 
 export interface FWorkerData {
@@ -38,7 +38,7 @@ export class FWorker extends FWorkerMessager implements DisposableResource {
     super();
     this.port = this.getWorkerData().port;
     this.port.on('messageerror', (...args) =>
-      kUtilsInjectables.logger().error(...args)
+      kIkxUtils.logger().error(...args)
     );
   }
 

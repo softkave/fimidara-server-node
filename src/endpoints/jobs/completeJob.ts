@@ -1,8 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {
   Job,
   JobStatus,
@@ -20,8 +17,8 @@ export async function completeJob(
   inputStatus?: JobStatus,
   ifStatus?: JobStatus[]
 ) {
-  const job = await kSemanticModels.utils().withTxn(async opts => {
-    const jobsModel = kSemanticModels.job();
+  const job = await kIjxSemantic.utils().withTxn(async opts => {
+    const jobsModel = kIjxSemantic.job();
     const [job, hasPendingChild, hasFailedChild] = await Promise.all([
       jobsModel.getOneById(jobId, opts),
       jobsModel.existsByQuery(
@@ -96,7 +93,7 @@ export async function completeJob(
 
     const [savedJob] = await Promise.all([
       jobsModel.getAndUpdateOneById(jobId, jobUpdate, opts),
-      kSemanticModels.jobHistory().insertItem(jobHistoryEntry, opts),
+      kIjxSemantic.jobHistory().insertItem(jobHistoryEntry, opts),
     ]);
 
     return savedJob;
@@ -107,7 +104,7 @@ export async function completeJob(
       job?.status === kJobStatus.completed) &&
     job.parentJobId
   ) {
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       completeJob(
         job.parentJobId!,
         job.status,

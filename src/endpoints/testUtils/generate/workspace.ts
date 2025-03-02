@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {PartialDeep} from 'type-fest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
 import {kUsageRecordCategory} from '../../../definitions/usageRecord.js';
 import {
@@ -120,9 +120,9 @@ export async function generateAndInsertWorkspaceListForTest(
   extra: Partial<Workspace> = {}
 ) {
   const items = generateWorkspaceListForTest(count, extra);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.workspace().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.workspace().insertItem(items, opts));
 
   return items;
 }

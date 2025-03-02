@@ -4,7 +4,7 @@ import {difference} from 'lodash-es';
 import {expectErrorThrownAsync, waitTimeout} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {getStringListQuery} from '../../../../contexts/semantic/utils.js';
 import {kFimidaraPermissionActions} from '../../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -38,7 +38,7 @@ afterAll(async () => {
 });
 
 async function getUsageL2(workspaceId: string, category: UsageRecordCategory) {
-  return await kSemanticModels.usageRecord().getOneByQuery({
+  return await kIjxSemantic.usageRecord().getOneByQuery({
     ...getUsageRecordReportingPeriod(),
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.month,
@@ -52,7 +52,7 @@ async function getUsageL1(
   category: UsageRecordCategory,
   filepath: string[]
 ) {
-  return await kSemanticModels.usageRecord().getOneByQuery({
+  return await kIjxSemantic.usageRecord().getOneByQuery({
     ...getUsageRecordReportingPeriod(),
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.instance,
@@ -206,8 +206,8 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
           : [],
       ]);
 
-      await kSemanticModels.utils().withTxn(opts =>
-        kSemanticModels.workspace().updateOneById(
+      await kIjxSemantic.utils().withTxn(opts =>
+        kIjxSemantic.workspace().updateOneById(
           workspace.resourceId,
           {
             usageThresholds: {
@@ -244,9 +244,9 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       );
 
       const [dbUsageL2, dbUsageDroppedL2] = await Promise.all([
-        kSemanticModels.usageRecord().getOneById(usageL2.resourceId),
+        kIjxSemantic.usageRecord().getOneById(usageL2.resourceId),
         usageDroppedL2
-          ? kSemanticModels.usageRecord().getOneById(usageDroppedL2.resourceId)
+          ? kIjxSemantic.usageRecord().getOneById(usageDroppedL2.resourceId)
           : undefined,
       ]);
       assert(dbUsageL2);
@@ -282,8 +282,8 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         kUsageRecordCategory.storageEverConsumed,
         kUsageRecordCategory.total,
       ]);
-      await kSemanticModels.utils().withTxn(opts =>
-        kSemanticModels.workspace().updateOneById(
+      await kIjxSemantic.utils().withTxn(opts =>
+        kIjxSemantic.workspace().updateOneById(
           workspace.resourceId,
           {
             usageThresholds: {

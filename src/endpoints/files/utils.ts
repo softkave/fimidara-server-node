@@ -3,7 +3,7 @@ import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
 } from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -190,7 +190,7 @@ export function throwPresignedPathNotFound() {
 export async function getWorkspaceFromFilepath(
   filepath: string
 ): Promise<Workspace> {
-  const workspaceModel = kSemanticModels.workspace();
+  const workspaceModel = kIjxSemantic.workspace();
   const pathinfo = getFilepathInfo(filepath, {
     allowRootFolder: false,
     containsRootname: true,
@@ -211,7 +211,7 @@ export async function getWorkspaceFromFileOrFilepath(
   let workspace: Workspace | null = null;
 
   if (file) {
-    workspace = await kSemanticModels.workspace().getOneById(file.workspaceId);
+    workspace = await kIjxSemantic.workspace().getOneById(file.workspaceId);
   } else if (filepath) {
     workspace = await getWorkspaceFromFilepath(filepath);
   }
@@ -345,7 +345,7 @@ export async function ingestFileByFilepath(props: {
       /** throw error is config is not found */ true,
       opts
     ),
-    kSemanticModels
+    kIjxSemantic
       .resolvedMountEntry()
       .getLatestByFimidaraNamepathAndExt(
         workspace.resourceId,

@@ -1,10 +1,7 @@
 import {compact} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
@@ -29,7 +26,7 @@ import {sendCollaborationRequestJoiSchema} from './validation.js';
 const sendCollaborationRequest: SendCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, sendCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -44,12 +41,12 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
       target: {targetId: workspace.resourceId, action: 'addCollaborator'},
     });
 
-    const {request, existingUser} = await kSemanticModels
+    const {request, existingUser} = await kIjxSemantic
       .utils()
       .withTxn(async opts => {
         const [existingUser, existingRequest] = await Promise.all([
-          kSemanticModels.user().getByEmail(data.recipientEmail),
-          kSemanticModels
+          kIjxSemantic.user().getByEmail(data.recipientEmail),
+          kIjxSemantic
             .collaborationRequest()
             .getOneByWorkspaceIdEmail(
               workspace.resourceId,
@@ -59,7 +56,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
         ]);
 
         if (existingUser) {
-          const collaboratorExists = await kSemanticModels
+          const collaboratorExists = await kIjxSemantic
             .assignedItem()
             .existsByWorkspaceAssignedAndAssigneeIds(
               workspace.resourceId,
@@ -99,11 +96,11 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
           }
         );
 
-        await kSemanticModels.collaborationRequest().insertItem(request, opts);
+        await kIjxSemantic.collaborationRequest().insertItem(request, opts);
         return {request, existingUser};
       });
 
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: agent,
         type: kJobType.email,

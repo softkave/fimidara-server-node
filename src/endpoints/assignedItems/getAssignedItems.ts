@@ -1,5 +1,5 @@
 import {defaultTo} from 'lodash-es';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
@@ -28,7 +28,7 @@ export async function getResourceAssignedItems(
   assignedItemTypes?: Array<FimidaraResourceType>,
   opts?: SemanticProviderQueryListParams<AssignedItem>
 ) {
-  return await kSemanticModels
+  return await kIjxSemantic
     .assignedItem()
     .getByAssignee(workspaceId, resourceId, assignedItemTypes, opts);
 }

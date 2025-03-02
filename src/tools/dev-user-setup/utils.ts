@@ -1,10 +1,7 @@
 import * as assert from 'assert';
 // eslint-disable-next-line node/no-unpublished-import
 import * as inquirer from 'inquirer';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -131,7 +128,7 @@ async function makeUserAdmin(
   });
 
   if (!isAdmin) {
-    kUtilsInjectables.logger().log('Making user admin');
+    kIkxUtils.logger().log('Making user admin');
     await addAssignedPermissionGroupList(
       kSystemSessionAgent,
       workspace.resourceId,
@@ -146,9 +143,9 @@ async function makeUserAdmin(
 }
 
 async function getUser(runtimeOptions: ISetupDevUserOptions) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const {email} = await runtimeOptions.getUserEmail();
-    const userExists = await kSemanticModels.user().existsByEmail(email, opts);
+    const userExists = await kIjxSemantic.user().existsByEmail(email, opts);
     let user: UserWithWorkspace;
 
     if (userExists) {
@@ -180,10 +177,10 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
   const isInWorkspace = isUserInWorkspace(user, workspace.resourceId);
 
   if (user.isOnWaitlist) {
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels
+        kIjxSemantic
           .user()
           .updateOneById(
             user.resourceId,
@@ -193,8 +190,8 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
       );
   }
 
-  await kSemanticModels.utils().withTxn(async opts => {
-    const adminPermissionGroup = await kSemanticModels
+  await kIjxSemantic.utils().withTxn(async opts => {
+    const adminPermissionGroup = await kIjxSemantic
       .permissionGroup()
       .getByName(
         workspace.resourceId,
@@ -211,16 +208,14 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
         opts
       );
     } else {
-      const request = await kSemanticModels
+      const request = await kIjxSemantic
         .collaborationRequest()
         .getOneByEmail(user.email, opts);
 
       if (request) {
-        kUtilsInjectables.logger().log('Existing collaboration request found');
-        kUtilsInjectables
-          .logger()
-          .log(`Accepting request ${request.resourceId}`);
-        const agentToken = await kSemanticModels
+        kIkxUtils.logger().log('Existing collaboration request found');
+        kIkxUtils.logger().log(`Accepting request ${request.resourceId}`);
+        const agentToken = await kIjxSemantic
           .agentToken()
           .getUserAgentToken(user.resourceId, kTokenAccessScope.login, opts);
         assertAgentToken(agentToken);
@@ -234,7 +229,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           opts
         );
       } else {
-        kUtilsInjectables.logger().log('Adding user to workspace');
+        kIkxUtils.logger().log('Adding user to workspace');
         await assignWorkspaceToUser(
           kSystemSessionAgent,
           workspace.resourceId,
@@ -251,15 +246,13 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
       );
     }
 
-    kUtilsInjectables
+    kIkxUtils
       .logger()
       .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
   });
 
   if (!user.isEmailVerified) {
-    kUtilsInjectables
-      .logger()
-      .log(`Verifying email address for user ${user.email}`);
+    kIkxUtils.logger().log(`Verifying email address for user ${user.email}`);
     await INTERNAL_confirmEmailAddress(user.resourceId, user);
   }
 }

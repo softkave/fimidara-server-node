@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {flattenDeep} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   kJobPresetPriority,
   kJobStatus,
@@ -43,8 +43,8 @@ describe('waitForJob', () => {
       pollIntervalMs
     );
 
-    await kSemanticModels.utils().withTxn(opts =>
-      kSemanticModels.job().updateOneById(
+    await kIjxSemantic.utils().withTxn(opts =>
+      kIjxSemantic.job().updateOneById(
         job.resourceId,
         {
           status: faker.helpers.arrayElement([
@@ -125,7 +125,7 @@ describe('waitForJob', () => {
       childrenJobs02Depth02,
     ]);
     const inputJobIds = extractResourceIdList(inputJobs);
-    const dbJobs = await kSemanticModels.job().getManyByIdList(inputJobIds);
+    const dbJobs = await kIjxSemantic.job().getManyByIdList(inputJobIds);
     const dbJobIds = extractResourceIdList(dbJobs);
 
     expect(inputJobIds).toEqual(expect.arrayContaining(dbJobIds));

@@ -1,5 +1,5 @@
 import {random} from 'lodash-es';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {
   UsageRecord,
@@ -68,11 +68,9 @@ export async function generateAndInsertUsageRecordList(
   extra: Partial<UsageRecord> = {}
 ) {
   const items = generateUsageRecordList(count, extra);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts =>
-      kSemanticModels.usageRecord().insertItem(items, opts)
-    );
+    .withTxn(async opts => kIjxSemantic.usageRecord().insertItem(items, opts));
 
   return items;
 }

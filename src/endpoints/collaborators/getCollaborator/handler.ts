@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {
@@ -12,7 +12,7 @@ import {getCollaboratorJoiSchema} from './validation.js';
 
 const getCollaborator: GetCollaboratorEndpoint = async reqData => {
   const data = validate(reqData.data, getCollaboratorJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

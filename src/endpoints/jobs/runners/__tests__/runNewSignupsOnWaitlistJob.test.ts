@@ -2,10 +2,7 @@ import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AppShardId} from '../../../../definitions/app.js';
 import {
   EmailJobParams,
@@ -29,7 +26,7 @@ afterEach(async () => {
 });
 
 async function getDBEmailJob(shard: AppShardId) {
-  const {rootUserEmail} = kUtilsInjectables.suppliedConfig();
+  const {rootUserEmail} = kIkxUtils.suppliedConfig();
   assert(rootUserEmail);
 
   const query: DataQuery<Job<EmailJobParams>> = {
@@ -43,15 +40,15 @@ async function getDBEmailJob(shard: AppShardId) {
     },
   };
 
-  return (await kSemanticModels
+  return (await kIjxSemantic
     .job()
     .getOneByQuery(query)) as Job<EmailJobParams> | null;
 }
 
 async function deleteJobById(jobId: string) {
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(opts => kSemanticModels.job().deleteOneById(jobId, opts));
+    .withTxn(opts => kIjxSemantic.job().deleteOneById(jobId, opts));
 }
 
 describe('runNewSignupsOnWaitlistJob', () => {
@@ -83,7 +80,7 @@ describe('runNewSignupsOnWaitlistJob', () => {
       );
 
       await runNewSignupsOnWaitlistJob(job);
-      await kUtilsInjectables.promises().flush();
+      await kIkxUtils.promises().flush();
 
       let dbEmailJob = await getDBEmailJob(shard);
 
@@ -111,7 +108,7 @@ describe('runNewSignupsOnWaitlistJob', () => {
       );
 
       await runNewSignupsOnWaitlistJob(job);
-      await kUtilsInjectables.promises().flush();
+      await kIkxUtils.promises().flush();
 
       dbEmailJob = await getDBEmailJob(shard);
 

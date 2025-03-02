@@ -43,8 +43,8 @@ import {
   pathJoin,
 } from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kUtilsInjectables} from '../../injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../injection/register.js';
+import {kIkxUtils} from '../../ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../ijx/register.js';
 import {
   FimidaraFilePersistenceProvider,
   FimidaraFilePersistenceProviderPage,
@@ -71,21 +71,21 @@ describe.each(
     await initTests();
 
     if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
-      const testLocalFsDir = kUtilsInjectables.suppliedConfig().localFsDir;
+      const testLocalFsDir = kIkxUtils.suppliedConfig().localFsDir;
       assert(testLocalFsDir);
       testDir = path.normalize(
         path.resolve(testLocalFsDir) + '/' + testDirName
       );
       await fse.ensureDir(testDir);
 
-      kRegisterUtilsInjectables.suppliedConfig({
-        ...kUtilsInjectables.suppliedConfig(),
+      kRegisterIjxUtils.suppliedConfig({
+        ...kIkxUtils.suppliedConfig(),
         fileBackend: provider,
         localFsDir: testDir,
       });
     } else {
-      kRegisterUtilsInjectables.suppliedConfig({
-        ...kUtilsInjectables.suppliedConfig(),
+      kRegisterIjxUtils.suppliedConfig({
+        ...kIkxUtils.suppliedConfig(),
         fileBackend: provider,
       });
     }
@@ -154,7 +154,7 @@ describe.each(
     await backend.uploadFile(params);
 
     if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
-      const s3Bucket = kUtilsInjectables.suppliedConfig().awsConfigs?.s3Bucket;
+      const s3Bucket = kIkxUtils.suppliedConfig().awsConfigs?.s3Bucket;
       assert(s3Bucket);
       expect(internalBackend.uploadFile).toBeCalledWith({
         ...params,
@@ -394,7 +394,7 @@ describe.each(
     await backend.readFile(params);
 
     if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
-      const s3Bucket = kUtilsInjectables.suppliedConfig().awsConfigs?.s3Bucket;
+      const s3Bucket = kIkxUtils.suppliedConfig().awsConfigs?.s3Bucket;
       assert(s3Bucket);
       expect(internalBackend.readFile).toBeCalledWith({
         ...params,

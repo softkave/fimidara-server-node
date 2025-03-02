@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash-es';
 import {getRandomIntInclusive} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -157,9 +157,9 @@ export async function generateAndInsertTestFiles(
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
 ) {
   const items = generateTestFiles(count, extra);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.file().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.file().insertItem(items, opts));
   return items;
 }
 
@@ -204,10 +204,10 @@ export async function generateAndInsertTestPresignedPathList(
   extra: Partial<PresignedPath> = {}
 ) {
   const items = generateTestPresignedPathList(count, extra);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts =>
-      kSemanticModels.presignedPath().insertItem(items, opts)
+      kIjxSemantic.presignedPath().insertItem(items, opts)
     );
   return items;
 }

@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
-import {kUtilsInjectables} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+import {kIkxUtils} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kUpgradeFromWaitlistEmailArtifacts} from '../../../../../emailTemplates/upgradedFromWaitlist.js';
@@ -24,7 +24,7 @@ describe('sendUserUpgradedFromWaitlistEmail', () => {
   test('sendEmail called', async () => {
     const [user] = await generateAndInsertUserListForTest(1);
     const testEmailProvider = new MockTestEmailProviderContext();
-    kRegisterUtilsInjectables.email(testEmailProvider);
+    kRegisterIjxUtils.email(testEmailProvider);
 
     await sendUserUpgradedFromWaitlistEmail(
       getNewIdForResource(kFimidaraResourceType.Job),
@@ -43,8 +43,6 @@ describe('sendUserUpgradedFromWaitlistEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kUpgradeFromWaitlistEmailArtifacts.title);
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().senderEmailAddress
-    );
+    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
   });
 });

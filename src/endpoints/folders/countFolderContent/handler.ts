@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   SessionAgent,
@@ -24,7 +21,7 @@ import {countFolderContentJoiSchema} from './validation.js';
 
 const countFolderContent: CountFolderContentEndpoint = async reqData => {
   const data = validate(reqData.data, countFolderContentJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -80,7 +77,7 @@ async function countFolders(
     parentFolder
   );
 
-  return await kSemanticModels.folder().countManyParentByIdList(q);
+  return await kIjxSemantic.folder().countManyParentByIdList(q);
 }
 
 async function countFiles(
@@ -95,7 +92,7 @@ async function countFiles(
     parentFolder
   );
 
-  return await kSemanticModels.file().countManyParentByIdList(q);
+  return await kIjxSemantic.file().countManyParentByIdList(q);
 }
 
 export default countFolderContent;

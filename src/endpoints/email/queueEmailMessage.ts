@@ -1,5 +1,5 @@
 import {compact} from 'lodash-es';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {EmailMessage, EmailMessageParams} from '../../definitions/email.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {newResource} from '../../utils/resource.js';
@@ -11,8 +11,8 @@ export async function queueEmailMessage(
   workspaceId: string | undefined,
   userId: string | undefined
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const isInBlocklist = await kSemanticModels
+  return await kIjxSemantic.utils().withTxn(async opts => {
+    const isInBlocklist = await kIjxSemantic
       .emailBlocklist()
       .isInBlocklist(emailAddress, opts);
 
@@ -30,6 +30,6 @@ export async function queueEmailMessage(
         params: params.params,
       }
     );
-    return kSemanticModels.emailMessage().insertItem(emailMessage, opts);
+    return kIjxSemantic.emailMessage().insertItem(emailMessage, opts);
   });
 }

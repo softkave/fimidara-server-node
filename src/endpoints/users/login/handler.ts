@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {InvalidEmailOrPasswordError} from '../errors.js';
@@ -9,7 +9,7 @@ import {loginJoiSchema} from './validation.js';
 
 const login: LoginEndpoint = async reqData => {
   const data = validate(reqData.data, loginJoiSchema);
-  const user = await kSemanticModels.user().getByEmail(data.email);
+  const user = await kIjxSemantic.user().getByEmail(data.email);
   appAssert(user, new InvalidEmailOrPasswordError());
 
   const passwordMatch = await argon2.verify(user.hash, data.password);

@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {compact, last} from 'lodash-es';
 import {indexArray, waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {
   loopAndCollate,
@@ -68,7 +68,7 @@ describe('addFolder', () => {
     });
 
     const inputNames = [folderName00, folderName01, folderName02];
-    const savedFolders = await kSemanticModels.folder().getManyByQuery({
+    const savedFolders = await kIjxSemantic.folder().getManyByQuery({
       workspaceId: workspace.resourceId,
       name: {$in: inputNames},
     });
@@ -120,7 +120,7 @@ describe('addFolder', () => {
       },
     ]);
 
-    const {getSelfOrClosestParent} = await kSemanticModels
+    const {getSelfOrClosestParent} = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getExistingFoldersAndArtifacts(workspace.resourceId, inputSet, opts)
@@ -167,7 +167,7 @@ describe('addFolder', () => {
       insertFolderForTest(userToken, workspace, {folderpath: folderpath02}),
     ]);
 
-    const dbFolders = await kSemanticModels.folder().getManyByQuery({
+    const dbFolders = await kIjxSemantic.folder().getManyByQuery({
       $or: [
         FolderQueries.getByNamepath({
           workspaceId: workspace.resourceId,
@@ -226,7 +226,7 @@ describe('addFolder', () => {
       insertFolderForTest(userToken, workspace, {folderpath: folderpath04}),
     ]);
 
-    const dbFolders = await kSemanticModels.folder().getManyByQuery({
+    const dbFolders = await kIjxSemantic.folder().getManyByQuery({
       $or: [
         FolderQueries.getByNamepath({
           workspaceId: workspace.resourceId,
@@ -314,11 +314,11 @@ describe('addFolder', () => {
     const uniqFolderpathList = Array.from(folderpathSet);
 
     const [dbWorkspaceFolders, ...dbFolders] = await Promise.all([
-      kSemanticModels.folder().getManyByQuery({
+      kIjxSemantic.folder().getManyByQuery({
         workspaceId: workspace.resourceId,
       }),
       ...uniqFolderpathList.map(folderpath =>
-        kSemanticModels.folder().getManyByNamepath({
+        kIjxSemantic.folder().getManyByNamepath({
           workspaceId: workspace.resourceId,
           namepath: pathSplit(folderpath),
         })
@@ -395,11 +395,11 @@ describe('addFolder', () => {
     const uniqFolderpathList = Array.from(folderpathSet);
 
     const [dbWorkspaceFolders, ...dbFolders] = await Promise.all([
-      kSemanticModels.folder().getManyByQuery({
+      kIjxSemantic.folder().getManyByQuery({
         workspaceId: workspace.resourceId,
       }),
       ...uniqFolderpathList.map(folderpath =>
-        kSemanticModels.folder().getManyByNamepath({
+        kIjxSemantic.folder().getManyByNamepath({
           workspaceId: workspace.resourceId,
           namepath: pathSplit(folderpath),
         })

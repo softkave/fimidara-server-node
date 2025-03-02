@@ -8,8 +8,8 @@ import {
   FilePersistenceProvider,
   PersistedFile,
 } from '../../../contexts/file/types.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {getStringListQuery} from '../../../contexts/semantic/utils.js';
 import {ResolvedMountEntry} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -79,7 +79,7 @@ afterAll(async () => {
 });
 
 async function getUsageL2(workspaceId: string, category: UsageRecordCategory) {
-  return await kSemanticModels.usageRecord().getOneByQuery({
+  return await kIjxSemantic.usageRecord().getOneByQuery({
     ...getUsageRecordReportingPeriod(),
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.month,
@@ -93,7 +93,7 @@ async function getUsageL1(
   category: UsageRecordCategory,
   filepath: string[]
 ) {
-  return await kSemanticModels.usageRecord().getOneByQuery({
+  return await kIjxSemantic.usageRecord().getOneByQuery({
     ...getUsageRecordReportingPeriod(),
     status: kUsageRecordFulfillmentStatus.fulfilled,
     summationType: kUsageSummationType.instance,
@@ -276,7 +276,7 @@ describe('readFile', () => {
       ),
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       const entry = newWorkspaceResource<ResolvedMountEntry>(
         makeUserSessionAgent(rawUser, userToken),
         kFimidaraResourceType.ResolvedMountEntry,
@@ -301,12 +301,12 @@ describe('readFile', () => {
         }
       );
 
-      await kSemanticModels.resolvedMountEntry().insertItem(entry, opts);
+      await kIjxSemantic.resolvedMountEntry().insertItem(entry, opts);
     });
 
     const testBuffer = Buffer.from('Reading from secondary mount source');
     const testStream = Readable.from([testBuffer]);
-    kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+    kRegisterIjxUtils.fileProviderResolver(forMount => {
       if (mount.resourceId === forMount.resourceId) {
         class SecondaryFileProvider
           extends NoopFilePersistenceProviderContext
@@ -341,7 +341,7 @@ describe('readFile', () => {
       filepath: generateTestFilepathString({rootname: workspace.rootname}),
     });
 
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
+    kRegisterIjxUtils.fileProviderResolver(() => {
       return new NoopFilePersistenceProviderContext();
     });
 
@@ -440,8 +440,8 @@ describe('readFile', () => {
 
       const {file} = await insertFileForTest(userToken, workspace);
 
-      await kSemanticModels.utils().withTxn(opts =>
-        kSemanticModels.workspace().updateOneById(
+      await kIjxSemantic.utils().withTxn(opts =>
+        kIjxSemantic.workspace().updateOneById(
           workspace.resourceId,
           {
             usageThresholds: {
@@ -482,9 +482,9 @@ describe('readFile', () => {
       await waitTimeout(kUsageCommitIntervalMs * 1.5);
 
       const [dbUsageL2, dbUsageDroppedL2] = await Promise.all([
-        kSemanticModels.usageRecord().getOneById(usageL2.resourceId),
+        kIjxSemantic.usageRecord().getOneById(usageL2.resourceId),
         usageDroppedL2
-          ? kSemanticModels.usageRecord().getOneById(usageDroppedL2.resourceId)
+          ? kIjxSemantic.usageRecord().getOneById(usageDroppedL2.resourceId)
           : undefined,
       ]);
       assert(dbUsageL2);
@@ -519,8 +519,8 @@ describe('readFile', () => {
       kUsageRecordCategory.bandwidthOut,
       kUsageRecordCategory.total,
     ]);
-    await kSemanticModels.utils().withTxn(opts =>
-      kSemanticModels.workspace().updateOneById(
+    await kIjxSemantic.utils().withTxn(opts =>
+      kIjxSemantic.workspace().updateOneById(
         workspace.resourceId,
         {
           usageThresholds: {

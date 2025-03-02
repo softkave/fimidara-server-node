@@ -1,6 +1,6 @@
 import {isNumber, isString} from 'lodash-es';
 import {FilePersistenceProvider} from '../../../contexts/file/types.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {File} from '../../../definitions/file.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -64,8 +64,8 @@ export async function deleteMultipartUpload(props: {
       multipartId: multipartIdToUse,
     }),
     shouldCleanupFile && !isNumber(part)
-      ? kSemanticModels.utils().withTxn(opts => {
-          return kSemanticModels
+      ? kIjxSemantic.utils().withTxn(opts => {
+          return kIjxSemantic
             .file()
             .updateOneById(
               file.resourceId,

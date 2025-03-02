@@ -1,10 +1,10 @@
 import assert from 'assert';
 import {
-  kDataModels,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../contexts/injection/register.js';
+  kIjxData,
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../contexts/ijx/register.js';
 import {
   AppRuntimeState,
   SessionAgent,
@@ -49,8 +49,8 @@ async function setupWorkspace(
   name: string,
   rootname: string
 ) {
-  const result = await kSemanticModels.utils().withTxn(async opts => {
-    const existingWorkspace = await kSemanticModels
+  const result = await kIjxSemantic.utils().withTxn(async opts => {
+    const existingWorkspace = await kIjxSemantic
       .workspace()
       .getByRootname(rootname);
 
@@ -74,53 +74,50 @@ async function setupWorkspace(
 }
 
 async function setupDefaultUser() {
-  const {user, userToken} = await kSemanticModels
-    .utils()
-    .withTxn(async opts => {
-      const suppliedConfig = kUtilsInjectables.suppliedConfig();
-      const nodeEnv = process.env.NODE_ENV;
-      assert(suppliedConfig.rootUserEmail);
-      assert(suppliedConfig.rootUserPassword);
-      assert(suppliedConfig.rootUserFirstName);
-      assert(suppliedConfig.rootUserLastName);
-      let user = await kSemanticModels
-        .user()
-        .getByEmail(suppliedConfig.rootUserEmail, opts);
+  const {user, userToken} = await kIjxSemantic.utils().withTxn(async opts => {
+    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const nodeEnv = process.env.NODE_ENV;
+    assert(suppliedConfig.rootUserEmail);
+    assert(suppliedConfig.rootUserPassword);
+    assert(suppliedConfig.rootUserFirstName);
+    assert(suppliedConfig.rootUserLastName);
+    let user = await kIjxSemantic
+      .user()
+      .getByEmail(suppliedConfig.rootUserEmail, opts);
 
-      if (!user) {
-        const isDevRelatedvEnv =
-          nodeEnv === 'development' || nodeEnv === 'test';
-        user = await INTERNAL_signupUser(
-          {
-            email: suppliedConfig.rootUserEmail,
-            firstName: suppliedConfig.rootUserFirstName,
-            lastName: suppliedConfig.rootUserLastName,
-            password: suppliedConfig.rootUserPassword,
-          },
-          {
-            requiresPasswordChange: isDevRelatedvEnv ? false : true,
-            isEmailVerified: isDevRelatedvEnv ? true : false,
-            isOnWaitlist: false,
-          },
-          opts
-        );
+    if (!user) {
+      const isDevRelatedvEnv = nodeEnv === 'development' || nodeEnv === 'test';
+      user = await INTERNAL_signupUser(
+        {
+          email: suppliedConfig.rootUserEmail,
+          firstName: suppliedConfig.rootUserFirstName,
+          lastName: suppliedConfig.rootUserLastName,
+          password: suppliedConfig.rootUserPassword,
+        },
+        {
+          requiresPasswordChange: isDevRelatedvEnv ? false : true,
+          isEmailVerified: isDevRelatedvEnv ? true : false,
+          isOnWaitlist: false,
+        },
+        opts
+      );
 
-        if (!isDevRelatedvEnv) {
-          await INTERNAL_forgotPassword(user);
-          await INTERNAL_sendEmailVerificationCode(user);
-        }
+      if (!isDevRelatedvEnv) {
+        await INTERNAL_forgotPassword(user);
+        await INTERNAL_sendEmailVerificationCode(user);
       }
+    }
 
-      const userToken = await getUserToken(user.resourceId, opts);
-      return {user, userToken};
-    });
+    const userToken = await getUserToken(user.resourceId, opts);
+    return {user, userToken};
+  });
 
   const agent = makeUserSessionAgent(user, userToken);
   return {user, userToken, agent};
 }
 
 export async function isRootWorkspaceSetup() {
-  const appRuntimeState = await kDataModels
+  const appRuntimeState = await kIjxData
     .appRuntimeState()
     .getOneByQuery(
       EndpointReusableQueries.getByResourceId(kAppRuntimeStatsDocId)
@@ -133,8 +130,8 @@ async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
     appWorkspaceId: appRuntimeState.appWorkspaceId,
   };
 
-  kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
-  const workspace = await kSemanticModels
+  kRegisterIjxUtils.runtimeConfig(appRuntimeVars);
+  const workspace = await kIjxSemantic
     .workspace()
     .getOneById(appRuntimeState.appWorkspaceId);
   assertWorkspace(workspace);
@@ -142,12 +139,12 @@ async function getRootWorkspace(appRuntimeState: AppRuntimeState) {
 }
 
 async function insertRuntimeVars(workspace: Workspace) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const appRuntimeVars: FimidaraRuntimeConfig = {
       appWorkspaceId: workspace.resourceId,
     };
 
-    await kDataModels.appRuntimeState().insertItem(
+    await kIjxData.appRuntimeState().insertItem(
       {
         isAppSetup: true,
         resourceId: kAppRuntimeStatsDocId,
@@ -172,7 +169,7 @@ async function setupAppArtifacts(agent: SessionAgent) {
 
   const {appRuntimeVars} = await insertRuntimeVars(workspace);
 
-  kRegisterUtilsInjectables.runtimeConfig(appRuntimeVars);
+  kRegisterIjxUtils.runtimeConfig(appRuntimeVars);
   return workspace;
 }
 

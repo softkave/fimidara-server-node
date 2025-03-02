@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kJobType} from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {pathJoin} from '../../../utils/fns.js';
@@ -88,7 +88,7 @@ describe('updateMount', () => {
       const result = await updateFileBackendMount(reqData);
       assertEndpointResultOk(result);
 
-      const updatedMount = await kSemanticModels
+      const updatedMount = await kIjxSemantic
         .fileBackendMount()
         .getOneById(result.mount.resourceId);
       assert(updatedMount);
@@ -115,7 +115,7 @@ describe('updateMount', () => {
               expect(updatedMount.namepath).toEqual(namepath);
               expect(result.mount.namepath).toEqual(namepath);
 
-              const folder = await kSemanticModels.folder().getOneByNamepath({
+              const folder = await kIjxSemantic.folder().getOneByNamepath({
                 namepath,
                 workspaceId: workspace.resourceId,
               });
@@ -166,7 +166,7 @@ describe('updateMount', () => {
             expect: async (input, result) => {
               expect(result.jobId).toBeTruthy();
 
-              const job = await kSemanticModels.job().getOneByQuery({
+              const job = await kIjxSemantic.job().getOneByQuery({
                 resourceId: result.jobId,
                 type: kJobType.cleanupMountResolvedEntries,
                 params: {$objMatch: {mountId: mount.resourceId}},

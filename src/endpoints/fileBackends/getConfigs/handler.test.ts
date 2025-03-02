@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,
@@ -50,9 +50,7 @@ describe('getFileBackendConfigs', () => {
     await testCombinations(queries, async query => {
       query = {...query, workspaceId: workspace.resourceId};
       await generateAndInsertFileBackendConfigListForTest(10, query);
-      const count = await kSemanticModels
-        .fileBackendConfig()
-        .countByQuery(query);
+      const count = await kIjxSemantic.fileBackendConfig().countByQuery(query);
 
       await performPaginationTest(getFileBackendConfigs, {
         count,

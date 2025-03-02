@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {validate} from '../../../utils/validate.js';
 import {fileExtractor, getAndCheckFileAuthorization} from '../utils.js';
@@ -11,7 +8,7 @@ import {getFileDetailsJoiSchema} from './validation.js';
 
 const getFileDetails: GetFileDetailsEndpoint = async reqData => {
   const data = validate(reqData.data, getFileDetailsJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -19,7 +16,7 @@ const getFileDetails: GetFileDetailsEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const file = await kSemanticModels.utils().withTxn(opts =>
+  const file = await kIjxSemantic.utils().withTxn(opts =>
     getAndCheckFileAuthorization({
       agent,
       opts,

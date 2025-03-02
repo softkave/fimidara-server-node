@@ -1,9 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -25,7 +22,7 @@ import {updateAgentTokenJoiSchema} from './validation.js';
 
 const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, updateAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -42,7 +39,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
     'updateAgentToken'
   );
 
-  const updatedToken = await kSemanticModels.utils().withTxn(async opts => {
+  const updatedToken = await kIjxSemantic.utils().withTxn(async opts => {
     const tokenUpdate: Partial<AgentToken> = {
       ...omit(data.token, 'tags'),
       lastUpdatedAt: getTimestamp(),
@@ -63,7 +60,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
         }),
     ]);
 
-    const updatedToken = await kSemanticModels
+    const updatedToken = await kIjxSemantic
       .agentToken()
       .getAndUpdateOneById(token.resourceId, tokenUpdate, opts);
 

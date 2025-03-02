@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
@@ -11,7 +11,7 @@ import {deletePermissionGroupJoiSchema} from './validation.js';
 
 const deletePermissionGroup: DeletePermissionGroupEndpoint = async reqData => {
   const data = validate(reqData.data, deletePermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

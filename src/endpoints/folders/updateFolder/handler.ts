@@ -1,9 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -19,14 +16,14 @@ import {updateFolderJoiSchema} from './validation.js';
 
 const updateFolder: UpdateFolderEndpoint = async reqData => {
   const data = validate(reqData.data, updateFolderJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  let folder = await kSemanticModels.utils().withTxn(async opts => {
+  let folder = await kIjxSemantic.utils().withTxn(async opts => {
     const {folder} = await checkFolderAuthorization02(
       agent,
       data,
@@ -39,7 +36,7 @@ const updateFolder: UpdateFolderEndpoint = async reqData => {
       lastUpdatedAt: getTimestamp(),
       lastUpdatedBy: getActionAgentFromSessionAgent(agent),
     };
-    const updatedFolder = await kSemanticModels
+    const updatedFolder = await kIjxSemantic
       .folder()
       .getAndUpdateOneById(folder.resourceId, update, opts);
     assertFolder(updatedFolder);

@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
@@ -16,7 +13,7 @@ export const INTERNAL_signupUserWithOAuth = async (params: {
   opts: SemanticProviderMutationParams;
 }) => {
   const {data, otherParams, opts} = params;
-  let user = await kSemanticModels.user().getByEmail(data.email, opts);
+  let user = await kIjxSemantic.user().getByEmail(data.email, opts);
 
   if (user) {
     const updates: Partial<User> = {
@@ -30,7 +27,7 @@ export const INTERNAL_signupUserWithOAuth = async (params: {
       updates.emailVerifiedAt = data.emailVerifiedAt;
     }
 
-    await kSemanticModels.user().updateOneById(user.resourceId, updates, opts);
+    await kIjxSemantic.user().updateOneById(user.resourceId, updates, opts);
     user = {...user, ...updates};
   } else {
     const now = getTimestamp();
@@ -43,15 +40,14 @@ export const INTERNAL_signupUserWithOAuth = async (params: {
       lastName,
       createdAt: now,
       lastUpdatedAt: now,
-      isOnWaitlist:
-        kUtilsInjectables.suppliedConfig().FLAG_waitlistNewSignups || false,
+      isOnWaitlist: kIkxUtils.suppliedConfig().FLAG_waitlistNewSignups || false,
       oauthUserId: data.oauthUserId,
       emailVerifiedAt: data.emailVerifiedAt,
       isEmailVerified: !!data.emailVerifiedAt,
       ...otherParams,
     });
 
-    await kSemanticModels.user().insertItem(user, opts);
+    await kIjxSemantic.user().insertItem(user, opts);
   }
 
   return await populateUserWorkspaces(user, opts);

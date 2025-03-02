@@ -1,8 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   AgentToken,
@@ -58,13 +55,13 @@ export async function getAgentTokenByIdOrProvidedId(
   let token: AgentToken | null = null;
 
   if (tokenId) {
-    token = await kSemanticModels.agentToken().getOneById(tokenId);
+    token = await kIjxSemantic.agentToken().getOneById(tokenId);
   } else if (providedResourceId) {
     appAssert(
       workspaceId,
       new InvalidRequestError('Workspace ID not provided')
     );
-    token = await kSemanticModels
+    token = await kIjxSemantic
       .agentToken()
       .getByProvidedId(workspaceId, providedResourceId);
   }
@@ -106,7 +103,7 @@ export async function encodeAgentToken(
     );
   }
 
-  return await kUtilsInjectables.session().encodeToken({
+  return await kIkxUtils.session().encodeToken({
     expiresAt,
     shouldRefresh: token.shouldRefresh,
     tokenId: token.resourceId,

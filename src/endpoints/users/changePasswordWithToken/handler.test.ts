@@ -1,6 +1,6 @@
 import {add} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   kCurrentJWTTokenVersion,
@@ -60,9 +60,9 @@ async function changePasswordWithTokenTest() {
     createdBy: kSystemSessionAgent,
     lastUpdatedBy: kSystemSessionAgent,
   });
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(opts => kSemanticModels.agentToken().insertItem(token, opts));
+    .withTxn(opts => kIjxSemantic.agentToken().insertItem(token, opts));
   const result = await changePasswordWithToken(
     RequestData.fromExpressRequest<ChangePasswordWithTokenEndpointParams>(
       mockExpressRequestWithAgentToken(token),
@@ -70,7 +70,7 @@ async function changePasswordWithTokenTest() {
     )
   );
   assertEndpointResultOk(result);
-  const updatedUser = await kSemanticModels
+  const updatedUser = await kIjxSemantic
     .user()
     .assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(result.user.resourceId)

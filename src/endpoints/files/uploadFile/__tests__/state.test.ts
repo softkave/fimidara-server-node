@@ -2,11 +2,8 @@ import assert from 'assert';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FileProviderResolver} from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {kSessionUtils} from '../../../../contexts/SessionContext.js';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
@@ -27,15 +24,15 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
-  defaultSuppliedConfig = kUtilsInjectables.suppliedConfig();
+  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
 });
 
 afterEach(() => {
   assert(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
   if (defaultSuppliedConfig) {
-    kRegisterUtilsInjectables.suppliedConfig(defaultSuppliedConfig);
+    kRegisterIjxUtils.suppliedConfig(defaultSuppliedConfig);
   }
 });
 
@@ -48,7 +45,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
   ({isMultipart}) => {
     test('file updated when new data uploaded', async () => {
       const backend = new MemoryFilePersistenceProvider();
-      kRegisterUtilsInjectables.fileProviderResolver(() => {
+      kRegisterIjxUtils.fileProviderResolver(() => {
         return backend;
       });
 
@@ -71,7 +68,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         type: kGenerateTestFileType.txt,
       });
 
-      const agent = await kUtilsInjectables
+      const agent = await kIkxUtils
         .session()
         .getAgentFromReq(
           RequestData.fromExpressRequest(
@@ -97,7 +94,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         agentType: agent.agentType,
       });
 
-      const fimidaraMount = await kSemanticModels
+      const fimidaraMount = await kIjxSemantic
         .fileBackendMount()
         .getOneByQuery({
           workspaceId: insertWorkspaceResult.workspace.resourceId,
@@ -145,9 +142,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       expect(savedFile.version).toBe(2);
 
-      const dbFile = await kSemanticModels
-        .file()
-        .getOneById(savedFile.resourceId);
+      const dbFile = await kIjxSemantic.file().getOneById(savedFile.resourceId);
       expect(dbFile?.version).toBe(2);
     });
   }

@@ -1,6 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -12,7 +12,7 @@ import {deletePermissionItemsJoiSchema} from './validation.js';
 
 const deletePermissionItems: DeletePermissionItemsEndpoint = async reqData => {
   const data = validate(reqData.data, deletePermissionItemsJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

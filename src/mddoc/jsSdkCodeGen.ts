@@ -5,8 +5,8 @@ import {compact, forEach, last, nth, set, uniq, upperFirst} from 'lodash-es';
 import path from 'path';
 import {AnyObject} from 'softkave-js-utils';
 import {globalDispose} from '../contexts/globalUtils.js';
-import {kUtilsInjectables} from '../contexts/injection/injectables.js';
-import {registerUtilsInjectables} from '../contexts/injection/register.js';
+import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {registerIjxUtils} from '../contexts/ijx/register.js';
 import {
   AppExportedHttpEndpoints,
   getFimidaraHttpEndpoints,
@@ -664,7 +664,7 @@ async function jsSdkCodeGen(
 }
 
 async function main() {
-  await registerUtilsInjectables({
+  await registerIjxUtils({
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
@@ -689,6 +689,6 @@ async function main() {
 }
 
 main()
-  .then(() => kUtilsInjectables.logger().log('mddoc gen js sdk complete'))
-  .catch(err => kUtilsInjectables.logger().error(err))
+  .then(() => kIkxUtils.logger().log('mddoc gen js sdk complete'))
+  .catch(err => kIkxUtils.logger().error(err))
   .finally(() => globalDispose());

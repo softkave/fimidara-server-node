@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
@@ -12,8 +12,8 @@ export async function INTERNAL_changePassword(
   props: {password: string}
 ) {
   const hash = await argon2.hash(props.password);
-  const updatedUser = await kSemanticModels.utils().withTxn(async opts => {
-    const updatedUser = await kSemanticModels.user().getAndUpdateOneById(
+  const updatedUser = await kIjxSemantic.utils().withTxn(async opts => {
+    const updatedUser = await kIjxSemantic.user().getAndUpdateOneById(
       userId,
       {
         hash,
@@ -25,7 +25,7 @@ export async function INTERNAL_changePassword(
     assertUser(updatedUser);
 
     // soft delete existing user tokens cause they're no longer valid
-    await kSemanticModels
+    await kIjxSemantic
       .agentToken()
       .softDeleteAgentTokens(updatedUser.resourceId, undefined, opts);
     return updatedUser;

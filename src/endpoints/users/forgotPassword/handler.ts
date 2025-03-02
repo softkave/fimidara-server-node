@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -19,7 +16,7 @@ import {forgotPasswordJoiSchema} from './validation.js';
 
 export const forgotPassword: ForgotPasswordEndpoint = async reqData => {
   const data = validate(reqData.data, forgotPasswordJoiSchema);
-  const user = await kSemanticModels.user().getByEmail(data.email);
+  const user = await kIjxSemantic.user().getByEmail(data.email);
   assertUser(user);
   await INTERNAL_forgotPassword(user);
 };
@@ -32,7 +29,7 @@ export async function INTERNAL_forgotPassword(user: User) {
     )
   );
 
-  kUtilsInjectables.promises().callAndForget(() =>
+  kIkxUtils.promises().callAndForget(() =>
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

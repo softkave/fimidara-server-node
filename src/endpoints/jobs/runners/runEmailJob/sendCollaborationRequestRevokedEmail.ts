@@ -1,8 +1,5 @@
 import {first} from 'lodash-es';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestRevokedEmailProps,
@@ -28,7 +25,7 @@ export async function sendCollaborationRequestRevokedEmail(
     throw new Error(`No recipient email for job ${jobId}`);
   }
 
-  const request = await kSemanticModels
+  const request = await kIjxSemantic
     .collaborationRequest()
     .getOneById(params.params.requestId);
 
@@ -36,7 +33,7 @@ export async function sendCollaborationRequestRevokedEmail(
     throw new Error(`Collaboration request not found for job ${jobId}`);
   }
 
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getOneById(request.workspaceId);
 
@@ -50,7 +47,7 @@ export async function sendCollaborationRequestRevokedEmail(
   };
   const html = collaborationRequestRevokedEmailHTML(emailProps);
   const text = collaborationRequestRevokedEmailText(emailProps);
-  return await kUtilsInjectables.email().sendEmail({
+  return await kIkxUtils.email().sendEmail({
     source,
     subject: kCollaborationRequestRevokedEmail.title(workspace.name),
     body: {html, text},

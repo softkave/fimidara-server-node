@@ -1,10 +1,7 @@
 import {convertToArray} from 'softkave-js-utils';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts.js';
@@ -16,7 +13,7 @@ import {assignPermissionGroupsJoiSchema} from './validation.js';
 const assignPermissionGroups: AssignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, assignPermissionGroupsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -44,14 +41,14 @@ const assignPermissionGroups: AssignPermissionGroupsEndpoint =
       await checkPermissionGroupsExist(workspace.resourceId, pgIdList),
     ]);
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       // TODO: getEntityAssignedPermissionGroups should support entity ID array
 
       // Get entities' immediately existing permission groups to avoid assigning
       // twice
       const existingPermissionGroups = await Promise.all(
         entityIdList.map(entityId =>
-          kSemanticModels
+          kIjxSemantic
             .permissions()
             .getEntityAssignedPermissionGroups(
               {workspaceId: workspace.resourceId, entityId, fetchDeep: false},

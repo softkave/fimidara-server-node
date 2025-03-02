@@ -1,6 +1,6 @@
 import {identity} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
@@ -92,12 +92,12 @@ async function assertCollaboratorsDoNotHavePermissions(
   collaboratorIdList: string[],
   notContainedInList?: Resource[]
 ) {
-  let count = await kSemanticModels.assignedItem().countByQuery({
+  let count = await kIjxSemantic.assignedItem().countByQuery({
     assigneeId: {$in: collaboratorIdList},
     assignedItemType: kFimidaraResourceType.PermissionGroup,
   });
   expect(count).toBe(0);
-  count = await kSemanticModels.permissionItem().countByQuery({
+  count = await kIjxSemantic.permissionItem().countByQuery({
     entityId: {$in: collaboratorIdList},
   });
   expect(count).toBe(0);

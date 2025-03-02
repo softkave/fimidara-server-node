@@ -1,7 +1,7 @@
 import {uniq} from 'lodash-es';
 import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
@@ -48,7 +48,7 @@ describe('queueAddInternalMultipartId', () => {
 
     expect(multipartId).toBeDefined();
 
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(multipartId);
   });
 
@@ -65,8 +65,8 @@ describe('queueAddInternalMultipartId', () => {
     );
 
     const existingMultipartId = '123';
-    await kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels
+    await kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic
         .file()
         .updateOneById(
           file.resourceId,
@@ -89,7 +89,7 @@ describe('queueAddInternalMultipartId', () => {
 
     expect(multipartId).toBe(existingMultipartId);
 
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(multipartId);
   });
 
@@ -130,7 +130,7 @@ describe('queueAddInternalMultipartId', () => {
     const uniqueMultipartIds = uniq(multipartIds);
     expect(uniqueMultipartIds.length).toBe(1);
 
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(uniqueMultipartIds[0]);
   });
 });

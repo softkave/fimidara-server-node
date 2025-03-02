@@ -2,9 +2,9 @@ import {first, flatten, uniq} from 'lodash-es';
 import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {expect} from 'vitest';
 import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../../contexts/injection/injectables.js';
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../../../../contexts/ijx/injectables.js';
 import {
   DeleteResourceJobParams,
   kJobType,
@@ -110,37 +110,37 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
   [kFimidaraResourceType.jobHistory]: () => Promise.resolve([]),
   [kFimidaraResourceType.script]: () => Promise.resolve([]),
   [kFimidaraResourceType.Workspace]: ({idList}) =>
-    kSemanticModels.workspace().getManyByIdList(idList),
+    kIjxSemantic.workspace().getManyByIdList(idList),
   [kFimidaraResourceType.CollaborationRequest]: ({idList}) =>
-    kSemanticModels.collaborationRequest().getManyByIdList(idList),
+    kIjxSemantic.collaborationRequest().getManyByIdList(idList),
   [kFimidaraResourceType.AgentToken]: ({idList}) =>
-    kSemanticModels.agentToken().getManyByIdList(idList),
+    kIjxSemantic.agentToken().getManyByIdList(idList),
   [kFimidaraResourceType.PermissionGroup]: ({idList}) =>
-    kSemanticModels.permissionGroup().getManyByIdList(idList),
+    kIjxSemantic.permissionGroup().getManyByIdList(idList),
   [kFimidaraResourceType.PermissionItem]: ({idList}) =>
-    kSemanticModels.permissionItem().getManyByIdList(idList),
+    kIjxSemantic.permissionItem().getManyByIdList(idList),
   [kFimidaraResourceType.Folder]: ({idList}) =>
-    kSemanticModels.folder().getManyByIdList(idList),
+    kIjxSemantic.folder().getManyByIdList(idList),
   [kFimidaraResourceType.File]: ({idList}) =>
-    kSemanticModels.file().getManyByIdList(idList),
+    kIjxSemantic.file().getManyByIdList(idList),
   [kFimidaraResourceType.Tag]: ({idList}) =>
-    kSemanticModels.tag().getManyByIdList(idList),
+    kIjxSemantic.tag().getManyByIdList(idList),
   [kFimidaraResourceType.AssignedItem]: ({idList}) =>
-    kSemanticModels.assignedItem().getManyByIdList(idList),
+    kIjxSemantic.assignedItem().getManyByIdList(idList),
   [kFimidaraResourceType.UsageRecord]: ({idList}) =>
-    kSemanticModels.usageRecord().getManyByIdList(idList),
+    kIjxSemantic.usageRecord().getManyByIdList(idList),
   [kFimidaraResourceType.PresignedPath]: ({idList}) =>
-    kSemanticModels.presignedPath().getManyByIdList(idList),
+    kIjxSemantic.presignedPath().getManyByIdList(idList),
   [kFimidaraResourceType.FileBackendMount]: ({idList}) =>
-    kSemanticModels.fileBackendMount().getManyByIdList(idList),
+    kIjxSemantic.fileBackendMount().getManyByIdList(idList),
   [kFimidaraResourceType.FileBackendConfig]: ({idList}) =>
-    kSemanticModels.fileBackendConfig().getManyByIdList(idList),
+    kIjxSemantic.fileBackendConfig().getManyByIdList(idList),
   [kFimidaraResourceType.ResolvedMountEntry]: ({idList}) =>
-    kSemanticModels.resolvedMountEntry().getManyByIdList(idList),
+    kIjxSemantic.resolvedMountEntry().getManyByIdList(idList),
   [kFimidaraResourceType.emailMessage]: ({idList}) =>
-    kSemanticModels.emailMessage().getManyByIdList(idList),
+    kIjxSemantic.emailMessage().getManyByIdList(idList),
   [kFimidaraResourceType.emailBlocklist]: ({idList}) =>
-    kSemanticModels.emailBlocklist().getManyByIdList(idList),
+    kIjxSemantic.emailBlocklist().getManyByIdList(idList),
 };
 
 async function fetchTypeChildrenWithDef(props: {
@@ -239,7 +239,7 @@ export async function testDeleteResourceArtifactsJob<
   );
 
   await runDeleteResourceJob(job);
-  await kUtilsInjectables.promises().flush();
+  await kIkxUtils.promises().flush();
 
   const getArtifactsMap = getArtifactTypes.reduce(
     (acc, type) => {
@@ -257,7 +257,7 @@ export async function testDeleteResourceArtifactsJob<
       idMap,
       forTypes: deleteArtifactTypes as FimidaraResourceType[],
     }),
-    kSemanticModels.job().getManyByQuery({
+    kIjxSemantic.job().getManyByQuery({
       shard: job.shard,
       parentJobId: job.resourceId,
       priority: job.priority,

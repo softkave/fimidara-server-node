@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {DeleteResourceJobParams, kJobType} from '../../../definitions/job.js';
 import {
@@ -44,7 +44,7 @@ export async function softDeleteFile(props: {
   opts: SemanticProviderMutationParams;
 }) {
   const {resources, agent, opts} = props;
-  await kSemanticModels
+  await kIjxSemantic
     .file()
     .softDeleteManyByIdList(extractResourceIdList(resources), agent, opts);
 }
@@ -56,7 +56,7 @@ export async function beginDeleteFile(props: {
   parentJobId?: string;
 }) {
   const {workspaceId, resources, agent, parentJobId} = props;
-  const jobs = await kSemanticModels.utils().withTxn(async opts => {
+  const jobs = await kIjxSemantic.utils().withTxn(async opts => {
     const [, jobs] = await Promise.all([
       softDeleteFile({resources, agent, opts}),
       queueDeletFileJob({workspaceId, resources, agent, parentJobId, opts}),

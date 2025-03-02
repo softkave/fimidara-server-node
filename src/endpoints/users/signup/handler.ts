@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getLoginResult} from '../login/utils.js';
 import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
@@ -11,11 +8,11 @@ import {signupJoiSchema} from './validation.js';
 
 const signup: SignupEndpoint = async reqData => {
   const data = validate(reqData.data, signupJoiSchema);
-  const user = await kSemanticModels
+  const user = await kIjxSemantic
     .utils()
     .withTxn(opts => INTERNAL_signupUser(data, {}, opts));
 
-  kUtilsInjectables
+  kIkxUtils
     .promises()
     .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   return await getLoginResult(user);

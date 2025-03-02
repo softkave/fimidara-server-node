@@ -4,7 +4,7 @@ import {
   sortStringListLexicographically,
 } from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
@@ -49,7 +49,7 @@ describe('getWorkspaceCollaborators', () => {
 
     assertEndpointResultOk(result);
     const updatedUser = await populateUserWorkspaces(
-      await kSemanticModels
+      await kIjxSemantic
         .user()
         .assertGetOneByQuery({resourceId: user.resourceId})
     );
@@ -68,7 +68,7 @@ describe('getWorkspaceCollaborators', () => {
       seedCount
     );
     seedUsers.push(rawUser);
-    const count = await kSemanticModels
+    const count = await kIjxSemantic
       .assignedItem()
       .countByQuery(
         AssignedItemQueries.getByAssignedItem(

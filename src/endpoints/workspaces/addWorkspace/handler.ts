@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {
@@ -16,7 +13,7 @@ import {addWorkspaceJoiSchema} from './validation.js';
 
 const addWorkspace: AddWorkspaceEndpoint = async reqData => {
   const data = validate(reqData.data, addWorkspaceJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -32,7 +29,7 @@ const addWorkspace: AddWorkspaceEndpoint = async reqData => {
     throw new EmailAddressNotVerifiedError();
   }
 
-  const {workspace} = await kSemanticModels.utils().withTxn(async opts => {
+  const {workspace} = await kIjxSemantic.utils().withTxn(async opts => {
     appAssert(agent.user, new PermissionDeniedError());
     return await INTERNAL_createWorkspace(
       data,

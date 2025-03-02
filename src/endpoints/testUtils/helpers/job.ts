@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {first} from 'lodash-es';
 import {expect} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Job, JobStatus, kJobStatus} from '../../../definitions/job.js';
 import {runJob} from '../../jobs/runJob.js';
 
@@ -11,7 +11,7 @@ export async function executeShardJobs(shard: string) {
   let jobs: Job[] = [];
 
   do {
-    jobs = await kSemanticModels
+    jobs = await kIjxSemantic
       .job()
       .getManyByQuery({shard, status: kJobStatus.pending});
 
@@ -23,7 +23,7 @@ export async function executeShardJobs(shard: string) {
 }
 
 export async function confirmJobHistoryEntry(job: Job, status?: JobStatus) {
-  const jobHistoryList = await kSemanticModels
+  const jobHistoryList = await kIjxSemantic
     .jobHistory()
     .getManyByQuery(
       {jobId: job.resourceId, status: status || job.status},

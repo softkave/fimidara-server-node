@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {getWorkspaceFromFileOrFilepath} from '../utils.js';
 import {checkoutFileForUpload} from './checkoutFileForUpload.js';
@@ -10,7 +10,7 @@ export async function prepareFileForUpload(
   data: UploadFileEndpointParams,
   agent: SessionAgent
 ) {
-  const firstAttempt = await kSemanticModels.utils().withTxn(async opts => {
+  const firstAttempt = await kIjxSemantic.utils().withTxn(async opts => {
     const {file: existingFile, presignedPath} = await tryGetFile(data, opts);
     const workspace = await getWorkspaceFromFileOrFilepath(
       existingFile,

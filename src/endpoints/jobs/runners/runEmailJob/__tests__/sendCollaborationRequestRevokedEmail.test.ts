@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
-import {kUtilsInjectables} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+import {kIkxUtils} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {kCollaborationRequestRevokedEmail} from '../../../../../emailTemplates/collaborationRequestRevoked.js';
@@ -37,7 +37,7 @@ describe('sendCollaborationRequestRevokedEmail', () => {
       })
     );
     const testEmailProvider = new MockTestEmailProviderContext();
-    kRegisterUtilsInjectables.email(testEmailProvider);
+    kRegisterIjxUtils.email(testEmailProvider);
 
     await sendCollaborationRequestRevokedEmail(
       getNewIdForResource(kFimidaraResourceType.Job),
@@ -59,8 +59,6 @@ describe('sendCollaborationRequestRevokedEmail', () => {
     expect(params.subject).toBe(
       kCollaborationRequestRevokedEmail.title(workspace.name)
     );
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().senderEmailAddress
-    );
+    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
   });
 });

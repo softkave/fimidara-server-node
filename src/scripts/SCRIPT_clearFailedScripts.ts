@@ -1,8 +1,8 @@
-import {kSemanticModels} from '../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../contexts/ijx/injectables.js';
 
 export default async function SCRIPT_clearFailedScripts() {
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels.script().deleteFailedScripts(opts);
-    await kSemanticModels.script().deleteStaleScripts(opts);
+  await kIjxSemantic.utils().withTxn(async opts => {
+    await kIjxSemantic.script().deleteFailedScripts(opts);
+    await kIjxSemantic.script().deleteStaleScripts(opts);
   });
 }

@@ -6,10 +6,7 @@ import {
   FilePersistenceProvider,
   PersistedFolderDescription,
 } from '../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
@@ -35,11 +32,11 @@ async function setContinuationTokenInJob(
     'getContentContinuationToken'
   >
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const latestJob: Pick<
       Job<AnyObject, IngestFolderpathJobMeta>,
       'meta'
-    > | null = await kSemanticModels
+    > | null = await kIjxSemantic
       .job()
       .getOneById(job.resourceId, {...opts, projection: {meta: true}});
 
@@ -52,7 +49,7 @@ async function setContinuationTokenInJob(
       // TODO: implement a way to update specific fields without overwriting
       // existing data, and without needing to get data from DB like we're
       // doing here
-      await kSemanticModels.job().updateOneById(job.resourceId, update, opts);
+      await kIjxSemantic.job().updateOneById(job.resourceId, update, opts);
     }
 
     return latestJob;
@@ -94,9 +91,7 @@ async function ingestFolderpathContents(
 
   let result: FilePersistenceDescribeFolderContentResult<any, any> | undefined;
   let continuationToken = job.meta?.getContentContinuationToken;
-  const workspace = await kSemanticModels
-    .workspace()
-    .getOneById(job.workspaceId);
+  const workspace = await kIjxSemantic.workspace().getOneById(job.workspaceId);
   appAssert(workspace, 'Workspace not found for job');
 
   const ingestFrom = job.params.ingestFrom;
@@ -110,7 +105,7 @@ async function ingestFolderpathContents(
       workspaceId: mount.workspaceId,
     });
     continuationToken = result?.continuationToken;
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       setContinuationTokenInJob(job, {
         getContentContinuationToken: result?.continuationToken,
       })
@@ -119,7 +114,7 @@ async function ingestFolderpathContents(
       ingestPersistedFolders(agent, workspace, result.folders),
       ingestPersistedFiles(agent, workspace, result.files),
     ]);
-    kUtilsInjectables
+    kIkxUtils
       .promises()
       .callAndForget(() => queueIngestFolderJobFor(job, result?.folders ?? []));
   } while (
@@ -134,12 +129,10 @@ export async function runIngestFolderpathJob(job: Job) {
   appAssert(job.createdBy, 'agent not present in job');
 
   const [mount, agent, job_] = await Promise.all([
-    kSemanticModels.fileBackendMount().getOneById(job.params.mountId),
-    kUtilsInjectables
-      .session()
-      .getAgentByAgentTokenId(job.createdBy.agentTokenId),
+    kIjxSemantic.fileBackendMount().getOneById(job.params.mountId),
+    kIkxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
     // Refetch job so as to use latest continuation token set in meta
-    kSemanticModels.job().getOneById(job.resourceId),
+    kIjxSemantic.job().getOneById(job.resourceId),
   ]);
 
   if (job_) {

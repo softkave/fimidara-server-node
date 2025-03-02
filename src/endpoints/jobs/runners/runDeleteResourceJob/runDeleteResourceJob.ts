@@ -1,9 +1,6 @@
 import assert from 'assert';
 import {AnyObject} from 'softkave-js-utils';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../../contexts/semantic/types.js';
 import {
   DeleteResourceCascadeFnDefaultArgs,
@@ -98,7 +95,7 @@ async function getArtifactsAndQueueDeleteJobs(
     );
 
     page += 1;
-    kUtilsInjectables
+    kIkxUtils
       .promises()
       .callAndForget(() =>
         setDeleteJobGetArtifactsMeta(helpers.job, type, page, pageSize)
@@ -156,7 +153,7 @@ async function processDeleteArtifactsFromDef(
 
     if (deleteFn && !skipTypes.includes(type as FimidaraResourceType)) {
       await deleteFn({args, helpers, preRunMeta});
-      kUtilsInjectables
+      kIkxUtils
         .promises()
         .callAndForget(() =>
           setDeleteJobDeleteArtifactsMeta(
@@ -181,7 +178,7 @@ export async function runDeleteResourceJob(job: Job) {
   const helperFns: DeleteResourceCascadeFnHelpers = {
     job: job as Job<DeleteResourceJobParams, DeleteResourceJobMeta>,
     async withTxn(fn: AnyFn<[SemanticProviderMutationParams]>) {
-      await kSemanticModels.utils().withTxn(opts => fn(opts));
+      await kIjxSemantic.utils().withTxn(opts => fn(opts));
     },
   };
 

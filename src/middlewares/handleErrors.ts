@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import pkg from 'jsonwebtoken';
 import {isObject} from 'lodash-es';
 import {AnyFn, AnyObject} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../contexts/injection/injectables.js';
+import {kIkxUtils} from '../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../endpoints/constants.js';
 import {
   CredentialsExpiredError,
@@ -50,7 +50,7 @@ export function handleErrors(
     return;
   }
 
-  kUtilsInjectables.logger().error(err);
+  kIkxUtils.logger().error(err);
   const JWTError = resolveJWTError(err);
   if (JWTError) {
     res.status(kEndpointConstants.httpStatusCode.unauthorized).json({

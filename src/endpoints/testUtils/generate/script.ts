@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kJobStatus} from '../../../definitions/job.js';
 import {AppScript} from '../../../definitions/script.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
@@ -41,9 +41,9 @@ export async function generateAndInsertAppScriptListForTest(
   seed: Partial<AppScript> = {}
 ) {
   const items = generateAppScriptListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.script().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.script().insertItem(items, opts));
 
   return items;
 }

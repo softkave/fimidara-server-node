@@ -1,9 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {objectHasData} from '../../../utils/fns.js';
@@ -25,14 +22,14 @@ import {updateFileDetailsJoiSchema} from './validation.js';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
   const data = validate(reqData.data, updateFileDetailsJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  const file = await kSemanticModels.utils().withTxn(async opts => {
+  const file = await kIjxSemantic.utils().withTxn(async opts => {
     let file = await getAndCheckFileAuthorization({
       agent,
       opts,
@@ -42,7 +39,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
     });
 
     if (objectHasData(omit(data.file, 'tags'))) {
-      const updatedFile = await kSemanticModels.file().getAndUpdateOneById(
+      const updatedFile = await kIjxSemantic.file().getAndUpdateOneById(
         file.resourceId,
         {
           ...data.file,
@@ -56,7 +53,7 @@ const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
       file = updatedFile;
     }
 
-    const workspace = await kSemanticModels
+    const workspace = await kIjxSemantic
       .workspace()
       .getOneById(file.workspaceId);
     assertWorkspace(workspace);

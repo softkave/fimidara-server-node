@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
@@ -64,7 +64,7 @@ async function updateFolderBaseTest(
   assertEndpointResultOk(result);
   expect(result.folder.resourceId).toEqual(folder.resourceId);
   expect(result.folder).toMatchObject(folderExtractor(updateInput));
-  const savedFolder = await kSemanticModels
+  const savedFolder = await kIjxSemantic
     .folder()
     .assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(folder.resourceId)

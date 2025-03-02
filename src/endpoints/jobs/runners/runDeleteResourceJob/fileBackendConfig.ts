@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {
   genericDeleteArtifacts,
@@ -22,13 +19,13 @@ const deleteResourceFn: DeleteResourceFn<
   DeleteFileBackendConfigPreRunMeta
 > = async ({args, helpers, preRunMeta}) => {
   if (preRunMeta.secretId) {
-    await kUtilsInjectables
+    await kIkxUtils
       .secretsManager()
       .deleteSecret({secretId: preRunMeta.secretId});
   }
 
   await helpers.withTxn(opts =>
-    kSemanticModels.fileBackendConfig().deleteOneById(args.resourceId, opts)
+    kIjxSemantic.fileBackendConfig().deleteOneById(args.resourceId, opts)
   );
 };
 
@@ -36,7 +33,7 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
   DeleteResourceCascadeFnDefaultArgs,
   DeleteFileBackendConfigPreRunMeta
 > = async ({args}) => {
-  const config = await kSemanticModels
+  const config = await kIjxSemantic
     .fileBackendConfig()
     .getOneById(args.resourceId, {includeDeleted: true});
 

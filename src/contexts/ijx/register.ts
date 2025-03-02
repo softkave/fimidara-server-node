@@ -202,8 +202,8 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {UsageProvider} from '../usage/UsageProvider.js';
 import {IUsageContext} from '../usage/types.js';
-import {kDataModels, kUtilsInjectables} from './injectables.js';
-import {kInjectionKeys} from './keys.js';
+import {kIjxData, kIkxUtils} from './injectables.js';
+import {kIjxKeys} from './keys.js';
 
 function registerToken(
   token: string,
@@ -215,346 +215,325 @@ function registerToken(
     container.register(token, {useFactory: item as AnyFn});
   } else {
     if (isFunction((item as DisposableResource | undefined)?.dispose)) {
-      kUtilsInjectables.disposables().add(item as DisposableResource);
+      kIkxUtils.disposables().add(item as DisposableResource);
     }
 
     container.register(token, {useValue: item});
   }
 }
 
-export const kRegisterSemanticModels = {
+export const kRegisterIjxSemantic = {
   user: (item: SemanticUserProviderType) =>
-    registerToken(kInjectionKeys.semantic.user, item),
+    registerToken(kIjxKeys.semantic.user, item),
   file: (item: SemanticFileProvider) =>
-    registerToken(kInjectionKeys.semantic.file, item),
+    registerToken(kIjxKeys.semantic.file, item),
   agentToken: (item: SemanticAgentTokenProvider) =>
-    registerToken(kInjectionKeys.semantic.agentToken, item),
+    registerToken(kIjxKeys.semantic.agentToken, item),
   folder: (item: SemanticFolderProvider) =>
-    registerToken(kInjectionKeys.semantic.folder, item),
+    registerToken(kIjxKeys.semantic.folder, item),
   workspace: (item: SemanticWorkspaceProviderType) =>
-    registerToken(kInjectionKeys.semantic.workspace, item),
+    registerToken(kIjxKeys.semantic.workspace, item),
   collaborationRequest: (item: SemanticCollaborationRequestProvider) =>
-    registerToken(kInjectionKeys.semantic.collaborationRequest, item),
+    registerToken(kIjxKeys.semantic.collaborationRequest, item),
   fileBackendConfig: (item: SemanticFileBackendConfigProvider) =>
-    registerToken(kInjectionKeys.semantic.fileBackendConfig, item),
+    registerToken(kIjxKeys.semantic.fileBackendConfig, item),
   fileBackendMount: (item: SemanticFileBackendMountProvider) =>
-    registerToken(kInjectionKeys.semantic.fileBackendMount, item),
+    registerToken(kIjxKeys.semantic.fileBackendMount, item),
   presignedPath: (item: SemanticPresignedPathProvider) =>
-    registerToken(kInjectionKeys.semantic.presignedPath, item),
+    registerToken(kIjxKeys.semantic.presignedPath, item),
   permissions: (item: SemanticPermissionProviderType) =>
-    registerToken(kInjectionKeys.semantic.permissions, item),
+    registerToken(kIjxKeys.semantic.permissions, item),
   permissionGroup: (item: SemanticPermissionGroupProviderType) =>
-    registerToken(kInjectionKeys.semantic.permissionGroup, item),
+    registerToken(kIjxKeys.semantic.permissionGroup, item),
   permissionItem: (item: SemanticPermissionItemProviderType) =>
-    registerToken(kInjectionKeys.semantic.permissionItem, item),
+    registerToken(kIjxKeys.semantic.permissionItem, item),
   tag: (item: SemanticTagProviderType) =>
-    registerToken(kInjectionKeys.semantic.tag, item),
+    registerToken(kIjxKeys.semantic.tag, item),
   assignedItem: (item: SemanticAssignedItemProvider) =>
-    registerToken(kInjectionKeys.semantic.assignedItem, item),
+    registerToken(kIjxKeys.semantic.assignedItem, item),
   job: (item: SemanticJobProvider | AnyFn<[], SemanticJobProvider>) =>
-    registerToken(kInjectionKeys.semantic.job, item),
+    registerToken(kIjxKeys.semantic.job, item),
   usageRecord: (item: SemanticUsageRecordProviderType) =>
-    registerToken(kInjectionKeys.semantic.usageRecord, item),
+    registerToken(kIjxKeys.semantic.usageRecord, item),
   resolvedMountEntry: (item: SemanticResolvedMountEntryProvider) =>
-    registerToken(kInjectionKeys.semantic.resolvedMountEntry, item),
+    registerToken(kIjxKeys.semantic.resolvedMountEntry, item),
   app: (item: SemanticAppProvider) =>
-    registerToken(kInjectionKeys.semantic.app, item),
+    registerToken(kIjxKeys.semantic.app, item),
   emailMessage: (item: SemanticEmailMessageProvider) =>
-    registerToken(kInjectionKeys.semantic.emailMessage, item),
+    registerToken(kIjxKeys.semantic.emailMessage, item),
   emailBlocklist: (item: SemanticEmailBlocklistProvider) =>
-    registerToken(kInjectionKeys.semantic.emailBlocklist, item),
+    registerToken(kIjxKeys.semantic.emailBlocklist, item),
   appShard: (item: SemanticAppShardProvider) =>
-    registerToken(kInjectionKeys.semantic.appShard, item),
+    registerToken(kIjxKeys.semantic.appShard, item),
   jobHistory: (item: SemanticJobHistoryProvider) =>
-    registerToken(kInjectionKeys.semantic.jobHistory, item),
+    registerToken(kIjxKeys.semantic.jobHistory, item),
   utils: (item: SemanticProviderUtils) =>
-    registerToken(kInjectionKeys.semantic.utils, item),
+    registerToken(kIjxKeys.semantic.utils, item),
   script: (item: ISemanticScriptProvider) =>
-    registerToken(kInjectionKeys.semantic.script, item),
+    registerToken(kIjxKeys.semantic.script, item),
 };
 
-export const kRegisterDataModels = {
-  user: (item: UserDataProvider) =>
-    registerToken(kInjectionKeys.data.user, item),
-  file: (item: FileDataProvider) =>
-    registerToken(kInjectionKeys.data.file, item),
+export const kRegisterIjxData = {
+  user: (item: UserDataProvider) => registerToken(kIjxKeys.data.user, item),
+  file: (item: FileDataProvider) => registerToken(kIjxKeys.data.file, item),
   agentToken: (item: AgentTokenDataProvider) =>
-    registerToken(kInjectionKeys.data.agentToken, item),
+    registerToken(kIjxKeys.data.agentToken, item),
   folder: (item: FolderDataProvider) =>
-    registerToken(kInjectionKeys.data.folder, item),
+    registerToken(kIjxKeys.data.folder, item),
   workspace: (item: WorkspaceDataProvider) =>
-    registerToken(kInjectionKeys.data.workspace, item),
+    registerToken(kIjxKeys.data.workspace, item),
   fileBackendConfig: (item: FileBackendConfigDataProvider) =>
-    registerToken(kInjectionKeys.data.fileBackendConfig, item),
+    registerToken(kIjxKeys.data.fileBackendConfig, item),
   fileBackendMount: (item: FileBackendMountDataProvider) =>
-    registerToken(kInjectionKeys.data.fileBackendMount, item),
+    registerToken(kIjxKeys.data.fileBackendMount, item),
   presignedPath: (item: PresignedPathDataProvider) =>
-    registerToken(kInjectionKeys.data.presignedPath, item),
+    registerToken(kIjxKeys.data.presignedPath, item),
   permissionGroup: (item: PermissionGroupDataProvider) =>
-    registerToken(kInjectionKeys.data.permissionGroup, item),
+    registerToken(kIjxKeys.data.permissionGroup, item),
   permissionItem: (item: PermissionItemDataProvider) =>
-    registerToken(kInjectionKeys.data.permissionItem, item),
-  tag: (item: TagDataProvider) => registerToken(kInjectionKeys.data.tag, item),
+    registerToken(kIjxKeys.data.permissionItem, item),
+  tag: (item: TagDataProvider) => registerToken(kIjxKeys.data.tag, item),
   assignedItem: (item: AssignedItemDataProvider) =>
-    registerToken(kInjectionKeys.data.assignedItem, item),
+    registerToken(kIjxKeys.data.assignedItem, item),
   collaborationRequest: (item: CollaborationRequestDataProvider) =>
-    registerToken(kInjectionKeys.data.collaborationRequest, item),
+    registerToken(kIjxKeys.data.collaborationRequest, item),
   usageRecord: (item: UsageRecordDataProvider) =>
-    registerToken(kInjectionKeys.data.usageRecord, item),
-  job: (item: JobDataProvider) => registerToken(kInjectionKeys.data.job, item),
+    registerToken(kIjxKeys.data.usageRecord, item),
+  job: (item: JobDataProvider) => registerToken(kIjxKeys.data.job, item),
   resolvedMountEntry: (item: ResolvedMountEntryDataProvider) =>
-    registerToken(kInjectionKeys.data.resolvedMountEntry, item),
+    registerToken(kIjxKeys.data.resolvedMountEntry, item),
   appRuntimeState: (item: AppRuntimeStateDataProvider) =>
-    registerToken(kInjectionKeys.data.appRuntimeState, item),
-  app: (item: AppDataProvider) => registerToken(kInjectionKeys.data.app, item),
+    registerToken(kIjxKeys.data.appRuntimeState, item),
+  app: (item: AppDataProvider) => registerToken(kIjxKeys.data.app, item),
   emailMessage: (item: EmailMessageDataProvider) =>
-    registerToken(kInjectionKeys.data.emailMessage, item),
+    registerToken(kIjxKeys.data.emailMessage, item),
   emailBlocklist: (item: EmailBlocklistDataProvider) =>
-    registerToken(kInjectionKeys.data.emailBlocklist, item),
+    registerToken(kIjxKeys.data.emailBlocklist, item),
   appShard: (item: AppShardDataProvider) =>
-    registerToken(kInjectionKeys.data.appShard, item),
+    registerToken(kIjxKeys.data.appShard, item),
   jobHistory: (item: JobHistoryDataProvider) =>
-    registerToken(kInjectionKeys.data.jobHistory, item),
-  utils: (item: DataProviderUtils) =>
-    registerToken(kInjectionKeys.data.utils, item),
+    registerToken(kIjxKeys.data.jobHistory, item),
+  utils: (item: DataProviderUtils) => registerToken(kIjxKeys.data.utils, item),
   script: (item: ScriptDataProvider) =>
-    registerToken(kInjectionKeys.data.script, item),
+    registerToken(kIjxKeys.data.script, item),
 };
 
-export const kRegisterUtilsInjectables = {
+export const kRegisterIjxUtils = {
   suppliedConfig: (item: FimidaraSuppliedConfig) =>
-    registerToken(kInjectionKeys.suppliedConfig, item),
+    registerToken(kIjxKeys.suppliedConfig, item),
   runtimeConfig: (item: FimidaraRuntimeConfig) =>
-    registerToken(kInjectionKeys.runtimeConfig, item),
+    registerToken(kIjxKeys.runtimeConfig, item),
   runtimeState: (item: IServerRuntimeState) =>
-    registerToken(kInjectionKeys.runtimeState, item),
+    registerToken(kIjxKeys.runtimeState, item),
   secretsManager: (item: SecretsManagerProvider) =>
-    registerToken(kInjectionKeys.secretsManager, item),
+    registerToken(kIjxKeys.secretsManager, item),
   fileProviderResolver: (item: FileProviderResolver) =>
-    registerToken(kInjectionKeys.fileProviderResolver, item),
+    registerToken(kIjxKeys.fileProviderResolver, item),
   asyncLocalStorage: (item: AsyncLocalStorageUtils) =>
-    registerToken(kInjectionKeys.asyncLocalStorage, item),
-  session: (item: SessionContextType) =>
-    registerToken(kInjectionKeys.session, item),
+    registerToken(kIjxKeys.asyncLocalStorage, item),
+  session: (item: SessionContextType) => registerToken(kIjxKeys.session, item),
   dbConnection: (item: DbConnection) =>
-    registerToken(kInjectionKeys.dbConnection, item),
-  email: (item: IEmailProviderContext) =>
-    registerToken(kInjectionKeys.email, item),
-  promises: (item: PromiseStore) =>
-    registerToken(kInjectionKeys.promises, item),
-  locks: (item: LockStore) => registerToken(kInjectionKeys.locks, item),
+    registerToken(kIjxKeys.dbConnection, item),
+  email: (item: IEmailProviderContext) => registerToken(kIjxKeys.email, item),
+  promises: (item: PromiseStore) => registerToken(kIjxKeys.promises, item),
+  locks: (item: LockStore) => registerToken(kIjxKeys.locks, item),
   disposables: (item: DisposablesStore) =>
-    registerToken(kInjectionKeys.disposables, item),
-  logger: (item: Logger) => registerToken(kInjectionKeys.logger, item),
+    registerToken(kIjxKeys.disposables, item),
+  logger: (item: Logger) => registerToken(kIjxKeys.logger, item),
   shardedRunner: (item: ShardedRunner) =>
-    registerToken(kInjectionKeys.shardedRunner, item),
-  serverApp: (item: FimidaraApp) =>
-    registerToken(kInjectionKeys.serverApp, item),
+    registerToken(kIjxKeys.shardedRunner, item),
+  serverApp: (item: FimidaraApp) => registerToken(kIjxKeys.serverApp, item),
   workerPool: (item: FimidaraWorkerPool) =>
-    registerToken(kInjectionKeys.workerPool, item),
-  queue: (item: IQueueContext) => registerToken(kInjectionKeys.queue, item),
-  pubsub: (item: IPubSubContext) => registerToken(kInjectionKeys.pubsub, item),
-  cache: (item: ICacheContext) => registerToken(kInjectionKeys.cache, item),
-  redlock: (item: IRedlockContext) =>
-    registerToken(kInjectionKeys.redlock, item),
+    registerToken(kIjxKeys.workerPool, item),
+  queue: (item: IQueueContext) => registerToken(kIjxKeys.queue, item),
+  pubsub: (item: IPubSubContext) => registerToken(kIjxKeys.pubsub, item),
+  cache: (item: ICacheContext) => registerToken(kIjxKeys.cache, item),
+  redlock: (item: IRedlockContext) => registerToken(kIjxKeys.redlock, item),
   redis: (item: [RedisClientType, RedisClientType, ...RedisClientType[]]) =>
-    registerToken(kInjectionKeys.redis, item),
-  ioredis: (item: [Redis, ...Redis[]]) =>
-    registerToken(kInjectionKeys.ioredis, item),
-  dset: (item: IDSetContext) => registerToken(kInjectionKeys.dset, item),
-  usage: (item: IUsageContext) => registerToken(kInjectionKeys.usage, item),
+    registerToken(kIjxKeys.redis, item),
+  ioredis: (item: [Redis, ...Redis[]]) => registerToken(kIjxKeys.ioredis, item),
+  dset: (item: IDSetContext) => registerToken(kIjxKeys.dset, item),
+  usage: (item: IUsageContext) => registerToken(kIjxKeys.usage, item),
 };
 
-export function registerDataModelInjectables() {
-  const connection = kUtilsInjectables.dbConnection().get();
+export function registerIjxData() {
+  const connection = kIkxUtils.dbConnection().get();
   appAssert(isMongoConnection(connection));
 
-  kRegisterDataModels.user(new UserMongoDataProvider(getUserModel(connection)));
-  kRegisterDataModels.file(new FileMongoDataProvider(getFileModel(connection)));
-  kRegisterDataModels.agentToken(
+  kRegisterIjxData.user(new UserMongoDataProvider(getUserModel(connection)));
+  kRegisterIjxData.file(new FileMongoDataProvider(getFileModel(connection)));
+  kRegisterIjxData.agentToken(
     new AgentTokenMongoDataProvider(getAgentTokenModel(connection))
   );
-  kRegisterDataModels.folder(
+  kRegisterIjxData.folder(
     new FolderMongoDataProvider(getFolderDatabaseModel(connection))
   );
-  kRegisterDataModels.workspace(
+  kRegisterIjxData.workspace(
     new WorkspaceMongoDataProvider(getWorkspaceModel(connection))
   );
-  kRegisterDataModels.fileBackendConfig(
+  kRegisterIjxData.fileBackendConfig(
     new FileBackendConfigMongoDataProvider(
       getFileBackendConfigModel(connection)
     )
   );
-  kRegisterDataModels.fileBackendMount(
+  kRegisterIjxData.fileBackendMount(
     new FileBackendMountMongoDataProvider(getFileBackendMountModel(connection))
   );
-  kRegisterDataModels.presignedPath(
+  kRegisterIjxData.presignedPath(
     new PresignedPathMongoDataProvider(getPresignedPathMongoModel(connection))
   );
-  kRegisterDataModels.permissionGroup(
+  kRegisterIjxData.permissionGroup(
     new PermissionGroupMongoDataProvider(getPermissionGroupModel(connection))
   );
-  kRegisterDataModels.permissionItem(
+  kRegisterIjxData.permissionItem(
     new PermissionItemMongoDataProvider(getPermissionItemModel(connection))
   );
-  kRegisterDataModels.tag(new TagMongoDataProvider(getTagModel(connection)));
-  kRegisterDataModels.assignedItem(
+  kRegisterIjxData.tag(new TagMongoDataProvider(getTagModel(connection)));
+  kRegisterIjxData.assignedItem(
     new AssignedItemMongoDataProvider(getAssignedItemModel(connection))
   );
-  kRegisterDataModels.job(new JobMongoDataProvider(getJobModel(connection)));
-  kRegisterDataModels.resolvedMountEntry(
+  kRegisterIjxData.job(new JobMongoDataProvider(getJobModel(connection)));
+  kRegisterIjxData.resolvedMountEntry(
     new ResolvedMountEntryMongoDataProvider(
       getResolvedMountEntryModel(connection)
     )
   );
-  kRegisterDataModels.appRuntimeState(
+  kRegisterIjxData.appRuntimeState(
     new AppRuntimeStateMongoDataProvider(getAppRuntimeStateModel(connection))
   );
-  kRegisterDataModels.collaborationRequest(
+  kRegisterIjxData.collaborationRequest(
     new CollaborationRequestMongoDataProvider(
       getCollaborationRequestModel(connection)
     )
   );
-  kRegisterDataModels.usageRecord(
+  kRegisterIjxData.usageRecord(
     new UsageRecordMongoDataProvider(getUsageRecordModel(connection))
   );
-  kRegisterDataModels.app(
-    new AppMongoDataProvider(getAppMongoModel(connection))
-  );
-  kRegisterDataModels.emailMessage(
+  kRegisterIjxData.app(new AppMongoDataProvider(getAppMongoModel(connection)));
+  kRegisterIjxData.emailMessage(
     new EmailMessageMongoDataProvider(getEmailMessageModel(connection))
   );
-  kRegisterDataModels.emailBlocklist(
+  kRegisterIjxData.emailBlocklist(
     new EmailBlocklistMongoDataProvider(getEmailBlocklistModel(connection))
   );
-  kRegisterDataModels.appShard(
+  kRegisterIjxData.appShard(
     new AppShardMongoDataProvider(getAppShardMongoModel(connection))
   );
-  kRegisterDataModels.jobHistory(
+  kRegisterIjxData.jobHistory(
     new JobHistoryMongoDataProvider(getJobHistoryMongoModel(connection))
   );
-  kRegisterDataModels.utils(new MongoDataProviderUtils());
-  kRegisterDataModels.script(
+  kRegisterIjxData.utils(new MongoDataProviderUtils());
+  kRegisterIjxData.script(
     new ScriptMongoDataProvider(getScriptMongoModel(connection))
   );
 }
 
-export function registerSemanticModelInjectables() {
-  kRegisterSemanticModels.user(
-    new DataSemanticUser(kDataModels.user(), assertUser)
+export function registerIjxSemantic() {
+  kRegisterIjxSemantic.user(new DataSemanticUser(kIjxData.user(), assertUser));
+  kRegisterIjxSemantic.file(new DataSemanticFile(kIjxData.file(), assertFile));
+  kRegisterIjxSemantic.agentToken(
+    new DataSemanticAgentToken(kIjxData.agentToken(), assertAgentToken)
   );
-  kRegisterSemanticModels.file(
-    new DataSemanticFile(kDataModels.file(), assertFile)
+  kRegisterIjxSemantic.folder(
+    new DataSemanticFolder(kIjxData.folder(), assertFolder)
   );
-  kRegisterSemanticModels.agentToken(
-    new DataSemanticAgentToken(kDataModels.agentToken(), assertAgentToken)
+  kRegisterIjxSemantic.workspace(
+    new DataSemanticWorkspace(kIjxData.workspace(), assertWorkspace)
   );
-  kRegisterSemanticModels.folder(
-    new DataSemanticFolder(kDataModels.folder(), assertFolder)
-  );
-  kRegisterSemanticModels.workspace(
-    new DataSemanticWorkspace(kDataModels.workspace(), assertWorkspace)
-  );
-  kRegisterSemanticModels.collaborationRequest(
+  kRegisterIjxSemantic.collaborationRequest(
     new DataSemanticCollaborationRequest(
-      kDataModels.collaborationRequest(),
+      kIjxData.collaborationRequest(),
       assertCollaborationRequest
     )
   );
-  kRegisterSemanticModels.fileBackendConfig(
+  kRegisterIjxSemantic.fileBackendConfig(
     new DataSemanticFileBackendConfig(
-      kDataModels.fileBackendConfig(),
+      kIjxData.fileBackendConfig(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.fileBackendMount(
+  kRegisterIjxSemantic.fileBackendMount(
     new DataSemanticFileBackendMount(
-      kDataModels.fileBackendMount(),
+      kIjxData.fileBackendMount(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.presignedPath(
+  kRegisterIjxSemantic.presignedPath(
     new DataSemanticPresignedPathProvider(
-      kDataModels.presignedPath(),
+      kIjxData.presignedPath(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.permissions(new DataSemanticPermission());
-  kRegisterSemanticModels.permissionGroup(
+  kRegisterIjxSemantic.permissions(new DataSemanticPermission());
+  kRegisterIjxSemantic.permissionGroup(
     new DataSemanticPermissionGroup(
-      kDataModels.permissionGroup(),
+      kIjxData.permissionGroup(),
       assertPermissionGroup
     )
   );
-  kRegisterSemanticModels.permissionItem(
+  kRegisterIjxSemantic.permissionItem(
     new DataSemanticPermissionItem(
-      kDataModels.permissionItem(),
+      kIjxData.permissionItem(),
       assertPermissionItem
     )
   );
-  kRegisterSemanticModels.tag(
-    new DataSemanticTag(kDataModels.tag(), assertTag)
+  kRegisterIjxSemantic.tag(new DataSemanticTag(kIjxData.tag(), assertTag));
+  kRegisterIjxSemantic.assignedItem(
+    new DataSemanticAssignedItem(kIjxData.assignedItem(), assertNotFound)
   );
-  kRegisterSemanticModels.assignedItem(
-    new DataSemanticAssignedItem(kDataModels.assignedItem(), assertNotFound)
+  kRegisterIjxSemantic.job(new DataSemanticJob(kIjxData.job(), assertNotFound));
+  kRegisterIjxSemantic.usageRecord(
+    new DataSemanticUsageRecord(kIjxData.usageRecord(), assertUsageRecord)
   );
-  kRegisterSemanticModels.job(
-    new DataSemanticJob(kDataModels.job(), assertNotFound)
-  );
-  kRegisterSemanticModels.usageRecord(
-    new DataSemanticUsageRecord(kDataModels.usageRecord(), assertUsageRecord)
-  );
-  kRegisterSemanticModels.resolvedMountEntry(
+  kRegisterIjxSemantic.resolvedMountEntry(
     new DataSemanticResolvedMountEntry(
-      kDataModels.resolvedMountEntry(),
+      kIjxData.resolvedMountEntry(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.app(
-    new DataSemanticApp(kDataModels.app(), assertNotFound)
-  );
-  kRegisterSemanticModels.emailMessage(
+  kRegisterIjxSemantic.app(new DataSemanticApp(kIjxData.app(), assertNotFound));
+  kRegisterIjxSemantic.emailMessage(
     new SemanticEmailMessageProviderImpl(
-      kDataModels.emailMessage(),
+      kIjxData.emailMessage(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.emailBlocklist(
+  kRegisterIjxSemantic.emailBlocklist(
     new SemanticEmailBlocklistProviderImpl(
-      kDataModels.emailBlocklist(),
+      kIjxData.emailBlocklist(),
       assertNotFound
     )
   );
-  kRegisterSemanticModels.appShard(
-    new SemanticAppShardProviderImpl(kDataModels.appShard(), assertNotFound)
+  kRegisterIjxSemantic.appShard(
+    new SemanticAppShardProviderImpl(kIjxData.appShard(), assertNotFound)
   );
-  kRegisterSemanticModels.jobHistory(
-    new DataSemanticJobHistory(kDataModels.jobHistory(), assertNotFound)
+  kRegisterIjxSemantic.jobHistory(
+    new DataSemanticJobHistory(kIjxData.jobHistory(), assertNotFound)
   );
-  kRegisterSemanticModels.utils(new DataSemanticProviderUtils());
-  kRegisterSemanticModels.script(
-    new SemanticScriptProvider(kDataModels.script(), assertNotFound)
+  kRegisterIjxSemantic.utils(new DataSemanticProviderUtils());
+  kRegisterIjxSemantic.script(
+    new SemanticScriptProvider(kIjxData.script(), assertNotFound)
   );
 }
 
-export async function registerUtilsInjectables(
+export async function registerIjxUtils(
   overrideConfig: FimidaraSuppliedConfig = {}
 ) {
   const suppliedConfig = {...getSuppliedConfig(), ...overrideConfig};
   const promiseStore = new PromiseStore();
 
-  kRegisterUtilsInjectables.runtimeState(construct<IServerRuntimeState>());
-  kRegisterUtilsInjectables.suppliedConfig(suppliedConfig);
-  kRegisterUtilsInjectables.promises(promiseStore);
-  kRegisterUtilsInjectables.disposables(new DisposablesStore(promiseStore));
-  kRegisterUtilsInjectables.asyncLocalStorage(kAsyncLocalStorageUtils);
-  kRegisterUtilsInjectables.locks(new LockStore());
-  kRegisterUtilsInjectables.logger(getLogger(suppliedConfig.loggerType));
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.session(new SessionContext());
+  kRegisterIjxUtils.runtimeState(construct<IServerRuntimeState>());
+  kRegisterIjxUtils.suppliedConfig(suppliedConfig);
+  kRegisterIjxUtils.promises(promiseStore);
+  kRegisterIjxUtils.disposables(new DisposablesStore(promiseStore));
+  kRegisterIjxUtils.asyncLocalStorage(kAsyncLocalStorageUtils);
+  kRegisterIjxUtils.locks(new LockStore());
+  kRegisterIjxUtils.logger(getLogger(suppliedConfig.loggerType));
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.session(new SessionContext());
 
   const shardedRunner = new ShardedRunner();
-  kRegisterUtilsInjectables.shardedRunner(shardedRunner);
+  kRegisterIjxUtils.shardedRunner(shardedRunner);
 
   if (suppliedConfig.useFimidaraApp) {
     const serverApp = new FimidaraApp({
@@ -566,10 +545,10 @@ export async function registerUtilsInjectables(
         suppliedConfig.activeAppHeartbeatDelayFactor,
     });
 
-    kRegisterUtilsInjectables.serverApp(serverApp);
+    kRegisterIjxUtils.serverApp(serverApp);
 
     if (suppliedConfig.useFimidaraWorkerPool) {
-      kRegisterUtilsInjectables.workerPool(
+      kRegisterIjxUtils.workerPool(
         new FimidaraWorkerPool({
           server: serverApp,
           workerCount: suppliedConfig.runnerCount,
@@ -584,43 +563,41 @@ export async function registerUtilsInjectables(
   ) {
     assert(suppliedConfig.mongoDbURI);
     assert(suppliedConfig.mongoDbDatabaseName);
-    kRegisterUtilsInjectables.dbConnection(
+    kRegisterIjxUtils.dbConnection(
       new MongoDbConnection(
         suppliedConfig.mongoDbURI,
         suppliedConfig.mongoDbDatabaseName
       )
     );
   } else {
-    kRegisterUtilsInjectables.dbConnection(new NoopDbConnection());
+    kRegisterIjxUtils.dbConnection(new NoopDbConnection());
   }
 
-  const {redisURL} = kUtilsInjectables.suppliedConfig();
+  const {redisURL} = kIkxUtils.suppliedConfig();
   if (redisURL) {
     const redis = await getRedis();
     const ioRedis = await getIoRedis();
     const redis2 = await getRedis();
-    kRegisterUtilsInjectables.redis([redis, redis2]);
-    kRegisterUtilsInjectables.ioredis([ioRedis]);
+    kRegisterIjxUtils.redis([redis, redis2]);
+    kRegisterIjxUtils.ioredis([ioRedis]);
   }
 
-  kRegisterUtilsInjectables.email(getEmailProvider(suppliedConfig));
-  kRegisterUtilsInjectables.secretsManager(getSecretsProvider(suppliedConfig));
-  kRegisterUtilsInjectables.queue(await getQueueContext(suppliedConfig));
-  kRegisterUtilsInjectables.pubsub(await getPubSubContext(suppliedConfig));
-  kRegisterUtilsInjectables.cache(await getCacheContext(suppliedConfig));
-  kRegisterUtilsInjectables.redlock(await getRedlockContext(suppliedConfig));
-  kRegisterUtilsInjectables.dset(await getDSetContext(suppliedConfig));
-  kRegisterUtilsInjectables.usage(new UsageProvider());
+  kRegisterIjxUtils.email(getEmailProvider(suppliedConfig));
+  kRegisterIjxUtils.secretsManager(getSecretsProvider(suppliedConfig));
+  kRegisterIjxUtils.queue(await getQueueContext(suppliedConfig));
+  kRegisterIjxUtils.pubsub(await getPubSubContext(suppliedConfig));
+  kRegisterIjxUtils.cache(await getCacheContext(suppliedConfig));
+  kRegisterIjxUtils.redlock(await getRedlockContext(suppliedConfig));
+  kRegisterIjxUtils.dset(await getDSetContext(suppliedConfig));
+  kRegisterIjxUtils.usage(new UsageProvider());
 }
 
-export async function registerInjectables(
-  overrideConfig: FimidaraSuppliedConfig = {}
-) {
-  await registerUtilsInjectables(overrideConfig);
-  registerDataModelInjectables();
-  registerSemanticModelInjectables();
+export async function registerIjx(overrideConfig: FimidaraSuppliedConfig = {}) {
+  await registerIjxUtils(overrideConfig);
+  registerIjxData();
+  registerIjxSemantic();
 }
 
-export function clearInjectables() {
+export function clearIjx() {
   container.reset();
 }

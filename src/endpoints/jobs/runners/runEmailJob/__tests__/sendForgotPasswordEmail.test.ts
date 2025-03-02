@@ -2,10 +2,10 @@ import {first} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
 import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../../contexts/injection/register.js';
+  kIjxSemantic,
+  kIkxUtils,
+} from '../../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {
   kFimidaraResourceType,
@@ -45,7 +45,7 @@ describe('sendForgotPasswordEmail', () => {
     );
 
     const testEmailProvider = new MockTestEmailProviderContext();
-    kRegisterUtilsInjectables.email(testEmailProvider);
+    kRegisterIjxUtils.email(testEmailProvider);
 
     await sendForgotPasswordEmail(
       getNewIdForResource(kFimidaraResourceType.Job),
@@ -64,17 +64,15 @@ describe('sendForgotPasswordEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kForgotPasswordEmailArtifacts.title);
-    expect(params.source).toBe(
-      kUtilsInjectables.suppliedConfig().senderEmailAddress
-    );
+    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
 
     const [dbExistingForgotTokens, dbNewForgotTokens] = await Promise.all([
-      kSemanticModels.agentToken().getManyByQuery({
+      kIjxSemantic.agentToken().getManyByQuery({
         forEntityId: user.resourceId,
         isDeleted: true,
         scope: kTokenAccessScope.changePassword,
       }),
-      kSemanticModels.agentToken().getManyByQuery({
+      kIjxSemantic.agentToken().getManyByQuery({
         forEntityId: user.resourceId,
         isDeleted: false,
         scope: kTokenAccessScope.changePassword,

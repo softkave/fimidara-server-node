@@ -4,7 +4,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../contexts/file/types.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -268,8 +268,8 @@ export async function generateAndInsertFileBackendMountListForTest(
   count = 20,
   seed: Partial<FileBackendMount> = {}
 ) {
-  const mountModel = kSemanticModels.fileBackendMount();
-  const semanticUtils = kSemanticModels.utils();
+  const mountModel = kIjxSemantic.fileBackendMount();
+  const semanticUtils = kIjxSemantic.utils();
 
   const items = generateFileBackendMountListForTest(count, seed);
   await semanticUtils.withTxn(async opts => mountModel.insertItem(items, opts));
@@ -280,8 +280,8 @@ export async function generateAndInsertFileBackendConfigListForTest(
   count = 20,
   seed: Partial<FileBackendConfig> = {}
 ) {
-  const configModel = kSemanticModels.fileBackendConfig();
-  const semanticUtils = kSemanticModels.utils();
+  const configModel = kIjxSemantic.fileBackendConfig();
+  const semanticUtils = kIjxSemantic.utils();
 
   const items = generateFileBackendConfigListForTest(count, seed);
   await semanticUtils.withTxn(async opts =>
@@ -294,10 +294,10 @@ export async function generateAndInsertResolvedMountEntryListForTest(
   count = 20,
   seed: Partial<ResolvedMountEntry> = {}
 ) {
-  const model = kSemanticModels.resolvedMountEntry();
+  const model = kIjxSemantic.resolvedMountEntry();
   const items = generateResolvedMountEntryListForTest(count, seed);
 
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts => model.insertItem(items, opts));
 

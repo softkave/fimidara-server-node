@@ -1,5 +1,5 @@
 import {expect} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {getInAndNinQuery} from '../../../contexts/semantic/utils.js';
 import {
   FimidaraPermissionAction,
@@ -19,7 +19,7 @@ export async function expectEntityHasPermissionsTargetingId(
   // implementation is not factoring in appliesTo
 
   // fetch permission items
-  const items = await kSemanticModels.permissionItem().getManyByQuery({
+  const items = await kIjxSemantic.permissionItem().getManyByQuery({
     ...getInAndNinQuery<PermissionItem>('entityId', entityId),
     ...getInAndNinQuery<PermissionItem>('action', action),
     ...getInAndNinQuery<PermissionItem>('targetId', targetId),
@@ -51,7 +51,7 @@ export async function expectEntityHasPermissionsTargetingType(
   result: boolean
 ) {
   // fetch permission items
-  const items = await kSemanticModels.permissionItem().getManyByQuery({
+  const items = await kIjxSemantic.permissionItem().getManyByQuery({
     ...getInAndNinQuery<PermissionItem>('entityId', entityId),
     ...getInAndNinQuery<PermissionItem>('action', action),
     ...getInAndNinQuery<PermissionItem>('targetType', targetType),

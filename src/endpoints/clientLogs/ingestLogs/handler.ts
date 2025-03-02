@@ -1,11 +1,11 @@
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {IngestLogsEndpoint} from './types.js';
 import {ingestLogsJoiSchema} from './validation.js';
 
 const ingestLogs: IngestLogsEndpoint = async reqData => {
   const data = validate(reqData.data, ingestLogsJoiSchema);
-  data.logs.forEach(log => kUtilsInjectables.logger().log(log));
+  data.logs.forEach(log => kIkxUtils.logger().log(log));
 };
 
 export default ingestLogs;

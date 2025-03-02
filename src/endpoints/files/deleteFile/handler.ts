@@ -1,9 +1,6 @@
 import {first} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Job} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -17,7 +14,7 @@ import {deleteFileJoiSchema} from './validation.js';
 
 const deleteFile: DeleteFileEndpoint = async reqData => {
   const data = validate(reqData.data, deleteFileJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -25,7 +22,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const file = await kSemanticModels.utils().withTxn(async opts => {
+  const file = await kIjxSemantic.utils().withTxn(async opts => {
     return await getAndCheckFileAuthorization({
       action: kFimidaraPermissionActions.deleteFile,
       incrementPresignedPathUsageCount: true,

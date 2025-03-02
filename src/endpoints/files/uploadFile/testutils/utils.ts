@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {expect} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {PublicWorkspace, Workspace} from '../../../../definitions/workspace.js';
 import {addRootnameToPath} from '../../../folders/utils.js';
 import EndpointReusableQueries from '../../../queries.js';
@@ -53,7 +53,7 @@ export const uploadFileBaseTest = async (params: {
   });
 
   const {file} = insertFileResult;
-  const savedFile = await kSemanticModels
+  const savedFile = await kIjxSemantic
     .file()
     .assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(file.resourceId)

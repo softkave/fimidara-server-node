@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
   Agent,
@@ -50,10 +50,8 @@ export async function generateAndInsertAgentTokenListForTest(
   seed: Partial<AgentToken> & {workspaceId: string | null} = {workspaceId: null}
 ) {
   const items = generateAgentTokenListForTest(count, seed);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts =>
-      kSemanticModels.agentToken().insertItem(items, opts)
-    );
+    .withTxn(async opts => kIjxSemantic.agentToken().insertItem(items, opts));
   return items;
 }

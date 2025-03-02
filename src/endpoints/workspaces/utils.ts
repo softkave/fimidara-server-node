@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
 import {SessionAgent} from '../../definitions/system.js';
@@ -82,7 +82,7 @@ export async function checkWorkspaceExists(
   workspaceId: string,
   opts?: SemanticProviderOpParams
 ) {
-  const w = await kSemanticModels.workspace().getOneById(workspaceId, opts);
+  const w = await kIjxSemantic.workspace().getOneById(workspaceId, opts);
   assertWorkspace(w);
   return w;
 }

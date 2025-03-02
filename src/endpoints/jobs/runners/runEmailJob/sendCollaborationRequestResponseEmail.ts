@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {CollaborationRequestResponse} from '../../../../definitions/collaborationRequest.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -23,7 +20,7 @@ export async function sendCollaborationRequestResponseEmail(
   );
   const [{user, base, source}, request] = await Promise.all([
     getBaseEmailTemplateProps(params),
-    kSemanticModels.collaborationRequest().getOneById(params.params.requestId),
+    kIjxSemantic.collaborationRequest().getOneById(params.params.requestId),
   ]);
 
   if (!request) {
@@ -34,7 +31,7 @@ export async function sendCollaborationRequestResponseEmail(
     throw new Error(`User not found for job ${jobId}`);
   }
 
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getOneById(request.workspaceId);
 
@@ -51,7 +48,7 @@ export async function sendCollaborationRequestResponseEmail(
   const html = collaborationRequestResponseEmailHTML(emailProps);
   const text = collaborationRequestResponseEmailText(emailProps);
 
-  return await kUtilsInjectables.email().sendEmail({
+  return await kIkxUtils.email().sendEmail({
     source,
     subject: kCollaborationRequestResponseArtifacts.title(emailProps),
     body: {html, text},

@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
@@ -37,11 +37,11 @@ describe('countFolderContent', () => {
       }),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
-      kSemanticModels.folder().countByQuery({
+      kIjxSemantic.folder().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      kSemanticModels.file().countByQuery({
+      kIjxSemantic.file().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),

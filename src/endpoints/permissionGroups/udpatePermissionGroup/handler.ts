@@ -1,9 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -20,14 +17,14 @@ import {updatePermissionGroupJoiSchema} from './validation.js';
 
 const updatePermissionGroup: UpdatePermissionGroupEndpoint = async reqData => {
   const data = validate(reqData.data, updatePermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
-  let permissionGroup = await kSemanticModels.utils().withTxn(async opts => {
+  let permissionGroup = await kIjxSemantic.utils().withTxn(async opts => {
     const {workspace, permissionGroup} =
       await checkPermissionGroupAuthorization03(
         agent,
@@ -50,7 +47,7 @@ const updatePermissionGroup: UpdatePermissionGroupEndpoint = async reqData => {
       });
     }
 
-    const updatedPermissionGroup = await kSemanticModels
+    const updatedPermissionGroup = await kIjxSemantic
       .permissionGroup()
       .getAndUpdateOneById(permissionGroup.resourceId, update, opts);
     assertPermissionGroup(updatedPermissionGroup);

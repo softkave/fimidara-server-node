@@ -1,6 +1,6 @@
 import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {getResourceId, pathJoin} from '../../../utils/fns.js';
@@ -225,11 +225,11 @@ describe('listFolderContent', () => {
       }),
     ]);
     const [foldersCount, filesCount] = await Promise.all([
-      kSemanticModels.folder().countByQuery({
+      kIjxSemantic.folder().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),
-      kSemanticModels.file().countByQuery({
+      kIjxSemantic.file().countByQuery({
         workspaceId: workspace.resourceId,
         parentId: null,
       }),

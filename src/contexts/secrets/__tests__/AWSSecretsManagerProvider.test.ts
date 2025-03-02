@@ -5,7 +5,7 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kUtilsInjectables} from '../../injection/injectables.js';
+import {kIkxUtils} from '../../ijx/injectables.js';
 import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider.js';
 import {SecretsManagerProvider} from '../types.js';
 
@@ -84,7 +84,7 @@ describe.skip('AWSSecretsManagerProvider', () => {
 });
 
 function getTestAWSConfig() {
-  const conf = kUtilsInjectables.suppliedConfig();
+  const conf = kIkxUtils.suppliedConfig();
   const awsCreds = merge(
     {},
     conf.awsConfigs?.all,

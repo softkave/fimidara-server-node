@@ -1,9 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -39,8 +36,8 @@ test('sendEmailVerificationCode', async () => {
     /**userInput */ {},
     /**skipAutoVerifyEmail */ true
   );
-  await kSemanticModels.utils().withTxn(opts => {
-    return kSemanticModels
+  await kIjxSemantic.utils().withTxn(opts => {
+    return kIjxSemantic
       .user()
       .getAndUpdateOneById(
         user.resourceId,
@@ -53,7 +50,7 @@ test('sendEmailVerificationCode', async () => {
   );
   assertEndpointResultOk(result);
 
-  await kUtilsInjectables.promises().flush();
+  await kIkxUtils.promises().flush();
   // const query: DataQuery<EmailMessage> = {
   //   type: kEmailMessageType.confirmEmailAddress,
   //   emailAddress: {$all: [user.email]},
@@ -72,6 +69,6 @@ test('sendEmailVerificationCode', async () => {
       },
     },
   };
-  const dbJob = await kSemanticModels.job().getOneByQuery(query);
+  const dbJob = await kIjxSemantic.job().getOneByQuery(query);
   expect(dbJob).toBeTruthy();
 });

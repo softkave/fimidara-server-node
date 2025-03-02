@@ -8,11 +8,8 @@ import {
   FilePersistenceProvider,
   FileProviderResolver,
 } from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
@@ -35,15 +32,15 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
-  defaultSuppliedConfig = kUtilsInjectables.suppliedConfig();
+  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
 });
 
 afterEach(() => {
   assert(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
   if (defaultSuppliedConfig) {
-    kRegisterUtilsInjectables.suppliedConfig(defaultSuppliedConfig);
+    kRegisterIjxUtils.suppliedConfig(defaultSuppliedConfig);
   }
 });
 
@@ -89,7 +86,7 @@ describe('multipart.uploadFile', () => {
       };
     }
 
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
+    kRegisterIjxUtils.fileProviderResolver(() => {
       return new TestFileProvider();
     });
 
@@ -98,7 +95,7 @@ describe('multipart.uploadFile', () => {
     });
 
     assert.ok(rf01);
-    const dbFile = await kSemanticModels.file().getOneById(rf01.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(rf01.resourceId);
     expect(dbFile?.isWriteAvailable).toBeFalsy();
   });
 
@@ -114,7 +111,7 @@ describe('multipart.uploadFile', () => {
     const rf01 = last(results)?.rawFile;
 
     assert.ok(rf01);
-    const dbFile = await kSemanticModels.file().getOneById(rf01.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(rf01.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
     expect(dbFile?.isReadAvailable).toBeTruthy();
     expect(dbFile?.multipartTimeout).toBeNull();
@@ -168,8 +165,8 @@ describe('multipart.uploadFile', () => {
 
   test('parts cleaned and file unlocked on timeout', async () => {
     const timeoutSecs = 1;
-    kRegisterUtilsInjectables.suppliedConfig({
-      ...kUtilsInjectables.suppliedConfig(),
+    kRegisterIjxUtils.suppliedConfig({
+      ...kIkxUtils.suppliedConfig(),
       multipartLockTimeoutSeconds: timeoutSecs,
     });
 
@@ -194,7 +191,7 @@ describe('multipart.uploadFile', () => {
     const {rawFile: rf02} = (await runNextSingle()) ?? {};
     assert.ok(rf02);
 
-    const dbFile = await kSemanticModels.file().getOneById(rf01.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(rf01.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
     expect(dbFile?.isReadAvailable).toBeTruthy();
     expect(dbFile?.multipartTimeout).toBeNull();

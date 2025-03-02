@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
 import {Agent, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -18,8 +15,8 @@ export const INTERNAL_addConfig = async (
   data: NewFileBackendConfigInput,
   opts: SemanticProviderMutationParams
 ) => {
-  const configModel = kSemanticModels.fileBackendConfig();
-  const secretsManager = kUtilsInjectables.secretsManager();
+  const configModel = kIjxSemantic.fileBackendConfig();
+  const secretsManager = kIkxUtils.secretsManager();
 
   if (data.backend === 'fimidara') {
     throw kReuseableErrors.config.fimidaraDoesNotSupportConfig();

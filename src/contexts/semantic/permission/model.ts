@@ -19,8 +19,8 @@ import {indexArray} from '../../../utils/indexArray.js';
 import {getResourceTypeFromId} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {DataQuery, LiteralDataQuery} from '../../data/types.js';
-import {kSemanticModels} from '../../injection/injectables.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderOpParams,
   SemanticProviderQueryListParams,
@@ -62,7 +62,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
           options?.includeDeleted || false
         );
 
-        const assignedItems = await kSemanticModels
+        const assignedItems = await kIjxSemantic
           .assignedItem()
           .getManyByQuery(query, options);
 
@@ -113,7 +113,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       options?.includeDeleted || false
     );
 
-    const permissionGroups = await kSemanticModels
+    const permissionGroups = await kIjxSemantic
       .permissionGroup()
       .getManyByQuery(query, options);
 
@@ -129,7 +129,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       targetItemsQuery,
       options?.includeDeleted || false
     );
-    const items = await kSemanticModels
+    const items = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(query, options);
 
@@ -156,7 +156,7 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
       targetItemsQuery,
       options?.includeDeleted || false
     );
-    return await kSemanticModels.permissionItem().countByQuery(query, options);
+    return await kIjxSemantic.permissionItem().countByQuery(query, options);
   }
 
   async getEntity(
@@ -179,15 +179,15 @@ export class DataSemanticPermission implements SemanticPermissionProviderType {
     );
 
     if (type === kFimidaraResourceType.User) {
-      return await kSemanticModels.user().getOneByQuery(dataQuery, opts);
+      return await kIjxSemantic.user().getOneByQuery(dataQuery, opts);
     }
 
     if (type === kFimidaraResourceType.AgentToken) {
-      return await kSemanticModels.agentToken().getOneByQuery(dataQuery, opts);
+      return await kIjxSemantic.agentToken().getOneByQuery(dataQuery, opts);
     }
 
     if (type === kFimidaraResourceType.PermissionGroup) {
-      return await kSemanticModels
+      return await kIjxSemantic
         .permissionGroup()
         .getOneByQuery(dataQuery, opts);
     }

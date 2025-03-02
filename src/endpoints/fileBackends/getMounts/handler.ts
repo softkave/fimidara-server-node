@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -15,9 +12,9 @@ import {getFileBackendMountsQuery} from './utils.js';
 import {getFileBackendMountsJoiSchema} from './validation.js';
 
 const getFileBackendMounts: GetFileBackendMountsEndpoint = async reqData => {
-  const mountModel = kSemanticModels.fileBackendMount();
+  const mountModel = kIjxSemantic.fileBackendMount();
   const data = validate(reqData.data, getFileBackendMountsJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

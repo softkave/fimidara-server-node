@@ -5,10 +5,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -210,7 +207,7 @@ async function createFolderListWithTransaction(
     newFRecord[pNF.folderpath] = pNF.folderpath;
     return pNF.folder;
   });
-  await kSemanticModels.folder().insertItem(newFolderList, opts);
+  await kIjxSemantic.folder().insertItem(newFolderList, opts);
 
   function getError(id: string) {
     if (!ownWorkingRecord[id].hasAccess) {
@@ -300,7 +297,7 @@ async function populateAgent(
   return await Promise.all(
     input.map(async input => {
       try {
-        const agent = await kUtilsInjectables
+        const agent = await kIkxUtils
           .session()
           .getAgentByAgentTokenId(input.agent.agentTokenId);
         const workingInput: IAddFolderQueueWorkingInput = {
@@ -325,7 +322,7 @@ async function createFolderListWithWorkspace(
 ) {
   assert.ok(input.length);
 
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getOneById(input[0].workspaceId);
   const result: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput> =
@@ -357,7 +354,7 @@ async function createFolderListWithWorkspace(
       return acc;
     }, result);
   } else if (workingInput.length) {
-    const workingOutput = await kSemanticModels
+    const workingOutput = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         createFolderListWithTransaction(workspace, workingInput, opts)

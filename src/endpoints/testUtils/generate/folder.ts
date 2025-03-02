@@ -4,7 +4,7 @@ import {
   loopAndCollate,
   pathJoin,
 } from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
@@ -89,7 +89,7 @@ export async function generateUniqueFolderpath(workspaceId: string) {
 
   while (length < max) {
     const folderpath = generateTestFolderpath({length});
-    const folder = await kSemanticModels.folder().getOneByNamepath({
+    const folder = await kIjxSemantic.folder().getOneByNamepath({
       workspaceId,
       namepath: folderpath,
     });
@@ -152,8 +152,8 @@ export async function generateAndInsertTestFolders(
   extra: Partial<Folder> & {parentId: string | null} = {parentId: null},
   other: Parameters<typeof generateTestFolder>[1] = {}
 ) {
-  const folderModel = kSemanticModels.folder();
-  const semanticUtils = kSemanticModels.utils();
+  const folderModel = kIjxSemantic.folder();
+  const semanticUtils = kIjxSemantic.utils();
   const items = generateTestFolders(count, extra, other);
   await semanticUtils.withTxn(async opts =>
     folderModel.insertItem(items, opts)

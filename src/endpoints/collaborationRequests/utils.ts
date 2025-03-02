@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   CollaborationRequest,
@@ -67,7 +67,7 @@ export async function checkCollaborationRequestAuthorization02(
   action: FimidaraPermissionAction,
   opts?: SemanticProviderOpParams
 ) {
-  const request = await kSemanticModels
+  const request = await kIjxSemantic
     .collaborationRequest()
     .getOneById(requestId, opts);
   assertCollaborationRequest(request);
@@ -98,7 +98,7 @@ export async function populateRequestAssignedPermissionGroups(
     permissionGroupsAssignedOnAcceptingRequest: AssignedPermissionGroupMeta[];
   }
 > {
-  const inheritanceMap = await kSemanticModels
+  const inheritanceMap = await kIjxSemantic
     .permissions()
     .getEntityInheritanceMap({
       entityId: request.resourceId,

@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {kJobType} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
@@ -30,7 +30,7 @@ describe('runCleanupMountResolvedEntriesJob', () => {
       type: kJobType.cleanupMountResolvedEntries,
     });
 
-    const remainingEntries = await kSemanticModels
+    const remainingEntries = await kIjxSemantic
       .resolvedMountEntry()
       .getManyByIdList(extractResourceIdList(entries));
     expect(remainingEntries).toHaveLength(0);

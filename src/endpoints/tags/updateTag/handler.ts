@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Tag} from '../../../definitions/tag.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -14,7 +11,7 @@ import {updateTagJoiSchema} from './validation.js';
 
 const updateTag: UpdateTagEndpoint = async reqData => {
   const data = validate(reqData.data, updateTagJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -33,7 +30,7 @@ const updateTag: UpdateTagEndpoint = async reqData => {
   };
 
   let tag = tag_;
-  tag = await kSemanticModels.utils().withTxn(async opts => {
+  tag = await kIjxSemantic.utils().withTxn(async opts => {
     if (tagUpdate.name && tagUpdate.name !== tag.name)
       await checkTagNameExists({
         workspaceId: workspace.resourceId,
@@ -41,7 +38,7 @@ const updateTag: UpdateTagEndpoint = async reqData => {
         resourceId: tag.resourceId,
         opts,
       });
-    const updatedTag = await kSemanticModels
+    const updatedTag = await kIjxSemantic
       .tag()
       .getAndUpdateOneById(data.tagId, tagUpdate, opts);
     assertTag(updatedTag);

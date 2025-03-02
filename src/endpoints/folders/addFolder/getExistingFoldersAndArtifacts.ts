@@ -1,5 +1,5 @@
 import {FolderQuery} from '../../../contexts/data/types.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder} from '../../../definitions/folder.js';
 import {pathJoin} from '../../../utils/fns.js';
@@ -15,7 +15,7 @@ export async function getExistingFoldersAndArtifacts(
   let existingFolders: Folder[] = [];
 
   if (namepathList.length) {
-    existingFolders = await kSemanticModels.folder().getManyByQuery(
+    existingFolders = await kIjxSemantic.folder().getManyByQuery(
       {
         $or: namepathList.map(
           (namepath): FolderQuery =>

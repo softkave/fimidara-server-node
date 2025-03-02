@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {makeKey} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {
@@ -173,12 +173,10 @@ describe('resolveEntityPermissions', () => {
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {folder} = await insertFolderForTest(userToken, workspace);
-    const adminPg = await kSemanticModels
-      .permissionGroup()
-      .assertGetOneByQuery({
-        name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
-        workspaceId: workspace.resourceId,
-      });
+    const adminPg = await kIjxSemantic.permissionGroup().assertGetOneByQuery({
+      name: DEFAULT_ADMIN_PERMISSION_GROUP_NAME,
+      workspaceId: workspace.resourceId,
+    });
 
     const reqData =
       RequestData.fromExpressRequest<ResolveEntityPermissionsEndpointParams>(

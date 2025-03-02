@@ -8,11 +8,8 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {
   IngestFolderpathJobMeta,
   IngestFolderpathJobParams,
@@ -63,11 +60,11 @@ describe('runIngestFolderpathJob', () => {
   // Check describe files and folders called
   test('calls backend', async () => {
     const backend = new TestMemoryFilePersistenceProviderContext();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     expect(backend.describeFolderContent).toHaveBeenCalled();
   });
@@ -106,11 +103,11 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     expect(prevContinuationToken).toBeTruthy();
     expect(numCalls).toBe(2);
@@ -132,11 +129,11 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     expect(numCalls).toBe(1);
   });
@@ -164,10 +161,10 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     const backendPathInfoList = pFiles.map(pFile =>
       getFilepathInfo(pFile.filepath, {
@@ -175,7 +172,7 @@ describe('runIngestFolderpathJob', () => {
         allowRootFolder: true,
       })
     );
-    const files = await kSemanticModels.file().getManyByQuery({
+    const files = await kIjxSemantic.file().getManyByQuery({
       $or: backendPathInfoList.map(pathinfo => {
         return FileQueries.getByNamepath({
           workspaceId: mount.workspaceId,
@@ -183,7 +180,7 @@ describe('runIngestFolderpathJob', () => {
         });
       }),
     });
-    const resolvedEntries = await kSemanticModels
+    const resolvedEntries = await kIjxSemantic
       .resolvedMountEntry()
       .getManyByQuery({
         $or: backendPathInfoList.map(pathinfo => {
@@ -225,10 +222,10 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
       getFolderpathInfo(pFolder.folderpath, {
@@ -236,7 +233,7 @@ describe('runIngestFolderpathJob', () => {
         allowRootFolder: false,
       })
     );
-    const folders = await kSemanticModels.folder().getManyByQuery({
+    const folders = await kIjxSemantic.folder().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
         return FolderQueries.getByNamepath({
           workspaceId: mount.workspaceId,
@@ -271,10 +268,10 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
     const pathInfoList = pFolders.map(pFolder =>
       getFolderpathInfo(pFolder.folderpath, {
@@ -282,7 +279,7 @@ describe('runIngestFolderpathJob', () => {
         allowRootFolder: false,
       })
     );
-    const jobs = await kSemanticModels.job().getManyByQuery({
+    const jobs = await kIjxSemantic.job().getManyByQuery({
       $or: pathInfoList.map(pathinfo => {
         const params: DataQuery<IngestFolderpathJobParams> = {
           mountId: mount.resourceId,
@@ -328,15 +325,13 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
     await expectErrorThrown(() => runIngestFolderpathJob(job));
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
 
-    const dbJob = (await kSemanticModels
-      .job()
-      .getOneById(job.resourceId)) as Job<
+    const dbJob = (await kIjxSemantic.job().getOneById(job.resourceId)) as Job<
       IngestFolderpathJobParams,
       IngestFolderpathJobMeta
     >;
@@ -361,7 +356,7 @@ describe('runIngestFolderpathJob', () => {
     }
 
     const backend = new TestBackend();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {job} = await setup01();
     const update: Partial<
@@ -369,14 +364,14 @@ describe('runIngestFolderpathJob', () => {
     > = {
       meta: {getContentContinuationToken: mountContinuationToken},
     };
-    await kSemanticModels
+    await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels.job().updateOneById(job.resourceId, update, opts)
+        kIjxSemantic.job().updateOneById(job.resourceId, update, opts)
       );
 
     await runIngestFolderpathJob(job);
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
   });
 });
 

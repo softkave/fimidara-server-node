@@ -1,7 +1,7 @@
 import {uniq} from 'lodash-es';
 import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {
   generateAndInsertTestFiles,
   generateTestFilepathString,
@@ -45,7 +45,7 @@ describe('queuePrepareFile', () => {
       containsRootname: true,
       allowRootFolder: false,
     });
-    const dbFile = await kSemanticModels.file().getOneByNamepath({
+    const dbFile = await kIjxSemantic.file().getOneByNamepath({
       workspaceId: workspace.resourceId,
       namepath: pathinfo.namepath,
       ext: pathinfo.ext,

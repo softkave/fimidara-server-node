@@ -1,9 +1,6 @@
 import assert from 'assert';
 import {EmailProviderSendEmailResult} from '../../../../contexts/email/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {
   EmailBlocklist,
   kEmailBlocklistTrailType,
@@ -57,8 +54,8 @@ export async function runEmailJob(
   const blockEmailAddressList = result?.blockEmailAddressList || [];
 
   if (blockEmailAddressList.length) {
-    kUtilsInjectables.promises().callAndForget(() =>
-      kSemanticModels.utils().withTxn(async opts => {
+    kIkxUtils.promises().callAndForget(() =>
+      kIjxSemantic.utils().withTxn(async opts => {
         const blocklistItems = blockEmailAddressList.map(item => {
           return newResource<EmailBlocklist>(
             kFimidaraResourceType.emailBlocklist,
@@ -72,15 +69,15 @@ export async function runEmailJob(
             }
           );
         });
-        await kSemanticModels.emailBlocklist().insertItem(blocklistItems, opts);
+        await kIjxSemantic.emailBlocklist().insertItem(blocklistItems, opts);
       })
     );
   }
 
   if (result?.meta) {
-    kUtilsInjectables.promises().callAndForget(() =>
-      kSemanticModels.utils().withTxn(async opts => {
-        await kSemanticModels
+    kIkxUtils.promises().callAndForget(() =>
+      kIjxSemantic.utils().withTxn(async opts => {
+        await kIjxSemantic
           .job()
           .updateOneById(job.resourceId, {meta: result?.meta}, opts);
       })

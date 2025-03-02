@@ -1,14 +1,11 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {userListExtractor} from '../../users/utils.js';
 import {assertUserIsPartOfRootWorkspace} from '../utils.js';
 import {GetUsersEndpoint} from './types.js';
 
 const getUsers: GetUsersEndpoint = async reqData => {
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -16,7 +13,7 @@ const getUsers: GetUsersEndpoint = async reqData => {
       kSessionUtils.accessScopes.user
     );
   await assertUserIsPartOfRootWorkspace(agent);
-  const users = await kSemanticModels.user().getManyByQuery({});
+  const users = await kIjxSemantic.user().getManyByQuery({});
 
   return {users: userListExtractor(users)};
 };

@@ -53,7 +53,7 @@ export function addIsDeletedIntoQuery<
   return q00;
 }
 
-export class DataSemanticBaseProvider<T extends Resource>
+export class SemanticBaseProvider<T extends Resource>
   implements SemanticBaseProviderType<T>
 {
   constructor(

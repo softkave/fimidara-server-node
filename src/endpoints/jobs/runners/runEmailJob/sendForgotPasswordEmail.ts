@@ -1,9 +1,6 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -32,8 +29,8 @@ function getForgotPasswordExpiration() {
 }
 
 export async function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
-  const encodedToken = await kUtilsInjectables.session().encodeToken({
+  const suppliedConfig = kIkxUtils.suppliedConfig();
+  const encodedToken = await kIkxUtils.session().encodeToken({
     tokenId: forgotToken.resourceId,
     expiresAt: forgotToken.expiresAt,
     issuedAt: forgotToken.createdAt,
@@ -61,15 +58,15 @@ export async function getForgotPasswordToken(user: User) {
     }
   );
 
-  await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels
+  await kIjxSemantic.utils().withTxn(async opts => {
+    await kIjxSemantic
       .agentToken()
       .softDeleteAgentTokens(
         user.resourceId,
         kTokenAccessScope.changePassword,
         opts
       );
-    await kSemanticModels.agentToken().insertItem(forgotToken, opts);
+    await kIjxSemantic.agentToken().insertItem(forgotToken, opts);
   });
 
   return forgotToken;
@@ -104,7 +101,7 @@ export async function sendForgotPasswordEmail(
   const html = forgotPasswordEmailHTML(emailProps);
   const text = forgotPasswordEmailText(emailProps);
 
-  return await kUtilsInjectables.email().sendEmail({
+  return await kIkxUtils.email().sendEmail({
     source,
     subject: kForgotPasswordEmailArtifacts.title,
     body: {html, text},

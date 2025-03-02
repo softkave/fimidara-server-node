@@ -6,7 +6,7 @@ import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
-import {kUtilsInjectables} from '../injection/injectables.js';
+import {kIkxUtils} from '../ijx/injectables.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
@@ -341,7 +341,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         stopIndex < children.length - 1 ? stopIndex : undefined;
       return {continuationToken: nextContinuationToken};
     } catch (error) {
-      kUtilsInjectables.logger().error(error);
+      kIkxUtils.logger().error(error);
       return {};
     }
   };
@@ -356,7 +356,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
           const stat = await fse.promises.stat(nextPath);
           return process(stat, nextPath, index);
         } catch (error) {
-          kUtilsInjectables.logger().error(error);
+          kIkxUtils.logger().error(error);
           return undefined;
         }
       })
@@ -444,14 +444,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       await promise;
     }
 
-    kUtilsInjectables
-      .promises()
-      .callAndForget(() => this.cleanupPartsFile(params));
+    kIkxUtils.promises().callAndForget(() => this.cleanupPartsFile(params));
   }
 }
 
 export function getLocalFsDirFromSuppliedConfig(
-  config: FimidaraSuppliedConfig = kUtilsInjectables.suppliedConfig()
+  config: FimidaraSuppliedConfig = kIkxUtils.suppliedConfig()
 ) {
   const configLocalFsDir = config.localFsDir;
   const configLocalPartsFsDir = config.localPartsFsDir;

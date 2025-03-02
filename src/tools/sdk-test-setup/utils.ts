@@ -1,9 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils.js';
@@ -50,7 +47,7 @@ async function createAgentToken(
 }
 
 export async function setupSDKTestReq() {
-  const {workspace, token, tokenStr} = await kSemanticModels
+  const {workspace, token, tokenStr} = await kIjxSemantic
     .utils()
     .withTxn(async opts => {
       const {workspace, adminPermissionGroup} = await insertWorkspace(opts);
@@ -79,18 +76,16 @@ FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
 FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
 FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testdata.txt"
 FIMIDARA_TEST_FOLDER_PATH="/src/testutils/testdata"
-FIMIDARA_SERVER_URL="http://localhost:${
-      kUtilsInjectables.suppliedConfig().httpPort
-    }"`;
+FIMIDARA_SERVER_URL="http://localhost:${kIkxUtils.suppliedConfig().httpPort}"`;
     await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
-    kUtilsInjectables.logger().log('Wrote to js sdk .env.test file');
+    kIkxUtils.logger().log('Wrote to js sdk .env.test file');
   } catch (error: unknown) {
-    kUtilsInjectables.logger().log('Error writing .env.test file');
-    kUtilsInjectables.logger().error(error);
+    kIkxUtils.logger().log('Error writing .env.test file');
+    kIkxUtils.logger().error(error);
   }
 
-  kUtilsInjectables.logger().log(`Workspace ID: ${workspace.resourceId}`);
-  kUtilsInjectables.logger().log(`Workspace rootname: ${workspace.rootname}`);
-  kUtilsInjectables.logger().log(`Agent token ID: ${token.resourceId}`);
-  kUtilsInjectables.logger().log(`Agent token token: ${tokenStr}`);
+  kIkxUtils.logger().log(`Workspace ID: ${workspace.resourceId}`);
+  kIkxUtils.logger().log(`Workspace rootname: ${workspace.rootname}`);
+  kIkxUtils.logger().log(`Agent token ID: ${token.resourceId}`);
+  kIkxUtils.logger().log(`Agent token token: ${tokenStr}`);
 }

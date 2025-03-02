@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {UserWithWorkspace} from '../../../definitions/user.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
@@ -20,7 +17,7 @@ import {getWorkspaceCollaboratorsJoiSchema} from './validation.js';
 const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint =
   async reqData => {
     const data = validate(reqData.data, getWorkspaceCollaboratorsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -34,13 +31,13 @@ const getWorkspaceCollaborators: GetWorkspaceCollaboratorsEndpoint =
       workspace
     );
     applyDefaultEndpointPaginationOptions(data);
-    const assignedItems = await kSemanticModels
+    const assignedItems = await kIjxSemantic
       .assignedItem()
       .getManyByQuery(assignedItemsQuery, data);
     let usersWithWorkspaces: UserWithWorkspace[] = [];
     if (assignedItems.length > 0) {
       const userIdList = assignedItems.map(item => item.assigneeId);
-      const users = await kSemanticModels.user().getManyByIdList(userIdList);
+      const users = await kIjxSemantic.user().getManyByIdList(userIdList);
 
       // TODO: only populate the calling workspace
       usersWithWorkspaces = await populateUserListWithWorkspaces(users);

@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
@@ -32,7 +32,7 @@ describe('countWorkspaceCollaborators', () => {
       workspace.resourceId,
       seedCount
     );
-    const count = await kSemanticModels.assignedItem().countByQuery({
+    const count = await kIjxSemantic.assignedItem().countByQuery({
       workspaceId: workspace.resourceId,
       assignedItemId: workspace.resourceId,
     });

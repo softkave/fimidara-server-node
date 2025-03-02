@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {checkFolderAuthorization02, folderExtractor} from '../utils.js';
 import {GetFolderEndpoint} from './types.js';
@@ -7,7 +7,7 @@ import {getFolderJoiSchema} from './validation.js';
 
 const getFolder: GetFolderEndpoint = async reqData => {
   const data = validate(reqData.data, getFolderJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,

@@ -1,8 +1,5 @@
 import {pathJoin} from 'softkave-js-utils';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -27,7 +24,7 @@ interface DeleteFolderPreRunMeta {
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.Folder]: async ({args, opts}) => {
-    return await kSemanticModels.folder().getManyByQuery(
+    return await kIjxSemantic.folder().getManyByQuery(
       FolderQueries.getByParentId({
         workspaceId: args.workspaceId,
         resourceId: args.resourceId,
@@ -36,7 +33,7 @@ const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
     );
   },
   [kFimidaraResourceType.File]: async ({args, opts}) => {
-    return await kSemanticModels.file().getManyByQuery(
+    return await kIjxSemantic.file().getManyByQuery(
       FolderQueries.getByParentId({
         workspaceId: args.workspaceId,
         resourceId: args.resourceId,
@@ -77,13 +74,13 @@ const deleteResourceFn: DeleteResourceFn<
           })),
         });
       } catch (error) {
-        kUtilsInjectables.logger().error(error);
+        kIkxUtils.logger().error(error);
       }
     })
   );
 
   await helpers.withTxn(opts =>
-    kSemanticModels.folder().deleteOneById(args.resourceId, opts)
+    kIjxSemantic.folder().deleteOneById(args.resourceId, opts)
   );
 };
 
@@ -95,12 +92,10 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
     keyof DeleteFolderPreRunMeta['partialMountEntries'][number]
   > = ['backendNamepath'];
   const [partialMountEntries, folder] = await Promise.all([
-    kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
+    kIjxSemantic.resolvedMountEntry().getLatestByForId(args.resourceId, {
       projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),
     }),
-    kSemanticModels
-      .folder()
-      .getOneById(args.resourceId, {includeDeleted: true}),
+    kIjxSemantic.folder().getOneById(args.resourceId, {includeDeleted: true}),
   ]);
 
   return {partialMountEntries, namepath: folder?.namepath};

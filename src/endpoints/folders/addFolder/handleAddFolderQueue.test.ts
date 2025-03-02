@@ -10,10 +10,7 @@ import {
   pathJoin,
 } from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {QueueContextSubscribeJsonFn} from '../../../contexts/pubsub/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {Folder} from '../../../definitions/folder.js';
@@ -163,7 +160,7 @@ async function listenOnOutput(
 ) {
   await Promise.all(
     uniq(input.map(inputItem => inputItem.outputChannel)).map(channel =>
-      kUtilsInjectables.pubsub().subscribeJson(channel, fn)
+      kIkxUtils.pubsub().subscribeJson(channel, fn)
     )
   );
 }
@@ -183,7 +180,7 @@ async function insertInQueue(input: ITestAddFolderQueueInput[]) {
 
   assert.ok(queueKeys.length === 1);
   const queueKey = queueKeys[0];
-  await kUtilsInjectables.queue().addMessages(queueKey, queueMessages);
+  await kIkxUtils.queue().addMessages(queueKey, queueMessages);
 }
 
 async function getFoldersFromDB(input: ITestAddFolderQueueInput[]) {
@@ -200,7 +197,7 @@ async function getFoldersFromDB(input: ITestAddFolderQueueInput[]) {
 
   const folders = await Promise.all(
     folderpaths.map(folderpath =>
-      kSemanticModels.folder().getOneByNamepath(folderpath)
+      kIjxSemantic.folder().getOneByNamepath(folderpath)
     )
   );
   const foldersRecord = keyBy(
@@ -525,7 +522,7 @@ describe('handleAddFolderQueue', () => {
 
     const queueKey = kFolderConstants.getAddFolderQueueWithNo(queueStart);
     const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
-    await kUtilsInjectables
+    await kIkxUtils
       .pubsub()
       .publish(wakeupChannel, kShardRunnerPubSubAlertMessage);
 

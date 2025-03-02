@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {generateAndInsertUserListForTest} from '../../../endpoints/testUtils/generate/user.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kSemanticModels} from '../../injection/injectables.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
 
 beforeAll(async () => {
   await initTests();
@@ -20,7 +20,7 @@ describe('UserSemanticModel', () => {
       const start = faker.number.int({min: 1});
       const end = faker.number.int({min: start + 1});
 
-      const preCount = await kSemanticModels
+      const preCount = await kIjxSemantic
         .user()
         .countUsersCreatedBetween(start, end);
 
@@ -36,7 +36,7 @@ describe('UserSemanticModel', () => {
         })),
       ]);
 
-      const actualUsersCount = await kSemanticModels
+      const actualUsersCount = await kIjxSemantic
         .user()
         .countUsersCreatedBetween(start, end);
 

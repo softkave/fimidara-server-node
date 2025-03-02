@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {FimidaraPermissionAction} from '../../../definitions/permissionItem.js';
 import {
@@ -97,7 +97,7 @@ export async function getTestSessionAgent<TPermissionsFnResult = unknown>(
         props.user?.userInput,
         props.user?.skipAutoVerifyEmail
       );
-      await kSemanticModels
+      await kIjxSemantic
         .utils()
         .withTxn(opts =>
           assignWorkspaceToUser(

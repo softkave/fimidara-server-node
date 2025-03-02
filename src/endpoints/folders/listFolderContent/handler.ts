@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   SessionAgent,
@@ -28,7 +25,7 @@ import {listFolderContentJoiSchema} from './validation.js';
 
 const listFolderContent: ListFolderContentEndpoint = async reqData => {
   const data = validate(reqData.data, listFolderContentJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -88,7 +85,7 @@ async function fetchFolders(
     parentFolder
   );
 
-  return await kSemanticModels
+  return await kIjxSemantic
     .folder()
     .getManyByWorkspaceParentAndIdList(query, pagination);
 }
@@ -106,7 +103,7 @@ async function fetchFiles(
     parentFolder
   );
 
-  return await kSemanticModels
+  return await kIjxSemantic
     .file()
     .getManyByWorkspaceParentAndIdList(query, pagination);
 }

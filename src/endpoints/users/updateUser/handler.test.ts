@@ -1,10 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -58,7 +55,7 @@ describe('updateUser', () => {
     assertEndpointResultOk(result);
 
     const savedUser = await populateUserWorkspaces(
-      await kSemanticModels
+      await kIjxSemantic
         .user()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(result.user.resourceId)
@@ -67,7 +64,7 @@ describe('updateUser', () => {
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);
 
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.confirmEmailAddress,
     //   emailAddress: {$all: [savedUser.email]},
@@ -86,7 +83,7 @@ describe('updateUser', () => {
         },
       },
     };
-    const dbJob = await kSemanticModels.job().getOneByQuery(query);
+    const dbJob = await kIjxSemantic.job().getOneByQuery(query);
     expect(dbJob).toBeTruthy();
   });
 
@@ -100,7 +97,7 @@ describe('updateUser', () => {
     const result = await updateUser(reqData);
     assertEndpointResultOk(result);
 
-    const savedUser = await kSemanticModels
+    const savedUser = await kIjxSemantic
       .user()
       .assertGetOneByQuery(
         EndpointReusableQueries.getByResourceId(result.user.resourceId)

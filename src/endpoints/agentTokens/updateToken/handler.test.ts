@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
@@ -61,7 +61,7 @@ test('agent token updated', async () => {
   const updatedToken = await getPublicAgentToken(
     await populateAssignedTags(
       workspace.resourceId,
-      await kSemanticModels
+      await kIjxSemantic
         .agentToken()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(token01.resourceId)

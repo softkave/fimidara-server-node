@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
@@ -106,7 +106,7 @@ const INTERNAL_createWorkspace = async (
     permissionItems,
   } = generateDefaultWorkspacePermissionGroups(agent, workspace);
   workspace.publicPermissionGroupId = publicPermissionGroup.resourceId;
-  await kSemanticModels.workspace().insertItem(workspace, opts);
+  await kIjxSemantic.workspace().insertItem(workspace, opts);
 
   await Promise.all([
     INTERNAL_addFileBackendMount(
@@ -122,7 +122,7 @@ const INTERNAL_createWorkspace = async (
       },
       opts
     ),
-    kSemanticModels
+    kIjxSemantic
       .permissionGroup()
       .insertItem(
         [
@@ -132,7 +132,7 @@ const INTERNAL_createWorkspace = async (
         ],
         opts
       ),
-    kSemanticModels.permissionItem().insertItem(permissionItems, opts),
+    kIjxSemantic.permissionItem().insertItem(permissionItems, opts),
     userId && assignWorkspaceToUser(agent, workspace.resourceId, userId, opts),
     userId &&
       addAssignedPermissionGroupList(

@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
@@ -15,7 +12,7 @@ import {addAgentTokenJoiSchema} from './validation.js';
 
 const addAgentTokenEndpoint: AddAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, addAgentTokenJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -33,7 +30,7 @@ const addAgentTokenEndpoint: AddAgentTokenEndpoint = async reqData => {
     },
   });
 
-  const token = await kSemanticModels.utils().withTxn(async opts => {
+  const token = await kIjxSemantic.utils().withTxn(async opts => {
     return await INTERNAL_createAgentToken(
       agent,
       workspace.resourceId,

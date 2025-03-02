@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   ResourceWrapper,
   kFimidaraResourceType,
@@ -17,7 +14,7 @@ import {getJobStatusJoiSchema} from './validation.js';
 
 const getJobStatus: GetJobStatusEndpoint = async reqData => {
   const data = validate(reqData.data, getJobStatusJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -29,7 +26,7 @@ const getJobStatus: GetJobStatusEndpoint = async reqData => {
     agent.user = await populateUserWorkspaces(agent.user);
   }
 
-  const job = await kSemanticModels.job().getOneById(data.jobId);
+  const job = await kIjxSemantic.job().getOneById(data.jobId);
   appAssert(job, kReuseableErrors.job.notFound());
   appAssert(
     job.workspaceId,

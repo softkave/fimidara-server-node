@@ -3,20 +3,20 @@ import fs from 'fs';
 import helmet from 'helmet';
 import {format} from 'util';
 import {globalDispose, globalSetup} from './contexts/globalUtils.js';
-import {kUtilsInjectables} from './contexts/injection/injectables.js';
+import {kIkxUtils} from './contexts/ijx/injectables.js';
 import {kEndpointConstants} from './endpoints/constants.js';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
 import {handleErrors, handleNotFound} from './middlewares/handleErrors.js';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps.js';
+import {runScript} from './scripts/runScript.js';
+import SCRIPT_moveFromS3ToLocalFS from './scripts/SCRIPT_moveFromS3ToLocalFS.js';
 import {appAssert} from './utils/assertion.js';
 import cors = require('cors');
 import express = require('express');
 import http = require('http');
 import https = require('https');
 import process = require('process');
-import {runScript} from './scripts/runScript.js';
-import SCRIPT_moveFromS3ToLocalFS from './scripts/SCRIPT_moveFromS3ToLocalFS.js';
 
 interface RuntimeArtifacts {
   httpServer?: http.Server;
@@ -39,7 +39,7 @@ app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
 async function setupHttpServer() {
-  const conf = kUtilsInjectables.suppliedConfig();
+  const conf = kIkxUtils.suppliedConfig();
   let httpServerPromise: Promise<void> | undefined;
   let httpsServerPromise: Promise<void> | undefined;
 
@@ -50,7 +50,7 @@ async function setupHttpServer() {
     artifacts.httpServer = httpServer;
     httpServerPromise = new Promise(resolve => {
       httpServer.listen(conf.httpPort, () => {
-        kUtilsInjectables.logger().log(`HTTP port: ${conf.httpPort}`);
+        kIkxUtils.logger().log(`HTTP port: ${conf.httpPort}`);
         resolve();
       });
     });
@@ -78,7 +78,7 @@ async function setupHttpServer() {
     artifacts.httpsServer = httpsServer;
     httpsServerPromise = new Promise(resolve => {
       httpsServer.listen(conf.httpsPort, () => {
-        kUtilsInjectables.logger().log(`HTTPS port: ${conf.httpsPort}`);
+        kIkxUtils.logger().log(`HTTPS port: ${conf.httpsPort}`);
         resolve();
       });
     });
@@ -88,7 +88,7 @@ async function setupHttpServer() {
 }
 
 function setupJWT() {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  const suppliedConfig = kIkxUtils.suppliedConfig();
   appAssert(suppliedConfig.jwtSecret, 'jwtSecret not present in config');
 
   app.use(
@@ -111,7 +111,7 @@ async function setup() {
       useHandlePrepareFileQueue: true,
     }
   );
-  kUtilsInjectables.logger().log('Server initialization');
+  kIkxUtils.logger().log('Server initialization');
 
   // Run scripts here
   await runScript({
@@ -123,9 +123,7 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kUtilsInjectables
-    .logger()
-    .log(`Workspace ID: ${defaultWorkspace.resourceId}`);
+  kIkxUtils.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
@@ -144,10 +142,10 @@ async function closeHttpServer(server: http.Server): Promise<void> {
   return new Promise(resolve => {
     server.close(error => {
       if (error) {
-        kUtilsInjectables.logger().error(error);
+        kIkxUtils.logger().error(error);
       }
 
-      kUtilsInjectables.logger().log(`Closed ${format(addr)}`);
+      kIkxUtils.logger().log(`Closed ${format(addr)}`);
       resolve();
     });
 
@@ -156,14 +154,14 @@ async function closeHttpServer(server: http.Server): Promise<void> {
 }
 
 async function endServer() {
-  kUtilsInjectables.runtimeState().setIsEnded(true);
-  kUtilsInjectables.logger().log('Started graceful shutdown');
+  kIkxUtils.runtimeState().setIsEnded(true);
+  kIkxUtils.logger().log('Started graceful shutdown');
   await Promise.allSettled([
     artifacts.httpServer && closeHttpServer(artifacts.httpServer),
     artifacts.httpsServer && closeHttpServer(artifacts.httpsServer),
   ]);
 
-  kUtilsInjectables.logger().log('Started app dispose');
+  kIkxUtils.logger().log('Started app dispose');
   await globalDispose();
 
   // eslint-disable-next-line no-process-exit

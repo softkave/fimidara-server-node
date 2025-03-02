@@ -1,6 +1,6 @@
 import {isArray} from 'lodash-es';
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryListParams,
@@ -44,7 +44,7 @@ async function filterExistingItems<T extends AssignedItem>(
     assigneeIdList.push(item.assigneeId);
     assignedItemIdList.push(item.assignedItemId);
   });
-  const existingItems = await kSemanticModels
+  const existingItems = await kIjxSemantic
     .assignedItem()
     .getByWorkspaceAssignedAndAssigneeIds(
       workspaceId,
@@ -81,7 +81,7 @@ export async function addAssignedItems<T extends AssignedItem>(
   opts: SemanticProviderMutationParams
 ) {
   if (deletedExistingItems) {
-    await kSemanticModels.assignedItem().insertItem(items, opts);
+    await kIjxSemantic.assignedItem().insertItem(items, opts);
     return items;
   } else {
     const {itemIdListToDelete, resolvedItems} = await filterExistingItems(
@@ -91,9 +91,9 @@ export async function addAssignedItems<T extends AssignedItem>(
       opts
     );
     await Promise.all([
-      kSemanticModels.assignedItem().insertItem(resolvedItems, opts),
+      kIjxSemantic.assignedItem().insertItem(resolvedItems, opts),
       itemIdListToDelete &&
-        kSemanticModels
+        kIjxSemantic
           .assignedItem()
           .deleteManyByIdList(itemIdListToDelete, opts),
     ]);
@@ -278,5 +278,5 @@ export async function assignWorkspaceToUser(
     ),
   ];
 
-  return await kSemanticModels.assignedItem().insertItem(items, opts);
+  return await kIjxSemantic.assignedItem().insertItem(items, opts);
 }

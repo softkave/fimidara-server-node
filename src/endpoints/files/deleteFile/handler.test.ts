@@ -2,8 +2,8 @@ import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -48,7 +48,7 @@ describe('deleteFile', () => {
     assertEndpointResultOk(result);
 
     appAssert(result.jobId);
-    const job = (await kSemanticModels.job().getOneByQuery({
+    const job = (await kIjxSemantic.job().getOneByQuery({
       type: kJobType.deleteResource,
       resourceId: result.jobId,
       params: {
@@ -61,7 +61,7 @@ describe('deleteFile', () => {
       workspaceId: workspace.resourceId,
     });
 
-    const dbItem = await kSemanticModels
+    const dbItem = await kIjxSemantic
       .file()
       .getOneByQuery({resourceId: file.resourceId, isDeleted: true});
     expect(dbItem).toBeTruthy();
@@ -69,7 +69,7 @@ describe('deleteFile', () => {
 
   test('multipart upload part deleted', async () => {
     const backend = new TestMemoryFilePersistenceProviderContext();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
@@ -108,7 +108,7 @@ describe('deleteFile', () => {
     expect(parts.length).toBe(1);
     expect(parts[0].part).toBe(2);
 
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
 
     expect(backend.deleteMultipartUploadPart).toHaveBeenCalledWith({
@@ -124,7 +124,7 @@ describe('deleteFile', () => {
 
   test('multipart upload deleted', async () => {
     const backend = new TestMemoryFilePersistenceProviderContext();
-    kRegisterUtilsInjectables.fileProviderResolver(() => backend);
+    kRegisterIjxUtils.fileProviderResolver(() => backend);
 
     const {userToken} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
@@ -161,7 +161,7 @@ describe('deleteFile', () => {
     });
     expect(parts.length).toBe(0);
 
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.clientMultipartId).toBeFalsy();
 
     expect(backend.deleteMultipartUploadPart).not.toHaveBeenCalled();

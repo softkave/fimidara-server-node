@@ -1,9 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {PermissionGroup} from '../../../definitions/permissionGroups.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
@@ -18,7 +15,7 @@ import {addPermissionGroupJoiSchema} from './validation.js';
 
 const addPermissionGroup: AddPermissionGroupEndpoint = async reqData => {
   const data = validate(reqData.data, addPermissionGroupJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -34,7 +31,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async reqData => {
     target: {targetId: workspace.resourceId, action: 'updatePermission'},
   });
 
-  let permissionGroup = await kSemanticModels.utils().withTxn(async opts => {
+  let permissionGroup = await kIjxSemantic.utils().withTxn(async opts => {
     await checkPermissionGroupNameExists({
       workspaceId: workspace.resourceId,
       name: data.name,
@@ -46,7 +43,7 @@ const addPermissionGroup: AddPermissionGroupEndpoint = async reqData => {
       workspace.resourceId,
       {...data, workspaceId: workspace.resourceId}
     );
-    await kSemanticModels.permissionGroup().insertItem(permissionGroup, opts);
+    await kIjxSemantic.permissionGroup().insertItem(permissionGroup, opts);
     return permissionGroup;
   });
 

@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kJobStatus, kJobType} from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
 import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
@@ -27,10 +27,10 @@ describe('runJob', () => {
     ]);
 
     const completedJob = await runJob(pendingJob);
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels.job().getOneById(pendingJob.resourceId, opts)
+        kIjxSemantic.job().getOneById(pendingJob.resourceId, opts)
       );
 
     expect(pendingJob.resourceId).toEqual(completedJob?.resourceId);
@@ -49,10 +49,10 @@ describe('runJob', () => {
     ]);
 
     const failedJob = await runJob(pendingJob);
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels.job().getOneById(pendingJob.resourceId, opts)
+        kIjxSemantic.job().getOneById(pendingJob.resourceId, opts)
       );
 
     expect(pendingJob.resourceId).toEqual(failedJob?.resourceId);

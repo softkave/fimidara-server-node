@@ -1,10 +1,7 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {LiteralDataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
@@ -15,7 +12,7 @@ import {unassignPermissionGroupsJoiSchema} from './validation.js';
 const unassignPermissionGroups: UnassignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, unassignPermissionGroupsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -37,12 +34,10 @@ const unassignPermissionGroups: UnassignPermissionGroupsEndpoint =
       });
     });
 
-    await kSemanticModels.utils().withTxn(async opts => {
+    await kIjxSemantic.utils().withTxn(async opts => {
       // TODO: use $or query when we implement $or
       await Promise.all(
-        queries.map(q =>
-          kSemanticModels.assignedItem().deleteManyByQuery(q, opts)
-        )
+        queries.map(q => kIjxSemantic.assignedItem().deleteManyByQuery(q, opts))
       );
     });
   };

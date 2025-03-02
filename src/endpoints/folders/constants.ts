@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
 export const kFolderConstants = {
@@ -19,14 +19,11 @@ export const kFolderConstants = {
   addFolderQueueTimeout: 30_000,
   addFolderProcessCount: 100,
   getAddFolderPubSubChannel: (folderpath: string) =>
-    `${
-      kUtilsInjectables.suppliedConfig().addFolderPubSubChannelPrefix
-    }-${folderpath}`,
+    `${kIkxUtils.suppliedConfig().addFolderPubSubChannelPrefix}-${folderpath}`,
   getAddFolderQueueWithNo: (num: number) =>
-    `${kUtilsInjectables.suppliedConfig().addFolderQueuePrefix}${num}`,
+    `${kIkxUtils.suppliedConfig().addFolderQueuePrefix}${num}`,
   getAddFolderQueueKey: (folderpath: string) => {
-    const {addFolderQueueStart, addFolderQueueEnd} =
-      kUtilsInjectables.suppliedConfig();
+    const {addFolderQueueStart, addFolderQueueEnd} = kIkxUtils.suppliedConfig();
 
     assert.ok(addFolderQueueStart);
     assert.ok(addFolderQueueEnd);

@@ -5,10 +5,7 @@ import {
   FilePersistenceProviderFeature,
 } from '../../contexts/file/types.js';
 import {isFilePersistenceProvider} from '../../contexts/file/utils.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderQueryListParams} from '../../contexts/semantic/types.js';
 import {File} from '../../definitions/file.js';
 import {
@@ -55,7 +52,7 @@ export async function resolveMountsForFolder(
   folder: Pick<Folder, 'workspaceId' | 'namepath'>,
   opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
-  const mountModel = kSemanticModels.fileBackendMount();
+  const mountModel = kIjxSemantic.fileBackendMount();
   const mountsList = await loopAndCollateAsync(
     index => {
       const paths = folder.namepath.slice(0, folder.namepath.length - index);
@@ -105,7 +102,7 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const fileProviderResolver = kUtilsInjectables.fileProviderResolver();
+  const fileProviderResolver = kIkxUtils.fileProviderResolver();
   const providersMap: FilePersistenceProvidersByMount = {};
   const configsMap: Record<
     string,
@@ -114,11 +111,9 @@ export async function initBackendProvidersForMounts(
 
   await Promise.all(
     configs.map(async config => {
-      const {text: credentials} = await kUtilsInjectables
-        .secretsManager()
-        .getSecret({
-          secretId: config.secretId,
-        });
+      const {text: credentials} = await kIkxUtils.secretsManager().getSecret({
+        secretId: config.secretId,
+      });
       const initParams = JSON.parse(credentials);
       configsMap[config.resourceId] = {config, providerParams: initParams};
     })
@@ -128,7 +123,7 @@ export async function initBackendProvidersForMounts(
     const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
     if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
-      kUtilsInjectables
+      kIkxUtils
         .logger()
         .log(
           `mount ${mount.resourceId} is not fimidara, and is without config`
@@ -141,7 +136,7 @@ export async function initBackendProvidersForMounts(
   });
 
   const disposables = compact(Object.values(providersMap));
-  kUtilsInjectables.asyncLocalStorage().disposables().add(disposables);
+  kIkxUtils.asyncLocalStorage().disposables().add(disposables);
   return providersMap;
 }
 
@@ -195,11 +190,11 @@ export async function areMountsCompletelyIngestedForFolder(
       };
 
       const [completedJob, incompleteJob] = await Promise.all([
-        kSemanticModels.job().existsByQuery({
+        kIjxSemantic.job().existsByQuery({
           ...query,
           status: kJobStatus.completed,
         }),
-        kSemanticModels.job().existsByQuery({
+        kIjxSemantic.job().existsByQuery({
           ...query,
           status: {$ne: kJobStatus.completed},
         }),
@@ -215,10 +210,7 @@ export async function areMountsCompletelyIngestedForFolder(
 export function resolvedMountsHaveUnsupportedFeatures(
   features: FilePersistenceProviderFeature[]
 ) {
-  const disposables = kUtilsInjectables
-    .asyncLocalStorage()
-    .disposables()
-    .getList();
+  const disposables = kIkxUtils.asyncLocalStorage().disposables().getList();
   const fileProviders = disposables.filter(disposable =>
     isFilePersistenceProvider(disposable)
   ) as FilePersistenceProvider[];
@@ -272,7 +264,7 @@ export async function getResolvedMountEntries(
   id: string,
   opts?: SemanticProviderQueryListParams<FileBackendMount>
 ) {
-  return await kSemanticModels
+  return await kIjxSemantic
     .resolvedMountEntry()
     .getManyByQuery({forId: id}, opts);
 }

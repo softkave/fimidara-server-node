@@ -2,7 +2,7 @@ import assert from 'assert';
 import {compact, isUndefined, omit} from 'lodash-es';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   kJobPresetPriority,
   kJobRunCategory,
@@ -45,10 +45,10 @@ describe('getNextJob', () => {
     });
 
     const runnerId = getNewIdForResource(kFimidaraResourceType.App);
-    const inProgressJob = await kSemanticModels
+    const inProgressJob = await kIjxSemantic
       .utils()
       .withTxn(opts => markJobStarted(job, runnerId, opts));
-    const dbJob = await kSemanticModels.job().getOneById(job.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(job.resourceId);
 
     assert(inProgressJob);
     assert(dbJob);
@@ -83,7 +83,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getNextUnfinishedJob(/** empty active runners */ [], [shard], opts)
@@ -105,7 +105,7 @@ describe('getNextJob', () => {
       type: kJobType.noop,
     });
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
@@ -127,7 +127,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
@@ -157,7 +157,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextUnfinishedJob([runnerId], [shard], opts));
 
@@ -178,7 +178,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
@@ -202,14 +202,14 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
       );
 
     assert(unfinishedJob);
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .job()
       .getOneById(unfinishedJob?.resourceId);
     expect(dbJob?.cooldownTill).toBeTruthy();
@@ -235,7 +235,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
@@ -264,7 +264,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const unfinishedJob = await kSemanticModels
+    const unfinishedJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
         getNextUnfinishedJob(/** empty active runner */ [], [shard], opts)
@@ -293,7 +293,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const pendingJob = await kSemanticModels
+    const pendingJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -320,7 +320,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const pendingJob = await kSemanticModels
+    const pendingJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -344,7 +344,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const pendingJob = await kSemanticModels
+    const pendingJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -373,7 +373,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const pendingJob = await kSemanticModels
+    const pendingJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -398,7 +398,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const notReadyJob = await kSemanticModels
+    const notReadyJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -418,14 +418,12 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const pendingJob = await kSemanticModels
+    const pendingJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
     assert(pendingJob);
-    const dbJob = await kSemanticModels
-      .job()
-      .getOneById(pendingJob?.resourceId);
+    const dbJob = await kIjxSemantic.job().getOneById(pendingJob?.resourceId);
     expect(dbJob?.cooldownTill).toBeTruthy();
   });
 
@@ -452,7 +450,7 @@ describe('getNextJob', () => {
       }),
     ]);
 
-    const notReadyJob = await kSemanticModels
+    const notReadyJob = await kIjxSemantic
       .utils()
       .withTxn(opts => getNextPendingJob([shard], opts));
 
@@ -480,9 +478,9 @@ describe('getNextJob', () => {
     const startedJob = await getNextJob(/** active runners */ [], runnerId, [
       shard,
     ]);
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .utils()
-      .withTxn(opts => kSemanticModels.job().getOneById(job.resourceId, opts));
+      .withTxn(opts => kIjxSemantic.job().getOneById(job.resourceId, opts));
 
     expect(startedJob?.resourceId).toEqual(job.resourceId);
     expect(omit(startedJob, '_id')).toEqual(omit(dbJob, '_id'));
@@ -512,10 +510,10 @@ describe('getNextJob', () => {
     const startedJob = await getNextJob(/** active runners */ [], runnerId, [
       shard,
     ]);
-    const dbJob = await kSemanticModels
+    const dbJob = await kIjxSemantic
       .utils()
       .withTxn(opts =>
-        kSemanticModels.job().getOneById(unfinishedJob.resourceId, opts)
+        kIjxSemantic.job().getOneById(unfinishedJob.resourceId, opts)
       );
 
     expect(startedJob?.resourceId).toEqual(unfinishedJob.resourceId);

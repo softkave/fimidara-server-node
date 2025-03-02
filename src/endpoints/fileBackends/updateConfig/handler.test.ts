@@ -1,10 +1,7 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import RequestData from '../../RequestData.js';
 import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
@@ -76,7 +73,7 @@ describe('updateConfig s3', () => {
       const result = await updateFileBackendConfig(reqData);
       assertEndpointResultOk(result);
 
-      const updatedConfig = await kSemanticModels
+      const updatedConfig = await kIjxSemantic
         .fileBackendConfig()
         .getOneById(result.config.resourceId);
       assert(updatedConfig);
@@ -88,11 +85,9 @@ describe('updateConfig s3', () => {
           {
             matcher: input => !!input.credentials,
             expect: async input => {
-              const currentCreds = await kUtilsInjectables
-                .secretsManager()
-                .getSecret({
-                  secretId: updatedConfig.secretId,
-                });
+              const currentCreds = await kIkxUtils.secretsManager().getSecret({
+                secretId: updatedConfig.secretId,
+              });
               expect(currentCreds.text).toEqual(
                 JSON.stringify(input.credentials)
               );

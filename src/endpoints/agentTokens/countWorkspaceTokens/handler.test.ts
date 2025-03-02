@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -28,7 +28,7 @@ describe('countWorkspaceAgentTokens', () => {
     await generateAndInsertAgentTokenListForTest(15, {
       workspaceId: workspace.resourceId,
     });
-    const count = await kSemanticModels.agentToken().countByQuery({
+    const count = await kIjxSemantic.agentToken().countByQuery({
       workspaceId: workspace.resourceId,
     });
     const reqData =

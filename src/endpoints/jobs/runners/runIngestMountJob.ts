@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobParams,
@@ -13,7 +13,7 @@ export async function runIngestMountJob(job: Job) {
   assert(job.type === kJobType.ingestMount);
   appAssert(job.workspaceId, 'workspaceId not present in job');
 
-  const mount = await kSemanticModels
+  const mount = await kIjxSemantic
     .fileBackendMount()
     .getOneById(job.params.mountId);
 

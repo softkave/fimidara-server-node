@@ -15,11 +15,8 @@ import {
   FilePersistenceUploadFileParams,
   FileProviderResolver,
 } from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {File} from '../../../../definitions/file.js';
 import {Folder} from '../../../../definitions/folder.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
@@ -53,15 +50,15 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
-  defaultSuppliedConfig = kUtilsInjectables.suppliedConfig();
+  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
 });
 
 afterEach(() => {
   assert(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
   if (defaultSuppliedConfig) {
-    kRegisterUtilsInjectables.suppliedConfig(defaultSuppliedConfig);
+    kRegisterIjxUtils.suppliedConfig(defaultSuppliedConfig);
   }
 });
 
@@ -107,7 +104,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       assert.ok(sResultOuter?.status === 'fulfilled');
       const sResult = sResultOuter?.value;
 
-      const files = await kSemanticModels
+      const files = await kIjxSemantic
         .file()
         .getManyByQuery(FileQueries.getByNamepath(sResult.savedFile));
       expect(files.length).toBe(1);
@@ -145,10 +142,10 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       );
 
       const [dbWorkspaceFolders, dbWorkspaceFiles] = await Promise.all([
-        kSemanticModels.folder().getManyByQuery({
+        kIjxSemantic.folder().getManyByQuery({
           workspaceId: workspace.resourceId,
         }),
-        kSemanticModels.file().getManyByQuery({
+        kIjxSemantic.file().getManyByQuery({
           workspaceId: workspace.resourceId,
         }),
       ]);
@@ -223,17 +220,17 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         allowRootFolder: false,
       });
       const [dbFile01, dbFile02, dbFile03] = await Promise.all([
-        kSemanticModels.file().getOneByNamepath({
+        kIjxSemantic.file().getOneByNamepath({
           workspaceId: workspace.resourceId,
           namepath: pathinfo01.namepath,
           ext: pathinfo01.ext,
         }),
-        kSemanticModels.file().getOneByNamepath({
+        kIjxSemantic.file().getOneByNamepath({
           workspaceId: workspace.resourceId,
           namepath: pathinfo02.namepath,
           ext: pathinfo02.ext,
         }),
-        kSemanticModels.file().getOneByNamepath({
+        kIjxSemantic.file().getOneByNamepath({
           workspaceId: workspace.resourceId,
           namepath: pathinfo03.namepath,
           ext: pathinfo03.ext,
@@ -257,17 +254,17 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       const [latestDbFile01, latestDbFile02, latestDbFile03] =
         await Promise.all([
-          kSemanticModels.file().getOneByNamepath({
+          kIjxSemantic.file().getOneByNamepath({
             workspaceId: workspace.resourceId,
             namepath: pathinfo01.namepath,
             ext: pathinfo01.ext,
           }),
-          kSemanticModels.file().getOneByNamepath({
+          kIjxSemantic.file().getOneByNamepath({
             workspaceId: workspace.resourceId,
             namepath: pathinfo02.namepath,
             ext: pathinfo02.ext,
           }),
-          kSemanticModels.file().getOneByNamepath({
+          kIjxSemantic.file().getOneByNamepath({
             workspaceId: workspace.resourceId,
             namepath: pathinfo03.namepath,
             ext: pathinfo03.ext,
@@ -313,7 +310,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         };
       }
 
-      kRegisterUtilsInjectables.fileProviderResolver(() => {
+      kRegisterIjxUtils.fileProviderResolver(() => {
         return new TestFileProvider();
       });
 
@@ -328,7 +325,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
     test('file read available if file is existing', async () => {
       const mem = new MemoryFilePersistenceProvider();
-      kRegisterUtilsInjectables.fileProviderResolver(() => {
+      kRegisterIjxUtils.fileProviderResolver(() => {
         return mem;
       });
 

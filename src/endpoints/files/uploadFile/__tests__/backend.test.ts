@@ -2,11 +2,8 @@ import assert from 'assert';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FileProviderResolver} from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {stringifyFolderpath} from '../../../folders/utils.js';
 import {generateTestFilepath} from '../../../testUtils/generate/file.js';
@@ -27,15 +24,15 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
-  defaultSuppliedConfig = kUtilsInjectables.suppliedConfig();
+  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
 });
 
 afterEach(() => {
   assert(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
   if (defaultSuppliedConfig) {
-    kRegisterUtilsInjectables.suppliedConfig(defaultSuppliedConfig);
+    kRegisterIjxUtils.suppliedConfig(defaultSuppliedConfig);
   }
 });
 
@@ -72,7 +69,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         ]);
       const closerMountBackend = new MemoryFilePersistenceProvider();
       const fartherMountBackend = new MemoryFilePersistenceProvider();
-      kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+      kRegisterIjxUtils.fileProviderResolver(forMount => {
         if (forMount.resourceId === closerMount.resourceId) {
           return closerMountBackend;
         }
@@ -104,7 +101,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       expect(fartherMountPersistedFile).toBeFalsy();
       await expectFileBodyEqual(persistedFile.body, dataBuffer);
 
-      const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+      const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
       expect(dbFile?.isWriteAvailable).toBeTruthy();
     });
 
@@ -136,7 +133,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         ]);
       const closerMountBackend = new MemoryFilePersistenceProvider();
       const fartherMountBackend = new MemoryFilePersistenceProvider();
-      kRegisterUtilsInjectables.fileProviderResolver(forMount => {
+      kRegisterIjxUtils.fileProviderResolver(forMount => {
         if (forMount.resourceId === closerMount.resourceId) {
           return closerMountBackend;
         }

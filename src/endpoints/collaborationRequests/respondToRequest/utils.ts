@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {
   CollaborationRequest,
@@ -34,7 +31,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   data: RespondToCollaborationRequestEndpointParams,
   opts: SemanticProviderMutationParams
 ) => {
-  const request = await kSemanticModels
+  const request = await kIjxSemantic
     .collaborationRequest()
     .getOneById(data.requestId, opts);
   assertCollaborationRequest(request);
@@ -57,7 +54,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
   }
 
   const [updatedRequest] = await Promise.all([
-    kSemanticModels
+    kIjxSemantic
       .collaborationRequest()
       .getAndUpdateOneById(
         data.requestId,
@@ -80,7 +77,7 @@ export const INTERNAL_RespondToCollaborationRequest = async (
 export async function notifySenderOnCollaborationRequestResponse(
   request: CollaborationRequest
 ) {
-  const workspace = await kSemanticModels
+  const workspace = await kIjxSemantic
     .workspace()
     .getOneById(request.workspaceId);
   assertWorkspace(workspace);
@@ -88,7 +85,7 @@ export async function notifySenderOnCollaborationRequestResponse(
     request.createdBy.agentType === kFimidaraResourceType.User ||
     workspace.createdBy.agentType === kFimidaraResourceType.User
       ? // TODO: check if agent is a user or associated type before fetching
-        await kSemanticModels
+        await kIjxSemantic
           .user()
           .getOneById(
             request.createdBy.agentType === kFimidaraResourceType.User
@@ -98,7 +95,7 @@ export async function notifySenderOnCollaborationRequestResponse(
       : null;
 
   if (sender && sender.isEmailVerified) {
-    kUtilsInjectables.promises().callAndForget(() =>
+    kIkxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,

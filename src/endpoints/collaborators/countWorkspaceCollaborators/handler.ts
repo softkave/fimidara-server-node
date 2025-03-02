@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getWorkspaceCollaboratorsQuery} from '../getWorkspaceCollaborators/utils.js';
@@ -12,7 +9,7 @@ import {countWorkspaceCollaboratorsJoiSchema} from './validation.js';
 const countWorkspaceCollaborators: CountWorkspaceCollaboratorsEndpoint =
   async reqData => {
     const data = validate(reqData.data, countWorkspaceCollaboratorsJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -24,7 +21,7 @@ const countWorkspaceCollaborators: CountWorkspaceCollaboratorsEndpoint =
       agent,
       workspace
     );
-    const count = await kSemanticModels
+    const count = await kIjxSemantic
       .assignedItem()
       .countByQuery(assignedItemsQuery);
     return {count};

@@ -1,7 +1,7 @@
 import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -178,7 +178,7 @@ async function handleUploadFile(params: {
     return {file: fileExtractor(file)};
   } catch (error) {
     if (!isMultipart) {
-      kUtilsInjectables
+      kIkxUtils
         .promises()
         .callAndForget(() => setFileWritable(file.resourceId));
     }
@@ -189,7 +189,7 @@ async function handleUploadFile(params: {
 
 const uploadFile: UploadFileEndpoint = async reqData => {
   const data = validate(reqData.data, uploadFileJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -205,7 +205,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {
-    const result = await kUtilsInjectables.redlock().using(
+    const result = await kIkxUtils.redlock().using(
       `upload-file-${file.resourceId}-${data.part}`,
       /** durationMs */ 10 * 60 * 1000, // 10 minutes
       () => handleUploadFile({file, data, agent, isNewFile, reqData})

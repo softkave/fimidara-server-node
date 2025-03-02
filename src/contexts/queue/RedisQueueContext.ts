@@ -1,7 +1,7 @@
 import {flatten} from 'lodash-es';
 import {RedisClientType} from 'redis';
 import {AnyFn} from 'softkave-js-utils';
-import {kUtilsInjectables} from '../injection/injectables.js';
+import {kIkxUtils} from '../ijx/injectables.js';
 import {IQueueContext, IQueueMessage} from './types.js';
 import {cleanQueueMessages} from './utils.js';
 
@@ -60,7 +60,7 @@ export class RedisQueueContext implements IQueueContext {
     const p = this.redis.xRead({key, id: '0-0'}, {COUNT: 1, BLOCK: timeout});
     p.catch(reason => {
       fn(false);
-      kUtilsInjectables.logger().error(reason);
+      kIkxUtils.logger().error(reason);
     });
     p.then(data => {
       const hasData = data?.length && data[0]?.messages?.length;

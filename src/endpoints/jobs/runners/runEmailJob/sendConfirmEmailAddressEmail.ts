@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -27,9 +24,9 @@ export async function getLinkWithConfirmEmailToken(
   user: User,
   urlPath: string
 ) {
-  return kSemanticModels.utils().withTxn(async opts => {
+  return kIjxSemantic.utils().withTxn(async opts => {
     const url = new URL(urlPath);
-    let token = await kSemanticModels
+    let token = await kIjxSemantic
       .agentToken()
       .getUserAgentToken(
         user.resourceId,
@@ -47,10 +44,10 @@ export async function getLinkWithConfirmEmailToken(
         createdBy: kSystemSessionAgent,
         lastUpdatedBy: kSystemSessionAgent,
       });
-      await kSemanticModels.agentToken().insertItem(token, opts);
+      await kIjxSemantic.agentToken().insertItem(token, opts);
     }
 
-    const encodedToken = await kUtilsInjectables.session().encodeToken({
+    const encodedToken = await kIkxUtils.session().encodeToken({
       tokenId: token.resourceId,
       expiresAt: token.expiresAt,
       issuedAt: token.createdAt,
@@ -78,7 +75,7 @@ export async function sendConfirmEmailAddressEmail(
     throw new Error(`Recipient user not found for job ${jobId}`);
   }
 
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  const suppliedConfig = kIkxUtils.suppliedConfig();
   appAssert(
     suppliedConfig.verifyEmailLink,
     'verifyEmailLink not present in config'
@@ -95,16 +92,16 @@ export async function sendConfirmEmailAddressEmail(
   };
   const html = confirmEmailAddressEmailHTML(emailProps);
   const text = confirmEmailAddressEmailText(emailProps);
-  const result = await kUtilsInjectables.email().sendEmail({
+  const result = await kIkxUtils.email().sendEmail({
     source,
     subject: kConfirmEmailAddressEmail.title,
     body: {html, text},
     destination: params.emailAddress,
   });
 
-  kUtilsInjectables.promises().callAndForget(() =>
-    kSemanticModels.utils().withTxn(async opts => {
-      await kSemanticModels
+  kIkxUtils.promises().callAndForget(() =>
+    kIjxSemantic.utils().withTxn(async opts => {
+      await kIjxSemantic
         .user()
         .updateOneById(
           user.resourceId,

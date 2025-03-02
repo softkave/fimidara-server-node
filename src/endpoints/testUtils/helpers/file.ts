@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {Readable} from 'stream';
 import {expect} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {streamToBuffer} from '../../../utils/fns.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
@@ -24,7 +24,7 @@ export async function expectFileBodyEqualById(
   id: string,
   expectedBody: Buffer | Readable
 ) {
-  const file = await kSemanticModels.file().getOneById(id);
+  const file = await kIjxSemantic.file().getOneById(id);
   assert(file);
 
   const {primaryBackend, primaryMount} = await resolveBackendsMountsAndConfigs(

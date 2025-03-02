@@ -3,7 +3,7 @@ import {
   PersistedFileDescription,
   PersistedFolderDescription,
 } from '../../contexts/file/types.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {File} from '../../definitions/file.js';
 import {ResolvedMountEntry} from '../../definitions/fileBackend.js';
 import {Folder} from '../../definitions/folder.js';
@@ -33,11 +33,11 @@ export async function ingestPersistedFolders(
     return;
   }
 
-  await kSemanticModels.utils().withTxn(async opts => {
+  await kIjxSemantic.utils().withTxn(async opts => {
     // Fetch existing mount entries to determine new folders. Although
     // createFolderList checks for existing folders, a folder's namepath may
     // differ from a backend/persisted folder's namepath.
-    const mountEntries = await kSemanticModels
+    const mountEntries = await kIjxSemantic
       .resolvedMountEntry()
       .getLatestForManyFimidaraNamepathAndExt(
         workspace.resourceId,
@@ -111,9 +111,7 @@ export async function ingestPersistedFolders(
       }
     });
 
-    await kSemanticModels
-      .resolvedMountEntry()
-      .insertItem(newMountEntries, opts);
+    await kIjxSemantic.resolvedMountEntry().insertItem(newMountEntries, opts);
   });
 }
 
@@ -129,9 +127,9 @@ export async function ingestPersistedFiles(
     return;
   }
 
-  await kSemanticModels.utils().withTxn(async opts => {
+  await kIjxSemantic.utils().withTxn(async opts => {
     // Fetch existing mount entries to determine new files
-    const mountEntries = await kSemanticModels
+    const mountEntries = await kIjxSemantic
       .resolvedMountEntry()
       .getLatestForManyFimidaraNamepathAndExt(
         workspace.resourceId,
@@ -254,8 +252,8 @@ export async function ingestPersistedFiles(
     });
 
     await Promise.all([
-      kSemanticModels.resolvedMountEntry().insertItem(newMountEntries, opts),
-      kSemanticModels.file().insertItem(newFiles, opts),
+      kIjxSemantic.resolvedMountEntry().insertItem(newMountEntries, opts),
+      kIjxSemantic.file().insertItem(newFiles, opts),
     ]);
   });
 }

@@ -1,7 +1,4 @@
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {UsageRecordDecrementInput} from '../../../../contexts/usage/types.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
@@ -39,7 +36,7 @@ const getArtifacts: DeleteResourceGetArtifactsToDeleteFns<
   ...genericGetArtifacts,
   [kFimidaraResourceType.PresignedPath]: async ({args, opts, preRunMeta}) => {
     if (preRunMeta.namepath) {
-      return await kSemanticModels.presignedPath().getManyByQuery(
+      return await kIjxSemantic.presignedPath().getManyByQuery(
         FileQueries.getByNamepath({
           workspaceId: args.workspaceId,
           namepath: preRunMeta.namepath,
@@ -65,7 +62,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns<
   }) =>
     helpers.withTxn(async opts => {
       if (preRunMeta.namepath) {
-        await kSemanticModels.resolvedMountEntry().deleteManyByQuery(
+        await kIjxSemantic.resolvedMountEntry().deleteManyByQuery(
           FileQueries.getByNamepath({
             workspaceId: args.workspaceId,
             namepath: preRunMeta.namepath,
@@ -109,7 +106,7 @@ async function deleteMountFiles(params: {
           })),
         });
       } catch (error) {
-        kUtilsInjectables.logger().error(error);
+        kIkxUtils.logger().error(error);
       }
     })
   );
@@ -130,7 +127,7 @@ async function decrementStorageUsageRecordForFile(params: {
     usage: size,
   };
 
-  await kUtilsInjectables.usage().decrement(kSystemSessionAgent, input);
+  await kIkxUtils.usage().decrement(kSystemSessionAgent, input);
 }
 
 const deleteResourceFn: DeleteResourceFn<
@@ -155,7 +152,7 @@ const deleteResourceFn: DeleteResourceFn<
   ]);
 
   await helpers.withTxn(async opts => {
-    await kSemanticModels.file().deleteOneById(args.resourceId, opts);
+    await kIjxSemantic.file().deleteOneById(args.resourceId, opts);
   });
 };
 
@@ -166,10 +163,10 @@ const getPreRunMetaFn: DeleteResourceGetPreRunMetaFn<
   const keys: Array<keyof DeleteFilePreRunMeta['partialMountEntries'][number]> =
     ['backendExt', 'backendNamepath'];
   const [partialMountEntries, file] = await Promise.all([
-    kSemanticModels.resolvedMountEntry().getLatestByForId(args.resourceId, {
+    kIjxSemantic.resolvedMountEntry().getLatestByForId(args.resourceId, {
       projection: keys.reduce((acc, key) => ({...acc, [key]: true}), {}),
     }),
-    kSemanticModels.file().getOneById(args.resourceId, {includeDeleted: true}),
+    kIjxSemantic.file().getOneById(args.resourceId, {includeDeleted: true}),
   ]);
 
   return {

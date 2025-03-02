@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
 import {
   genericDeleteArtifacts,
@@ -15,7 +15,7 @@ import {
 const getArtifacts: DeleteResourceGetArtifactsToDeleteFns = {
   ...genericGetArtifacts,
   [kFimidaraResourceType.PresignedPath]: async ({args, opts}) => {
-    return await kSemanticModels
+    return await kIjxSemantic
       .presignedPath()
       .getManyByQuery({issuerAgentTokenId: args.resourceId}, opts);
   },
@@ -25,7 +25,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
   ...genericDeleteArtifacts,
   [kFimidaraResourceType.PresignedPath]: async ({args, helpers}) => {
     await helpers.withTxn(opts =>
-      kSemanticModels
+      kIjxSemantic
         .presignedPath()
         .deleteManyByQuery({issuerAgentTokenId: args.resourceId}, opts)
     );
@@ -34,7 +34,7 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>
   helpers.withTxn(opts =>
-    kSemanticModels.agentToken().deleteOneById(args.resourceId, opts)
+    kIjxSemantic.agentToken().deleteOneById(args.resourceId, opts)
   );
 
 export const deleteAgentTokenCascadeEntry: DeleteResourceCascadeEntry = {

@@ -6,11 +6,8 @@ import {
   FilePersistenceUploadFileParams,
   FileProviderResolver,
 } from '../../../../contexts/file/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {generateTestFilepathString} from '../../../testUtils/generate/file.js';
 import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
@@ -30,15 +27,15 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kUtilsInjectables.fileProviderResolver();
-  defaultSuppliedConfig = kUtilsInjectables.suppliedConfig();
+  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
 });
 
 afterEach(() => {
   assert(defaultFileProviderResolver);
-  kRegisterUtilsInjectables.fileProviderResolver(defaultFileProviderResolver);
+  kRegisterIjxUtils.fileProviderResolver(defaultFileProviderResolver);
   if (defaultSuppliedConfig) {
-    kRegisterUtilsInjectables.suppliedConfig(defaultSuppliedConfig);
+    kRegisterIjxUtils.suppliedConfig(defaultSuppliedConfig);
   }
 });
 
@@ -66,7 +63,7 @@ describe('single.uploadFile', () => {
       };
     }
 
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
+    kRegisterIjxUtils.fileProviderResolver(() => {
       return new TestFileProvider();
     });
 
@@ -84,8 +81,8 @@ describe('single.uploadFile', () => {
       });
     });
 
-    await kUtilsInjectables.promises().flush();
-    const dbFile = await kSemanticModels.file().getOneById(file.resourceId);
+    await kIkxUtils.promises().flush();
+    const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.isWriteAvailable).toBeTruthy();
   });
 
@@ -122,7 +119,7 @@ describe('single.uploadFile', () => {
       };
     }
 
-    kRegisterUtilsInjectables.fileProviderResolver(() => {
+    kRegisterIjxUtils.fileProviderResolver(() => {
       return new TestFileProvider();
     });
 

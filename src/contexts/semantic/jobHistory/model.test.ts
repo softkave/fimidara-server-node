@@ -12,7 +12,7 @@ import {generateAndInsertJobHistoryListForTest} from '../../../endpoints/testUti
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kSemanticModels} from '../../injection/injectables.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
 
 beforeAll(async () => {
   await initTests();
@@ -46,7 +46,7 @@ describe('JobHistorySemanticModel', () => {
       {jobId, status, workspaceId}
     );
 
-    const actualJobHistory = await kSemanticModels
+    const actualJobHistory = await kIjxSemantic
       .jobHistory()
       .getJobLastHistoryItem(jobId, status);
 
@@ -72,7 +72,7 @@ describe('JobHistorySemanticModel', () => {
       kLoopAsyncSettlementType.all
     );
 
-    const actualJobHistory = await kSemanticModels
+    const actualJobHistory = await kIjxSemantic
       .jobHistory()
       .getJobLastHistoryItem(jobId, status);
 
@@ -98,7 +98,7 @@ describe('JobHistorySemanticModel', () => {
     const jobHistoryList = flatten(loopResult);
     const lastJobHistoryItem = last(jobHistoryList);
 
-    const actualJobHistory = await kSemanticModels
+    const actualJobHistory = await kIjxSemantic
       .jobHistory()
       .getJobLastHistoryItem(jobId, /** status */ undefined);
 

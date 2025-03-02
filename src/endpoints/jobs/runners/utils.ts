@@ -1,13 +1,13 @@
 import {AnyFn, AnyObject} from 'softkave-js-utils';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {DeleteResourceJobMeta, Job} from '../../../definitions/job.js';
 
 export async function setJobMeta<TMeta extends AnyObject>(
   jobId: string,
   makeMetaFn: AnyFn<[TMeta | undefined], TMeta>
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    const job = (await kSemanticModels.job().getOneById(jobId, {
+  return await kIjxSemantic.utils().withTxn(async opts => {
+    const job = (await kIjxSemantic.job().getOneById(jobId, {
       ...opts,
       projection: {meta: true},
     })) as Pick<Job<AnyObject, TMeta>, 'meta'>;
@@ -18,7 +18,7 @@ export async function setJobMeta<TMeta extends AnyObject>(
       // TODO: implement a way to update specific fields without overwriting
       // existing data, and without needing to get data from DB like we're
       // doing here
-      await kSemanticModels.job().updateOneById(jobId, {meta: newMeta}, opts);
+      await kIjxSemantic.job().updateOneById(jobId, {meta: newMeta}, opts);
       job.meta = newMeta;
       return newMeta;
     }
@@ -31,8 +31,8 @@ export async function setJobMeta02<TMeta extends AnyObject>(
   jobId: string,
   meta: TMeta
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
-    await kSemanticModels.job().updateOneById(jobId, {meta}, opts);
+  return await kIjxSemantic.utils().withTxn(async opts => {
+    await kIjxSemantic.job().updateOneById(jobId, {meta}, opts);
   });
 }
 

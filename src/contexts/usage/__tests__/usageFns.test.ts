@@ -33,7 +33,7 @@ import {
 import {UsageLimitExceededError} from '../../../endpoints/usageRecords/errors.js';
 import {getUsageRecordReportingPeriod} from '../../../endpoints/usageRecords/utils.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
-import {kSemanticModels} from '../../injection/injectables.js';
+import {kIjxSemantic} from '../../ijx/injectables.js';
 import {
   decrementStorageUsageRecord,
   incrementBandwidthInUsageRecord,
@@ -311,7 +311,7 @@ describe.each([
 
       await fnParams.fn(reqData, file);
 
-      const dbRecord = await kSemanticModels.usageRecord().getOneByQuery({
+      const dbRecord = await kIjxSemantic.usageRecord().getOneByQuery({
         status: kUsageRecordFulfillmentStatus.fulfilled,
         summationType: kUsageSummationType.month,
         category: fnParams.category,

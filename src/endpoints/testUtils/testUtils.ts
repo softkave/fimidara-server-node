@@ -5,10 +5,7 @@ import {add} from 'date-fns';
 import {isNumber} from 'lodash-es';
 import {Readable} from 'stream';
 import {globalSetup} from '../../contexts/globalUtils.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
 import {IServerRequest} from '../../contexts/types.js';
 import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
 import {
@@ -235,22 +232,18 @@ export async function insertUserForTest(
     );
     rawUser = await populateUserWorkspaces(user);
   } else {
-    const user = await kSemanticModels
-      .user()
-      .getOneById(result.user.resourceId);
+    const user = await kIjxSemantic.user().getOneById(result.user.resourceId);
     assertUser(user);
     rawUser = await populateUserWorkspaces(user);
   }
 
-  const userTokenData = kUtilsInjectables
-    .session()
-    .decodeToken(result.jwtToken);
-  const clientTokenData = kUtilsInjectables
+  const userTokenData = kIkxUtils.session().decodeToken(result.jwtToken);
+  const clientTokenData = kIkxUtils
     .session()
     .decodeToken(result.clientJwtToken);
   const [userToken, clientToken] = await Promise.all([
-    kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
-    kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
+    kIjxSemantic.agentToken().getOneById(userTokenData.sub.id),
+    kIjxSemantic.agentToken().getOneById(clientTokenData.sub.id),
   ]);
   assertAgentToken(userToken);
   assertAgentToken(clientToken);
@@ -289,19 +282,17 @@ export async function insertUserWithOAuthForTest(
   assertEndpointResultOk(result);
   let rawUser: UserWithWorkspace;
 
-  const user = await kSemanticModels.user().getOneById(result.user.resourceId);
+  const user = await kIjxSemantic.user().getOneById(result.user.resourceId);
   assertUser(user);
   rawUser = await populateUserWorkspaces(user);
 
-  const userTokenData = kUtilsInjectables
-    .session()
-    .decodeToken(result.jwtToken);
-  const clientTokenData = kUtilsInjectables
+  const userTokenData = kIkxUtils.session().decodeToken(result.jwtToken);
+  const clientTokenData = kIkxUtils
     .session()
     .decodeToken(result.clientJwtToken);
   const [userToken, clientToken] = await Promise.all([
-    kSemanticModels.agentToken().getOneById(userTokenData.sub.id),
-    kSemanticModels.agentToken().getOneById(clientTokenData.sub.id),
+    kIjxSemantic.agentToken().getOneById(userTokenData.sub.id),
+    kIjxSemantic.agentToken().getOneById(clientTokenData.sub.id),
   ]);
   assertAgentToken(userToken);
   assertAgentToken(clientToken);
@@ -347,7 +338,7 @@ export async function insertWorkspaceForTest(
   const result = await addWorkspace(reqData);
   assertEndpointResultOk(result);
 
-  const rawWorkspace = await kSemanticModels
+  const rawWorkspace = await kIjxSemantic
     .workspace()
     .getOneById(result.workspace.resourceId);
   assert(rawWorkspace);
@@ -431,7 +422,7 @@ export async function insertAgentTokenForTest(
   const result = await addAgentTokenEndpoint(reqData);
   assertEndpointResultOk(result);
 
-  const rawToken = await kSemanticModels
+  const rawToken = await kIjxSemantic
     .agentToken()
     .getOneById(result.token.resourceId);
   assert(rawToken);
@@ -456,7 +447,7 @@ export async function insertFileBackendConfigForTest(
   const result = await addFileBackendConfig(reqData);
   assertEndpointResultOk(result);
 
-  const rawConfig = await kSemanticModels
+  const rawConfig = await kIjxSemantic
     .fileBackendConfig()
     .getOneById(result.config.resourceId);
   assert(rawConfig);
@@ -490,7 +481,7 @@ export async function insertFileBackendMountForTest(
   const result = await addFileBackendMountEndpoint(reqData);
   assertEndpointResultOk(result);
 
-  const rawMount = await kSemanticModels
+  const rawMount = await kIjxSemantic
     .fileBackendMount()
     .getOneById(result.mount.resourceId);
   appAssert(rawMount);
@@ -524,7 +515,7 @@ export async function insertFolderForTest(
   const result = await addFolder(reqData);
   assertEndpointResultOk(result);
 
-  const rawFolder = await kSemanticModels
+  const rawFolder = await kIjxSemantic
     .folder()
     .getOneById(result.folder.resourceId);
   appAssert(rawFolder);
@@ -579,7 +570,7 @@ export async function insertFileForTest(
   const result = await uploadFile(reqData);
   assertEndpointResultOk(result);
 
-  const rawFile = await kSemanticModels
+  const rawFile = await kIjxSemantic
     .file()
     .assertGetOneByQuery(
       EndpointReusableQueries.getByResourceId(result.file.resourceId)

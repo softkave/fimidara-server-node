@@ -1,9 +1,6 @@
 import {compact, first} from 'lodash-es';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
 import {getIgnoreCaseDataQueryRegExp} from '../../../../contexts/semantic/utils.js';
 import {EmailJobParams} from '../../../../definitions/job.js';
 import {User} from '../../../../definitions/user.js';
@@ -24,7 +21,7 @@ export async function getUserFromEmailJobParams(
 
   const user =
     userIdQuery || userEmailQuery
-      ? await kSemanticModels
+      ? await kIjxSemantic
           .user()
           .getOneByQuery({$or: compact([userIdQuery, userEmailQuery])})
       : null;
@@ -39,7 +36,7 @@ export async function getBaseEmailTemplateProps(
   base: BaseEmailTemplateProps;
   source: string;
 }> {
-  const suppliedConfig = kUtilsInjectables.suppliedConfig();
+  const suppliedConfig = kIkxUtils.suppliedConfig();
 
   appAssert(
     suppliedConfig.clientLoginLink,

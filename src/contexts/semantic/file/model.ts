@@ -3,8 +3,8 @@ import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource} from '../../../definitions/system.js';
 import {FileQueries} from '../../../endpoints/files/queries.js';
 import {DataQuery} from '../../data/types.js';
-import {addIsDeletedIntoQuery} from '../DataSemanticDataAccessBaseProvider.js';
-import {DataSemanticWorkspaceResourceProvider} from '../DataSemanticDataAccessWorkspaceResourceProvider.js';
+import {addIsDeletedIntoQuery} from '../SemanticBaseProvider.js';
+import {SemanticWorkspaceResourceProvider} from '../SemanticWorkspaceResourceProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -15,7 +15,7 @@ import {getInAndNinQuery} from '../utils.js';
 import {SemanticFileProvider, SemanticPresignedPathProvider} from './types.js';
 
 export class DataSemanticFile
-  extends DataSemanticWorkspaceResourceProvider<File>
+  extends SemanticWorkspaceResourceProvider<File>
   implements SemanticFileProvider
 {
   async getOneByNamepath(
@@ -113,7 +113,7 @@ export class DataSemanticFile
 }
 
 export class DataSemanticPresignedPathProvider
-  extends DataSemanticWorkspaceResourceProvider<PresignedPath>
+  extends SemanticWorkspaceResourceProvider<PresignedPath>
   implements SemanticPresignedPathProvider
 {
   async getOneByFileId(

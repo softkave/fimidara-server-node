@@ -1,6 +1,6 @@
 import {globalDispose} from '../../contexts/globalUtils.js';
-import {kUtilsInjectables} from '../../contexts/injection/injectables.js';
-import {registerUtilsInjectables} from '../../contexts/injection/register.js';
+import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {registerIjxUtils} from '../../contexts/ijx/register.js';
 import {
   kFimidaraConfigDbType,
   kFimidaraConfigQueueProvider,
@@ -17,7 +17,7 @@ import {
 } from './renderToFile.js';
 
 async function main() {
-  await registerUtilsInjectables({
+  await registerIjxUtils({
     dbType: kFimidaraConfigDbType.noop,
     queueProvider: kFimidaraConfigQueueProvider.memory,
     pubSubProvider: kFimidaraConfigQueueProvider.memory,
@@ -27,7 +27,7 @@ async function main() {
     redisURL: '',
   });
 
-  kUtilsInjectables.logger().log('Writing templates');
+  kIkxUtils.logger().log('Writing templates');
 
   await Promise.all([
     renderConfirmEmailAddressMedia(),
@@ -40,7 +40,7 @@ async function main() {
     renderNewSignupsOnWaitlistMedia(),
   ]);
 
-  kUtilsInjectables.logger().log('Completed writing templates');
+  kIkxUtils.logger().log('Completed writing templates');
   await globalDispose();
 }
 

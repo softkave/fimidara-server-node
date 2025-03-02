@@ -1,9 +1,9 @@
 import {Resource} from '../../definitions/system.js';
 import {DataQuery} from '../data/types.js';
 import {
-  DataSemanticBaseProvider,
+  SemanticBaseProvider,
   addIsDeletedIntoQuery,
-} from './DataSemanticDataAccessBaseProvider.js';
+} from './SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -14,10 +14,10 @@ import {
 } from './types.js';
 import {getIgnoreCaseDataQueryRegExp, getInAndNinQuery} from './utils.js';
 
-export class DataSemanticWorkspaceResourceProvider<
+export class SemanticWorkspaceResourceProvider<
     T extends SemanticWorkspaceResourceProviderBaseType,
   >
-  extends DataSemanticBaseProvider<T>
+  extends SemanticBaseProvider<T>
   implements SemanticWorkspaceResourceProviderType<T>
 {
   async getByName(

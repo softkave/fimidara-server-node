@@ -1,5 +1,5 @@
 import {forEach, get, has, set} from 'lodash-es';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {
@@ -166,7 +166,7 @@ export const INTERNAL_addPermissionItems = async (
   // Not using transaction read because heavy computation may happen next to
   // filter out existing permission items, and I don't want to keep other
   // permission insertion operations waiting.
-  const existingPermissionItems = await kSemanticModels
+  const existingPermissionItems = await kIjxSemantic
     .permissions()
     .getPermissionItems({
       entityId: extractResourceIdList(entities),
@@ -211,6 +211,6 @@ export const INTERNAL_addPermissionItems = async (
     return isNew;
   });
 
-  await kSemanticModels.permissionItem().insertItem(newPermissions, opts);
+  await kIjxSemantic.permissionItem().insertItem(newPermissions, opts);
   return inputItems;
 };

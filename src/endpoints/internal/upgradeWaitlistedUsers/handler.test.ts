@@ -1,10 +1,7 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
-import {kRegisterUtilsInjectables} from '../../../contexts/injection/register.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
   Job,
@@ -47,17 +44,17 @@ describe('upgradeWaitlistedUsers', () => {
       generateAndInsertUserListForTest(/** count */ 2, () => ({
         isOnWaitlist: true,
       })),
-      kSemanticModels.utils().withTxn(opts => {
+      kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kUtilsInjectables.runtimeConfig().appWorkspaceId,
+          kIkxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );
       }),
     ]);
 
-    kRegisterUtilsInjectables.email(new MockTestEmailProviderContext());
+    kRegisterIjxUtils.email(new MockTestEmailProviderContext());
 
     const waitlistedUserIds = extractResourceIdList(waitlistedUsers);
     const result = await upgradeWaitlistedUsers(
@@ -68,14 +65,14 @@ describe('upgradeWaitlistedUsers', () => {
     );
     assertEndpointResultOk(result);
 
-    const users = await kSemanticModels.user().getManyByQuery({
+    const users = await kIjxSemantic.user().getManyByQuery({
       resourceId: {$in: waitlistedUserIds},
       isOnWaitlist: false,
     });
     const usersMap = indexArray(users, {path: 'resourceId'});
     expect(users).toHaveLength(waitlistedUsers.length);
 
-    await kUtilsInjectables.promises().flush();
+    await kIkxUtils.promises().flush();
     await Promise.all(
       users.map(async user => {
         expect(usersMap[user.resourceId]).toBeTruthy();
@@ -98,7 +95,7 @@ describe('upgradeWaitlistedUsers', () => {
             },
           },
         };
-        const dbJob = await kSemanticModels.job().getOneByQuery(query);
+        const dbJob = await kIjxSemantic.job().getOneByQuery(query);
         expect(dbJob).toBeTruthy();
       })
     );

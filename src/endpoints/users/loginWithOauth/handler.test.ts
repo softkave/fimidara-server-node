@@ -1,9 +1,6 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {UserWithWorkspace} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import RequestData from '../../RequestData.js';
@@ -44,7 +41,7 @@ describe('loginWithOAuth', () => {
     expect(result.refreshToken).toBeTruthy();
     expect(result.jwtTokenExpiresAt).toBeTruthy();
 
-    const jwtToken = kUtilsInjectables.session().decodeToken(result.jwtToken);
+    const jwtToken = kIkxUtils.session().decodeToken(result.jwtToken);
     expect(jwtToken.sub.id).toBe(userToken.resourceId);
   });
 
@@ -91,7 +88,7 @@ describe('loginWithOAuth', () => {
         const result = await login(reqData);
         assertEndpointResultOk(result);
 
-        const savedUser = await kSemanticModels
+        const savedUser = await kIjxSemantic
           .user()
           .assertGetOneByQuery({resourceId: result.user.resourceId});
 

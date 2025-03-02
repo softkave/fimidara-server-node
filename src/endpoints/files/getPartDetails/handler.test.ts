@@ -1,7 +1,7 @@
 import {sampleSize} from 'lodash-es';
 import {getRandomInt} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {File} from '../../../definitions/file.js';
 import {Workspace} from '../../../definitions/workspace.js';
@@ -42,8 +42,8 @@ describe('getPartDetails', () => {
       const partLength = 10;
       const clientMultipartId = '1';
       const internalMultipartId = '2';
-      await kSemanticModels.utils().withTxn(async txn => {
-        await kSemanticModels
+      await kIjxSemantic.utils().withTxn(async txn => {
+        await kIjxSemantic
           .file()
           .updateOneById(
             file.resourceId,

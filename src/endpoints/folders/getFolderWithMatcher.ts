@@ -1,6 +1,6 @@
 import {last} from 'lodash-es';
 import {FileQuery} from '../../contexts/data/types.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -24,7 +24,7 @@ export async function getClosestExistingFolder(
           namepath: nextNamepath,
         })
     );
-  const folders = await kSemanticModels
+  const folders = await kIjxSemantic
     .folder()
     .getManyByQuery({$or: folderQueries}, opts);
   folders.sort((f1, f2) => f1.namepath.length - f2.namepath.length);
@@ -38,7 +38,7 @@ export async function getFolderWithMatcher(
   workspaceId?: string
 ) {
   if (matcher.folderId) {
-    return await kSemanticModels.folder().getOneById(matcher.folderId, opts);
+    return await kIjxSemantic.folder().getOneById(matcher.folderId, opts);
   } else if (matcher.folderpath) {
     return await readOrIngestFolderByFolderpath(
       agent,

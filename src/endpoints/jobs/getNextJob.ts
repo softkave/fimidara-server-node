@@ -1,9 +1,6 @@
 import {first} from 'lodash-es';
 import {DataQuery} from '../../contexts/data/types.js';
-import {
-  kDataModels,
-  kSemanticModels,
-} from '../../contexts/injection/injectables.js';
+import {kIjxData, kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -54,11 +51,9 @@ export async function markJobStarted(
   });
 
   const [updatedJob] = await Promise.all([
-    kSemanticModels
-      .job()
-      .getAndUpdateOneById(job.resourceId, {...status}, opts),
+    kIjxSemantic.job().getAndUpdateOneById(job.resourceId, {...status}, opts),
     // TODO: should we fire-and-forget job history entries instead?
-    kSemanticModels.jobHistory().insertItem(jobHistory, opts),
+    kIjxSemantic.jobHistory().insertItem(jobHistory, opts),
   ]);
 
   return updatedJob;
@@ -86,7 +81,7 @@ export async function areJobRunConditionsSatisfied(
   );
 
   const runAfterJobIds = Object.keys(runAfterByJobId);
-  const runAfterJobs = await kSemanticModels
+  const runAfterJobs = await kIjxSemantic
     .job()
     .getManyByIdList(runAfterJobIds, opts);
   return (
@@ -132,7 +127,7 @@ export async function getNextUnfinishedJob(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shard: shards ? {$in: shards as any} : undefined,
     };
-    const jobs = await kDataModels.job().getManyByQuery(
+    const jobs = await kIjxData.job().getManyByQuery(
       {
         $or: [
           {...query, cooldownTill: null},
@@ -152,7 +147,7 @@ export async function getNextUnfinishedJob(
 
     if (job) {
       // TODO: consolidate cooldown checking
-      await kDataModels
+      await kIjxData
         .job()
         .updateOneByQuery(
           {resourceId: job.resourceId},
@@ -176,7 +171,7 @@ export async function getNextPendingJob(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shard: shards ? {$in: shards as any} : undefined,
     };
-    const jobs = await kDataModels.job().getManyByQuery(
+    const jobs = await kIjxData.job().getManyByQuery(
       {
         $or: [
           {...query, cooldownTill: null},
@@ -196,7 +191,7 @@ export async function getNextPendingJob(
 
     if (job) {
       // TODO: consolidate cooldown checking
-      await kDataModels
+      await kIjxData
         .job()
         .updateOneByQuery(
           {resourceId: job.resourceId},
@@ -214,7 +209,7 @@ export async function getNextJob(
   runnerId: string,
   shards: Array<AppShardId> | undefined
 ) {
-  return await kSemanticModels.utils().withTxn(async opts => {
+  return await kIjxSemantic.utils().withTxn(async opts => {
     const [unfinishedJob, pendingJob] = await Promise.all([
       getNextUnfinishedJob(activeRunnerIds, shards, opts),
       getNextPendingJob(shards, opts),

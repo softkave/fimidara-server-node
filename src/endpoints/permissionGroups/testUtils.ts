@@ -1,4 +1,4 @@
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {IServerRequest} from '../../contexts/types.js';
 import {PermissionGroup} from '../../definitions/permissionGroups.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
@@ -27,7 +27,7 @@ export async function assignPgListToIdList(
   entityIdList: string[],
   pgInputList: string[]
 ) {
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
     .withTxn(async opts =>
       addAssignedPermissionGroupList(

@@ -15,7 +15,7 @@ import {
 } from '../../endpoints/users/errors.js';
 import {ServerError} from '../../utils/errors.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
-import {kUtilsInjectables} from '../injection/injectables.js';
+import {kIkxUtils} from '../ijx/injectables.js';
 
 beforeAll(async () => {
   await initTests();
@@ -38,7 +38,7 @@ describe('SessionContext', () => {
       const reqData = new RequestData({
         agent: makeUserSessionAgent(user, userAgentToken),
       });
-      await kUtilsInjectables
+      await kIkxUtils
         .session()
         .getAgentFromReq(
           reqData,
@@ -62,7 +62,7 @@ describe('SessionContext', () => {
       const reqData = new RequestData({
         agent: makeUserSessionAgent(user, userAgentToken),
       });
-      await kUtilsInjectables
+      await kIkxUtils
         .session()
         .getAgentFromReq(
           reqData,
@@ -75,7 +75,7 @@ describe('SessionContext', () => {
   test.each([true, false])(
     'encodeToken, shouldRefresh=%s',
     async shouldRefresh => {
-      const token = await kUtilsInjectables.session().encodeToken({
+      const token = await kIkxUtils.session().encodeToken({
         shouldRefresh,
         tokenId: 'tokenId',
         expiresAt: Date.now() + 10_000,
@@ -90,9 +90,7 @@ describe('SessionContext', () => {
         expect(token.refreshToken).not.toBeDefined();
       }
 
-      const decodedToken = kUtilsInjectables
-        .session()
-        .decodeToken(token.jwtToken);
+      const decodedToken = kIkxUtils.session().decodeToken(token.jwtToken);
       expect(decodedToken).toBeDefined();
       expect(decodedToken.exp).toBeDefined();
       expect(decodedToken.iat).toBeDefined();
@@ -108,7 +106,7 @@ describe('SessionContext', () => {
 
   test('encodeToken fails if shouldRefresh is true but expires is not provided', async () => {
     await expect(async () => {
-      await kUtilsInjectables
+      await kIkxUtils
         .session()
         .encodeToken({tokenId: 'tokenId', shouldRefresh: true});
     }).rejects.toThrow(ServerError);

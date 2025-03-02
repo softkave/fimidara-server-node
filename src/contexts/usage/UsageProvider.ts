@@ -28,11 +28,7 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource.js';
 import {BulkOpType} from '../data/types.js';
-import {
-  kDataModels,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../injection/injectables.js';
+import {kIjxData, kIjxSemantic, kIkxUtils} from '../ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
 import {kUsageProviderConstants} from './constants.js';
 import {
@@ -159,12 +155,12 @@ export class UsageProvider implements IUsageContext {
 
   startCommitBatchedUsageL1Interval() {
     const intervalMs =
-      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
+      kIkxUtils.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL1Interval = setInterval(() => {
       if (this.commitBatchedUsageL1Interval) {
-        kUtilsInjectables
+        kIkxUtils
           .promises()
           .callAndForget(() => this.commitBatchedUsageL1Updates());
       }
@@ -173,12 +169,12 @@ export class UsageProvider implements IUsageContext {
 
   startCommitBatchedUsageL2Interval() {
     const intervalMs =
-      kUtilsInjectables.suppliedConfig().usageCommitIntervalMs ??
+      kIkxUtils.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL2Interval = setInterval(() => {
       if (this.commitBatchedUsageL2Interval) {
-        kUtilsInjectables
+        kIkxUtils
           .promises()
           .callAndForget(() => this.commitBatchedUsageL2Updates());
       }
@@ -199,15 +195,15 @@ export class UsageProvider implements IUsageContext {
     this.usageL1BatchedUpdates = [];
 
     try {
-      await kSemanticModels.utils().withTxn(async opts => {
-        await kSemanticModels
+      await kIjxSemantic.utils().withTxn(async opts => {
+        await kIjxSemantic
           .usageRecord()
           .insertItem(this.committingUsageL1BatchedUpdated, opts);
       });
 
       this.committingUsageL1BatchedUpdated = [];
     } catch (error) {
-      kUtilsInjectables.logger().error(error);
+      kIkxUtils.logger().error(error);
     } finally {
       this.isCommittingBatchedUsageL1Updates = false;
     }
@@ -229,8 +225,8 @@ export class UsageProvider implements IUsageContext {
     this.usageL2BatchedUpdates = {};
 
     try {
-      await kDataModels.utils().withTxn(async opts => {
-        await kDataModels.usageRecord().bulkWrite(
+      await kIjxData.utils().withTxn(async opts => {
+        await kIjxData.usageRecord().bulkWrite(
           Object.values(this.committingUsageL2BatchedUpdated).map(usage => ({
             type: BulkOpType.UpdateOne,
             query: {resourceId: usage.resourceId},
@@ -242,7 +238,7 @@ export class UsageProvider implements IUsageContext {
 
       this.committingUsageL2BatchedUpdated = {};
     } catch (error) {
-      kUtilsInjectables.logger().error(error);
+      kIkxUtils.logger().error(error);
     } finally {
       this.isCommittingBatchedUsageL2Updates = false;
     }
@@ -287,7 +283,7 @@ export class UsageProvider implements IUsageContext {
       status,
     });
     const previousMonthUsage = isPersistent
-      ? await kSemanticModels.usageRecord().getOneByQuery({
+      ? await kIjxSemantic.usageRecord().getOneByQuery({
           category,
           status: status,
           workspaceId: record.workspaceId,
@@ -346,7 +342,7 @@ export class UsageProvider implements IUsageContext {
     workspaceId: string;
     opts: SemanticProviderMutationParams;
   }) {
-    return await kSemanticModels.usageRecord().getOneByQuery(
+    return await kIjxSemantic.usageRecord().getOneByQuery(
       {
         category: params.category,
         year: params.year,
@@ -374,7 +370,7 @@ export class UsageProvider implements IUsageContext {
     });
 
     appAssert(usageL2);
-    await kSemanticModels.usageRecord().insertItem(usageL2, opts);
+    await kIjxSemantic.usageRecord().insertItem(usageL2, opts);
     return usageL2;
   }
 
@@ -388,7 +384,7 @@ export class UsageProvider implements IUsageContext {
 
     // const markPrefix = `getOrMakeUsageL2FromDb-${category}-${status}`;
     // performance.mark(`${markPrefix}-withTxn`);
-    return await kSemanticModels.utils().withTxn(async opts => {
+    return await kIjxSemantic.utils().withTxn(async opts => {
       // const withTxnMeasure = performance.measure(
       //   `${markPrefix}-withTxn`,
       //   `${markPrefix}-withTxn`
@@ -443,9 +439,9 @@ export class UsageProvider implements IUsageContext {
 
     // const markPrefix = `getOrMakeUsageL2-${record.workspaceId}-${category}-${status}`;
 
-    if (kUtilsInjectables.locks().has(lockName)) {
+    if (kIkxUtils.locks().has(lockName)) {
       // performance.mark(`${markPrefix}-wait`);
-      await kUtilsInjectables.locks().wait({
+      await kIkxUtils.locks().wait({
         name: lockName,
         timeoutMs: kUsageProviderConstants.getUsageL2LockWaitTimeoutMs,
       });
@@ -468,7 +464,7 @@ export class UsageProvider implements IUsageContext {
     }
 
     // performance.mark(`${markPrefix}-run`);
-    return await kUtilsInjectables.locks().run(lockName, async () => {
+    return await kIkxUtils.locks().run(lockName, async () => {
       // const runMeasure = performance.measure(
       //   `${markPrefix}-run`,
       //   `${markPrefix}-run`
@@ -732,11 +728,11 @@ export class UsageProvider implements IUsageContext {
     this.usageL1BatchedUpdates.push(params.usageL1);
 
     const maxSize =
-      kUtilsInjectables.suppliedConfig().usageL1BatchedUpdatesSize ??
+      kIkxUtils.suppliedConfig().usageL1BatchedUpdatesSize ??
       kUsageProviderConstants.defaultUsageL1BatchedUpdatesSize;
 
     if (this.usageL1BatchedUpdates.length >= maxSize) {
-      kUtilsInjectables
+      kIkxUtils
         .promises()
         .callAndForget(() => this.commitBatchedUsageL1Updates());
     }
@@ -751,18 +747,18 @@ export class UsageProvider implements IUsageContext {
     this.setUsageL2Cache({usageL2});
 
     const maxSize =
-      kUtilsInjectables.suppliedConfig().usageL2BatchedUpdatesSize ??
+      kIkxUtils.suppliedConfig().usageL2BatchedUpdatesSize ??
       kUsageProviderConstants.defaultUsageL2BatchedUpdatesSize;
 
     if (Object.keys(this.usageL2BatchedUpdates).length >= maxSize) {
-      kUtilsInjectables
+      kIkxUtils
         .promises()
         .callAndForget(() => this.commitBatchedUsageL2Updates());
     }
   }
 
   protected async getWorkspaceFromDb(params: {workspaceId: string}) {
-    return await kSemanticModels.workspace().getOneById(params.workspaceId);
+    return await kIjxSemantic.workspace().getOneById(params.workspaceId);
   }
 
   protected async getWorkspaceFromCache(params: {workspaceId: string}) {
@@ -778,7 +774,7 @@ export class UsageProvider implements IUsageContext {
   }
 
   protected async refreshWorkspace(params: {workspaceId: string}) {
-    if (kUtilsInjectables.runtimeState().getIsEnded()) {
+    if (kIkxUtils.runtimeState().getIsEnded()) {
       return;
     }
 
@@ -795,13 +791,13 @@ export class UsageProvider implements IUsageContext {
 
   protected startWorkspaceRefreshInterval(params: {workspaceId: string}) {
     const intervalMs =
-      kUtilsInjectables.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
+      kIkxUtils.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
       kUsageProviderConstants.defaultWorkspaceRefreshIntervalMs;
 
     this.refreshWorkspaceInterval = setInterval(() => {
       if (this.refreshWorkspaceInterval) {
         console.log('refreshWorkspaceInterval');
-        kUtilsInjectables
+        kIkxUtils
           .promises()
           .callAndForget(() =>
             this.refreshWorkspace({workspaceId: params.workspaceId})

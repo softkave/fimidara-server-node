@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -40,7 +40,7 @@ describe('encodeAgentToken', () => {
 
     await waitTimeout(500);
     await expect(
-      async () => await kUtilsInjectables.session().decodeToken(result.jwtToken)
+      async () => await kIkxUtils.session().decodeToken(result.jwtToken)
     ).rejects.toThrow('jwt expired');
   });
 });

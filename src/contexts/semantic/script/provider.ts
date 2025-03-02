@@ -4,12 +4,8 @@ import {AppScript} from '../../../definitions/script.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {newResource} from '../../../utils/resource.js';
-import {
-  kDataModels,
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../injection/injectables.js';
-import {DataSemanticBaseProvider} from '../DataSemanticDataAccessBaseProvider.js';
+import {kIjxData, kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
+import {SemanticBaseProvider} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderQueryParams,
@@ -23,7 +19,7 @@ import {
 const kScriptPollIntervalMs = 60 * 1000; // 1 minute
 
 export class SemanticScriptProvider
-  extends DataSemanticBaseProvider<AppScript>
+  extends SemanticBaseProvider<AppScript>
   implements ISemanticScriptProvider
 {
   async tryStartScript(params: {name: string; uniqueId?: string}): Promise<{
@@ -31,7 +27,7 @@ export class SemanticScriptProvider
     script: AppScript;
   }> {
     const uniqueId = params.uniqueId ?? getNewId();
-    const appId = kUtilsInjectables.serverApp().getAppId();
+    const appId = kIkxUtils.serverApp().getAppId();
     const script = newResource<AppScript>(kFimidaraResourceType.script, {
       name: params.name,
       uniqueId,
@@ -41,15 +37,13 @@ export class SemanticScriptProvider
     });
 
     try {
-      const insertedScript = await kSemanticModels
-        .utils()
-        .withTxn(async opts => {
-          return await this.data.insertItem(script, opts);
-        });
+      const insertedScript = await kIjxSemantic.utils().withTxn(async opts => {
+        return await this.data.insertItem(script, opts);
+      });
 
       return {inserted: true, script: insertedScript};
     } catch (error) {
-      if (kDataModels.utils().isUniqueConstraintViolation(error)) {
+      if (kIjxData.utils().isUniqueConstraintViolation(error)) {
         const script = await this.getScript({
           name: params.name,
           uniqueId: params.uniqueId,
@@ -144,9 +138,7 @@ export class SemanticScriptProvider
     const script = await this.getOneById(scriptId);
     appAssert(script, `script not found ${scriptId}`);
 
-    const isRunnerAlive = kUtilsInjectables
-      .serverApp()
-      .isAppAlive(script.appId);
+    const isRunnerAlive = kIkxUtils.serverApp().isAppAlive(script.appId);
 
     return {
       status: script.status,
@@ -163,7 +155,7 @@ export class SemanticScriptProvider
   async deleteStaleScripts(
     opts: SemanticProviderMutationParams
   ): Promise<void> {
-    const cutoffMs = kUtilsInjectables.serverApp().getHeartbeatCutoffMs();
+    const cutoffMs = kIkxUtils.serverApp().getHeartbeatCutoffMs();
     await this.deleteManyByQuery(
       {
         statusLastUpdatedAt: {$lt: cutoffMs},

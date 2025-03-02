@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -72,9 +72,7 @@ export async function checkPermissionGroupAuthorization02(
   id: string,
   action: FimidaraPermissionAction
 ) {
-  const permissionGroup = await kSemanticModels
-    .permissionGroup()
-    .getOneById(id);
+  const permissionGroup = await kIjxSemantic.permissionGroup().getOneById(id);
   assertPermissionGroup(permissionGroup);
   return checkPermissionGroupAuthorization(agent, permissionGroup, action);
 }
@@ -92,13 +90,13 @@ export async function checkPermissionGroupAuthorization03(
   }
 
   if (input.permissionGroupId) {
-    permissionGroup = await kSemanticModels
+    permissionGroup = await kIjxSemantic
       .permissionGroup()
       .getOneById(input.permissionGroupId, opts);
   } else if (input.name) {
     const workspaceId =
       input.workspaceId ?? assertGetWorkspaceIdFromAgent(agent);
-    permissionGroup = await kSemanticModels
+    permissionGroup = await kIjxSemantic
       .permissionGroup()
       .getByName(workspaceId, input.name, opts);
   }
@@ -113,7 +111,7 @@ export async function checkPermissionGroupsExist(
   opts?: SemanticProviderMutationParams
 ) {
   // TODO: use exists with $or or implement bulk ops
-  const permissionGroups = await kSemanticModels
+  const permissionGroups = await kIjxSemantic
     .permissionGroup()
     .getManyByWorkspaceAndIdList({workspaceId, resourceIdList: idList}, opts);
 

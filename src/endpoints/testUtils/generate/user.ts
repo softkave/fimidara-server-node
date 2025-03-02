@@ -1,5 +1,5 @@
 import {faker} from '@faker-js/faker';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
@@ -41,8 +41,8 @@ export async function generateAndInsertUserListForTest(
   genPartial: GeneratePartialTestDataFn<User> = defaultGeneratePartialTestDataFn
 ) {
   const items = generateUserListForTest(count, genPartial);
-  await kSemanticModels
+  await kIjxSemantic
     .utils()
-    .withTxn(async opts => kSemanticModels.user().insertItem(items, opts));
+    .withTxn(async opts => kIjxSemantic.user().insertItem(items, opts));
   return items;
 }

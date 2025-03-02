@@ -9,7 +9,7 @@ import {
   DataQuery,
   KeyedComparisonOps,
 } from '../data/types.js';
-import {kDataModels} from '../injection/injectables.js';
+import {kIjxData} from '../ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderUtils,
@@ -34,7 +34,7 @@ export class DataSemanticProviderUtils implements SemanticProviderUtils {
     fn: AnyFn<[SemanticProviderMutationParams], Promise<TResult>>,
     opts?: SemanticProviderMutationParams
   ): Promise<TResult> {
-    return await kDataModels.utils().withTxn(
+    return await kIjxData.utils().withTxn(
       async txn => {
         if (!(txn as InternalTxnStructure).__fimidaraTxnId) {
           (txn as InternalTxnStructure).__fimidaraTxnId = 'txn_' + getNewId();

@@ -1,6 +1,6 @@
 import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {getResourceId} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertCollaborationRequestListForTest} from '../../testUtils/generate/collaborationRequest.js';
@@ -59,7 +59,7 @@ describe('getUserRequests', () => {
     await generateAndInsertCollaborationRequestListForTest(15, () => ({
       recipientEmail: user02.email,
     }));
-    const count = await kSemanticModels.collaborationRequest().countByQuery({
+    const count = await kIjxSemantic.collaborationRequest().countByQuery({
       recipientEmail: user02.email,
     });
     const pageSize = 10;

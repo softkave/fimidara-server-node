@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getWorkspacePermissionGroupsQuery} from '../getWorkspacePermissionGroups/utils.js';
@@ -15,7 +12,7 @@ const countWorkspacePermissionGroups: CountWorkspacePermissionGroupsEndpoint =
       reqData.data,
       countWorkspacePermissionGroupsJoiSchema
     );
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -24,7 +21,7 @@ const countWorkspacePermissionGroups: CountWorkspacePermissionGroupsEndpoint =
       );
     const {workspace} = await getWorkspaceFromEndpointInput(agent, data);
     const q = await getWorkspacePermissionGroupsQuery(agent, workspace);
-    const count = await kSemanticModels
+    const count = await kIjxSemantic
       .permissionGroup()
       .countManyByWorkspaceAndIdList(q);
     return {count};

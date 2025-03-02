@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -32,7 +32,7 @@ describe('addPermissionGroup', () => {
       await insertPermissionGroupForTest(userToken, workspace.resourceId);
     const savedPermissionGroup = await populateAssignedTags(
       workspace.resourceId,
-      await kSemanticModels
+      await kIjxSemantic
         .permissionGroup()
         .assertGetOneByQuery(
           EndpointReusableQueries.getByResourceId(permissionGroup.resourceId)

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {checkAuthorization} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import RequestData from '../../RequestData.js';
 import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
@@ -186,7 +186,7 @@ describe('addItems', () => {
     const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    const pgPermissionItems = await kSemanticModels
+    const pgPermissionItems = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(
         PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
@@ -220,7 +220,7 @@ describe('addItems', () => {
     let result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    let pgPermissionItems = await kSemanticModels
+    let pgPermissionItems = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(
         PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
@@ -231,7 +231,7 @@ describe('addItems', () => {
     result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    pgPermissionItems = await kSemanticModels
+    pgPermissionItems = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(
         PermissionItemQueries.getByPermissionEntity(permissionGroup.resourceId)
@@ -273,7 +273,7 @@ describe('addItems', () => {
     const result = await addPermissionItems(reqData);
     assertEndpointResultOk(result);
 
-    const pItems = await kSemanticModels
+    const pItems = await kIjxSemantic
       .permissionItem()
       .getManyByQuery(
         PermissionItemQueries.getByPermissionEntity(user.resourceId)

@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   checkCollaborationRequestAuthorization02,
@@ -14,7 +14,7 @@ const getWorkspaceCollaborationRequest: GetWorkspaceCollaborationRequestEndpoint
       reqData.data,
       getWorkspaceCollaborationRequestJoiSchema
     );
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kSemanticModels} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
@@ -49,7 +49,7 @@ describe('updateCollaborationRequest', () => {
       );
     const result = await updateCollaborationRequest(reqData);
     assertEndpointResultOk(result);
-    const updatedRequest = await kSemanticModels
+    const updatedRequest = await kIjxSemantic
       .collaborationRequest()
       .assertGetOneByQuery({resourceId: request01.resourceId});
 

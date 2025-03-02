@@ -1,9 +1,6 @@
 import {makeExtract, makeListExtract} from 'softkave-js-utils';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getFields} from '../../../utils/extract.js';
 import {validate} from '../../../utils/validate.js';
@@ -25,7 +22,7 @@ export const partDetailsListExtractor = makeListExtract(
 
 const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   const data = validate(reqData.data, getPartDetailsJoiSchema);
-  const agent = await kUtilsInjectables
+  const agent = await kIkxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -33,7 +30,7 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const file = await kSemanticModels.utils().withTxn(opts =>
+  const file = await kIjxSemantic.utils().withTxn(opts =>
     getAndCheckFileAuthorization({
       agent,
       opts,

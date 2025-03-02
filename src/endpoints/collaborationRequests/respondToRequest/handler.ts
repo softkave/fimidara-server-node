@@ -1,8 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {
-  kSemanticModels,
-  kUtilsInjectables,
-} from '../../../contexts/injection/injectables.js';
+import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import {RespondToCollaborationRequestEndpoint} from './types.js';
@@ -15,7 +12,7 @@ import {respondToCollaborationRequestJoiSchema} from './validation.js';
 const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, respondToCollaborationRequestJoiSchema);
-    const agent = await kUtilsInjectables
+    const agent = await kIkxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -23,7 +20,7 @@ const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
         kSessionUtils.accessScopes.user
       );
 
-    const request = await kSemanticModels.utils().withTxn(async opts => {
+    const request = await kIjxSemantic.utils().withTxn(async opts => {
       return await INTERNAL_RespondToCollaborationRequest(agent, data, opts);
     });
 

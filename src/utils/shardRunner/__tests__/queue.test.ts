@@ -1,6 +1,6 @@
 import {TimeoutError, waitTimeout} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
-import {kUtilsInjectables} from '../../../contexts/injection/injectables.js';
+import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -36,8 +36,8 @@ describe('shardRunner queue', () => {
     const queueKey = 'test' + Math.random();
     const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
 
-    kUtilsInjectables.pubsub().subscribe(wakeupChannel, async () => {
-      const messages = await kUtilsInjectables
+    kIkxUtils.pubsub().subscribe(wakeupChannel, async () => {
+      const messages = await kIkxUtils
         .queue()
         .getMessages(queueKey, /** count */ 1);
       expect(messages).toHaveLength(1);
@@ -53,7 +53,7 @@ describe('shardRunner queue', () => {
         type: kShardRunnerOutputType.success,
         item,
       };
-      await kUtilsInjectables.pubsub().publish(entry.outputChannel, output);
+      await kIkxUtils.pubsub().publish(entry.outputChannel, output);
     });
 
     const p = queueShardRunner({
@@ -75,8 +75,8 @@ describe('shardRunner queue', () => {
     const queueKey = 'test' + Math.random();
     const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
 
-    kUtilsInjectables.pubsub().subscribe(wakeupChannel, async () => {
-      const messages = await kUtilsInjectables
+    kIkxUtils.pubsub().subscribe(wakeupChannel, async () => {
+      const messages = await kIkxUtils
         .queue()
         .getMessages(queueKey, /** count */ 1);
       expect(messages).toHaveLength(1);
@@ -92,7 +92,7 @@ describe('shardRunner queue', () => {
         type: kShardRunnerOutputType.error,
         error: new Error('test'),
       };
-      await kUtilsInjectables.pubsub().publish(entry.outputChannel, output);
+      await kIkxUtils.pubsub().publish(entry.outputChannel, output);
     });
 
     await expect(async () => {
@@ -131,8 +131,8 @@ describe('shardRunner queue', () => {
     const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
     let startMs = 0;
 
-    kUtilsInjectables.pubsub().subscribe(wakeupChannel, async () => {
-      const messages = await kUtilsInjectables
+    kIkxUtils.pubsub().subscribe(wakeupChannel, async () => {
+      const messages = await kIkxUtils
         .queue()
         .getMessages(queueKey, /** count */ 1);
       expect(messages).toHaveLength(1);
@@ -147,7 +147,7 @@ describe('shardRunner queue', () => {
         id: entry.id,
         type: kShardRunnerOutputType.ack,
       };
-      await kUtilsInjectables.pubsub().publish(entry.outputChannel, ackOutput);
+      await kIkxUtils.pubsub().publish(entry.outputChannel, ackOutput);
       await waitTimeout(Math.max(0, Date.now() - (startMs + 1_100)));
 
       const output: IShardRunnerOutput<ITestItem> = {
@@ -155,7 +155,7 @@ describe('shardRunner queue', () => {
         type: kShardRunnerOutputType.success,
         item,
       };
-      await kUtilsInjectables.pubsub().publish(entry.outputChannel, output);
+      await kIkxUtils.pubsub().publish(entry.outputChannel, output);
     });
 
     const p = queueShardRunner({
