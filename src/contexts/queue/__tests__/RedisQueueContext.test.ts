@@ -1,7 +1,7 @@
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {RedisQueueContext} from '../RedisQueueContext.js';
 
 beforeAll(async () => {
@@ -14,7 +14,7 @@ afterAll(async () => {
 
 describe('RedisQueueContext', () => {
   test('createQueue', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
@@ -22,7 +22,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('deleteQueue', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
@@ -31,7 +31,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('queueExists', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
@@ -39,14 +39,14 @@ describe('RedisQueueContext', () => {
   });
 
   test("queueExists doesn't exist", async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     expect(await context.queueExists(queue)).toBe(false);
   });
 
   test('addMessages', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
@@ -55,7 +55,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('getMessages', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     const [id0] = await context.addMessages(queue, [
@@ -72,7 +72,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('getMessages remove', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     await context.addMessages(queue, [{id: '1', message: 'message'}]);
@@ -82,7 +82,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('deleteMessages', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     const idList = await context.addMessages(queue, [
@@ -94,7 +94,7 @@ describe('RedisQueueContext', () => {
   });
 
   test('waitOnStream', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const context = new RedisQueueContext(redis);
     const queue = 'queue' + Math.random();
     const idList = await context.addMessages(queue, [

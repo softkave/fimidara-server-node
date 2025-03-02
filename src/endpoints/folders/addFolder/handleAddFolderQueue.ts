@@ -5,7 +5,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {Folder} from '../../../definitions/folder.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -297,7 +297,7 @@ async function populateAgent(
   return await Promise.all(
     input.map(async input => {
       try {
-        const agent = await kIkxUtils
+        const agent = await kIjxUtils
           .session()
           .getAgentByAgentTokenId(input.agent.agentTokenId);
         const workingInput: IAddFolderQueueWorkingInput = {

@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -14,7 +14,7 @@ import {getFileBackendConfigsJoiSchema} from './validation.js';
 const getFileBackendConfigs: GetFileBackendConfigsEndpoint = async reqData => {
   const configModel = kIjxSemantic.fileBackendConfig();
   const data = validate(reqData.data, getFileBackendConfigsJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

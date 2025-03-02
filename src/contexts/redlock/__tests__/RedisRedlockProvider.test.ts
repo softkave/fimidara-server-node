@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {ResourceLockedError as FimidaraResourceLockedError} from '../../../endpoints/errors.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {RedisRedlockProvider} from '../RedisRedlockProvider.js';
 
 beforeAll(async () => {
@@ -16,7 +16,7 @@ afterAll(async () => {
 
 describe('RedisRedlockProvider', () => {
   test('should acquire and release a lock', async () => {
-    const [ioRedis] = kIkxUtils.ioredis();
+    const [ioRedis] = kIjxUtils.ioredis();
     const provider = new RedisRedlockProvider(ioRedis);
     const key = 'test' + Math.random();
     const result = await provider.using(key, 2000, async () => 'test');
@@ -28,7 +28,7 @@ describe('RedisRedlockProvider', () => {
   });
 
   test('should retry acquiring the lock', async () => {
-    const [ioRedis] = kIkxUtils.ioredis();
+    const [ioRedis] = kIjxUtils.ioredis();
     const provider = new RedisRedlockProvider(ioRedis);
     const key = 'test' + Math.random();
     const p = getDeferredPromise<string>();
@@ -46,7 +46,7 @@ describe('RedisRedlockProvider', () => {
   });
 
   test('should throw an error if the resource is not available', async () => {
-    const [ioRedis] = kIkxUtils.ioredis();
+    const [ioRedis] = kIjxUtils.ioredis();
     const provider = new RedisRedlockProvider(ioRedis);
     const p = getDeferredPromise();
     const key = 'test' + Math.random();

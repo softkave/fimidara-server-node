@@ -3,7 +3,7 @@ import {AnyFn, AnyObject, PartialRecord} from 'softkave-js-utils';
 import {expect} from 'vitest';
 import {
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../../../../contexts/ijx/injectables.js';
 import {
   DeleteResourceJobParams,
@@ -239,7 +239,7 @@ export async function testDeleteResourceArtifactsJob<
   );
 
   await runDeleteResourceJob(job);
-  await kIkxUtils.promises().flush();
+  await kIjxUtils.promises().flush();
 
   const getArtifactsMap = getArtifactTypes.reduce(
     (acc, type) => {

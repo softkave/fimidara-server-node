@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {
   SessionAgent,
@@ -25,7 +25,7 @@ import {listFolderContentJoiSchema} from './validation.js';
 
 const listFolderContent: ListFolderContentEndpoint = async reqData => {
   const data = validate(reqData.data, listFolderContentJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {CollaborationRequestResponse} from '../../../../definitions/collaborationRequest.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -48,7 +48,7 @@ export async function sendCollaborationRequestResponseEmail(
   const html = collaborationRequestResponseEmailHTML(emailProps);
   const text = collaborationRequestResponseEmailText(emailProps);
 
-  return await kIkxUtils.email().sendEmail({
+  return await kIjxUtils.email().sendEmail({
     source,
     subject: kCollaborationRequestResponseArtifacts.title(emailProps),
     body: {html, text},

@@ -35,7 +35,7 @@ import {
   getUsageRecordReportingPeriod,
 } from '../../../endpoints/usageRecords/utils.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
-import {kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../ijx/injectables.js';
 import {UsageProvider} from '../UsageProvider.js';
 
 const kUsageCommitIntervalMs = 50;
@@ -252,7 +252,7 @@ describe.each(usageWithoutTotalList)(
           max: params.threshold ? params.threshold - 1 : undefined,
         });
 
-        const result = await kIkxUtils.usage().increment(kSystemSessionAgent, {
+        const result = await kIjxUtils.usage().increment(kSystemSessionAgent, {
           workspaceId: workspace.resourceId,
           category,
           usage,
@@ -295,7 +295,7 @@ describe.each(usageWithoutTotalList)(
             });
 
           const usage = faker.number.int({min: 5});
-          const result = await kIkxUtils
+          const result = await kIjxUtils
             .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
@@ -335,7 +335,7 @@ describe.each(usageWithoutTotalList)(
 
         const {month, year} = getUsageRecordReportingPeriod();
         const usage = faker.number.int({min: 1});
-        const result = await kIkxUtils.usage().increment(kSystemSessionAgent, {
+        const result = await kIjxUtils.usage().increment(kSystemSessionAgent, {
           workspaceId: workspace.resourceId,
           category,
           usage,
@@ -386,7 +386,7 @@ describe.each(usageWithoutTotalList)(
             });
 
           const usage = faker.number.int({min: 1, max: usageThreshold - 1});
-          const result = await kIkxUtils
+          const result = await kIjxUtils
             .usage()
             .increment(kSystemSessionAgent, {
               workspaceId: workspace.resourceId,
@@ -454,7 +454,7 @@ describe.each(usageWithoutTotalList)(
 
           const usage = faker.number.int();
           const usageCost = getCostForUsage(category, usage);
-          await kIkxUtils.usage().decrement(kSystemSessionAgent, {
+          await kIjxUtils.usage().decrement(kSystemSessionAgent, {
             workspaceId: workspace.resourceId,
             category,
             usage,

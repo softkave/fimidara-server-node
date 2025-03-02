@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {validate} from '../../../utils/validate.js';
 import {
@@ -14,7 +14,7 @@ import {getWorkspaceSummedUsageJoiSchema} from './validation.js';
 const getWorkspaceSummedUsage: GetWorkspaceSummedUsageEndpoint =
   async reqData => {
     const data = validate(reqData.data, getWorkspaceSummedUsageJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

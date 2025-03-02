@@ -16,7 +16,7 @@ import {
 import {kFimidaraConfigFilePersistenceProvider} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {kIjxSemantic, kIkxUtils} from '../ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../ijx/injectables.js';
 import {LocalFsFilePersistenceProvider} from './LocalFsFilePersistenceProvider.js';
 import {MemoryFilePersistenceProvider} from './MemoryFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from './S3FilePersistenceProvider.js';
@@ -443,7 +443,7 @@ export class FimidaraFilePersistenceProvider
       filepath: string;
     },
   >(params: TParams): TParams {
-    const config = kIkxUtils.suppliedConfig();
+    const config = kIjxUtils.suppliedConfig();
     let mount = params.mount;
 
     if (config.fileBackend === kFimidaraConfigFilePersistenceProvider.s3) {
@@ -461,7 +461,7 @@ export class FimidaraFilePersistenceProvider
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getBackend = (): FilePersistenceProvider => {
-    const config = kIkxUtils.suppliedConfig();
+    const config = kIjxUtils.suppliedConfig();
 
     switch (config.fileBackend) {
       case kFimidaraConfigFilePersistenceProvider.s3: {

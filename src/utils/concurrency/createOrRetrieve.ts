@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {TimeoutError} from 'softkave-js-utils';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {ResourceLockedError} from '../../endpoints/errors.js';
 
 export const kPubSubMessage = '1';
@@ -11,7 +11,7 @@ async function checkForAck<T>(params: {
   retrieve: (id: string, attempt: number) => Promise<T | undefined>;
 }) {
   const ackKey = `ack-${params.key}`;
-  const isAcked = await kIkxUtils.cache().get(ackKey);
+  const isAcked = await kIjxUtils.cache().get(ackKey);
   if (isAcked) {
     const existing = await params.retrieve(params.key, /* attempt */ 3);
     assert.ok(existing !== undefined);
@@ -33,7 +33,7 @@ function waitUntilUnlocked<T>(params: {
     const timeoutMs = params.timeoutMs ?? 5 * 60 * 1000; // default to 5 minutes
 
     const pubsubKey = `pubsub-${params.key}`;
-    kIkxUtils
+    kIjxUtils
       .pubsub()
       .subscribe(pubsubKey, async (message, _channel, subscription) => {
         if (isAcked) {
@@ -94,7 +94,7 @@ export async function createOrRetrieve<T>(params: {
   }
 
   const ackKey = `ack-${params.key}`;
-  const isAcked = await kIkxUtils.cache().get(ackKey);
+  const isAcked = await kIjxUtils.cache().get(ackKey);
   if (isAcked) {
     const existing = await params.retrieve(params.key, /* attempt */ 3);
     assert.ok(existing !== undefined);
@@ -104,21 +104,21 @@ export async function createOrRetrieve<T>(params: {
   try {
     const durationMs = params.durationMs ?? 5 * 60 * 1000; // default to 5 minutes
     const holdMs = params.holdMs ?? 5 * 60 * 1000; // default to 5 minutes
-    const created = await kIkxUtils.redlock().using(
+    const created = await kIjxUtils.redlock().using(
       params.key,
       durationMs,
       async () => {
         const created = await params.create();
-        await kIkxUtils.cache().set(ackKey, kAckMessage, {
+        await kIjxUtils.cache().set(ackKey, kAckMessage, {
           ttlMs: holdMs,
         });
 
         const pubsubKey = `pubsub-${params.key}`;
-        kIkxUtils;
-        kIkxUtils
+        kIjxUtils;
+        kIjxUtils
           .promises()
           .callAndForget(() =>
-            kIkxUtils.pubsub().publish(pubsubKey, kPubSubMessage)
+            kIjxUtils.pubsub().publish(pubsubKey, kPubSubMessage)
           );
 
         return created;
@@ -142,5 +142,5 @@ export async function createOrRetrieve<T>(params: {
 }
 
 export async function deleteAck(key: string) {
-  await kIkxUtils.cache().delete(`ack-${key}`);
+  await kIjxUtils.cache().delete(`ack-${key}`);
 }

@@ -30,7 +30,7 @@ import {SignupEndpointParams} from '../../../endpoints/users/signup/types.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {kSessionUtils} from '../../SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../ijx/injectables.js';
 import {
   checkAuthorizationWithAgent,
   getFilePermissionContainers,
@@ -1029,7 +1029,7 @@ async function generateUserAndWorkspace(
   const usersResult = await insertUserForTest(userInput, skipAutoVerifyEmail);
   const {userToken} = usersResult;
   const workspaceResult = await insertWorkspaceForTest(userToken);
-  const sessionAgent = await kIkxUtils
+  const sessionAgent = await kIjxUtils
     .session()
     .getAgentFromReq(
       RequestData.fromExpressRequest(
@@ -1058,7 +1058,7 @@ async function generateUserAndAddToWorkspace(
         opts
       )
     );
-  const sessionAgent = await kIkxUtils
+  const sessionAgent = await kIjxUtils
     .session()
     .getAgentFromReq(
       RequestData.fromExpressRequest(

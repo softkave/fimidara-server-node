@@ -5,7 +5,7 @@ import {
   FilePersistenceProviderFeature,
 } from '../../contexts/file/types.js';
 import {isFilePersistenceProvider} from '../../contexts/file/utils.js';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderQueryListParams} from '../../contexts/semantic/types.js';
 import {File} from '../../definitions/file.js';
 import {
@@ -102,7 +102,7 @@ export async function initBackendProvidersForMounts(
   mounts: FileBackendMount[],
   configs: FileBackendConfig[]
 ) {
-  const fileProviderResolver = kIkxUtils.fileProviderResolver();
+  const fileProviderResolver = kIjxUtils.fileProviderResolver();
   const providersMap: FilePersistenceProvidersByMount = {};
   const configsMap: Record<
     string,
@@ -111,7 +111,7 @@ export async function initBackendProvidersForMounts(
 
   await Promise.all(
     configs.map(async config => {
-      const {text: credentials} = await kIkxUtils.secretsManager().getSecret({
+      const {text: credentials} = await kIjxUtils.secretsManager().getSecret({
         secretId: config.secretId,
       });
       const initParams = JSON.parse(credentials);
@@ -123,7 +123,7 @@ export async function initBackendProvidersForMounts(
     const {providerParams, config} = configsMap[mount.configId ?? ''] ?? {};
 
     if (mount.backend !== kFileBackendType.fimidara && !providerParams) {
-      kIkxUtils
+      kIjxUtils
         .logger()
         .log(
           `mount ${mount.resourceId} is not fimidara, and is without config`
@@ -136,7 +136,7 @@ export async function initBackendProvidersForMounts(
   });
 
   const disposables = compact(Object.values(providersMap));
-  kIkxUtils.asyncLocalStorage().disposables().add(disposables);
+  kIjxUtils.asyncLocalStorage().disposables().add(disposables);
   return providersMap;
 }
 
@@ -210,7 +210,7 @@ export async function areMountsCompletelyIngestedForFolder(
 export function resolvedMountsHaveUnsupportedFeatures(
   features: FilePersistenceProviderFeature[]
 ) {
-  const disposables = kIkxUtils.asyncLocalStorage().disposables().getList();
+  const disposables = kIjxUtils.asyncLocalStorage().disposables().getList();
   const fileProviders = disposables.filter(disposable =>
     isFilePersistenceProvider(disposable)
   ) as FilePersistenceProvider[];

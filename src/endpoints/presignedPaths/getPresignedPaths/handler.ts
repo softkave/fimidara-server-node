@@ -1,7 +1,7 @@
 import {compact, keyBy, map, uniqBy} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../../contexts/semantic/types.js';
 import {FileMatcher} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
@@ -24,7 +24,7 @@ import {getPresignedPathsForFilesJoiSchema} from './validation.js';
 const getPresignedPathsForFiles: GetPresignedPathsForFilesEndpoint =
   async reqData => {
     const data = validate(reqData.data, getPresignedPathsForFilesJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

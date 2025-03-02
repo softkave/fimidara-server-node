@@ -1,6 +1,6 @@
 import {getDeferredPromise, getNewId, TimeoutError} from 'softkave-js-utils';
 import {DisposableTimeout} from 'softkave-js-utils/other/DisposableTimeout.js';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {QueueContextSubscribeJsonFn} from '../../contexts/pubsub/types.js';
 import {Agent} from '../../definitions/system.js';
 import {ServerError} from '../errors.js';
@@ -29,15 +29,15 @@ interface IRunArtifacts<TOutputItem>
 function cleanup(vars: IRunArtifacts<any>) {
   if (vars.timeout) {
     vars.timeout.dispose();
-    kIkxUtils.disposables().remove(vars.timeout);
+    kIjxUtils.disposables().remove(vars.timeout);
   }
 
   if (vars.listener) {
-    kIkxUtils;
-    kIkxUtils
+    kIjxUtils;
+    kIjxUtils
       .promises()
       .callAndForget(() =>
-        kIkxUtils.pubsub().unsubscribe(vars.channel, vars.listener!)
+        kIjxUtils.pubsub().unsubscribe(vars.channel, vars.listener!)
       );
   }
 
@@ -47,10 +47,10 @@ function cleanup(vars: IRunArtifacts<any>) {
 
   if (vars.isPromiseResolved() === false && vars.queueId.length > 0) {
     // remove message from queue if promise was not resolved
-    kIkxUtils
+    kIjxUtils
       .promises()
       .callAndForget(() =>
-        kIkxUtils.queue().deleteMessages(vars.queueKey, vars.queueId)
+        kIjxUtils.queue().deleteMessages(vars.queueKey, vars.queueId)
       );
   }
 
@@ -113,22 +113,22 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
       msg: JSON.stringify(input),
     };
 
-    await kIkxUtils.pubsub().subscribeJson(outputChannel, vars.listener);
-    vars.queueId = await kIkxUtils.queue().addMessages(queueKey, [message]);
+    await kIjxUtils.pubsub().subscribeJson(outputChannel, vars.listener);
+    vars.queueId = await kIjxUtils.queue().addMessages(queueKey, [message]);
     vars.timeout = new DisposableTimeout(timeoutMs, () => {
       vars.reject(new TimeoutError('timeout'));
     });
 
-    kIkxUtils.disposables().add(vars.timeout);
-    kIkxUtils
+    kIjxUtils.disposables().add(vars.timeout);
+    kIjxUtils
       .promises()
       .callAndForget(() =>
-        kIkxUtils
+        kIjxUtils
           .pubsub()
           .publish(wakeupChannel, kShardRunnerPubSubAlertMessage)
       );
   } catch (error) {
-    kIkxUtils.logger().error(error);
+    kIjxUtils.logger().error(error);
     vars.reject(error);
   }
 

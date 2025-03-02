@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {promises as fspromises} from 'fs';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {Workspace} from '../../definitions/workspace.js';
 import {INTERNAL_createAgentToken} from '../../endpoints/agentTokens/addToken/utils.js';
@@ -76,16 +76,16 @@ FIMIDARA_TEST_WORKSPACE_ROOTNAME="${workspace.rootname}"
 FIMIDARA_TEST_AUTH_TOKEN="${tokenStr}"
 FIMIDARA_TEST_FILEPATH="/src/testutils/testdata/testdata.txt"
 FIMIDARA_TEST_FOLDER_PATH="/src/testutils/testdata"
-FIMIDARA_SERVER_URL="http://localhost:${kIkxUtils.suppliedConfig().httpPort}"`;
+FIMIDARA_SERVER_URL="http://localhost:${kIjxUtils.suppliedConfig().httpPort}"`;
     await fspromises.writeFile(jsSdkTestEnvFilepath, envText, 'utf-8');
-    kIkxUtils.logger().log('Wrote to js sdk .env.test file');
+    kIjxUtils.logger().log('Wrote to js sdk .env.test file');
   } catch (error: unknown) {
-    kIkxUtils.logger().log('Error writing .env.test file');
-    kIkxUtils.logger().error(error);
+    kIjxUtils.logger().log('Error writing .env.test file');
+    kIjxUtils.logger().error(error);
   }
 
-  kIkxUtils.logger().log(`Workspace ID: ${workspace.resourceId}`);
-  kIkxUtils.logger().log(`Workspace rootname: ${workspace.rootname}`);
-  kIkxUtils.logger().log(`Agent token ID: ${token.resourceId}`);
-  kIkxUtils.logger().log(`Agent token token: ${tokenStr}`);
+  kIjxUtils.logger().log(`Workspace ID: ${workspace.resourceId}`);
+  kIjxUtils.logger().log(`Workspace rootname: ${workspace.rootname}`);
+  kIjxUtils.logger().log(`Agent token ID: ${token.resourceId}`);
+  kIjxUtils.logger().log(`Agent token token: ${tokenStr}`);
 }

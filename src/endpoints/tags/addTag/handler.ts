@@ -1,6 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {Tag} from '../../../definitions/tag.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
@@ -13,7 +13,7 @@ import {addTagJoiSchema} from './validation.js';
 
 const addTag: AddTagEndpoint = async reqData => {
   const data = validate(reqData.data, addTagJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

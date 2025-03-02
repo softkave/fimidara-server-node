@@ -1,11 +1,11 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {getLoginResult} from '../login/utils.js';
 import INTERNAL_confirmEmailAddress from './internalConfirmEmailAddress.js';
 import {ConfirmEmailAddressEndpoint} from './types.js';
 
 const confirmEmailAddress: ConfirmEmailAddressEndpoint = async reqData => {
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

@@ -1,5 +1,5 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
@@ -36,7 +36,7 @@ describe('getWaitlistedUsers', () => {
       kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kIkxUtils.runtimeConfig().appWorkspaceId,
+          kIjxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );

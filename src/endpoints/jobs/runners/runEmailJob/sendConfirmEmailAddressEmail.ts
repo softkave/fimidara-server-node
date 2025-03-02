@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -47,7 +47,7 @@ export async function getLinkWithConfirmEmailToken(
       await kIjxSemantic.agentToken().insertItem(token, opts);
     }
 
-    const encodedToken = await kIkxUtils.session().encodeToken({
+    const encodedToken = await kIjxUtils.session().encodeToken({
       tokenId: token.resourceId,
       expiresAt: token.expiresAt,
       issuedAt: token.createdAt,
@@ -75,7 +75,7 @@ export async function sendConfirmEmailAddressEmail(
     throw new Error(`Recipient user not found for job ${jobId}`);
   }
 
-  const suppliedConfig = kIkxUtils.suppliedConfig();
+  const suppliedConfig = kIjxUtils.suppliedConfig();
   appAssert(
     suppliedConfig.verifyEmailLink,
     'verifyEmailLink not present in config'
@@ -92,14 +92,14 @@ export async function sendConfirmEmailAddressEmail(
   };
   const html = confirmEmailAddressEmailHTML(emailProps);
   const text = confirmEmailAddressEmailText(emailProps);
-  const result = await kIkxUtils.email().sendEmail({
+  const result = await kIjxUtils.email().sendEmail({
     source,
     subject: kConfirmEmailAddressEmail.title,
     body: {html, text},
     destination: params.emailAddress,
   });
 
-  kIkxUtils.promises().callAndForget(() =>
+  kIjxUtils.promises().callAndForget(() =>
     kIjxSemantic.utils().withTxn(async opts => {
       await kIjxSemantic
         .user()

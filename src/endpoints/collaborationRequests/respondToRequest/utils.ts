@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {
   CollaborationRequest,
@@ -95,7 +95,7 @@ export async function notifySenderOnCollaborationRequestResponse(
       : null;
 
   if (sender && sender.isEmailVerified) {
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: kSystemSessionAgent,
         type: kJobType.email,

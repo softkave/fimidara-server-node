@@ -2,7 +2,7 @@ import assert from 'assert';
 import {
   kIjxData,
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../contexts/ijx/register.js';
 import {
@@ -75,7 +75,7 @@ async function setupWorkspace(
 
 async function setupDefaultUser() {
   const {user, userToken} = await kIjxSemantic.utils().withTxn(async opts => {
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     const nodeEnv = process.env.NODE_ENV;
     assert(suppliedConfig.rootUserEmail);
     assert(suppliedConfig.rootUserPassword);

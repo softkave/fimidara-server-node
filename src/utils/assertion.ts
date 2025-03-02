@@ -1,5 +1,5 @@
 import {isFunction, isObject, isString} from 'lodash-es';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {ServerError} from './errors.js';
 import {kReuseableErrors} from './reusableErrors.js';
 import {AnyFn} from './types.js';
@@ -11,7 +11,7 @@ export function appAssert(
 ): asserts value {
   if (!value) {
     if (logMessage) {
-      kIkxUtils.logger().error(logMessage);
+      kIjxUtils.logger().error(logMessage);
     }
 
     if (isString(response)) {

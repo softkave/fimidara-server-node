@@ -15,7 +15,7 @@ import {
 } from '../../endpoints/users/errors.js';
 import {ServerError} from '../../utils/errors.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 
 beforeAll(async () => {
   await initTests();
@@ -38,7 +38,7 @@ describe('SessionContext', () => {
       const reqData = new RequestData({
         agent: makeUserSessionAgent(user, userAgentToken),
       });
-      await kIkxUtils
+      await kIjxUtils
         .session()
         .getAgentFromReq(
           reqData,
@@ -62,7 +62,7 @@ describe('SessionContext', () => {
       const reqData = new RequestData({
         agent: makeUserSessionAgent(user, userAgentToken),
       });
-      await kIkxUtils
+      await kIjxUtils
         .session()
         .getAgentFromReq(
           reqData,
@@ -75,7 +75,7 @@ describe('SessionContext', () => {
   test.each([true, false])(
     'encodeToken, shouldRefresh=%s',
     async shouldRefresh => {
-      const token = await kIkxUtils.session().encodeToken({
+      const token = await kIjxUtils.session().encodeToken({
         shouldRefresh,
         tokenId: 'tokenId',
         expiresAt: Date.now() + 10_000,
@@ -90,7 +90,7 @@ describe('SessionContext', () => {
         expect(token.refreshToken).not.toBeDefined();
       }
 
-      const decodedToken = kIkxUtils.session().decodeToken(token.jwtToken);
+      const decodedToken = kIjxUtils.session().decodeToken(token.jwtToken);
       expect(decodedToken).toBeDefined();
       expect(decodedToken.exp).toBeDefined();
       expect(decodedToken.iat).toBeDefined();
@@ -106,7 +106,7 @@ describe('SessionContext', () => {
 
   test('encodeToken fails if shouldRefresh is true but expires is not provided', async () => {
     await expect(async () => {
-      await kIkxUtils
+      await kIjxUtils
         .session()
         .encodeToken({tokenId: 'tokenId', shouldRefresh: true});
     }).rejects.toThrow(ServerError);

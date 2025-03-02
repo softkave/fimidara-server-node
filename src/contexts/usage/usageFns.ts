@@ -11,7 +11,7 @@ import RequestData from '../../endpoints/RequestData.js';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors.js';
 import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
 import {kSessionUtils} from '../SessionContext.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {
   queueDecrementUsageRecord,
   queueIncrementUsageRecord,
@@ -27,7 +27,7 @@ async function incrementUsageRecord(
   // const markPrefix = `incrementUsageRecord-${input.category}-${input.workspaceId}`;
   // performance.mark(`${markPrefix}-getAgent`);
   const agent = getActionAgentFromSessionAgent(
-    await kIkxUtils
+    await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -191,7 +191,7 @@ async function decrementUsageRecord(
   input: UsageRecordDecrementInput
 ) {
   const agent = getActionAgentFromSessionAgent(
-    await kIkxUtils
+    await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

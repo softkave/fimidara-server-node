@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
-import {kIkxUtils} from '../../../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
@@ -59,6 +59,6 @@ describe('sendCollaborationRequestRevokedEmail', () => {
     expect(params.subject).toBe(
       kCollaborationRequestRevokedEmail.title(workspace.name)
     );
-    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(kIjxUtils.suppliedConfig().senderEmailAddress);
   });
 });

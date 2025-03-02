@@ -12,7 +12,7 @@ import {
 import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from '../../../contexts/file/S3FilePersistenceProvider.js';
 import {IFilePersistenceProviderMount} from '../../../contexts/file/types.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   FileBackendConfig,
@@ -120,7 +120,7 @@ describe('file backend mount utils', () => {
   });
 
   test.only('initBackendProvidersForMounts', async () => {
-    await kIkxUtils.asyncLocalStorage().run(async () => {
+    await kIjxUtils.asyncLocalStorage().run(async () => {
       const {userToken} = await insertUserForTest();
       const {workspace} = await insertWorkspaceForTest(userToken);
       const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
@@ -145,7 +145,7 @@ describe('file backend mount utils', () => {
 
       const fimidaraProvider = result[fimidaraMount.resourceId];
       const s3Provider = result[s3Mount.resourceId];
-      const disposablesMap = kIkxUtils
+      const disposablesMap = kIjxUtils
         .asyncLocalStorage()
         .disposables()
         .getMap();

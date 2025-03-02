@@ -12,7 +12,7 @@ import {
 } from 'softkave-js-utils';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {globalDispose, globalSetup} from '../../../contexts/globalUtils.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {IServerRequest} from '../../../contexts/types.js';
 import RequestData from '../../RequestData.js';
@@ -72,7 +72,7 @@ export const skTest: SoftkaveTest = {
     test(
       name,
       async () => {
-        await kIkxUtils.asyncLocalStorage().run(fn);
+        await kIjxUtils.asyncLocalStorage().run(fn);
       },
       timeout
     );
@@ -81,7 +81,7 @@ export const skTest: SoftkaveTest = {
     test.only(
       name,
       async () => {
-        await kIkxUtils.asyncLocalStorage().run(fn);
+        await kIjxUtils.asyncLocalStorage().run(fn);
       },
       timeout
     );
@@ -92,7 +92,7 @@ export const skTest: SoftkaveTest = {
       const fn = testArgs[fnIndex];
       assert(isFunction(fn), 'No test function');
       testArgs[fnIndex] = async (...args: unknown[]) => {
-        await kIkxUtils.asyncLocalStorage().run(() => fn(...args));
+        await kIjxUtils.asyncLocalStorage().run(() => fn(...args));
       };
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

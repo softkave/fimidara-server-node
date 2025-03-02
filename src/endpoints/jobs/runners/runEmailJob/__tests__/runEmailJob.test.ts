@@ -7,7 +7,7 @@ import {
 } from '../../../../../contexts/email/types.js';
 import {
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {
@@ -71,7 +71,7 @@ describe('runEmailJob', () => {
     );
 
     await runEmailJob(job);
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     const blocklistItem = await kIjxSemantic.emailBlocklist().getOneByQuery({
       emailAddress: user.email,
@@ -118,7 +118,7 @@ describe('runEmailJob', () => {
     );
 
     await runEmailJob(job);
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     const dbJob = await kIjxSemantic
       .job()

@@ -2,7 +2,7 @@ import assert from 'assert';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FileProviderResolver} from '../../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {stringifyFolderpath} from '../../../folders/utils.js';
@@ -24,8 +24,8 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
-  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
+  defaultFileProviderResolver = kIjxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIjxUtils.suppliedConfig();
 });
 
 afterEach(() => {

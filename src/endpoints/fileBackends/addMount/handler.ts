@@ -1,6 +1,6 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {fileBackendMountExtractor} from '../utils.js';
@@ -11,7 +11,7 @@ import {addFileBackendMountJoiSchema} from './validation.js';
 const addFileBackendMountEndpoint: AddFileBackendMountEndpoint =
   async reqData => {
     const data = validate(reqData.data, addFileBackendMountJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

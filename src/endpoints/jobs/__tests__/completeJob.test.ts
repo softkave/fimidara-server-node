@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {omit} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   JobStatus,
   kJobRunCategory,
@@ -156,7 +156,7 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
       const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);
@@ -250,7 +250,7 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
       const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);

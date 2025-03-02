@@ -4,7 +4,7 @@ import {AppScript} from '../../../definitions/script.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {newResource} from '../../../utils/resource.js';
-import {kIjxData, kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxData, kIjxSemantic, kIjxUtils} from '../../ijx/injectables.js';
 import {SemanticBaseProvider} from '../SemanticBaseProvider.js';
 import {
   SemanticProviderMutationParams,
@@ -27,7 +27,7 @@ export class SemanticScriptProvider
     script: AppScript;
   }> {
     const uniqueId = params.uniqueId ?? getNewId();
-    const appId = kIkxUtils.serverApp().getAppId();
+    const appId = kIjxUtils.serverApp().getAppId();
     const script = newResource<AppScript>(kFimidaraResourceType.script, {
       name: params.name,
       uniqueId,
@@ -138,7 +138,7 @@ export class SemanticScriptProvider
     const script = await this.getOneById(scriptId);
     appAssert(script, `script not found ${scriptId}`);
 
-    const isRunnerAlive = kIkxUtils.serverApp().isAppAlive(script.appId);
+    const isRunnerAlive = kIjxUtils.serverApp().isAppAlive(script.appId);
 
     return {
       status: script.status,
@@ -155,7 +155,7 @@ export class SemanticScriptProvider
   async deleteStaleScripts(
     opts: SemanticProviderMutationParams
   ): Promise<void> {
-    const cutoffMs = kIkxUtils.serverApp().getHeartbeatCutoffMs();
+    const cutoffMs = kIjxUtils.serverApp().getHeartbeatCutoffMs();
     await this.deleteManyByQuery(
       {
         statusLastUpdatedAt: {$lt: cutoffMs},

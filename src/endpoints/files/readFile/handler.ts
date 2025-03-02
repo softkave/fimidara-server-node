@@ -7,7 +7,7 @@ import {
   getFilePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {PersistedFile} from '../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {incrementBandwidthOutUsageRecord} from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
@@ -29,7 +29,7 @@ import {readFileJoiSchema} from './validation.js';
 
 const readFile: ReadFileEndpoint = async reqData => {
   const data = validate(reqData.data, readFileJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -155,7 +155,7 @@ async function readPersistedFile(file: File): Promise<PersistedFile> {
         return persistedFile;
       }
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     }
   }
 

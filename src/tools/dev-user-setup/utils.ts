@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 // eslint-disable-next-line node/no-unpublished-import
 import * as inquirer from 'inquirer';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
   SemanticProviderOpParams,
@@ -128,7 +128,7 @@ async function makeUserAdmin(
   });
 
   if (!isAdmin) {
-    kIkxUtils.logger().log('Making user admin');
+    kIjxUtils.logger().log('Making user admin');
     await addAssignedPermissionGroupList(
       kSystemSessionAgent,
       workspace.resourceId,
@@ -213,8 +213,8 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
         .getOneByEmail(user.email, opts);
 
       if (request) {
-        kIkxUtils.logger().log('Existing collaboration request found');
-        kIkxUtils.logger().log(`Accepting request ${request.resourceId}`);
+        kIjxUtils.logger().log('Existing collaboration request found');
+        kIjxUtils.logger().log(`Accepting request ${request.resourceId}`);
         const agentToken = await kIjxSemantic
           .agentToken()
           .getUserAgentToken(user.resourceId, kTokenAccessScope.login, opts);
@@ -229,7 +229,7 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
           opts
         );
       } else {
-        kIkxUtils.logger().log('Adding user to workspace');
+        kIjxUtils.logger().log('Adding user to workspace');
         await assignWorkspaceToUser(
           kSystemSessionAgent,
           workspace.resourceId,
@@ -246,13 +246,13 @@ export async function setupDevUser(appOptions: ISetupDevUserOptions) {
       );
     }
 
-    kIkxUtils
+    kIjxUtils
       .logger()
       .log(`User ${user.email} is now an admin of workspace ${workspace.name}`);
   });
 
   if (!user.isEmailVerified) {
-    kIkxUtils.logger().log(`Verifying email address for user ${user.email}`);
+    kIjxUtils.logger().log(`Verifying email address for user ${user.email}`);
     await INTERNAL_confirmEmailAddress(user.resourceId, user);
   }
 }

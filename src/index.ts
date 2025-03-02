@@ -3,7 +3,7 @@ import fs from 'fs';
 import helmet from 'helmet';
 import {format} from 'util';
 import {globalDispose, globalSetup} from './contexts/globalUtils.js';
-import {kIkxUtils} from './contexts/ijx/injectables.js';
+import {kIjxUtils} from './contexts/ijx/injectables.js';
 import {kEndpointConstants} from './endpoints/constants.js';
 import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
@@ -39,7 +39,7 @@ app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
 
 async function setupHttpServer() {
-  const conf = kIkxUtils.suppliedConfig();
+  const conf = kIjxUtils.suppliedConfig();
   let httpServerPromise: Promise<void> | undefined;
   let httpsServerPromise: Promise<void> | undefined;
 
@@ -50,7 +50,7 @@ async function setupHttpServer() {
     artifacts.httpServer = httpServer;
     httpServerPromise = new Promise(resolve => {
       httpServer.listen(conf.httpPort, () => {
-        kIkxUtils.logger().log(`HTTP port: ${conf.httpPort}`);
+        kIjxUtils.logger().log(`HTTP port: ${conf.httpPort}`);
         resolve();
       });
     });
@@ -78,7 +78,7 @@ async function setupHttpServer() {
     artifacts.httpsServer = httpsServer;
     httpsServerPromise = new Promise(resolve => {
       httpsServer.listen(conf.httpsPort, () => {
-        kIkxUtils.logger().log(`HTTPS port: ${conf.httpsPort}`);
+        kIjxUtils.logger().log(`HTTPS port: ${conf.httpsPort}`);
         resolve();
       });
     });
@@ -88,7 +88,7 @@ async function setupHttpServer() {
 }
 
 function setupJWT() {
-  const suppliedConfig = kIkxUtils.suppliedConfig();
+  const suppliedConfig = kIjxUtils.suppliedConfig();
   appAssert(suppliedConfig.jwtSecret, 'jwtSecret not present in config');
 
   app.use(
@@ -111,7 +111,7 @@ async function setup() {
       useHandlePrepareFileQueue: true,
     }
   );
-  kIkxUtils.logger().log('Server initialization');
+  kIjxUtils.logger().log('Server initialization');
 
   // Run scripts here
   await runScript({
@@ -123,7 +123,7 @@ async function setup() {
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
-  kIkxUtils.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
+  kIjxUtils.logger().log(`Workspace ID: ${defaultWorkspace.resourceId}`);
 
   setupJWT();
   setupFimidaraHttpEndpoints(app);
@@ -142,10 +142,10 @@ async function closeHttpServer(server: http.Server): Promise<void> {
   return new Promise(resolve => {
     server.close(error => {
       if (error) {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
       }
 
-      kIkxUtils.logger().log(`Closed ${format(addr)}`);
+      kIjxUtils.logger().log(`Closed ${format(addr)}`);
       resolve();
     });
 
@@ -154,14 +154,14 @@ async function closeHttpServer(server: http.Server): Promise<void> {
 }
 
 async function endServer() {
-  kIkxUtils.runtimeState().setIsEnded(true);
-  kIkxUtils.logger().log('Started graceful shutdown');
+  kIjxUtils.runtimeState().setIsEnded(true);
+  kIjxUtils.logger().log('Started graceful shutdown');
   await Promise.allSettled([
     artifacts.httpServer && closeHttpServer(artifacts.httpServer),
     artifacts.httpsServer && closeHttpServer(artifacts.httpsServer),
   ]);
 
-  kIkxUtils.logger().log('Started app dispose');
+  kIjxUtils.logger().log('Started app dispose');
   await globalDispose();
 
   // eslint-disable-next-line no-process-exit

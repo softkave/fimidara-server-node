@@ -1,6 +1,6 @@
 import {compact, isNumber} from 'lodash-es';
 import {FilePersistenceUploadPartResult} from '../../../contexts/file/types.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {PaginationQuery} from '../../types.js';
 import {kFileConstants} from '../constants.js';
 
@@ -26,7 +26,7 @@ export async function getMultipartUploadPartMetas(
       values,
       cursor: nextCursor,
       done: isDone,
-    } = await kIkxUtils.dset().scan(params.multipartId, {
+    } = await kIjxUtils.dset().scan(params.multipartId, {
       cursor,
       size: remainingSize,
     });
@@ -48,7 +48,7 @@ export async function getMultipartUploadPartMetas(
     kFileConstants.getPartCacheKey(params.multipartId, Number(partNum))
   );
 
-  const partsOrNil = await kIkxUtils.cache().getJsonList<FilePartMeta>(keys);
+  const partsOrNil = await kIjxUtils.cache().getJsonList<FilePartMeta>(keys);
 
   const parts = compact(partsOrNil);
   return {parts, continuationToken: done ? null : cursor, isDone: done};
@@ -59,7 +59,7 @@ export async function getMultipartUploadPartMeta(params: {
   part: number;
 }): Promise<FilePartMeta | null> {
   const key = kFileConstants.getPartCacheKey(params.multipartId, params.part);
-  const part = await kIkxUtils.cache().getJson<FilePartMeta>(key);
+  const part = await kIjxUtils.cache().getJson<FilePartMeta>(key);
 
   return part;
 }
@@ -79,8 +79,8 @@ export async function writeMultipartUploadPartMetas(params: {
   });
 
   await Promise.all([
-    kIkxUtils.dset().add(params.multipartId, partNums),
-    kIkxUtils.cache().setJsonList(kvPairs),
+    kIjxUtils.dset().add(params.multipartId, partNums),
+    kIjxUtils.cache().setJsonList(kvPairs),
   ]);
 
   return params.parts;
@@ -95,8 +95,8 @@ export async function deleteMultipartUploadPartMetas(params: {
   if (isNumber(part)) {
     const key = kFileConstants.getPartCacheKey(multipartId, part);
     await Promise.all([
-      kIkxUtils.cache().delete(key),
-      kIkxUtils.dset().delete(multipartId, part.toString()),
+      kIjxUtils.cache().delete(key),
+      kIjxUtils.dset().delete(multipartId, part.toString()),
     ]);
   } else {
     let cursor = 0;
@@ -107,9 +107,9 @@ export async function deleteMultipartUploadPartMetas(params: {
         values,
         done,
         cursor: nextCursor,
-      } = await kIkxUtils.dset().scan(multipartId, {cursor});
+      } = await kIjxUtils.dset().scan(multipartId, {cursor});
 
-      await kIkxUtils
+      await kIjxUtils
         .cache()
         .delete(
           values.map(v =>
@@ -125,6 +125,6 @@ export async function deleteMultipartUploadPartMetas(params: {
       iteration++;
     }
 
-    await kIkxUtils.dset().delete(multipartId);
+    await kIjxUtils.dset().delete(multipartId);
   }
 }

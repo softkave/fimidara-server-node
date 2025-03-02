@@ -1,7 +1,7 @@
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -89,7 +89,7 @@ describe('runDeletePermissionItemsJob', () => {
     );
 
     await runDeletePermissionItemsJob(job);
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     const itemIds = extractResourceIdList(pgItems);
     const query: DataQuery<Job<DeleteResourceJobParams>> = {

@@ -1,6 +1,6 @@
 import {getDeferredPromise, waitTimeout} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -44,7 +44,7 @@ describe('shardRunner handler > startShardRunner', () => {
     const handlerFn = vi.fn();
     startShardRunner({queueKey, handlerFn});
 
-    await kIkxUtils
+    await kIjxUtils
       .pubsub()
       .publish(
         getShardRunnerPubSubAlertChannel({queueKey}),
@@ -57,12 +57,12 @@ describe('shardRunner handler > startShardRunner', () => {
   });
 
   test('wakeup when ended', async () => {
-    kIkxUtils.runtimeState().setIsEnded(true);
+    kIjxUtils.runtimeState().setIsEnded(true);
     const queueKey = 'test' + Math.random();
     const handlerFn = vi.fn();
     startShardRunner({queueKey, handlerFn});
 
-    await kIkxUtils
+    await kIjxUtils
       .pubsub()
       .publish(
         getShardRunnerPubSubAlertChannel({queueKey}),
@@ -80,7 +80,7 @@ describe('shardRunner handler > startShardRunner', () => {
     startShardRunner({queueKey, handlerFn: handlerFn01});
 
     async function wakeup() {
-      await kIkxUtils
+      await kIjxUtils
         .pubsub()
         .publish(
           getShardRunnerPubSubAlertChannel({queueKey}),
@@ -111,7 +111,7 @@ describe('shardRunner handler > stopShardRunner', () => {
     startShardRunner({queueKey, handlerFn});
 
     async function wakeup() {
-      await kIkxUtils
+      await kIjxUtils
         .pubsub()
         .publish(
           getShardRunnerPubSubAlertChannel({queueKey}),
@@ -192,8 +192,8 @@ describe('shardRunner handler > handleShardQueue', () => {
         msg: JSON.stringify(item),
       };
 
-      await kIkxUtils.queue().addMessages(queueKey, [message]);
-      await kIkxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
+      await kIjxUtils.queue().addMessages(queueKey, [message]);
+      await kIjxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
 
       return item;
     }
@@ -277,8 +277,8 @@ describe('shardRunner handler > singleItemHandleShardQueue', () => {
         msg: JSON.stringify(item),
       };
 
-      await kIkxUtils.queue().addMessages(queueKey, [message]);
-      await kIkxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
+      await kIjxUtils.queue().addMessages(queueKey, [message]);
+      await kIjxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
 
       return item;
     }
@@ -371,8 +371,8 @@ describe('shardRunner handler > singleItemHandleShardQueue', () => {
         msg: JSON.stringify(item),
       };
 
-      await kIkxUtils.queue().addMessages(queueKey, [message]);
-      await kIkxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
+      await kIjxUtils.queue().addMessages(queueKey, [message]);
+      await kIjxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
 
       return item;
     }
@@ -472,8 +472,8 @@ describe('shardRunner handler > multiItemsHandleShardQueue', () => {
         msg: JSON.stringify(item),
       };
 
-      await kIkxUtils.queue().addMessages(queueKey, [message]);
-      await kIkxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
+      await kIjxUtils.queue().addMessages(queueKey, [message]);
+      await kIjxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
 
       return item;
     }
@@ -566,8 +566,8 @@ describe('shardRunner handler > multiItemsHandleShardQueue', () => {
         msg: JSON.stringify(item),
       };
 
-      await kIkxUtils.queue().addMessages(queueKey, [message]);
-      await kIkxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
+      await kIjxUtils.queue().addMessages(queueKey, [message]);
+      await kIjxUtils.pubsub().subscribeJson(item.outputChannel, outputFn);
 
       return item;
     }

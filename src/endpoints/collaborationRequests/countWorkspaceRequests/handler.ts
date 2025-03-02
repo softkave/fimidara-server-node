@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getWorkspaceCollaborationRequestsQuery} from '../getWorkspaceRequests/utils.js';
@@ -12,7 +12,7 @@ const countWorkspaceCollaborationRequests: CountWorkspaceCollaborationRequestsEn
       reqData.data,
       countWorkspaceCollaborationRequestsJoiSchema
     );
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

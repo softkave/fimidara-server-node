@@ -1,5 +1,5 @@
 import {pathJoin} from 'softkave-js-utils';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -74,7 +74,7 @@ const deleteResourceFn: DeleteResourceFn<
           })),
         });
       } catch (error) {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
       }
     })
   );

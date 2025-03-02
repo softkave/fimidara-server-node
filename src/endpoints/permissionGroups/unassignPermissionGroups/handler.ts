@@ -1,7 +1,7 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
 import {LiteralDataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {convertToArray} from '../../../utils/fns.js';
 import {validate} from '../../../utils/validate.js';
@@ -12,7 +12,7 @@ import {unassignPermissionGroupsJoiSchema} from './validation.js';
 const unassignPermissionGroups: UnassignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, unassignPermissionGroupsJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

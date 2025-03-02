@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 
 export const kUsageProviderConstants = {
   defaultWorkspaceRefreshIntervalMs: 1000 * 60 * 60 * 24, // 1 day
@@ -10,13 +10,13 @@ export const kUsageProviderConstants = {
   addUsageRecordProcessCount: 100,
   getAddUsageRecordPubSubChannel: (workspaceId: string) =>
     `${
-      kIkxUtils.suppliedConfig().addUsageRecordPubSubChannelPrefix
+      kIjxUtils.suppliedConfig().addUsageRecordPubSubChannelPrefix
     }-${workspaceId}`,
   getAddUsageRecordQueueWithNo: (num: number) =>
-    `${kIkxUtils.suppliedConfig().addUsageRecordQueuePrefix}${num}`,
+    `${kIjxUtils.suppliedConfig().addUsageRecordQueuePrefix}${num}`,
   getAddUsageRecordQueueKey: (workspaceId: string) => {
     const {addUsageRecordQueueStart, addUsageRecordQueueEnd} =
-      kIkxUtils.suppliedConfig();
+      kIjxUtils.suppliedConfig();
 
     assert.ok(addUsageRecordQueueStart);
     assert.ok(addUsageRecordQueueEnd);

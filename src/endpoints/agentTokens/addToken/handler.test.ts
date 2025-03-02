@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {millisecondsToSeconds} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
 import {
   initTests,
@@ -64,7 +64,7 @@ describe('addAgentToken', () => {
     );
 
     assert.ok(token.jwtToken);
-    const decodedToken = await kIkxUtils.session().decodeToken(token.jwtToken);
+    const decodedToken = await kIjxUtils.session().decodeToken(token.jwtToken);
 
     if (shouldRefresh) {
       expect(decodedToken.exp).not.toBe(expiresAt);

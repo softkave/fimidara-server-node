@@ -6,7 +6,7 @@ import {MongoDbConnection} from '../../../db/connection.js';
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initFnTests} from '../../../endpoints/testUtils/testUtils.js';
 import {loopAndCollate} from '../../../utils/fns.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {dataQueryToMongoQuery} from '../dataQueryToMongoQuery.js';
 import {
   BaseMongoTestData,
@@ -27,7 +27,7 @@ const kSchema: SchemaDefinition<BaseMongoTestData> = {
 const kMongoSchema = new Schema(kSchema);
 
 function getConnection() {
-  return (kIkxUtils.dbConnection() as MongoDbConnection).get();
+  return (kIjxUtils.dbConnection() as MongoDbConnection).get();
 }
 
 function getModel() {

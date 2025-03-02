@@ -1,6 +1,6 @@
 import {LockableResource} from 'softkave-js-utils';
 import {globalDispose, globalSetup} from '../../../contexts/globalUtils.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FWorker} from '../fworker/FWorker.js';
 import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
 import {runJob} from '../runJob.js';
@@ -24,13 +24,13 @@ export class FimidaraWorker extends FWorker {
       }
     );
     this.workerEndedLock = new LockableResource<boolean>(
-      kIkxUtils.locks(),
+      kIjxUtils.locks(),
       /** resource */ false
     );
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
-    kIkxUtils.logger().log('Started worker ', this.getWorkerData().workerId);
-    kIkxUtils.promises().callAndForget(() => this.run());
+    kIjxUtils.logger().log('Started worker ', this.getWorkerData().workerId);
+    kIjxUtils.promises().callAndForget(() => this.run());
   }
 
   protected run = async () => {
@@ -87,7 +87,7 @@ export class FimidaraWorker extends FWorker {
         return response.value.job;
       }
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     }
 
     return undefined;

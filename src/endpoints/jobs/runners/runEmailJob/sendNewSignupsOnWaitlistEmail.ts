@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   NewSignupsOnWaitlistEmailProps,
@@ -19,7 +19,7 @@ export async function sendNewSignupsOnWaitlistEmail(
     `Email job type is not ${kEmailJobType.newSignupsOnWaitlist}`
   );
 
-  const {upgradeWaitlistLink} = kIkxUtils.suppliedConfig();
+  const {upgradeWaitlistLink} = kIjxUtils.suppliedConfig();
   assert(upgradeWaitlistLink, 'upgradeWaitlistLink not present');
 
   const {user, base, source} = await getBaseEmailTemplateProps(params);
@@ -33,7 +33,7 @@ export async function sendNewSignupsOnWaitlistEmail(
   const html = newSignupsOnWaitlistEmailHTML(emailProps);
   const text = newSignupsOnWaitlistEmailText(emailProps);
 
-  return await kIkxUtils.email().sendEmail({
+  return await kIjxUtils.email().sendEmail({
     source,
     subject: kNewSignupsOnWaitlistEmailArtifacts.title(emailProps.count),
     body: {html, text},

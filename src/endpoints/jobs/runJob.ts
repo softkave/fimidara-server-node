@@ -1,4 +1,4 @@
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {Job, JobType, kJobStatus, kJobType} from '../../definitions/job.js';
 import {noopAsync} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
@@ -31,8 +31,8 @@ export async function runJob(job: Job) {
     await handler(job);
     return await completeJob(job.resourceId);
   } catch (error: unknown) {
-    kIkxUtils.logger().log(`Job ${job.resourceId} failed with error`);
-    kIkxUtils.logger().error(error);
+    kIjxUtils.logger().log(`Job ${job.resourceId} failed with error`);
+    kIjxUtils.logger().error(error);
     return await completeJob(job.resourceId, kJobStatus.failed);
   }
 }

@@ -27,7 +27,7 @@ import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {loopAndCollate, pathJoin, pathSplit} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {S3FilePersistenceProvider} from '../S3FilePersistenceProvider.js';
 import {
   FilePersistenceUploadFileParams,
@@ -581,7 +581,7 @@ class TestS3Provider extends S3FilePersistenceProvider {
 }
 
 function getTestAWSConfig() {
-  const conf = kIkxUtils.suppliedConfig();
+  const conf = kIjxUtils.suppliedConfig();
   const awsCreds = merge(
     {},
     conf.awsConfigs?.all,

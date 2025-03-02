@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {isNumber} from 'lodash-es';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kUsageProviderConstants} from '../../../contexts/usage/constants.js';
 import {File} from '../../../definitions/file.js';
@@ -151,7 +151,7 @@ async function handlePrepareFileEntry(params: {
   const lockName = kFileConstants.getPrepareFileLockName(filepathOrId);
 
   const [sessionAgent, workspace] = await Promise.all([
-    kIkxUtils.session().getAgentByAgentTokenId(agent.agentTokenId),
+    kIjxUtils.session().getAgentByAgentTokenId(agent.agentTokenId),
     kIjxSemantic.workspace().getOneById(input.workspace.resourceId),
   ]);
   assert.ok(workspace);
@@ -169,8 +169,8 @@ async function handlePrepareFileEntry(params: {
     };
   }
 
-  if (kIkxUtils.locks().has(lockName)) {
-    await kIkxUtils.locks().wait({
+  if (kIjxUtils.locks().has(lockName)) {
+    await kIjxUtils.locks().wait({
       name: lockName,
       timeoutMs: kFileConstants.getPrepareFileLockWaitTimeoutMs,
     });
@@ -188,7 +188,7 @@ async function handlePrepareFileEntry(params: {
     };
   }
 
-  return await kIkxUtils.locks().run(lockName, async () => {
+  return await kIjxUtils.locks().run(lockName, async () => {
     const result = await createAndPrepareNewFile({
       agent: sessionAgent,
       workspace,

@@ -1,5 +1,5 @@
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {kAppType} from '../../../../definitions/app.js';
 import {Job, kJobStatus, kJobType} from '../../../../definitions/job.js';
@@ -20,7 +20,7 @@ let server: FimidaraApp | undefined;
 beforeAll(async () => {
   await initTests();
 
-  const conf = kIkxUtils.suppliedConfig();
+  const conf = kIjxUtils.suppliedConfig();
   kRegisterIjxUtils.suppliedConfig({
     ...conf,
     runnerLocation: kWorkerTestFilepath,

@@ -4,7 +4,7 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
 import {
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
@@ -100,7 +100,7 @@ describe('sendConfirmEmailAddressEmail', () => {
       {resourceId: userId, isEmailVerified: false} as User,
       prevLink
     );
-    const encodedToken = await kIkxUtils
+    const encodedToken = await kIjxUtils
       .session()
       .encodeToken({tokenId: token.resourceId, expiresAt: token.expiresAt});
     assertLinkWithToken(link, encodedToken.jwtToken, prevLink);
@@ -130,15 +130,15 @@ describe('sendConfirmEmailAddressEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kConfirmEmailAddressEmail.title);
-    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(kIjxUtils.suppliedConfig().senderEmailAddress);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     const dbUser = await kIjxSemantic.user().getOneById(user.resourceId);
     expect(dbUser?.emailVerificationEmailSentAt).toBeGreaterThan(
       user.emailVerificationEmailSentAt || 0
     );
 
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     assert(suppliedConfig.verifyEmailLink);
     const link = await getLinkWithConfirmEmailToken(
       user,

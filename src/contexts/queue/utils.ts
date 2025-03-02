@@ -3,7 +3,7 @@ import {
   FimidaraSuppliedConfig,
   kFimidaraConfigQueueProvider,
 } from '../../resources/config.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {InMemoryQueueContext} from './InMemoryQueueContext.js';
 import {RedisQueueContext} from './RedisQueueContext.js';
 import {IQueueMessage, IQueueMessageInternal} from './types.js';
@@ -11,7 +11,7 @@ import {IQueueMessage, IQueueMessageInternal} from './types.js';
 export async function getQueueContext(config: FimidaraSuppliedConfig) {
   switch (config.queueProvider) {
     case kFimidaraConfigQueueProvider.redis: {
-      const [redis] = kIkxUtils.redis();
+      const [redis] = kIjxUtils.redis();
       return new RedisQueueContext(redis);
     }
     case kFimidaraConfigQueueProvider.memory:

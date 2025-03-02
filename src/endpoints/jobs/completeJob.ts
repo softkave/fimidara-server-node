@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {
   Job,
   JobStatus,
@@ -104,7 +104,7 @@ export async function completeJob(
       job?.status === kJobStatus.completed) &&
     job.parentJobId
   ) {
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       completeJob(
         job.parentJobId!,
         job.status,

@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -64,7 +64,7 @@ describe('updateUser', () => {
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.confirmEmailAddress,
     //   emailAddress: {$all: [savedUser.email]},

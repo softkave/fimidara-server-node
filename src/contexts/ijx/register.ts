@@ -202,7 +202,7 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {UsageProvider} from '../usage/UsageProvider.js';
 import {IUsageContext} from '../usage/types.js';
-import {kIjxData, kIkxUtils} from './injectables.js';
+import {kIjxData, kIjxUtils} from './injectables.js';
 import {kIjxKeys} from './keys.js';
 
 function registerToken(
@@ -215,7 +215,7 @@ function registerToken(
     container.register(token, {useFactory: item as AnyFn});
   } else {
     if (isFunction((item as DisposableResource | undefined)?.dispose)) {
-      kIkxUtils.disposables().add(item as DisposableResource);
+      kIjxUtils.disposables().add(item as DisposableResource);
     }
 
     container.register(token, {useValue: item});
@@ -357,7 +357,7 @@ export const kRegisterIjxUtils = {
 };
 
 export function registerIjxData() {
-  const connection = kIkxUtils.dbConnection().get();
+  const connection = kIjxUtils.dbConnection().get();
   appAssert(isMongoConnection(connection));
 
   kRegisterIjxData.user(new UserMongoDataProvider(getUserModel(connection)));
@@ -573,7 +573,7 @@ export async function registerIjxUtils(
     kRegisterIjxUtils.dbConnection(new NoopDbConnection());
   }
 
-  const {redisURL} = kIkxUtils.suppliedConfig();
+  const {redisURL} = kIjxUtils.suppliedConfig();
   if (redisURL) {
     const redis = await getRedis();
     const ioRedis = await getIoRedis();

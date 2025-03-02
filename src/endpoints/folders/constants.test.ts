@@ -1,7 +1,7 @@
 import {uniq} from 'lodash-es';
 import {loopAndCollate} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../contexts/ijx/register.js';
 import {completeTests} from '../testUtils/helpers/testFns.js';
 import {initTests} from '../testUtils/testUtils.js';
@@ -18,7 +18,7 @@ afterAll(async () => {
 describe('folders constants', () => {
   test('get queue key', () => {
     kRegisterIjxUtils.suppliedConfig({
-      ...kIkxUtils.suppliedConfig(),
+      ...kIjxUtils.suppliedConfig(),
       addFolderQueueStart: 1,
       addFolderQueueEnd: 4,
     });

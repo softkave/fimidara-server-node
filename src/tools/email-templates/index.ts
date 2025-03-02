@@ -1,5 +1,5 @@
 import {globalDispose} from '../../contexts/globalUtils.js';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {registerIjxUtils} from '../../contexts/ijx/register.js';
 import {
   kFimidaraConfigDbType,
@@ -27,7 +27,7 @@ async function main() {
     redisURL: '',
   });
 
-  kIkxUtils.logger().log('Writing templates');
+  kIjxUtils.logger().log('Writing templates');
 
   await Promise.all([
     renderConfirmEmailAddressMedia(),
@@ -40,7 +40,7 @@ async function main() {
     renderNewSignupsOnWaitlistMedia(),
   ]);
 
-  kIkxUtils.logger().log('Completed writing templates');
+  kIjxUtils.logger().log('Completed writing templates');
   await globalDispose();
 }
 

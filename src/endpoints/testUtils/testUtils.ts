@@ -5,7 +5,7 @@ import {add} from 'date-fns';
 import {isNumber} from 'lodash-es';
 import {Readable} from 'stream';
 import {globalSetup} from '../../contexts/globalUtils.js';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {IServerRequest} from '../../contexts/types.js';
 import {AgentToken, PublicAgentToken} from '../../definitions/agentToken.js';
 import {
@@ -237,8 +237,8 @@ export async function insertUserForTest(
     rawUser = await populateUserWorkspaces(user);
   }
 
-  const userTokenData = kIkxUtils.session().decodeToken(result.jwtToken);
-  const clientTokenData = kIkxUtils
+  const userTokenData = kIjxUtils.session().decodeToken(result.jwtToken);
+  const clientTokenData = kIjxUtils
     .session()
     .decodeToken(result.clientJwtToken);
   const [userToken, clientToken] = await Promise.all([
@@ -286,8 +286,8 @@ export async function insertUserWithOAuthForTest(
   assertUser(user);
   rawUser = await populateUserWorkspaces(user);
 
-  const userTokenData = kIkxUtils.session().decodeToken(result.jwtToken);
-  const clientTokenData = kIkxUtils
+  const userTokenData = kIjxUtils.session().decodeToken(result.jwtToken);
+  const clientTokenData = kIjxUtils
     .session()
     .decodeToken(result.clientJwtToken);
   const [userToken, clientToken] = await Promise.all([

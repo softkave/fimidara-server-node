@@ -1,5 +1,5 @@
 import {first} from 'lodash-es';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestEmailProps,
@@ -50,7 +50,7 @@ export async function sendCollaborationRequestEmail(
   };
   const html = collaborationRequestEmailHTML(emailProps);
   const text = collaborationRequestEmailText(emailProps);
-  return await kIkxUtils.email().sendEmail({
+  return await kIjxUtils.email().sendEmail({
     source,
     subject: kCollaborationRequestEmailArtifacts.title(workspace.name),
     body: {html, text},

@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -22,7 +22,7 @@ import {revokeCollaborationRequestJoiSchema} from './validation.js';
 const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, revokeCollaborationRequestJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -62,7 +62,7 @@ const revokeCollaborationRequest: RevokeCollaborationRequestEndpoint =
         return {workspace, request: updatedRequest};
       });
 
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         type: kJobType.email,
         createdBy: agent,

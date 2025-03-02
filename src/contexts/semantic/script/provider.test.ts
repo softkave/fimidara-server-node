@@ -11,7 +11,7 @@ import {generateAndInsertAppScriptListForTest} from '../../../endpoints/testUtil
 import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
 import {initTests} from '../../../endpoints/testUtils/testUtils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {kIjxSemantic, kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../ijx/injectables.js';
 import {SemanticScriptStatus} from './types.js';
 
 const kHeartbeatIntervalMs = 100;
@@ -39,7 +39,7 @@ describe('SemanticScriptProvider', () => {
     expect(result.script).toBeDefined();
     expect(result.script.name).toBe(name);
 
-    const appId = kIkxUtils.serverApp().getAppId();
+    const appId = kIjxUtils.serverApp().getAppId();
     const dbScript = await kIjxSemantic.script().getScript({name});
     expect(dbScript).toBeDefined();
     expect(dbScript?.name).toBe(name);

@@ -3,7 +3,7 @@ import path from 'path';
 import {AnyFn, AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {ValueOf} from 'type-fest';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {Resource} from '../definitions/system.js';
 import {kFolderConstants} from '../endpoints/folders/constants.js';
 import {appAssert} from './assertion.js';
@@ -499,7 +499,7 @@ export async function tryFnAsync<TFn extends AnyFn>(
     if (onCatch) {
       onCatch(error);
     } else {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     }
   }
 

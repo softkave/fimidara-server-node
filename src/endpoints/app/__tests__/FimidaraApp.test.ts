@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kAppType} from '../../../definitions/app.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {waitTimeout} from '../../../utils/fns.js';
@@ -62,7 +62,7 @@ describe('FimidaraApp', () => {
     expect(preStopHeartbeatMs).toBeGreaterThan(startingHeartbeatMs);
 
     await app.dispose();
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     // No more heartbeat after closing app
     dbApp = await kIjxSemantic.app().getOneById(appId);

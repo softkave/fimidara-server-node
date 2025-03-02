@@ -1,7 +1,7 @@
 import {isNumber, isString} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileWithRuntimeData} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -178,7 +178,7 @@ async function handleUploadFile(params: {
     return {file: fileExtractor(file)};
   } catch (error) {
     if (!isMultipart) {
-      kIkxUtils
+      kIjxUtils
         .promises()
         .callAndForget(() => setFileWritable(file.resourceId));
     }
@@ -189,13 +189,14 @@ async function handleUploadFile(params: {
 
 const uploadFile: UploadFileEndpoint = async reqData => {
   const data = validate(reqData.data, uploadFileJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
+
   // TODO: use a lock on the file using path, because it's still possible to
   // have concurrency issues in the prepare stage. for that, we need to resolve
   // a filepath as quickly as possible and lock on that.
@@ -205,7 +206,7 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {
-    const result = await kIkxUtils.redlock().using(
+    const result = await kIjxUtils.redlock().using(
       `upload-file-${file.resourceId}-${data.part}`,
       /** durationMs */ 10 * 60 * 1000, // 10 minutes
       () => handleUploadFile({file, data, agent, isNewFile, reqData})

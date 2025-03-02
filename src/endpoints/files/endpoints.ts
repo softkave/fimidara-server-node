@@ -4,7 +4,7 @@ import {first, isNumber, isString, last} from 'lodash-es';
 import {AnyObject} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {finished} from 'stream/promises';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
 import {convertToArray} from '../../utils/fns.js';
 import {tryGetResourceTypeFromId} from '../../utils/resource.js';
@@ -167,7 +167,7 @@ async function extractUploadFileParamsFromReq(
     }, kFileStreamWaitTimeoutMS);
 
     bb.on('error', (error): void => {
-      kIkxUtils.logger().error('uploadFile req busboy error', error);
+      kIjxUtils.logger().error('uploadFile req busboy error', error);
     });
 
     bb.on('file', (filename, stream, info) => {
@@ -246,7 +246,7 @@ function cleanupUploadFileReq(req: Request) {
       ((req as ReqWithBusboy).busboy as ActiveBusboy)?._fileStream?.on(
         'error',
         error => {
-          kIkxUtils
+          kIjxUtils
             .logger()
             .error('uploadFile req busboy _fileStream error', error);
         }

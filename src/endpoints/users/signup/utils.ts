@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
@@ -28,7 +28,7 @@ export const INTERNAL_signupUser = async (
     passwordLastChangedAt: now,
     isEmailVerified: false,
     lastUpdatedAt: now,
-    isOnWaitlist: kIkxUtils.suppliedConfig().FLAG_waitlistNewSignups || false,
+    isOnWaitlist: kIjxUtils.suppliedConfig().FLAG_waitlistNewSignups || false,
     ...otherParams,
   });
   await kIjxSemantic.user().insertItem(user, opts);

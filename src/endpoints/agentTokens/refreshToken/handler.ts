@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {PermissionDeniedError} from '../../users/errors.js';
@@ -10,7 +10,7 @@ import {refreshAgentTokenJoiSchema} from './validation.js';
 const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, refreshAgentTokenJoiSchema);
 
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -25,7 +25,7 @@ const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
     new PermissionDeniedError()
   );
   appAssert(
-    await kIkxUtils
+    await kIjxUtils
       .session()
       .verifyRefreshToken(
         data.refreshToken,

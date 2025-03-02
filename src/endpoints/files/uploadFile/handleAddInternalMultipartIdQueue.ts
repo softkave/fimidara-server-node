@@ -5,7 +5,7 @@ import {IInternalMultipartIdQueueOutput} from './types.js';
 import assert from 'assert';
 import {isNumber} from 'lodash-es';
 import {kIncludeInProjection} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kUsageProviderConstants} from '../../../contexts/usage/constants.js';
 import {
   singleItemHandleShardQueue,
@@ -85,8 +85,8 @@ async function handleAddInternalMultipartIdEntry(params: {
     };
   }
 
-  if (kIkxUtils.locks().has(lockName)) {
-    await kIkxUtils.locks().wait({
+  if (kIjxUtils.locks().has(lockName)) {
+    await kIjxUtils.locks().wait({
       name: lockName,
       timeoutMs: kFileConstants.getAddInternalMultipartIdLockWaitTimeoutMs,
     });
@@ -102,7 +102,7 @@ async function handleAddInternalMultipartIdEntry(params: {
     };
   }
 
-  return await kIkxUtils.locks().run(lockName, async () => {
+  return await kIjxUtils.locks().run(lockName, async () => {
     const result = await addFileInternalMultipartId({input});
     return {
       type: kShardRunnerOutputType.success,

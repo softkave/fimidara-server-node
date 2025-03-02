@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {isUndefined} from 'lodash-es';
 import {DataQuery, kIncludeInProjection} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {AppShardId} from '../../../definitions/app.js';
 import {
   DeleteResourceJobParams,
@@ -142,7 +142,7 @@ export async function runDeletePermissionItemsJob(
 
   const [workspace, agent] = await Promise.all([
     kIjxSemantic.workspace().getOneById(workspaceId),
-    kIkxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
+    kIjxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
   ]);
   appAssert(workspace, 'workspace not found');
 

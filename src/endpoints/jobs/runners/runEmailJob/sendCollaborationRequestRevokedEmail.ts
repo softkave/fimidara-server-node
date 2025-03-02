@@ -1,5 +1,5 @@
 import {first} from 'lodash-es';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
   CollaborationRequestRevokedEmailProps,
@@ -47,7 +47,7 @@ export async function sendCollaborationRequestRevokedEmail(
   };
   const html = collaborationRequestRevokedEmailHTML(emailProps);
   const text = collaborationRequestRevokedEmailText(emailProps);
-  return await kIkxUtils.email().sendEmail({
+  return await kIjxUtils.email().sendEmail({
     source,
     subject: kCollaborationRequestRevokedEmail.title(workspace.name),
     body: {html, text},

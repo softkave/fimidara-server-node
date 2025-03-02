@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {tryGetAgentTokenId} from '../../../utils/sessionUtils.js';
@@ -12,7 +12,7 @@ import {deleteAgentTokenJoiSchema} from './validation.js';
 
 const deleteAgentToken: DeleteAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, deleteAgentTokenJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

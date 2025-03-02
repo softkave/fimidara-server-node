@@ -1,9 +1,9 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {CountUserWorkspacesEndpoint} from './types.js';
 
 const countUserWorkspaces: CountUserWorkspacesEndpoint = async reqData => {
-  const user = await kIkxUtils
+  const user = await kIjxUtils
     .session()
     .getUser(reqData, kSessionUtils.accessScopes.user);
   const assignedItems = await kIjxSemantic

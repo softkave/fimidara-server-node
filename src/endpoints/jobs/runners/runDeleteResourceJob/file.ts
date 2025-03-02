@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {UsageRecordDecrementInput} from '../../../../contexts/usage/types.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
@@ -106,7 +106,7 @@ async function deleteMountFiles(params: {
           })),
         });
       } catch (error) {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
       }
     })
   );
@@ -127,7 +127,7 @@ async function decrementStorageUsageRecordForFile(params: {
     usage: size,
   };
 
-  await kIkxUtils.usage().decrement(kSystemSessionAgent, input);
+  await kIjxUtils.usage().decrement(kSystemSessionAgent, input);
 }
 
 const deleteResourceFn: DeleteResourceFn<

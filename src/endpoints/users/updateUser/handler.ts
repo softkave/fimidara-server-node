@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {User} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {isStringEqual} from '../../../utils/fns.js';
@@ -15,7 +15,7 @@ import {UpdateUserEndpoint} from './types.js';
 import {updateUserJoiSchema} from './validation.js';
 
 const updateUser: UpdateUserEndpoint = async reqData => {
-  let user = await kIkxUtils
+  let user = await kIjxUtils
     .session()
     .getUser(reqData, kSessionUtils.accessScopes.user);
   const data = validate(reqData.data, updateUserJoiSchema);
@@ -39,7 +39,7 @@ const updateUser: UpdateUserEndpoint = async reqData => {
   });
 
   if (isEmailAddressUpdated) {
-    kIkxUtils
+    kIjxUtils
       .promises()
       .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   }

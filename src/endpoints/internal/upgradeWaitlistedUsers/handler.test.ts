@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
@@ -47,7 +47,7 @@ describe('upgradeWaitlistedUsers', () => {
       kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kIkxUtils.runtimeConfig().appWorkspaceId,
+          kIjxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );
@@ -72,7 +72,7 @@ describe('upgradeWaitlistedUsers', () => {
     const usersMap = indexArray(users, {path: 'resourceId'});
     expect(users).toHaveLength(waitlistedUsers.length);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     await Promise.all(
       users.map(async user => {
         expect(usersMap[user.resourceId]).toBeTruthy();

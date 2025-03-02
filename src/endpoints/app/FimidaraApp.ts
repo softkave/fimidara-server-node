@@ -1,6 +1,6 @@
 import {DisposableResource} from 'softkave-js-utils';
 import {AppQuery} from '../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../contexts/semantic/types.js';
 import {App, AppShardId, AppType} from '../../definitions/app.js';
 import {kFimidaraResourceType} from '../../definitions/system.js';
@@ -112,7 +112,7 @@ export class FimidaraApp implements DisposableResource {
   }
 
   getServerId() {
-    const config = kIkxUtils.suppliedConfig();
+    const config = kIjxUtils.suppliedConfig();
     const serverId = config.serverId;
     appAssert(serverId, 'serverId not set in config');
     return serverId;
@@ -129,7 +129,7 @@ export class FimidaraApp implements DisposableResource {
   protected startHeartbeat() {
     if (!this.recordHeartbeatIntervalHandle) {
       this.recordHeartbeatIntervalHandle = setInterval(() => {
-        kIkxUtils.promises().callAndForget(async () => {
+        kIjxUtils.promises().callAndForget(async () => {
           await this.recordInstanceHeartbeat();
           await this.refreshActiveAppIdList();
         });
@@ -153,7 +153,7 @@ export class FimidaraApp implements DisposableResource {
   };
 
   protected async insertAppInDB(opts: SemanticProviderMutationParams) {
-    const config = kIkxUtils.suppliedConfig();
+    const config = kIjxUtils.suppliedConfig();
     const serverId = this.getServerId();
     const serverInfo = await getServerInfo({
       httpPort: config.httpPort,

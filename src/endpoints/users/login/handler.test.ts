@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {completeTests} from '../../testUtils/helpers/testFns.js';
@@ -48,7 +48,7 @@ describe('login', () => {
     expect(result.refreshToken).toBeTruthy();
     expect(result.jwtTokenExpiresAt).toBeTruthy();
 
-    const jwtToken = kIkxUtils.session().decodeToken(result.jwtToken);
+    const jwtToken = kIjxUtils.session().decodeToken(result.jwtToken);
     expect(jwtToken.sub.id).toBe(userToken.resourceId);
   });
 

@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getLoginResult} from '../login/utils.js';
 import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
@@ -13,7 +13,7 @@ const signupWithOAuth: SignupWithOAuthEndpoint = async reqData => {
     .withTxn(opts => INTERNAL_signupUserWithOAuth({data, opts}));
 
   if (!data.emailVerifiedAt && !user.emailVerifiedAt) {
-    kIkxUtils
+    kIjxUtils
       .promises()
       .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   }

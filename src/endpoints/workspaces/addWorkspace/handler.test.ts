@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
@@ -122,7 +122,7 @@ describe('addWorkspace', () => {
   test('fails if user is on waitlist', async () => {
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -142,7 +142,7 @@ describe('addWorkspace', () => {
         // for this test instead
         kRegisterIjxUtils.suppliedConfig(
           mergeData(
-            kIkxUtils.suppliedConfig(),
+            kIjxUtils.suppliedConfig(),
             {FLAG_waitlistNewSignups: false},
             {arrayUpdateStrategy: 'replace'}
           )

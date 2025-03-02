@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
-import {kIkxUtils} from '../../../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
@@ -43,6 +43,6 @@ describe('sendUserUpgradedFromWaitlistEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kUpgradeFromWaitlistEmailArtifacts.title);
-    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(kIjxUtils.suppliedConfig().senderEmailAddress);
   });
 });

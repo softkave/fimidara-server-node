@@ -214,7 +214,7 @@ export const kIjxData = {
   script: () => container.resolve<ScriptDataProvider>(kIjxKeys.data.script),
 };
 
-export const kIkxUtils = {
+export const kIjxUtils = {
   // config: () => container.resolve<FimidaraConfig>(kInjectionKeys.config),
   suppliedConfig: () =>
     container.resolve<FimidaraSuppliedConfig>(kIjxKeys.suppliedConfig),
