@@ -1,17 +1,13 @@
 import {File} from '../../definitions/file.js';
 import {FimidaraPermissionAction} from '../../definitions/permissionItem.js';
-import {kFimidaraResourceType} from '../../definitions/system.js';
+import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
 import {
   BandwidthUsageRecordArtifact,
   FileUsageRecordArtifact,
   kUsageRecordArtifactType,
   kUsageRecordCategory,
 } from '../../definitions/usageRecord.js';
-import RequestData from '../../endpoints/RequestData.js';
 import {UsageLimitExceededError} from '../../endpoints/usageRecords/errors.js';
-import {getActionAgentFromSessionAgent} from '../../utils/sessionUtils.js';
-import {kSessionUtils} from '../SessionContext.js';
-import {kIjxUtils} from '../ijx/injectables.js';
 import {
   queueDecrementUsageRecord,
   queueIncrementUsageRecord,
@@ -19,28 +15,13 @@ import {
 import {UsageRecordDecrementInput, UsageRecordIncrementInput} from './types.js';
 
 // #region "increment fns"
-async function incrementUsageRecord(
-  reqData: RequestData,
-  input: UsageRecordIncrementInput,
-  nothrow = false
-) {
+async function incrementUsageRecord(params: {
+  agent: Agent;
+  input: UsageRecordIncrementInput;
+  nothrow?: boolean;
+}) {
+  const {agent, input, nothrow = false} = params;
   // const markPrefix = `incrementUsageRecord-${input.category}-${input.workspaceId}`;
-  // performance.mark(`${markPrefix}-getAgent`);
-  const agent = getActionAgentFromSessionAgent(
-    await kIjxUtils
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
-      )
-  );
-  // const getAgentMeasure = performance.measure(
-  //   `${markPrefix}-getAgent`,
-  //   `${markPrefix}-getAgent`
-  // );
-  // console.log(`${markPrefix}-getAgent: ${getAgentMeasure.duration}ms`);
-
   // performance.mark(`${markPrefix}-queue`);
   const result = await queueIncrementUsageRecord({agent, input});
   // performance.mark(`${markPrefix}-end`);
@@ -60,16 +41,26 @@ async function incrementUsageRecord(
   return result.permitted;
 }
 
-export async function incrementStorageUsageRecord(
-  reqData: RequestData,
+export async function incrementStorageUsageRecord(params: {
+  requestId: string;
+  agent: Agent;
   file: Pick<File, 'namepath' | 'workspaceId' | 'size'> &
-    Partial<Pick<File, 'resourceId'>>,
-  action: FimidaraPermissionAction,
-  artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
-  nothrow = false
-) {
+    Partial<Pick<File, 'resourceId'>>;
+  action: FimidaraPermissionAction;
+  artifactMetaInput?: Partial<FileUsageRecordArtifact>;
+  nothrow?: boolean;
+}) {
+  const {
+    requestId,
+    agent,
+    file,
+    action,
+    artifactMetaInput,
+    nothrow = false,
+  } = params;
+
   const artifactMeta: FileUsageRecordArtifact = {
-    requestId: reqData.requestId,
+    requestId,
     filepath: file.namepath,
     fileId: file.resourceId,
     ...artifactMetaInput,
@@ -89,19 +80,29 @@ export async function incrementStorageUsageRecord(
     ],
   };
 
-  await incrementUsageRecord(reqData, input, nothrow);
+  await incrementUsageRecord({agent, input, nothrow});
 }
 
-export async function incrementStorageEverConsumedUsageRecord(
-  reqData: RequestData,
+export async function incrementStorageEverConsumedUsageRecord(params: {
+  requestId: string;
+  agent: Agent;
   file: Pick<File, 'namepath' | 'workspaceId' | 'size'> &
-    Partial<Pick<File, 'resourceId'>>,
-  action: FimidaraPermissionAction,
-  artifactMetaInput: Partial<FileUsageRecordArtifact> = {},
-  nothrow = false
-) {
+    Partial<Pick<File, 'resourceId'>>;
+  action: FimidaraPermissionAction;
+  artifactMetaInput?: Partial<FileUsageRecordArtifact>;
+  nothrow?: boolean;
+}) {
+  const {
+    requestId,
+    agent,
+    file,
+    action,
+    artifactMetaInput,
+    nothrow = false,
+  } = params;
+
   const artifactMeta: FileUsageRecordArtifact = {
-    requestId: reqData.requestId,
+    requestId,
     filepath: file.namepath,
     fileId: file.resourceId,
     ...artifactMetaInput,
@@ -121,19 +122,21 @@ export async function incrementStorageEverConsumedUsageRecord(
     ],
   };
 
-  await incrementUsageRecord(reqData, input, nothrow);
+  await incrementUsageRecord({agent, input, nothrow});
 }
 
-export async function incrementBandwidthInUsageRecord(
-  reqData: RequestData,
+export async function incrementBandwidthInUsageRecord(params: {
+  requestId: string;
+  agent: Agent;
   file: Pick<File, 'namepath' | 'workspaceId' | 'size'> &
-    Partial<Pick<File, 'resourceId'>>,
-  action: FimidaraPermissionAction,
-  nothrow = false
-) {
+    Partial<Pick<File, 'resourceId'>>;
+  action: FimidaraPermissionAction;
+  nothrow?: boolean;
+}) {
+  const {requestId, agent, file, action, nothrow = false} = params;
   const artifactMeta: BandwidthUsageRecordArtifact = {
     filepath: file.namepath,
-    requestId: reqData.requestId,
+    requestId,
     fileId: file.resourceId,
   };
 
@@ -151,18 +154,20 @@ export async function incrementBandwidthInUsageRecord(
     ],
   };
 
-  await incrementUsageRecord(reqData, input, nothrow);
+  await incrementUsageRecord({agent, input, nothrow});
 }
 
-export async function incrementBandwidthOutUsageRecord(
-  reqData: RequestData,
+export async function incrementBandwidthOutUsageRecord(params: {
+  requestId: string;
+  agent: Agent;
   file: Pick<File, 'namepath' | 'workspaceId' | 'size'> &
-    Partial<Pick<File, 'resourceId'>>,
-  action: FimidaraPermissionAction,
-  nothrow = false
-) {
+    Partial<Pick<File, 'resourceId'>>;
+  action: FimidaraPermissionAction;
+  nothrow?: boolean;
+}) {
+  const {requestId, agent, file, action, nothrow = false} = params;
   const artifactMeta: BandwidthUsageRecordArtifact = {
-    requestId: reqData.requestId,
+    requestId,
     filepath: file.namepath,
     fileId: file.resourceId,
   };
@@ -181,38 +186,30 @@ export async function incrementBandwidthOutUsageRecord(
     ],
   };
 
-  await incrementUsageRecord(reqData, input, nothrow);
+  await incrementUsageRecord({agent, input, nothrow});
 }
 // #endregion "increment fns"
 
 // #region "decrement fns"
-async function decrementUsageRecord(
-  reqData: RequestData,
-  input: UsageRecordDecrementInput
-) {
-  const agent = getActionAgentFromSessionAgent(
-    await kIjxUtils
-      .session()
-      .getAgentFromReq(
-        reqData,
-        kSessionUtils.permittedAgentTypes.api,
-        kSessionUtils.accessScopes.api
-      )
-  );
-
+async function decrementUsageRecord(params: {
+  agent: Agent;
+  input: UsageRecordDecrementInput;
+}) {
+  const {agent, input} = params;
   await queueDecrementUsageRecord({agent, input});
 }
 
-export async function decrementStorageUsageRecord(
-  reqData: RequestData,
-  file: Pick<File, 'size' | 'workspaceId'>
-) {
+export async function decrementStorageUsageRecord(params: {
+  agent: Agent;
+  file: Pick<File, 'size' | 'workspaceId'>;
+}) {
+  const {agent, file} = params;
   const input: UsageRecordDecrementInput = {
     category: kUsageRecordCategory.storage,
     workspaceId: file.workspaceId,
     usage: file.size,
   };
 
-  await decrementUsageRecord(reqData, input);
+  await decrementUsageRecord({agent, input});
 }
 // #endregion "decrement fns"
