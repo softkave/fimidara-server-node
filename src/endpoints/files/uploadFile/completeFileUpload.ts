@@ -12,9 +12,12 @@ import {
 } from '../../../definitions/system.js';
 import {pathExtract} from '../../../utils/fns.js';
 import {newWorkspaceResource} from '../../../utils/resource.js';
-import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {assertFile} from '../utils.js';
-import {getFinalFileUpdate} from './update.js';
+import {
+  getFinalFileUpdate,
+  getIntermediateMultipartFileUpdate,
+  saveFilePartData,
+} from './update.js';
 import {handleFinalStorageUsageRecords} from './usage.js';
 
 async function insertFileMountEntry(params: {
@@ -56,11 +59,11 @@ async function insertFileMountEntry(params: {
   await kIjxSemantic.resolvedMountEntry().insertItem(newMountEntry, opts);
 }
 
-async function completeUploadFile(params: {
+async function updateFileAndInsertMountEntry(params: {
   agent: SessionAgent;
   file: File;
   primaryMount: FileBackendMount;
-  pMountData: FilePersistenceUploadFileResult<unknown>;
+  persistedMountData: FilePersistenceUploadFileResult<unknown>;
   update: Partial<File>;
   shouldInsertMountEntry: boolean;
 }) {
@@ -68,13 +71,13 @@ async function completeUploadFile(params: {
     agent,
     file,
     primaryMount,
-    pMountData,
+    persistedMountData,
     update,
     shouldInsertMountEntry,
   } = params;
 
   return await kIjxSemantic.utils().withTxn(async opts => {
-    const {namepath, ext} = pathExtract(pMountData.filepath);
+    const {namepath, ext} = pathExtract(persistedMountData.filepath);
     const [savedFile] = await Promise.all([
       kIjxSemantic.file().getAndUpdateOneById(file.resourceId, update, opts),
       shouldInsertMountEntry &&
@@ -85,8 +88,8 @@ async function completeUploadFile(params: {
           namepath,
           ext,
           opts,
-          filepath: pMountData.filepath,
-          raw: pMountData.raw,
+          filepath: persistedMountData.filepath,
+          raw: persistedMountData.raw,
         }),
     ]);
 
@@ -102,12 +105,18 @@ export async function completeFileUpload(params: {
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>;
   size: number;
   primaryMount: FileBackendMount;
-  pMountData: FilePersistenceUploadFileResult<unknown>;
+  persistedMountData: FilePersistenceUploadFileResult<unknown>;
 }) {
-  const {requestId, sessionAgent, file, data, size, primaryMount, pMountData} =
-    params;
+  const {
+    requestId,
+    sessionAgent,
+    file,
+    data,
+    size,
+    primaryMount,
+    persistedMountData,
+  } = params;
 
-  const agent = getActionAgentFromSessionAgent(sessionAgent);
   const update = getFinalFileUpdate({
     agent: sessionAgent,
     file,
@@ -118,15 +127,46 @@ export async function completeFileUpload(params: {
   const [_unused, updatedFile] = await Promise.all([
     handleFinalStorageUsageRecords({
       requestId,
-      agent,
+      sessionAgent,
       file,
       size,
     }),
-    completeUploadFile({
+    updateFileAndInsertMountEntry({
       agent: sessionAgent,
       file,
       primaryMount,
-      pMountData,
+      persistedMountData,
+      update,
+      shouldInsertMountEntry: true,
+    }),
+  ]);
+
+  return updatedFile;
+}
+
+export async function completePartialFileUpload(params: {
+  sessionAgent: SessionAgent;
+  file: File;
+  data: Pick<File, 'description' | 'encoding' | 'mimetype'>;
+  size: number;
+  primaryMount: FileBackendMount;
+  persistedMountData: FilePersistenceUploadFileResult<unknown>;
+}) {
+  const {sessionAgent, file, data, size, primaryMount, persistedMountData} =
+    params;
+  const update = getIntermediateMultipartFileUpdate({
+    agent: sessionAgent,
+    data,
+    multipartId: file.internalMultipartId!,
+  });
+
+  const [_unused01, updatedFile] = await Promise.all([
+    saveFilePartData({persistedMountData: persistedMountData, size}),
+    updateFileAndInsertMountEntry({
+      agent: sessionAgent,
+      file,
+      primaryMount,
+      persistedMountData,
       update,
       shouldInsertMountEntry: true,
     }),

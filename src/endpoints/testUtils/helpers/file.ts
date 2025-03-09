@@ -27,10 +27,10 @@ export async function expectFileBodyEqualById(
   const file = await kIjxSemantic.file().getOneById(id);
   assert(file);
 
-  const {primaryBackend, primaryMount} = await resolveBackendsMountsAndConfigs(
+  const {primaryBackend, primaryMount} = await resolveBackendsMountsAndConfigs({
     file,
-    /** init primary backend only */ true
-  );
+    initPrimaryBackendOnly: true,
+  });
   const {body} = await primaryBackend.readFile({
     filepath: stringifyFilenamepath(file),
     fileId: file.resourceId,

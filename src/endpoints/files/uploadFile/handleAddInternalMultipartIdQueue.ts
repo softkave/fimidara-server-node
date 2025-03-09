@@ -26,13 +26,10 @@ async function addFileInternalMultipartId(params: {
   const {input} = params;
 
   // TODO: find a way to cache calls to resolveBackendsMountsAndConfigs
-  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
-    /** file */ {
-      workspaceId: input.workspaceId,
-      namepath: input.namepath,
-    },
-    /** initPrimaryBackendOnly */ true
-  );
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
+    file: {workspaceId: input.workspaceId, namepath: input.namepath},
+    initPrimaryBackendOnly: true,
+  });
 
   const startResult = await primaryBackend.startMultipartUpload({
     filepath: input.filepath,

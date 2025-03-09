@@ -1,6 +1,7 @@
 import {isNumber, pick} from 'lodash-es';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
 import {SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -8,8 +9,8 @@ import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData} from '../../../utils/fns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 import {getCleanupMultipartFileUpdate} from '../deleteFile/deleteMultipartUpload.js';
+import {writeFileParts} from '../utils/filePart.js';
 import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
-import {writeMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 
 export async function setFileWritable(fileId: string) {
   await kIjxSemantic.utils().withTxn(async opts => {
@@ -20,21 +21,29 @@ export async function setFileWritable(fileId: string) {
 }
 
 export async function saveFilePartData(params: {
-  pMountData: FilePersistenceUploadFileResult<unknown>;
+  agent: SessionAgent;
+  workspaceId: string;
+  fileId: string;
+  persistedMountData: FilePersistenceUploadFileResult<unknown>;
   size: number;
+  opts: SemanticProviderMutationParams | null;
 }) {
-  const {pMountData, size} = params;
-  appAssert(isNumber(pMountData.part));
-  appAssert(pMountData.multipartId && pMountData.partId);
+  const {persistedMountData, size, opts} = params;
 
-  await writeMultipartUploadPartMetas({
-    multipartId: pMountData.multipartId,
+  appAssert(isNumber(persistedMountData.part));
+  appAssert(persistedMountData.multipartId && persistedMountData.partId);
+
+  await writeFileParts({
+    opts,
+    agent: params.agent,
+    workspaceId: params.workspaceId,
+    fileId: params.fileId,
     parts: [
       {
         size,
-        part: pMountData.part,
-        multipartId: pMountData.multipartId,
-        partId: pMountData.partId,
+        part: persistedMountData.part,
+        multipartId: persistedMountData.multipartId,
+        partId: persistedMountData.partId,
       },
     ],
   });

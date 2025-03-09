@@ -6,15 +6,7 @@ function semanticKey(name: string) {
   return `semantic_${name}`;
 }
 
-function logicKey(name: string) {
-  return `logic_${name}`;
-}
-
 export const kIjxKeys = {
-  logic: {
-    permissions: logicKey('permissions'),
-    jobs: logicKey('jobs'),
-  },
   data: {
     user: dataKey('user'),
     file: dataKey('file'),
@@ -41,6 +33,7 @@ export const kIjxKeys = {
     jobHistory: dataKey('jobHistory'),
     utils: dataKey('utils'),
     script: dataKey('script'),
+    filePart: dataKey('filePart'),
   },
   semantic: {
     user: semanticKey('user'),
@@ -67,6 +60,7 @@ export const kIjxKeys = {
     jobHistory: semanticKey('jobHistory'),
     utils: semanticKey('utils'),
     script: semanticKey('script'),
+    filePart: semanticKey('filePart'),
   },
   encryption: 'encryption',
   // config: 'config',

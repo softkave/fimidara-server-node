@@ -10,11 +10,6 @@ import {
   deleteMultipartUpload,
   getCleanupMultipartFileUpdate,
 } from '../deleteFile/deleteMultipartUpload.js';
-import {
-  deleteMultipartUploadPartMetas,
-  getMultipartUploadPartMetas,
-} from '../utils/multipartUploadMeta.js';
-import {cleanupConcurrencyKeys} from './clean.js';
 import {UploadFileEndpointParams} from './types.js';
 
 export async function beginCleanupExpiredMultipartUpload(
@@ -70,10 +65,7 @@ export async function handleLastMultipartUpload(params: {
   appAssert(isString(file.clientMultipartId));
   appAssert(isString(file.internalMultipartId));
 
-  const {parts} = await getMultipartUploadPartMetas({
-    multipartId: file.internalMultipartId,
-  });
-
+  const parts = await kIjxSemantic.filePart().getManyByFileId(file.resourceId);
   const pMountData = await primaryBackend.completeMultipartUpload({
     filepath,
     parts,
@@ -84,12 +76,9 @@ export async function handleLastMultipartUpload(params: {
   });
 
   kIjxUtils.promises().callAndForget(() =>
-    Promise.all([
-      cleanupConcurrencyKeys({file, data}),
-      deleteMultipartUploadPartMetas({
-        multipartId: file.internalMultipartId!,
-      }),
-    ])
+    kIjxSemantic.filePart().deleteManyByMultipartIdAndPart({
+      multipartId: file.internalMultipartId!,
+    })
   );
 
   const size = parts.reduce((acc, part) => acc + part.size, 0);

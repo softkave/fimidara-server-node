@@ -140,10 +140,11 @@ export async function initBackendProvidersForMounts(
   return providersMap;
 }
 
-export async function resolveBackendsMountsAndConfigs(
-  file: Pick<File, 'workspaceId' | 'namepath'>,
-  initPrimaryBackendOnly: boolean
-) {
+export async function resolveBackendsMountsAndConfigs(params: {
+  file: Pick<File, 'workspaceId' | 'namepath'>;
+  initPrimaryBackendOnly: boolean;
+}) {
+  const {file, initPrimaryBackendOnly} = params;
   const {mounts} = await resolveMountsForFolder({
     workspaceId: file.workspaceId,
     namepath: file.namepath.slice(0, -1),

@@ -5,7 +5,7 @@ import {appAssert} from '../../../utils/assertion.js';
 import {InvalidStateError} from '../../errors.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {getWorkspaceFromFileOrFilepath} from '../utils.js';
-import {prepareFilepath} from '../utils/prepareFilepath.js';
+import {prepareMountFilepath} from '../utils/prepareMountFilepath.js';
 import {checkoutFileForUpload} from './checkoutFileForUpload.js';
 import {fireAndForgetHandleMultipartCleanup} from './multipart.js';
 import {queueAddInternalMultipartId} from './queueAddInternalMultipartId.js';
@@ -70,12 +70,12 @@ export async function prepareMultipart(params: {
     new InvalidStateError('File is already in a multipart upload')
   );
 
-  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
     file,
-    /** initPrimaryBackendOnly */ true
-  );
+    initPrimaryBackendOnly: true,
+  });
 
-  const filepath = await prepareFilepath({primaryMount, file});
+  const filepath = await prepareMountFilepath({primaryMount, file});
   const {multipartId} = await queueAddInternalMultipartId({
     agent,
     input: {

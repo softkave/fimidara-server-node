@@ -198,10 +198,10 @@ describe('file backend mount utils', () => {
       }),
     ]);
 
-    const result = await resolveBackendsMountsAndConfigs(
-      {namepath: fileNamepath, workspaceId: workspace.resourceId},
-      /** init primary backend only */ true
-    );
+    const result = await resolveBackendsMountsAndConfigs({
+      file: {namepath: fileNamepath, workspaceId: workspace.resourceId},
+      initPrimaryBackendOnly: true,
+    });
 
     expect(result.primaryBackend).toBeInstanceOf(
       FimidaraFilePersistenceProvider
@@ -245,10 +245,10 @@ describe('file backend mount utils', () => {
       }),
     ]);
 
-    const result = await resolveBackendsMountsAndConfigs(
-      {namepath: fileNamepath, workspaceId: workspace.resourceId},
-      /** init primary backend only */ false
-    );
+    const result = await resolveBackendsMountsAndConfigs({
+      file: {namepath: fileNamepath, workspaceId: workspace.resourceId},
+      initPrimaryBackendOnly: false,
+    });
 
     expect(result.primaryBackend).toBeInstanceOf(S3FilePersistenceProvider);
     expect(result.primaryMount).toMatchObject(s3Mount);

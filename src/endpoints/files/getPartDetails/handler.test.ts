@@ -17,10 +17,8 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {stringifyFilenamepath} from '../utils.js';
-import {
-  FilePartMeta,
-  writeMultipartUploadPartMetas,
-} from '../utils/multipartUploadMeta.js';
+import {writeFileParts} from '../utils/filePart.js';
+import {FilePartMeta} from '../utils/multipartUploadMeta.js';
 import getPartDetails, {partDetailsListExtractor} from './handler.js';
 import {GetPartDetailsEndpointParams} from './types.js';
 
@@ -36,7 +34,7 @@ describe('getPartDetails', () => {
   test.each([{spotty: true}, {spotty: false}])(
     'file details returned, params=%s',
     async ({spotty}) => {
-      const {userToken} = await insertUserForTest();
+      const {userToken, sessionAgent} = await insertUserForTest();
       const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
       const {rawFile: file} = await insertFileForTest(userToken, workspace);
       const partLength = 10;
@@ -72,9 +70,13 @@ describe('getPartDetails', () => {
             partId: part.toString(),
           };
         });
-      await writeMultipartUploadPartMetas({
+
+      await writeFileParts({
+        opts: null,
+        agent: sessionAgent,
+        workspaceId: workspace.resourceId,
+        fileId: file.resourceId,
         parts,
-        multipartId: internalMultipartId,
       });
 
       await callGetParts({

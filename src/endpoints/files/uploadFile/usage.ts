@@ -6,18 +6,20 @@ import {
 } from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {Agent} from '../../../definitions/system.js';
+import {SessionAgent} from '../../../definitions/system.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 
 export async function handleIntermediateStorageUsageRecords(params: {
   requestId: string;
-  agent: Agent;
+  sessionAgent: SessionAgent;
   file: File;
   size: number;
 }) {
-  const {requestId, agent, file, size} = params;
+  const {requestId, sessionAgent, file, size} = params;
 
   // TODO: why is resourceId undefined?
   const fileWithSize = {...file, size, resourceId: undefined};
+  const agent = getActionAgentFromSessionAgent(sessionAgent);
   await Promise.all([
     incrementBandwidthInUsageRecord({
       requestId,
@@ -36,11 +38,12 @@ export async function handleIntermediateStorageUsageRecords(params: {
 
 export async function handleFinalStorageUsageRecords(params: {
   requestId: string;
-  agent: Agent;
+  sessionAgent: SessionAgent;
   file: File;
   size: number;
 }) {
-  const {requestId, agent, file, size} = params;
+  const {requestId, sessionAgent, file, size} = params;
+  const agent = getActionAgentFromSessionAgent(sessionAgent);
   const fileWithSize = {...file, size, resourceId: undefined};
 
   await decrementStorageUsageRecord({agent, file});

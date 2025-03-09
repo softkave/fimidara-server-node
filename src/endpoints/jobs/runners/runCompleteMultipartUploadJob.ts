@@ -1,16 +1,16 @@
 import assert from 'assert';
-import {Job, kJobType} from '../../../definitions/job.js';
 import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
+import {Job, kJobType} from '../../../definitions/job.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {handleLastMultipartUpload} from '../../files/uploadFile/multipart.js';
 
 export async function runCompleteMultipartUploadJob(job: Job) {
   assert(job.type === kJobType.completeMultipartUpload);
 
-  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs(
+  const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
     file,
-    /** initPrimaryBackendOnly */ true
-  );
+    initPrimaryBackendOnly: true,
+  });
 
   let size = 0;
   let pMountData:

@@ -10,7 +10,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
 } from '../../../testUtils/testUtils.js';
-import {prepareFilepath} from '../../utils/prepareFilepath.js';
+import {prepareMountFilepath} from '../../utils/prepareMountFilepath.js';
 import {queueAddInternalMultipartId} from '../queueAddInternalMultipartId.js';
 
 beforeAll(async () => {
@@ -26,15 +26,12 @@ describe('queueAddInternalMultipartId', () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
@@ -56,13 +53,10 @@ describe('queueAddInternalMultipartId', () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
     const existingMultipartId = '123';
     await kIjxSemantic.utils().withTxn(async opts => {
@@ -75,7 +69,7 @@ describe('queueAddInternalMultipartId', () => {
         );
     });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
@@ -97,15 +91,12 @@ describe('queueAddInternalMultipartId', () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const filepath = await prepareMountFilepath({primaryMount, file});
 
     async function addMultipartId() {
       const {multipartId} = await queueAddInternalMultipartId({

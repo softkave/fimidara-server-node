@@ -1,3 +1,4 @@
+import {FilePersistenceUploadPartResult} from '../contexts/file/types.js';
 import {
   PublicWorkspaceResource,
   ToPublicDefinitions,
@@ -23,6 +24,13 @@ export interface File extends WorkspaceResource {
   clientMultipartId?: string | null;
   /** timestamp in ms */
   multipartTimeout?: number | null;
+}
+
+export interface FilePart
+  extends WorkspaceResource,
+    FilePersistenceUploadPartResult {
+  fileId: string;
+  size: number;
 }
 
 export interface FileWithRuntimeData extends File {

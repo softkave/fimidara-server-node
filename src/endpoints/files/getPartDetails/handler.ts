@@ -4,9 +4,8 @@ import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getFields} from '../../../utils/extract.js';
 import {validate} from '../../../utils/validate.js';
-import {kEndpointConstants} from '../../constants.js';
+import {applyDefaultEndpointPaginationOptions} from '../../pagination.js';
 import {getAndCheckFileAuthorization} from '../utils.js';
-import {getMultipartUploadPartMetas} from '../utils/multipartUploadMeta.js';
 import {GetPartDetailsEndpoint, PublicPartDetails} from './types.js';
 import {getPartDetailsJoiSchema} from './validation.js';
 
@@ -41,18 +40,17 @@ const getPartDetails: GetPartDetailsEndpoint = async reqData => {
   );
 
   if (!file.internalMultipartId) {
-    return {details: []};
+    return {details: [], page: 1};
   }
 
-  const {parts, continuationToken, isDone} = await getMultipartUploadPartMetas({
-    multipartId: file.internalMultipartId,
-    pageSize: kEndpointConstants.maxPageSize,
-    cursor: data.continuationToken ? parseInt(data.continuationToken) : null,
+  applyDefaultEndpointPaginationOptions(data);
+  const parts = await kIjxSemantic.filePart().getManyByFileId(file.resourceId, {
+    pageSize: data.pageSize,
+    page: data.page,
   });
 
   return {
-    isDone,
-    continuationToken: continuationToken?.toString() || undefined,
+    page: data.page!,
     clientMultipartId: file.clientMultipartId || undefined,
     details: partDetailsListExtractor(parts),
   };

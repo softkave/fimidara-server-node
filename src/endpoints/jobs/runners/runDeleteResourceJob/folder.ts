@@ -51,13 +51,11 @@ const deleteResourceFn: DeleteResourceFn<
     return;
   }
 
-  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    /** folder */ {
-      workspaceId: args.workspaceId,
-      namepath: preRunMeta.namepath,
-    },
-    /** init primary backend only */ false
-  );
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs({
+    file: {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
+    initPrimaryBackendOnly: false,
+  });
+
   await Promise.all(
     mounts.map(async mount => {
       try {

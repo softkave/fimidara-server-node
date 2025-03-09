@@ -82,10 +82,10 @@ async function deleteMountFiles(params: {
     Pick<ResolvedMountEntry, 'backendNamepath' | 'backendExt'>
   >;
 }) {
-  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    /** file */ {workspaceId: params.workspaceId, namepath: params.namepath},
-    /** init primary backend only */ false
-  );
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs({
+    file: {workspaceId: params.workspaceId, namepath: params.namepath},
+    initPrimaryBackendOnly: false,
+  });
 
   await Promise.all(
     mounts.map(async mount => {
