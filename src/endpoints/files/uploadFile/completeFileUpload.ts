@@ -7,6 +7,7 @@ import {
   ResolvedMountEntry,
 } from '../../../definitions/fileBackend.js';
 import {
+  Agent,
   kFimidaraResourceType,
   SessionAgent,
 } from '../../../definitions/system.js';
@@ -21,7 +22,7 @@ import {
 import {handleFinalStorageUsageRecords} from './usage.js';
 
 async function insertFileMountEntry(params: {
-  agent: SessionAgent;
+  agent: Agent;
   file: File;
   primaryMount: FileBackendMount;
   filepath: string;
@@ -60,12 +61,13 @@ async function insertFileMountEntry(params: {
 }
 
 async function updateFileAndInsertMountEntry(params: {
-  agent: SessionAgent;
+  agent: Agent;
   file: File;
   primaryMount: FileBackendMount;
   persistedMountData: FilePersistenceUploadFileResult<unknown>;
   update: Partial<File>;
   shouldInsertMountEntry: boolean;
+  opts: SemanticProviderMutationParams | null;
 }) {
   const {
     agent,
@@ -74,6 +76,7 @@ async function updateFileAndInsertMountEntry(params: {
     persistedMountData,
     update,
     shouldInsertMountEntry,
+    opts,
   } = params;
 
   return await kIjxSemantic.utils().withTxn(async opts => {
@@ -95,49 +98,43 @@ async function updateFileAndInsertMountEntry(params: {
 
     assertFile(savedFile);
     return savedFile;
-  });
+  }, opts ?? undefined);
 }
 
 export async function completeFileUpload(params: {
   requestId: string;
-  sessionAgent: SessionAgent;
+  agent: Agent;
   file: File;
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>;
   size: number;
   primaryMount: FileBackendMount;
   persistedMountData: FilePersistenceUploadFileResult<unknown>;
 }) {
-  const {
-    requestId,
-    sessionAgent,
-    file,
-    data,
-    size,
-    primaryMount,
-    persistedMountData,
-  } = params;
+  const {requestId, agent, file, data, size, primaryMount, persistedMountData} =
+    params;
 
   const update = getFinalFileUpdate({
-    agent: sessionAgent,
+    agent,
     file,
     data,
     size,
   });
 
-  const [_unused, updatedFile] = await Promise.all([
+  const [, updatedFile] = await Promise.all([
     handleFinalStorageUsageRecords({
       requestId,
-      sessionAgent,
+      agent,
       file,
       size,
     }),
     updateFileAndInsertMountEntry({
-      agent: sessionAgent,
+      agent,
       file,
       primaryMount,
       persistedMountData,
       update,
       shouldInsertMountEntry: true,
+      opts: null,
     }),
   ]);
 
@@ -160,17 +157,27 @@ export async function completePartialFileUpload(params: {
     multipartId: file.internalMultipartId!,
   });
 
-  const [_unused01, updatedFile] = await Promise.all([
-    saveFilePartData({persistedMountData: persistedMountData, size}),
-    updateFileAndInsertMountEntry({
-      agent: sessionAgent,
-      file,
-      primaryMount,
-      persistedMountData,
-      update,
-      shouldInsertMountEntry: true,
-    }),
-  ]);
+  const [, updatedFile] = await kIjxSemantic.utils().withTxn(async opts =>
+    Promise.all([
+      saveFilePartData({
+        agent: sessionAgent,
+        workspaceId: file.workspaceId,
+        fileId: file.resourceId,
+        persistedMountData,
+        size,
+        opts,
+      }),
+      updateFileAndInsertMountEntry({
+        agent: sessionAgent,
+        file,
+        primaryMount,
+        persistedMountData,
+        update,
+        shouldInsertMountEntry: true,
+        opts,
+      }),
+    ])
+  );
 
   return updatedFile;
 }

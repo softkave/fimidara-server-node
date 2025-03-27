@@ -26,7 +26,7 @@
     "fn-test": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.fn.config.ts",
     "integration-test": "env-cmd -f \".env.integration-test\" vitest --config ./vitest.config.ts",
     "dev-for-test": "tsc && env-cmd -f \".env.unit-test\" npm start",
-    "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
+    "check:circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
     "gen-rest-api": "env-cmd -f \".env.dev\" npx tsx src/mddoc/restApiGen.ts",
     "gen-js-sdk": "env-cmd -f \".env.dev\" npx tsx src/mddoc/jsSdkCodeGen.ts",
     "dev-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data --keep",

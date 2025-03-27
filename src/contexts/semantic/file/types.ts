@@ -69,6 +69,10 @@ export interface SemanticFilePartProvider
     id: string,
     opts?: SemanticProviderQueryListParams<FilePart>
   ): Promise<FilePart[]>;
+  getManyByMultipartIdAndPart(
+    filter: {multipartId: string; part?: number | number[]},
+    opts?: SemanticProviderQueryListParams<FilePart>
+  ): Promise<FilePart[]>;
   deleteManyByMultipartIdAndPart(
     filter: {multipartId: string; part?: number | number[]},
     opts?: SemanticProviderMutationParams

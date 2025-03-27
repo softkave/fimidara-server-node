@@ -29,7 +29,6 @@ async function handleUploadFile(params: {
 }) {
   const {data, agent, reqData} = params;
   let file = params.file;
-
   const isMultipart = isString(data.clientMultipartId);
   const {primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
     file,
@@ -38,7 +37,6 @@ async function handleUploadFile(params: {
 
   try {
     const mountFilepath = await prepareMountFilepath({primaryMount, file});
-
     if (isMultipart) {
       appAssert(
         isNumber(data.part),
@@ -82,7 +80,7 @@ async function handleUploadFile(params: {
     } else {
       file = await completeFileUpload({
         requestId: reqData.requestId,
-        sessionAgent: agent,
+        agent,
         file,
         data,
         size,
@@ -117,6 +115,11 @@ const uploadFile: UploadFileEndpoint = async reqData => {
   const isMultipart = isString(data.clientMultipartId);
 
   if (isMultipart) {
+    appAssert(
+      data.part,
+      new InvalidRequestError('part is required for multipart uploads')
+    );
+
     return await kIjxUtils.redlock().using(
       `upload-file-${file.resourceId}-${data.part}`,
       /** durationMs */ 10 * 60 * 1000, // 10 minutes

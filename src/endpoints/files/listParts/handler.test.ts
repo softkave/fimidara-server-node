@@ -17,10 +17,10 @@ import {
   mockExpressRequestWithAgentToken,
 } from '../../testUtils/testUtils.js';
 import {stringifyFilenamepath} from '../utils.js';
-import {writeFileParts} from '../utils/filePart.js';
-import {FilePartMeta} from '../utils/multipartUploadMeta.js';
-import getPartDetails, {partDetailsListExtractor} from './handler.js';
-import {GetPartDetailsEndpointParams} from './types.js';
+import {partDetailsListExtractor} from '../utils/extractPublicPart.js';
+import {InputFilePart, writeFileParts} from '../utils/filePart.js';
+import listParts from './handler.js';
+import {ListPartsEndpointParams} from './types.js';
 
 beforeAll(async () => {
   await initTests();
@@ -30,7 +30,7 @@ afterAll(async () => {
   await completeTests();
 });
 
-describe('getPartDetails', () => {
+describe('listParts', () => {
   test.each([{spotty: true}, {spotty: false}])(
     'file details returned, params=%s',
     async ({spotty}) => {
@@ -62,7 +62,7 @@ describe('getPartDetails', () => {
         : possiblePartNums;
       const parts = partNums
         .sort((num1, num2) => num1 - num2)
-        .map((part: number): FilePartMeta => {
+        .map((part: number): InputFilePart => {
           return {
             part,
             multipartId: clientMultipartId,
@@ -107,15 +107,14 @@ async function callGetParts(params: {
     continuationToken,
   } = params;
 
-  const page01Req =
-    RequestData.fromExpressRequest<GetPartDetailsEndpointParams>(
-      mockExpressRequestWithAgentToken(userToken),
-      {
-        continuationToken,
-        filepath: stringifyFilenamepath(file, workspace.rootname),
-      }
-    );
-  const page01 = await getPartDetails(page01Req);
+  const page01Req = RequestData.fromExpressRequest<ListPartsEndpointParams>(
+    mockExpressRequestWithAgentToken(userToken),
+    {
+      continuationToken,
+      filepath: stringifyFilenamepath(file, workspace.rootname),
+    }
+  );
+  const page01 = await listParts(page01Req);
   assertEndpointResultOk(page01);
 
   expect(page01.clientMultipartId).toEqual(clientMultipartId);

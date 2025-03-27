@@ -43,7 +43,6 @@ export const kFileConstants = {
     'x-fimidara-multipart-is-last-part': 'x-fimidara-multipart-is-last-part',
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
-  maxPartLength: 10_000,
   partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
   getPartCacheKey: (multipartId: string, part: number) => {
     return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;

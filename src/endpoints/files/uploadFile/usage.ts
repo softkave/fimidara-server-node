@@ -6,7 +6,7 @@ import {
 } from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import {SessionAgent} from '../../../definitions/system.js';
+import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 
 export async function handleIntermediateStorageUsageRecords(params: {
@@ -17,7 +17,7 @@ export async function handleIntermediateStorageUsageRecords(params: {
 }) {
   const {requestId, sessionAgent, file, size} = params;
 
-  // TODO: why is resourceId undefined?
+  // TODO(abayomi): why is resourceId undefined?
   const fileWithSize = {...file, size, resourceId: undefined};
   const agent = getActionAgentFromSessionAgent(sessionAgent);
   await Promise.all([
@@ -38,12 +38,11 @@ export async function handleIntermediateStorageUsageRecords(params: {
 
 export async function handleFinalStorageUsageRecords(params: {
   requestId: string;
-  sessionAgent: SessionAgent;
+  agent: Agent;
   file: File;
   size: number;
 }) {
-  const {requestId, sessionAgent, file, size} = params;
-  const agent = getActionAgentFromSessionAgent(sessionAgent);
+  const {requestId, agent, file, size} = params;
   const fileWithSize = {...file, size, resourceId: undefined};
 
   await decrementStorageUsageRecord({agent, file});

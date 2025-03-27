@@ -20,13 +20,13 @@ export async function deleteMultipartUpload(props: {
   file: File;
   primaryBackend?: FilePersistenceProvider;
   primaryMount?: FileBackendMount;
-  filepath?: string;
+  mountFilepath?: string;
   multipartId?: string;
   shouldCleanupFile?: boolean;
   part?: number;
 }) {
   const {file, multipartId, shouldCleanupFile, part} = props;
-  let {primaryBackend, primaryMount, filepath} = props;
+  let {primaryBackend, primaryMount, mountFilepath} = props;
 
   if (!primaryBackend || !primaryMount) {
     ({primaryMount, primaryBackend} = await resolveBackendsMountsAndConfigs({
@@ -35,8 +35,8 @@ export async function deleteMultipartUpload(props: {
     }));
   }
 
-  if (!filepath) {
-    filepath = await prepareMountFilepath({primaryMount, file});
+  if (!mountFilepath) {
+    mountFilepath = await prepareMountFilepath({primaryMount, file});
   }
 
   const multipartIdToUse = multipartId ?? file.internalMultipartId;
@@ -45,14 +45,14 @@ export async function deleteMultipartUpload(props: {
     isNumber(part)
       ? primaryBackend.deleteMultipartUploadPart({
           part,
-          filepath,
+          filepath: mountFilepath,
           fileId: file.resourceId,
           multipartId: multipartIdToUse,
           mount: primaryMount,
           workspaceId: file.workspaceId,
         })
       : primaryBackend.cleanupMultipartUpload({
-          filepath,
+          filepath: mountFilepath,
           fileId: file.resourceId,
           multipartId: multipartIdToUse,
           mount: primaryMount,

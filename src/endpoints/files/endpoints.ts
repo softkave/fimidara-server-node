@@ -25,7 +25,7 @@ import {
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getFileDetails from './getFileDetails/handler.js';
-import getPartDetails from './getPartDetails/handler.js';
+import getPartDetails from './listParts/handler.js';
 import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,

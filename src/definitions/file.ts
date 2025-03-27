@@ -61,3 +61,5 @@ export type FileMatcher = {
   filepath?: string;
   fileId?: string;
 };
+
+export type PublicPart = Pick<FilePart, 'part' | 'size'>;

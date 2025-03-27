@@ -10,7 +10,7 @@ import {
   deleteMultipartUpload,
   getCleanupMultipartFileUpdate,
 } from '../deleteFile/deleteMultipartUpload.js';
-import {UploadFileEndpointParams} from './types.js';
+import {completeFileUpload} from './completeFileUpload.js';
 
 export async function beginCleanupExpiredMultipartUpload(
   file: File,
@@ -43,7 +43,7 @@ export function fireAndForgetHandleMultipartCleanup(params: {
         file,
         primaryBackend,
         primaryMount,
-        filepath,
+        mountFilepath: filepath,
         multipartId: file.RUNTIME_ONLY_internalMultipartId!,
         // we don't want to cleanup the file here, because we've done that
         // already, and there's a chance a different multipart upload is going
@@ -58,17 +58,29 @@ export async function handleLastMultipartUpload(params: {
   file: File;
   primaryBackend: FilePersistenceProvider;
   primaryMount: FileBackendMount;
-  filepath: string;
-  data: UploadFileEndpointParams;
+  mountFilepath: string;
+  partNumsToUse: Array<{part: number}>;
+  requestId: string;
 }) {
-  const {file, primaryBackend, primaryMount, filepath, data} = params;
+  const {
+    file,
+    primaryBackend,
+    primaryMount,
+    mountFilepath,
+    partNumsToUse,
+    requestId,
+  } = params;
   appAssert(isString(file.clientMultipartId));
   appAssert(isString(file.internalMultipartId));
 
-  const parts = await kIjxSemantic.filePart().getManyByFileId(file.resourceId);
+  const parts = await kIjxSemantic.filePart().getManyByMultipartIdAndPart({
+    multipartId: file.internalMultipartId,
+    part: partNumsToUse.map(p => p.part),
+  });
+
   const pMountData = await primaryBackend.completeMultipartUpload({
-    filepath,
     parts,
+    filepath: mountFilepath,
     fileId: file.resourceId,
     multipartId: file.internalMultipartId,
     mount: primaryMount,
@@ -82,5 +94,13 @@ export async function handleLastMultipartUpload(params: {
   );
 
   const size = parts.reduce((acc, part) => acc + part.size, 0);
-  return {size, pMountData};
+  await completeFileUpload({
+    file,
+    data: {},
+    primaryMount,
+    persistedMountData: pMountData,
+    requestId,
+    agent: file.createdBy,
+    size,
+  });
 }

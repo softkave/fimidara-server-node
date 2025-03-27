@@ -3,7 +3,7 @@ import {FilePersistenceUploadFileResult} from '../../../contexts/file/types.js';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {File} from '../../../definitions/file.js';
-import {SessionAgent} from '../../../definitions/system.js';
+import {Agent, SessionAgent} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData} from '../../../utils/fns.js';
@@ -29,10 +29,8 @@ export async function saveFilePartData(params: {
   opts: SemanticProviderMutationParams | null;
 }) {
   const {persistedMountData, size, opts} = params;
-
   appAssert(isNumber(persistedMountData.part));
   appAssert(persistedMountData.multipartId && persistedMountData.partId);
-
   await writeFileParts({
     opts,
     agent: params.agent,
@@ -71,14 +69,14 @@ export function getIntermediateMultipartFileUpdate(params: {
 }
 
 export function getFinalFileUpdate(params: {
-  agent: SessionAgent;
+  agent: Agent;
   file: Pick<File, 'version'>;
   data: Pick<File, 'description' | 'encoding' | 'mimetype'>;
   size: number;
 }) {
   const {agent, file, data, size} = params;
   const update: Partial<File> = {
-    lastUpdatedBy: getActionAgentFromSessionAgent(agent),
+    lastUpdatedBy: agent,
     lastUpdatedAt: getTimestamp(),
     isWriteAvailable: true,
     isReadAvailable: true,

@@ -8,7 +8,7 @@ import {
 } from '../types.js';
 import {DeleteFileEndpoint} from './deleteFile/types.js';
 import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
-import {GetPartDetailsEndpoint} from './getPartDetails/types.js';
+import {GetPartDetailsEndpoint} from './listParts/types.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,

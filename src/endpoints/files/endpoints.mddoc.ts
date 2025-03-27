@@ -25,8 +25,8 @@ import {
 import {
   GetPartDetailsEndpointParams,
   GetPartDetailsEndpointResult,
-  PublicPartDetails,
-} from './getPartDetails/types.js';
+  PublicPart,
+} from './listParts/types.js';
 import {
   ImageFormatEnumMap,
   ImageResizeFitEnumMap,
@@ -730,9 +730,9 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
         ),
         details: mddocConstruct.constructFieldObjectField(
           true,
-          mddocConstruct.constructFieldArray<PublicPartDetails>().setType(
+          mddocConstruct.constructFieldArray<PublicPart>().setType(
             mddocConstruct
-              .constructFieldObject<PublicPartDetails>()
+              .constructFieldObject<PublicPart>()
               .setName('PartDetails')
               .setFields({
                 part: mddocConstruct.constructFieldObjectField(

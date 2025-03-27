@@ -39,6 +39,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       file.internalMultipartId,
       new InvalidRequestError('File is not a multipart upload')
     );
+
     await deleteMultipartUpload({
       file,
       multipartId: file.internalMultipartId,
@@ -53,6 +54,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       workspaceId: file.workspaceId,
       resources: [file],
     });
+
     job = first(jobs);
     appAssert(job);
     return {jobId: job.resourceId};

@@ -52,5 +52,5 @@ export function getErrorMessageFromParams(
 }
 
 export function isOperationError(error: unknown): error is OperationError {
-  return !!(error as Error | undefined)?.message;
+  return isString((error as Error | undefined)?.message);
 }
