@@ -16,17 +16,17 @@ import {Workspace} from '../../../../definitions/workspace.js';
 import {addRootnameToPath} from '../../../folders/utils.js';
 import {runJob} from '../../../jobs/runJob.js';
 import RequestData from '../../../RequestData.js';
-import {generateTestFileName} from '../../../testUtils/generate/file.js';
+import {generateTestFileName} from '../../../testHelpers/generate/file.js';
 import {
   generateTestFileBinary,
   GenerateTestFileType,
-} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {IGenerateImageProps} from '../../../testUtils/generate/file/generateTestImage.js';
+} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {IGenerateImageProps} from '../../../testHelpers/generate/file/generateTestImage.js';
 import {
   insertFileForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import completeMultipartUpload from '../../completeMultipartUpload/handler.js';
 import {
   CompleteMultipartUploadEndpointParams,

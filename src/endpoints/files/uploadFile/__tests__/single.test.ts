@@ -9,15 +9,15 @@ import {
 import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
-import {generateTestFilepathString} from '../../../testUtils/generate/file.js';
-import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {generateTestFilepathString} from '../../../testHelpers/generate/file.js';
+import {expectErrorThrown} from '../../../testHelpers/helpers/error.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {FileNotWritableError} from '../../errors.js';
 import {stringifyFilenamepath} from '../../utils.js';
 import {uploadFileBaseTest} from '../testutils/utils.js';

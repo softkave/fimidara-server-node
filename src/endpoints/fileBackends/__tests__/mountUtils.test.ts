@@ -21,25 +21,25 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
-import {generateTestFileName} from '../../testUtils/generate/file.js';
+import NoopFilePersistenceProviderContext from '../../testHelpers/context/file/NoopFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../testHelpers/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../testUtils/generate/fileBackend.js';
+} from '../../testHelpers/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/generate/folder.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {
   initBackendProvidersForMounts,
   resolveBackendsMountsAndConfigs,

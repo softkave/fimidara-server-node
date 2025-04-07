@@ -8,13 +8,13 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import sendEmailVerificationCode from './handler.js';
 
 /**

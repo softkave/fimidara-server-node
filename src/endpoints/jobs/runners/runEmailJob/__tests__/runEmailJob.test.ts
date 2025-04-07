@@ -21,11 +21,11 @@ import {
 } from '../../../../../definitions/job.js';
 import {kFimidaraConfigEmailProvider} from '../../../../../resources/config.js';
 import {kSystemSessionAgent} from '../../../../../utils/agent.js';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testHelpers/generate/collaborationRequest.js';
+import {generateAndInsertUserListForTest} from '../../../../testHelpers/generate/user.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../../testHelpers/generate/workspace.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {queueJobs} from '../../../queueJobs.js';
 import {runEmailJob} from '../runEmailJob.js';
 

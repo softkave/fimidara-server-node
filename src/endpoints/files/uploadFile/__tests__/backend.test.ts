@@ -6,16 +6,16 @@ import {kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {stringifyFolderpath} from '../../../folders/utils.js';
-import {generateTestFilepath} from '../../../testUtils/generate/file.js';
-import {kGenerateTestFileType} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {generateTestFilepath} from '../../../testHelpers/generate/file.js';
+import {kGenerateTestFileType} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {expectFileBodyEqual} from '../../../testHelpers/helpers/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {stringifyFilenamepath} from '../../utils.js';
 import {uploadFileBaseTest} from '../testutils/utils.js';
 

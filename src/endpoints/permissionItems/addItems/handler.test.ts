@@ -4,10 +4,10 @@ import {checkAuthorization} from '../../../contexts/authorizationChecks/checkAut
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {expectEntityHasPermissionsTargetingId} from '../../testUtils/helpers/permissionItem.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFolders} from '../../testHelpers/generate/folder.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {expectEntityHasPermissionsTargetingId} from '../../testHelpers/helpers/permissionItem.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -15,7 +15,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import PermissionItemQueries from '../queries.js';
 import {PermissionItemInput} from '../types.js';
 import addPermissionItems from './handler.js';

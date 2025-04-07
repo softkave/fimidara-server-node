@@ -24,7 +24,7 @@ import {
   PaginatedResult,
   PaginationQuery,
 } from '../../types.js';
-import {assertEndpointResultOk} from '../testUtils.js';
+import {assertEndpointResultOk} from '../utils.js';
 
 export function mutationTest(
   name: string,

@@ -10,10 +10,10 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {mergeData} from '../../../utils/fns.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests, insertUserForTest} from '../../testHelpers/utils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 
 /**

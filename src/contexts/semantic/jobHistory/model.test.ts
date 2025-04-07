@@ -7,10 +7,10 @@ import {
 } from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {getRandomJobStatus} from '../../../endpoints/testUtils/generate/job.js';
-import {generateAndInsertJobHistoryListForTest} from '../../../endpoints/testUtils/generate/jobHistory.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {getRandomJobStatus} from '../../../endpoints/testHelpers/generate/job.js';
+import {generateAndInsertJobHistoryListForTest} from '../../../endpoints/testHelpers/generate/jobHistory.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kIjxSemantic} from '../../ijx/injectables.js';
 

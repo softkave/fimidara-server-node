@@ -3,14 +3,14 @@ import {afterAll, beforeAll, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import login from '../login/handler.js';
 import {LoginEndpointParams} from '../login/types.js';
 import {userExtractor} from '../utils.js';

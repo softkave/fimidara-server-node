@@ -4,17 +4,17 @@ import {afterAll, beforeAll, describe, test} from 'vitest';
 import {extractResourceIdList, getResourceId} from '../../../utils/fns.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {expectContainsExactlyForAnyType} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertAgentTokenListForTest} from '../../testHelpers/generate/agentToken.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testHelpers/generate/permissionGroup.js';
+import {expectContainsExactlyForAnyType} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {
   assignPgListToIdList,
   grantPermission,

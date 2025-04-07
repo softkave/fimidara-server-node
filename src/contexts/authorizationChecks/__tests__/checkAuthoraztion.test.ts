@@ -8,20 +8,20 @@ import {
 } from '../../../definitions/permissionItem.js';
 import RequestData from '../../../endpoints/RequestData.js';
 import {assignWorkspaceToUser} from '../../../endpoints/assignedItems/addAssignedItems.js';
-import {generateAndInsertTestFiles} from '../../../endpoints/testUtils/generate/file.js';
-import {generateAndInsertTestFolders} from '../../../endpoints/testUtils/generate/folder.js';
+import {generateAndInsertTestFiles} from '../../../endpoints/testHelpers/generate/file.js';
+import {generateAndInsertTestFolders} from '../../../endpoints/testHelpers/generate/folder.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../endpoints/testUtils/generate/permissionGroup.js';
-import {generatePermissionItemForTest} from '../../../endpoints/testUtils/generate/permissionItem.js';
-import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
-import {startTesting} from '../../../endpoints/testUtils/helpers/testFns.js';
+} from '../../../endpoints/testHelpers/generate/permissionGroup.js';
+import {generatePermissionItemForTest} from '../../../endpoints/testHelpers/generate/permissionItem.js';
+import {expectErrorThrown} from '../../../endpoints/testHelpers/helpers/error.js';
+import {startTesting} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/utils.js';
 import {
   EmailAddressNotVerifiedError,
   PermissionDeniedError,

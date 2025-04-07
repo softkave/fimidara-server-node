@@ -1,8 +1,8 @@
 import {TimeoutError, waitTimeout} from 'softkave-js-utils';
 import {afterAll, assert, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {createOrRetrieve, kAckMessage} from '../createOrRetrieve.js';
 
 beforeAll(async () => {

@@ -28,21 +28,21 @@ import {newWorkspaceResource} from '../../../utils/resource.js';
 import {makeUserSessionAgent} from '../../../utils/sessionUtils.js';
 import {addRootnameToPath, stringifyFolderpath} from '../../folders/utils.js';
 import RequestData from '../../RequestData.js';
-import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
+import NoopFilePersistenceProviderContext from '../../testHelpers/context/file/NoopFilePersistenceProviderContext.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../testUtils/generate/file.js';
-import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
+} from '../../testHelpers/generate/file.js';
+import {generateAndInsertUsageRecordList} from '../../testHelpers/generate/usageRecord.js';
 import {
   getTestSessionAgent,
   kTestSessionAgentTypes,
-} from '../../testUtils/helpers/agent.js';
+} from '../../testHelpers/helpers/agent.js';
 import {
   expectFileBodyEqual,
   expectFileBodyEqualById,
-} from '../../testUtils/helpers/file.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/file.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -54,7 +54,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {getCostForUsage} from '../../usageRecords/constants.js';
 import {UsageLimitExceededError} from '../../usageRecords/errors.js';
 import {getUsageRecordReportingPeriod} from '../../usageRecords/utils.js';

@@ -24,7 +24,7 @@ import {
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../testUtils.js';
+} from '../utils.js';
 
 export const kTestSessionAgentTypes = [
   kFimidaraResourceType.User,

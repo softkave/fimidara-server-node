@@ -2,15 +2,15 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testHelpers/generate/collaborator.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import countWorkspaceCollaborators from './handler.js';
 import {CountWorkspaceCollaboratorsEndpointParams} from './types.js';
 

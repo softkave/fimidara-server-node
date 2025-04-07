@@ -30,15 +30,15 @@ import {NotFoundError} from '../../errors.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/generate/folder.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertAgentTokenForTest,
   insertPermissionItemsForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import {kFolderConstants} from '../constants.js';
 import {getFolderpathInfo, stringifyFolderpath} from '../utils.js';

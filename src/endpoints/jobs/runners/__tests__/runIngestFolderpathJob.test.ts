@@ -27,24 +27,24 @@ import {
   getFolderpathInfo,
   stringifyFolderpath,
 } from '../../../folders/utils.js';
-import TestMemoryFilePersistenceProviderContext from '../../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
-import {generateTestFileName} from '../../../testUtils/generate/file.js';
+import TestMemoryFilePersistenceProviderContext from '../../../testHelpers/context/file/TestMemoryFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../../testHelpers/generate/file.js';
 import {
   generatePersistedFileDescriptionForTest,
   generatePersistedFolderDescriptionForTest,
-} from '../../../testUtils/generate/fileBackend.js';
+} from '../../../testHelpers/generate/fileBackend.js';
 import {
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/folder.js';
+import {expectErrorThrown} from '../../../testHelpers/helpers/error.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {queueJobs} from '../../queueJobs.js';
 import {runIngestFolderpathJob} from '../runIngestFolderpathJob.js';
 

@@ -10,19 +10,19 @@ import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {NotFoundError} from '../../errors.js';
 import {getFolderpathInfo} from '../../folders/utils.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertFileBackendConfigListForTest} from '../../testUtils/generate/fileBackend.js';
-import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
+import {generateAndInsertFileBackendConfigListForTest} from '../../testHelpers/generate/fileBackend.js';
+import {generateTestFolderpathString} from '../../testHelpers/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+} from '../../testHelpers/generate/utils.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -30,7 +30,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import updateFileBackendMount from './handler.js';
 import {
   UpdateFileBackendMountEndpointParams,

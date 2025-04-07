@@ -6,8 +6,8 @@ import {AgentToken} from '../../../definitions/agentToken.js';
 import {File, PublicPart} from '../../../definitions/file.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import RequestData from '../../RequestData.js';
-import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {expectContainsEveryItemIn} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -15,7 +15,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {stringifyFilenamepath} from '../utils.js';
 import {partDetailsListExtractor} from '../utils/extractPublicPart.js';
 import {InputFilePart, writeFileParts} from '../utils/filePart.js';

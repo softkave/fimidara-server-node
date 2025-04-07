@@ -5,9 +5,7 @@ import {AnyFn} from '../../../utils/types.js';
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type LayerJestMock<T extends {[key: string]: any}> = {
-  [K in keyof T]: T[K] extends AnyFn
-    ? Mock<Parameters<T[K]>, ReturnType<T[K]>>
-    : T[K];
+  [K in keyof T]: T[K] extends AnyFn ? Mock<T[K]> : T[K];
 };
 
 export type TestEmailProviderContext = LayerJestMock<IEmailProviderContext>;

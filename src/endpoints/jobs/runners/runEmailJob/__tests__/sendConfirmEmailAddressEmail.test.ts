@@ -21,10 +21,10 @@ import {
   getNewIdForResource,
   newResource,
 } from '../../../../../utils/resource.js';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import MockTestEmailProviderContext from '../../../../testHelpers/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertUserListForTest} from '../../../../testHelpers/generate/user.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {kUserConstants} from '../../../../users/constants.js';
 import {
   getLinkWithConfirmEmailToken,

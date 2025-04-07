@@ -6,10 +6,10 @@ import {
 } from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
 import {kJobStatus} from '../../../definitions/job.js';
-import {generateAndInsertAppListForTest} from '../../../endpoints/testUtils/generate/app.js';
-import {generateAndInsertAppScriptListForTest} from '../../../endpoints/testUtils/generate/script.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {generateAndInsertAppListForTest} from '../../../endpoints/testHelpers/generate/app.js';
+import {generateAndInsertAppScriptListForTest} from '../../../endpoints/testHelpers/generate/script.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {kIjxSemantic, kIjxUtils} from '../../ijx/injectables.js';
 import {SemanticScriptStatus} from './types.js';

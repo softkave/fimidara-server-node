@@ -13,16 +13,16 @@ import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import RequestData from '../../../RequestData.js';
 import {addRootnameToPath} from '../../../folders/utils.js';
-import {generateTestFileName} from '../../../testUtils/generate/file.js';
-import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {generateTestFileName} from '../../../testHelpers/generate/file.js';
+import {expectErrorThrown} from '../../../testHelpers/helpers/error.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import startMultipartUpload from '../../startMultipartUpload/handler.js';
 import {StartMultipartUploadEndpointParams} from '../../startMultipartUpload/types.js';
 import {stringifyFilenamepath} from '../../utils.js';

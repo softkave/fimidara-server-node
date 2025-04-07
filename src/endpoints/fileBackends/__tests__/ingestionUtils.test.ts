@@ -12,18 +12,18 @@ import {indexArray} from '../../../utils/indexArray.js';
 import {FileQueries} from '../../files/queries.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../files/utils.js';
 import {FolderQueries} from '../../folders/queries.js';
-import {generateTestFilepath} from '../../testUtils/generate/file.js';
+import {generateTestFilepath} from '../../testHelpers/generate/file.js';
 import {
   generatePersistedFileDescriptionListForTest,
   generatePersistedFolderDescriptionListForTest,
-} from '../../testUtils/generate/fileBackend.js';
+} from '../../testHelpers/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder.js';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/generate/folder.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testHelpers/generate/workspace.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests, insertUserForTest} from '../../testHelpers/utils.js';
 import {
   ingestPersistedFiles,
   ingestPersistedFolders,

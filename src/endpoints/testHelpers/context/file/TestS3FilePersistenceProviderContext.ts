@@ -15,8 +15,10 @@ export default class TestS3FilePersistenceProviderContext
   private client: S3FilePersistenceProvider;
 
   uploadFile: TestS3FilePersistenceProviderContextType['uploadFile'];
+  startMultipartUpload: TestS3FilePersistenceProviderContextType['startMultipartUpload'];
   completeMultipartUpload: TestFilePersistenceProviderContext['completeMultipartUpload'];
   cleanupMultipartUpload: TestFilePersistenceProviderContext['cleanupMultipartUpload'];
+  deleteMultipartUploadPart: TestFilePersistenceProviderContext['deleteMultipartUploadPart'];
   toFimidaraPath: TestS3FilePersistenceProviderContextType['toFimidaraPath'];
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -67,6 +69,12 @@ export default class TestS3FilePersistenceProviderContext
     this.supportsFeature = vi
       .fn(this.client.supportsFeature)
       .mockName('supportsFeature');
+    this.startMultipartUpload = vi
+      .fn(this.client.startMultipartUpload)
+      .mockName('startMultipartUpload');
+    this.deleteMultipartUploadPart = vi
+      .fn(this.client.deleteMultipartUploadPart)
+      .mockName('deleteMultipartUploadPart');
 
     mockWith(this.client, this);
   }

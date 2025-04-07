@@ -11,9 +11,9 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
-import TestMemoryFilePersistenceProviderContext from '../../testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
-import {generateAndInsertTestFileParts} from '../../testUtils/generate/file.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import TestMemoryFilePersistenceProviderContext from '../../testHelpers/context/file/TestMemoryFilePersistenceProviderContext.js';
+import {generateAndInsertTestFileParts} from '../../testHelpers/generate/file.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -21,7 +21,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import startMultipartUpload from '../startMultipartUpload/handler.js';
 import {StartMultipartUploadEndpointParams} from '../startMultipartUpload/types.js';
 import {stringifyFilenamepath} from '../utils.js';

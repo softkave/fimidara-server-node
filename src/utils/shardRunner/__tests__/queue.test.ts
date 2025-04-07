@@ -1,12 +1,12 @@
 import {TimeoutError, waitTimeout} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/utils.js';
 import {queueShardRunner} from '../queue.js';
 import {
   IShardRunnerEntry,

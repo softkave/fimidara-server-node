@@ -5,7 +5,7 @@ import RequestData from '../../../RequestData.js';
 import {
   GenerateTestFileType,
   kGenerateTestFileType,
-} from '../../../testUtils/generate/file/generateTestFileBinary.js';
+} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
 import {
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
@@ -14,7 +14,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import deleteFile from '../../deleteFile/handler.js';
 import {DeleteFileEndpointParams} from '../../deleteFile/types.js';
 import getFile from '../../readFile/handler.js';

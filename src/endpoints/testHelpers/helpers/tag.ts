@@ -7,7 +7,7 @@ import {
   assertEndpointResultOk,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../testUtils.js';
+} from '../utils.js';
 
 export async function insertTagForTest(
   userToken: AgentToken | null,

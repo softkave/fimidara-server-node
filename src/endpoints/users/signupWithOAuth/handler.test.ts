@@ -12,12 +12,12 @@ import {
 import {UserWithWorkspace} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData} from '../../../utils/fns.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertUserWithOAuthForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 
 beforeAll(async () => {
   await initTests();

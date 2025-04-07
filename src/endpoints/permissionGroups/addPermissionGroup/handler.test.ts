@@ -2,13 +2,13 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertPermissionGroupForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {permissionGroupExtractor} from '../utils.js';
 
 /**

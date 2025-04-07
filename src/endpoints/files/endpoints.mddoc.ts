@@ -843,7 +843,19 @@ export const completeMultipartUploadEndpointDefinition = mddocConstruct
         ),
         parts: mddocConstruct.constructFieldObjectField(
           true,
-          mddocConstruct.constructFieldArray<CompleteMultipartUploadInputPart>()
+          mddocConstruct
+            .constructFieldArray<CompleteMultipartUploadInputPart>()
+            .setType(
+              mddocConstruct
+                .constructFieldObject<CompleteMultipartUploadInputPart>()
+                .setName('CompleteMultipartUploadInputPart')
+                .setFields({
+                  part: mddocConstruct.constructFieldObjectField(
+                    true,
+                    mddocConstruct.constructFieldNumber()
+                  ),
+                })
+            )
         ),
       })
   )

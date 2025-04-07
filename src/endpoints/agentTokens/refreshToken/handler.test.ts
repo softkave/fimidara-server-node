@@ -3,7 +3,7 @@ import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,7 +11,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentRefreshToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import refreshAgentToken from './handler.js';
 import {RefreshAgentTokenEndpointParams} from './types.js';

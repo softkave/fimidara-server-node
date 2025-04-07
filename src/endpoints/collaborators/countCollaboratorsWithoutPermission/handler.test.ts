@@ -1,15 +1,15 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testHelpers/generate/collaborator.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import countCollaboratorsWithoutPermission from './handler.js';
 import {CountCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 

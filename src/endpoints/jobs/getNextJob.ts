@@ -127,6 +127,7 @@ export async function getNextUnfinishedJob(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shard: shards ? {$in: shards as any} : undefined,
     };
+
     const jobs = await kIjxData.job().getManyByQuery(
       {
         $or: [
@@ -143,8 +144,8 @@ export async function getNextUnfinishedJob(
         sort: {priority: 'desc'},
       }
     );
-    const job = first(jobs);
 
+    const job = first(jobs);
     if (job) {
       // TODO: consolidate cooldown checking
       await kIjxData
@@ -171,6 +172,7 @@ export async function getNextPendingJob(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shard: shards ? {$in: shards as any} : undefined,
     };
+
     const jobs = await kIjxData.job().getManyByQuery(
       {
         $or: [
@@ -187,8 +189,8 @@ export async function getNextPendingJob(
         sort: {priority: 'desc'},
       }
     );
-    const job = first(jobs);
 
+    const job = first(jobs);
     if (job) {
       // TODO: consolidate cooldown checking
       await kIjxData
@@ -216,7 +218,6 @@ export async function getNextJob(
     ]);
 
     let selectedJob = unfinishedJob || pendingJob || null;
-
     if (selectedJob) {
       selectedJob = await markJobStarted(selectedJob, runnerId, opts);
     }

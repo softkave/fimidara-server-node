@@ -22,10 +22,10 @@ import {
   Workspace,
   kWorkspaceBillStatusMap,
 } from '../../../definitions/workspace.js';
-import {generateAndInsertUsageRecordList} from '../../../endpoints/testUtils/generate/usageRecord.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testUtils/generate/workspace.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {generateAndInsertUsageRecordList} from '../../../endpoints/testHelpers/generate/usageRecord.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testHelpers/generate/workspace.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {
   getCostForUsage,
   getUsageForCost,

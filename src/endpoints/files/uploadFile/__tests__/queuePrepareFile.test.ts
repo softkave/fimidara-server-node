@@ -5,13 +5,13 @@ import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {
   generateAndInsertTestFiles,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {getFilepathInfo, stringifyFilenamepath} from '../../utils.js';
 import {queuePrepareFile} from '../queuePrepareFile.js';
 

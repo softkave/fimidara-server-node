@@ -3,8 +3,8 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {findItemWithField} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testHelpers/generate/permissionGroup.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -12,7 +12,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getWorkspacePermissionGroups from './handler.js';
 import {GetWorkspacePermissionGroupsEndpointParams} from './types.js';
 

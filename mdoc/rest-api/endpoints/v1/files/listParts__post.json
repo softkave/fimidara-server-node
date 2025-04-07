@@ -1,10 +1,10 @@
 {
     "__id": "HttpEndpointDefinition",
-    "basePathname": "/v1/files/getPartDetails",
+    "basePathname": "/v1/files/listParts",
     "method": "post",
     "requestBody": {
         "__id": "FieldObject",
-        "name": "GetPartDetailsEndpointParams",
+        "name": "ListPartsEndpointParams",
         "fields": {
             "filepath": {
                 "data": {
@@ -24,10 +24,23 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "continuationToken": {
+            "page": {
                 "data": {
-                    "__id": "FieldString",
-                    "description": "Continuation token to get the next page of results"
+                    "__id": "FieldNumber",
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ..",
+                    "example": 0,
+                    "min": 0
+                },
+                "__id": "FieldObjectField",
+                "required": false
+            },
+            "pageSize": {
+                "data": {
+                    "__id": "FieldNumber",
+                    "description": "Paginated list page size",
+                    "example": 10,
+                    "min": 1,
+                    "max": 1000
                 },
                 "__id": "FieldObjectField",
                 "required": false
@@ -83,7 +96,7 @@
     },
     "responseBody": {
         "__id": "FieldObject",
-        "name": "GetPartDetailsEndpointResult",
+        "name": "ListPartsEndpointResult",
         "fields": {
             "clientMultipartId": {
                 "data": {
@@ -93,7 +106,7 @@
                 "__id": "FieldObjectField",
                 "required": false
             },
-            "details": {
+            "parts": {
                 "data": {
                     "__id": "FieldArray",
                     "type": {
@@ -122,24 +135,19 @@
                 "__id": "FieldObjectField",
                 "required": true
             },
-            "continuationToken": {
+            "page": {
                 "data": {
-                    "__id": "FieldString",
-                    "description": "Continuation token to get the next page of results"
+                    "__id": "FieldNumber",
+                    "description": "Paginated list page number. Page is zero-based, meaning page numbering starts from 0, 1, 2, 3, ..",
+                    "example": 0,
+                    "min": 0
                 },
                 "__id": "FieldObjectField",
-                "required": false
-            },
-            "isDone": {
-                "data": {
-                    "__id": "FieldBoolean"
-                },
-                "__id": "FieldObjectField",
-                "required": false
+                "required": true
             }
         }
     },
-    "name": "GetPartDetailsEndpoint",
+    "name": "ListPartsEndpoint",
     "errorResponseHeaders": {
         "__id": "FieldObject",
         "fields": {

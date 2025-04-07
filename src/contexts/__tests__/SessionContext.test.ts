@@ -4,11 +4,11 @@ import {
   kTokenAccessScope,
 } from '../../definitions/system.js';
 import RequestData from '../../endpoints/RequestData.js';
-import {generateAndInsertAgentTokenListForTest} from '../../endpoints/testUtils/generate/agentToken.js';
-import {generateAndInsertUserListForTest} from '../../endpoints/testUtils/generate/user.js';
-import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
-import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../endpoints/testUtils/testUtils.js';
+import {generateAndInsertAgentTokenListForTest} from '../../endpoints/testHelpers/generate/agentToken.js';
+import {generateAndInsertUserListForTest} from '../../endpoints/testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../endpoints/testHelpers/helpers/error.js';
+import {completeTests} from '../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../endpoints/testHelpers/utils.js';
 import {
   ChangePasswordError,
   PermissionDeniedError,

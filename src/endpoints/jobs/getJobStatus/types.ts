@@ -7,6 +7,7 @@ export interface GetJobStatusEndpointParams {
 
 export interface GetJobStatusEndpointResult {
   status: JobStatus;
+  errorMessage?: string;
 }
 
 export type GetJobStatusEndpoint = Endpoint<

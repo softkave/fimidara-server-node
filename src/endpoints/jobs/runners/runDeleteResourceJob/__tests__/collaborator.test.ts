@@ -8,12 +8,12 @@ import {kSystemSessionAgent} from '../../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../../utils/fns.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
 import {assignWorkspaceToUser} from '../../../../assignedItems/addAssignedItems.js';
-import {generateAndInsertCollaboratorListForTest} from '../../../../testUtils/generate/collaborator.js';
-import {generateAndInsertTestFiles} from '../../../../testUtils/generate/file.js';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertCollaboratorListForTest} from '../../../../testHelpers/generate/collaborator.js';
+import {generateAndInsertTestFiles} from '../../../../testHelpers/generate/file.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testHelpers/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testHelpers/generate/permissionItem.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteCollaboratorCascadeEntry} from '../collaborator.js';
 import {
   GenerateResourceFn,

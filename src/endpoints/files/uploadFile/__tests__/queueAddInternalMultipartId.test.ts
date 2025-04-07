@@ -3,13 +3,13 @@ import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {prepareMountFilepath} from '../../utils/prepareMountFilepath.js';
 import {queueAddInternalMultipartId} from '../queueAddInternalMultipartId.js';
 

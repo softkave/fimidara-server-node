@@ -3,8 +3,8 @@ import {loopAndCollate} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../contexts/ijx/register.js';
-import {completeTests} from '../testUtils/helpers/testFns.js';
-import {initTests} from '../testUtils/testUtils.js';
+import {completeTests} from '../testHelpers/helpers/testFns.js';
+import {initTests} from '../testHelpers/utils.js';
 import {kFolderConstants} from './constants.js';
 
 beforeAll(async () => {

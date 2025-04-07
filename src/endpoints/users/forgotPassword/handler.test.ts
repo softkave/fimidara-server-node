@@ -9,14 +9,14 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import MockTestEmailProviderContext from '../../testHelpers/context/email/MockTestEmailProviderContext.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import forgotPassword from './handler.js';
 import {ForgotPasswordEndpointParams} from './types.js';
 

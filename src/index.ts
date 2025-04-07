@@ -9,8 +9,6 @@ import {setupFimidaraHttpEndpoints} from './endpoints/endpoints.js';
 import {initFimidara} from './endpoints/runtime/initFimidara.js';
 import {handleErrors, handleNotFound} from './middlewares/handleErrors.js';
 import redirectHttpToHttpsExpressMiddleware from './middlewares/redirectHttpToHttps.js';
-import {runScript} from './scripts/runScript.js';
-import SCRIPT_moveFromS3ToLocalFS from './scripts/SCRIPT_moveFromS3ToLocalFS.js';
 import {appAssert} from './utils/assertion.js';
 import cors = require('cors');
 import express = require('express');
@@ -114,12 +112,6 @@ async function setup() {
   kIjxUtils.logger().log('Server initialization');
 
   // Run scripts here
-  await runScript({
-    name: SCRIPT_moveFromS3ToLocalFS.name,
-    fn: SCRIPT_moveFromS3ToLocalFS,
-    isMandatory: true,
-    isUnique: true,
-  });
   // End of scripts
 
   const defaultWorkspace = await initFimidara();
@@ -168,18 +160,17 @@ async function endServer() {
   process.exit();
 }
 
-// TODO: move these error logs to mongo
-// process.on('uncaughtException', (exp, origin) => {
-//   kUtilsInjectables.logger().log('uncaughtException');
-//   kUtilsInjectables.logger().error(exp);
-//   kUtilsInjectables.logger().log(origin);
-// });
+process.on('uncaughtException', (exp, origin) => {
+  kIjxUtils.logger().log('uncaughtException');
+  kIjxUtils.logger().error(exp);
+  kIjxUtils.logger().log(origin);
+});
 
-// process.on('unhandledRejection', (reason, promise) => {
-//   kUtilsInjectables.logger().log('unhandledRejection');
-//   kUtilsInjectables.logger().log(promise);
-//   kUtilsInjectables.logger().log(reason);
-// });
+process.on('unhandledRejection', (reason, promise) => {
+  kIjxUtils.logger().log('unhandledRejection');
+  kIjxUtils.logger().log(promise);
+  kIjxUtils.logger().log(reason);
+});
 
 process.on('SIGINT', endServer);
 process.on('SIGTERM', endServer);

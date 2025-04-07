@@ -5,8 +5,8 @@ import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {sortObjectKeys} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {expectContainsEveryItemInForAnyType} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -15,7 +15,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import deletePermissionItems from './handler.js';
 import {
   DeletePermissionItemInput,

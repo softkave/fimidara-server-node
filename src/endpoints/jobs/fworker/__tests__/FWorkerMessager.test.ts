@@ -1,13 +1,13 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {MessageChannel} from 'worker_threads';
 import {TimeoutError} from '../../../../utils/errors.js';
 import {waitTimeout} from '../../../../utils/fns.js';
-import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {expectErrorThrown} from '../../../testHelpers/helpers/error.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
 
 beforeAll(async () => {
   await initTests();

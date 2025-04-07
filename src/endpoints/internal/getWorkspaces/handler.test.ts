@@ -4,15 +4,15 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testHelpers/generate/workspace.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import getWorkspaces from './handler.js';
 import {GetWorkspacesEndpointParams} from './types.js';

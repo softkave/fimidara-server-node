@@ -9,7 +9,7 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,7 +17,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import revokeCollaborationRequest from './handler.js';
 import {RevokeCollaborationRequestEndpointParams} from './types.js';

@@ -24,11 +24,11 @@ import RequestData from '../../../RequestData.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file.js';
-import {kGenerateTestFileType} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/file.js';
+import {kGenerateTestFileType} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {generateTestFolderpath} from '../../../testHelpers/generate/folder.js';
+import {expectFileBodyEqual} from '../../../testHelpers/helpers/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -36,7 +36,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {FileNotWritableError} from '../../errors.js';
 import {FileQueries} from '../../queries.js';
 import readFile from '../../readFile/handler.js';

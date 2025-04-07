@@ -2,13 +2,13 @@ import * as argon2 from 'argon2';
 import {getNewId} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentRefreshToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../errors.js';
 import refreshUserToken from './handler.js';
 

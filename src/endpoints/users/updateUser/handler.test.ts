@@ -11,15 +11,15 @@ import {
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 import {userExtractor} from '../utils.js';
 import updateUser from './handler.js';

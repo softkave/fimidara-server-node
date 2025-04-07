@@ -41,11 +41,12 @@ const getJobStatus: GetJobStatusEndpoint = async reqData => {
       ? kFimidaraResourceType.User
       : kFimidaraResourceType.AgentToken,
   };
+
   checkResourcesBelongsToWorkspace(job.workspaceId, [resource], () =>
     kReuseableErrors.job.notFound()
   );
 
-  return {status: job.status};
+  return {status: job.status, errorMessage: job.errorMessage};
 };
 
 export default getJobStatus;

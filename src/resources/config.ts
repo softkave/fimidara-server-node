@@ -129,6 +129,7 @@ export type FimidaraSuppliedConfig = Partial<{
 
   // Jobs
   // newSignupsOnWaitlistJobIntervalMs: number;
+  noJobSleepForMs: number;
 
   // AWS configs
   awsConfigs?: Partial<{

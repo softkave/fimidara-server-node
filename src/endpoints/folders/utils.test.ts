@@ -6,9 +6,9 @@ import {Folder} from '../../definitions/folder.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../testUtils/generate/folder.js';
-import {completeTests} from '../testUtils/helpers/testFns.js';
-import {initTests} from '../testUtils/testUtils.js';
+} from '../testHelpers/generate/folder.js';
+import {completeTests} from '../testHelpers/helpers/testFns.js';
+import {initTests} from '../testHelpers/utils.js';
 
 beforeAll(async () => {
   await initTests();

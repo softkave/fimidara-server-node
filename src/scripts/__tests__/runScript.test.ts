@@ -9,9 +9,9 @@ import {
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
 import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {kJobStatus} from '../../definitions/job.js';
-import {generateAndInsertAppScriptListForTest} from '../../endpoints/testUtils/generate/script.js';
-import {completeTests} from '../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../endpoints/testUtils/testUtils.js';
+import {generateAndInsertAppScriptListForTest} from '../../endpoints/testHelpers/generate/script.js';
+import {completeTests} from '../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../endpoints/testHelpers/utils.js';
 import {runScript} from '../runScript.js';
 
 const kHeartbeatIntervalMs = 100;

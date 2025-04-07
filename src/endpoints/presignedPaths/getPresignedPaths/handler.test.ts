@@ -8,9 +8,9 @@ import RequestData from '../../RequestData.js';
 import readFile from '../../files/readFile/handler.js';
 import {ReadFileEndpointParams} from '../../files/readFile/types.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFiles} from '../../testHelpers/generate/file.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -18,7 +18,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import issuePresignedPath from '../issuePresignedPath/handler.js';
 import {IssuePresignedPathEndpointParams} from '../issuePresignedPath/types.js';
 import getPresignedPathsForFiles from './handler.js';

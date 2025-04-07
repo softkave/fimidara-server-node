@@ -11,14 +11,14 @@ import {getNewId} from '../../../../utils/resource.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
-} from '../../../testUtils/generate/fileBackend.js';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/fileBackend.js';
+import {generateTestFolderpath} from '../../../testHelpers/generate/folder.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {queueJobs} from '../../queueJobs.js';
 import {runIngestMountJob} from '../runIngestMountJob.js';
 

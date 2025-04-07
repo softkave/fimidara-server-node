@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {merge} from 'lodash-es';
-import NoopEmailProviderContext from '../../endpoints/testUtils/context/email/NoopEmailProviderContext.js';
+import NoopEmailProviderContext from '../../endpoints/testHelpers/context/email/NoopEmailProviderContext.js';
 import {
   FimidaraSuppliedConfig,
   kFimidaraConfigEmailProvider,

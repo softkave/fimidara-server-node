@@ -46,13 +46,17 @@ import {
   DeleteFileEndpointParams,
   GetFileDetailsEndpointParams,
   GetFileDetailsEndpointResult,
-  GetPartDetailsEndpointParams,
-  GetPartDetailsEndpointResult,
+  ListPartsEndpointParams,
+  ListPartsEndpointResult,
   ReadFileEndpointParams,
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsEndpointResult,
   UploadFileEndpointParams,
   UploadFileEndpointResult,
+  StartMultipartUploadEndpointParams,
+  StartMultipartUploadEndpointResult,
+  CompleteMultipartUploadEndpointParams,
+  CompleteMultipartUploadEndpointResult,
   AddFolderEndpointParams,
   AddFolderEndpointResult,
   DeleteFolderEndpointParams,
@@ -404,14 +408,14 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       opts
     );
   };
-  getPartDetails = async (
-    props?: GetPartDetailsEndpointParams,
+  listParts = async (
+    props?: ListPartsEndpointParams,
     opts?: FimidaraEndpointOpts
-  ): Promise<GetPartDetailsEndpointResult> => {
+  ): Promise<ListPartsEndpointResult> => {
     return this.executeJson(
       {
         data: props,
-        path: '/v1/files/getPartDetails',
+        path: '/v1/files/listParts',
         method: 'POST',
       },
       opts
@@ -465,7 +469,6 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       mimetype: ['header', 'x-fimidara-file-mimetype'],
       clientMultipartId: ['header', 'x-fimidara-multipart-id'],
       part: ['header', 'x-fimidara-multipart-part'],
-      isLastPart: ['header', 'x-fimidara-multipart-is-last-part'],
     } as const;
     return this.executeJson(
       {
@@ -475,6 +478,32 @@ export class FilesEndpoints extends FimidaraEndpointsBase {
       },
       opts,
       mapping
+    );
+  };
+  startMultipartUpload = async (
+    props: StartMultipartUploadEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<StartMultipartUploadEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/startMultipartUpload',
+        method: 'POST',
+      },
+      opts
+    );
+  };
+  completeMultipartUpload = async (
+    props: CompleteMultipartUploadEndpointParams,
+    opts?: FimidaraEndpointOpts
+  ): Promise<CompleteMultipartUploadEndpointResult> => {
+    return this.executeJson(
+      {
+        data: props,
+        path: '/v1/files/completeMultipartUpload',
+        method: 'POST',
+      },
+      opts
     );
   };
 }

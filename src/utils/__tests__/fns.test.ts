@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {isArray, isNumber, isObject} from 'lodash-es';
 import {describe, expect, test, vi} from 'vitest';
-import {expectErrorThrown} from '../../endpoints/testUtils/helpers/error.js';
+import {expectErrorThrown} from '../../endpoints/testHelpers/helpers/error.js';
 import {
   identityArgs,
   isPathEmpty,

@@ -15,23 +15,23 @@ import {
   getFolderpathInfo,
   stringifyFolderpath,
 } from '../../../endpoints/folders/utils.js';
-import TestMemoryFilePersistenceProviderContext from '../../../endpoints/testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
+import TestMemoryFilePersistenceProviderContext from '../../../endpoints/testHelpers/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../../endpoints/testUtils/generate/file.js';
+} from '../../../endpoints/testHelpers/generate/file.js';
 import {
   generateAndInsertResolvedMountEntryListForTest,
   generateFileBackendMountForTest,
-} from '../../../endpoints/testUtils/generate/fileBackend.js';
+} from '../../../endpoints/testHelpers/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
   generateTestFolderpathString,
-} from '../../../endpoints/testUtils/generate/folder.js';
-import {expectFileBodyEqual} from '../../../endpoints/testUtils/helpers/file.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/generate/folder.js';
+import {expectFileBodyEqual} from '../../../endpoints/testHelpers/helpers/file.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {
   FimidaraConfigFilePersistenceProvider,
   kFimidaraConfigFilePersistenceProvider,

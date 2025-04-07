@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {expectErrorThrown} from '../../../endpoints/testHelpers/helpers/error.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {MemorySecretsManagerProvider} from '../MemorySecretsManagerProvider.js';
 
 beforeAll(async () => {

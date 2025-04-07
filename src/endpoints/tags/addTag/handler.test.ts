@@ -1,11 +1,11 @@
-import {insertTagForTest} from '../../testUtils/helpers/tag.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe} from 'vitest';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {insertTagForTest} from '../../testHelpers/helpers/tag.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 
 beforeAll(async () => {
   await initTests();

@@ -4,18 +4,18 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import RequestData from '../../RequestData.js';
-import {generateAWSS3Credentials} from '../../testUtils/generate/fileBackend.js';
+import {generateAWSS3Credentials} from '../../testHelpers/generate/fileBackend.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+} from '../../testHelpers/generate/utils.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -23,7 +23,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import updateFileBackendConfig from './handler.js';
 import {
   UpdateFileBackendConfigEndpointParams,

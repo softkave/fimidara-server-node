@@ -10,10 +10,10 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
-import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests} from '../../testUtils/testUtils.js';
+import {generateAndInsertJobListForTest} from '../../testHelpers/generate/job.js';
+import {confirmJobHistoryEntry} from '../../testHelpers/helpers/job.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {completeJob} from '../completeJob.js';
 
 const shard = getNewId();

@@ -8,15 +8,15 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {appAssert} from '../../../utils/assertion.js';
 import RequestData from '../../RequestData.js';
-import {insertTagForTest} from '../../testUtils/helpers/tag.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {insertTagForTest} from '../../testHelpers/helpers/tag.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import deleteTag from './handler.js';
 import {DeleteTagEndpointParams} from './types.js';
 

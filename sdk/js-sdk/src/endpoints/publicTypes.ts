@@ -255,20 +255,20 @@ export type File = {
 export type GetFileDetailsEndpointResult = {
   file: File;
 };
-export type GetPartDetailsEndpointParams = {
+export type ListPartsEndpointParams = {
   filepath?: string;
   fileId?: string;
-  continuationToken?: string;
+  page?: number;
+  pageSize?: number;
 };
 export type PartDetails = {
   part: number;
   size: number;
 };
-export type GetPartDetailsEndpointResult = {
+export type ListPartsEndpointResult = {
   clientMultipartId?: string;
-  details: Array<PartDetails>;
-  continuationToken?: string;
-  isDone?: boolean;
+  parts: Array<PartDetails>;
+  page: number;
 };
 export type ImageResizeFitEnum =
   | 'contain'
@@ -334,10 +334,30 @@ export type UploadFileEndpointParams = {
   mimetype?: string;
   clientMultipartId?: string;
   part?: number;
-  isLastPart?: boolean;
 };
 export type UploadFileEndpointResult = {
   file: File;
+};
+export type StartMultipartUploadEndpointParams = {
+  filepath?: string;
+  fileId?: string;
+  clientMultipartId: string;
+};
+export type StartMultipartUploadEndpointResult = {
+  file: File;
+};
+export type CompleteMultipartUploadInputPart = {
+  part: number;
+};
+export type CompleteMultipartUploadEndpointParams = {
+  filepath?: string;
+  fileId?: string;
+  clientMultipartId: string;
+  parts: Array<CompleteMultipartUploadInputPart>;
+};
+export type CompleteMultipartUploadEndpointResult = {
+  file: File;
+  jobId?: string;
 };
 export type AddFolderEndpointParams = {
   description?: string;
@@ -430,6 +450,7 @@ export type JobStatus =
   | 'failed';
 export type GetJobStatusEndpointResult = {
   status: JobStatus;
+  errorMessage?: string;
 };
 export type AddPermissionGroupEndpointParams = {
   workspaceId?: string;

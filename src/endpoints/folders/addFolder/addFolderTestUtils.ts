@@ -9,13 +9,13 @@ import {
   assertCanUploadToPublicFile,
 } from '../../files/uploadFile/testutils/utils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
-import {generateTestFileName} from '../../testUtils/generate/file.js';
+import {generateTestFileName} from '../../testHelpers/generate/file.js';
 import {
   IInsertWorkspaceForTestResult,
   assertEndpointResultOk,
   insertFolderForTest,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import deleteFolder from '../deleteFolder/handler.js';
 import {DeleteFolderEndpointParams} from '../deleteFolder/types.js';
 import getFolder from '../getFolder/handler.js';

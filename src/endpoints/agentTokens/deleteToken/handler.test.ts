@@ -8,7 +8,7 @@ import {
 } from '../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -16,7 +16,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import deleteAgentToken from './handler.js';
 import {DeleteAgentTokenEndpointParams} from './types.js';
 

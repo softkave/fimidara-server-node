@@ -3,8 +3,8 @@ import {map} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
 import {kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {waitTimeout} from '../../../../utils/fns.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
 import {FWorkerPool} from '../FWorkerPool.js';
 

@@ -2,9 +2,9 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {kJobStatus, kJobType} from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests} from '../../testUtils/testUtils.js';
+import {generateAndInsertJobListForTest} from '../../testHelpers/generate/job.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {runJob} from '../runJob.js';
 
 beforeAll(async () => {

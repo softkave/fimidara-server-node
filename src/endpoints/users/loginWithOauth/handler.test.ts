@@ -4,13 +4,13 @@ import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {UserWithWorkspace} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserWithOAuthForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import login from './handler.js';
 import {LoginWithOAuthEndpointParams} from './types.js';
 

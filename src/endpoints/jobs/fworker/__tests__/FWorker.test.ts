@@ -11,8 +11,8 @@ import {
 } from 'vitest';
 import {MessageChannel, Worker} from 'worker_threads';
 import {awaitOrTimeout} from '../../../../utils/promiseFns.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {FWorker, FWorkerData, kFWorkerMessageType} from '../FWorker.js';
 import {FWorkerMain} from '../FWorkerMain.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';

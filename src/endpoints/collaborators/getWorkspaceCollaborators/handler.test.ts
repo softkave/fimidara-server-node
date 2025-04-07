@@ -9,15 +9,15 @@ import {kSystemSessionAgent} from '../../../utils/agent.js';
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import AssignedItemQueries from '../../assignedItems/queries.js';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testHelpers/generate/collaborator.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {collaboratorExtractor} from '../utils.js';
 import getWorkspaceCollaborators from './handler.js';
 import {GetWorkspaceCollaboratorsEndpointParams} from './types.js';

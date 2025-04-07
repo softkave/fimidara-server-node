@@ -2,13 +2,13 @@ import assert from 'assert';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {encodeAgentToken} from '../utils.js';
 
 beforeAll(async () => {

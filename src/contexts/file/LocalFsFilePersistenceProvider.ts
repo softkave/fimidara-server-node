@@ -414,6 +414,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     await fse.ensureFile(nativePath);
     const writeStream = fse.createWriteStream(nativePath, {
       autoClose: true,

@@ -66,9 +66,9 @@ export async function handleLastMultipartUpload(params: {
     partNumsToUse,
     requestId,
   } = params;
+
   appAssert(isString(file.clientMultipartId));
   appAssert(isString(file.internalMultipartId));
-
   const parts = await kIjxSemantic.filePart().getManyByMultipartIdAndPart({
     multipartId: file.internalMultipartId,
     part: partNumsToUse.map(p => p.part),
@@ -84,6 +84,7 @@ export async function handleLastMultipartUpload(params: {
   });
 
   const size = parts.reduce((acc, part) => acc + part.size, 0);
+
   await completeFileUpload({
     file,
     data: {},

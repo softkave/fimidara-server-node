@@ -1,7 +1,7 @@
 import {AnyFn} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test, vi} from 'vitest';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {
   BasePubSubContext,
   IBasePubSubContextClient,

@@ -1,10 +1,10 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {kUsageCostsPerByte} from '../constants.js';
 import getUsageCosts from './handler.js';
 import {GetUsageCostsEndpointParams} from './types.js';

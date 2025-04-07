@@ -39,7 +39,7 @@ export async function runJob(job: Job) {
       job.resourceId,
       kJobStatus.failed,
       /** ifStatus */ undefined,
-      error instanceof Error ? error.message : undefined
+      error instanceof Error ? error.message : 'Unknown error'
     );
   }
 }

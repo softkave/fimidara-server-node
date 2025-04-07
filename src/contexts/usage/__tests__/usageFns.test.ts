@@ -14,18 +14,18 @@ import {
 } from '../../../definitions/usageRecord.js';
 import {UsageThreshold} from '../../../definitions/workspace.js';
 import RequestData from '../../../endpoints/RequestData.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testUtils/generate/agentToken.js';
-import {generateAndInsertTestFiles} from '../../../endpoints/testUtils/generate/file.js';
-import {getRandomPermissionAction} from '../../../endpoints/testUtils/generate/permissionItem.js';
-import {generateAndInsertUsageRecordList} from '../../../endpoints/testUtils/generate/usageRecord.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testUtils/generate/workspace.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testHelpers/generate/agentToken.js';
+import {generateAndInsertTestFiles} from '../../../endpoints/testHelpers/generate/file.js';
+import {getRandomPermissionAction} from '../../../endpoints/testHelpers/generate/permissionItem.js';
+import {generateAndInsertUsageRecordList} from '../../../endpoints/testHelpers/generate/usageRecord.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testHelpers/generate/workspace.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/utils.js';
 import {
   getCostForUsage,
   getUsageForCost,

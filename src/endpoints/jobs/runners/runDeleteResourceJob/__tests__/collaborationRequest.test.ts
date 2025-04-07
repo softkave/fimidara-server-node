@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {CollaborationRequest} from '../../../../../definitions/collaborationRequest.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testHelpers/generate/collaborationRequest.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteCollaborationRequestCascadeEntry} from '../collaborationRequest.js';
 import {
   GenerateResourceFn,

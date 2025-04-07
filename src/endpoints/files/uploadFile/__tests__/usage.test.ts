@@ -17,10 +17,10 @@ import {
 } from '../../../../definitions/usageRecord.js';
 import {UsageThresholdsByCategory} from '../../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
-import {generateAndInsertUsageRecordList} from '../../../testUtils/generate/usageRecord.js';
-import {getTestSessionAgent} from '../../../testUtils/helpers/agent.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {generateAndInsertUsageRecordList} from '../../../testHelpers/generate/usageRecord.js';
+import {getTestSessionAgent} from '../../../testHelpers/helpers/agent.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {getStringCostForUsage} from '../../../usageRecords/constants.js';
 import {getUsageRecordReportingPeriod} from '../../../usageRecords/utils.js';
 import {simpleRunUpload} from '../testutils/testUploadFns.js';

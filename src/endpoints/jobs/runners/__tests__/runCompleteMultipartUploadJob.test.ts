@@ -11,15 +11,15 @@ import {StartMultipartUploadEndpointParams} from '../../../files/startMultipartU
 import uploadFile from '../../../files/uploadFile/handler.js';
 import {UploadFileEndpointParams} from '../../../files/uploadFile/types.js';
 import RequestData from '../../../RequestData.js';
-import {expectFileBodyEqualById} from '../../../testUtils/helpers/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {expectFileBodyEqualById} from '../../../testHelpers/helpers/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {runCompleteMultipartUploadJob} from '../runCompleteMultipartUploadJob.js';
 
 beforeAll(async () => {

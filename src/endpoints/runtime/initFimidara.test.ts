@@ -5,8 +5,8 @@ import {
   kIjxUtils,
 } from '../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../queries.js';
-import {completeTests} from '../testUtils/helpers/testFns.js';
-import {initTests} from '../testUtils/testUtils.js';
+import {completeTests} from '../testHelpers/helpers/testFns.js';
+import {initTests} from '../testHelpers/utils.js';
 import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara.js';
 
 beforeEach(async () => {

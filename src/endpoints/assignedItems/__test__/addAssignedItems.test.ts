@@ -8,14 +8,14 @@ import {
   assignPgListToIdList,
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {expectContainsEveryItemInForAnyType} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testHelpers/generate/permissionGroup.js';
+import {expectContainsEveryItemInForAnyType} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {addAssignedPermissionGroupList} from '../addAssignedItems.js';
 
 beforeAll(async () => {

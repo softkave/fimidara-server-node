@@ -22,8 +22,8 @@ import {
   getNewIdForResource,
   getResourceTypeFromId,
 } from '../../../../../utils/resource.js';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testHelpers/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testHelpers/generate/permissionItem.js';
 import {queueJobs} from '../../../queueJobs.js';
 import {runDeleteResourceJob} from '../runDeleteResourceJob.js';
 import {DeleteResourceCascadeEntry} from '../types.js';

@@ -7,18 +7,18 @@ import {Workspace} from '../../../../../definitions/workspace.js';
 import {
   generateAndInsertTestFiles,
   generateTestFilepath,
-} from '../../../../testUtils/generate/file.js';
+} from '../../../../testHelpers/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../../../testUtils/generate/folder.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+} from '../../../../testHelpers/generate/folder.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFolderForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils.js';
+} from '../../../../testHelpers/utils.js';
 import {deleteFolderCascadeEntry} from '../folder.js';
 import {DeleteResourceCascadeEntry} from '../types.js';
 import {

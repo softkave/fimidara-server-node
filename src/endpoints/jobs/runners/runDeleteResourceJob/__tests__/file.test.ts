@@ -15,15 +15,15 @@ import {
 } from '../../../../../definitions/usageRecord.js';
 import {initBackendProvidersForMounts} from '../../../../fileBackends/mountUtils.js';
 import {stringifyFilenamepath} from '../../../../files/utils.js';
-import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testHelpers/generate/file.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../../testUtils/testUtils.js';
+} from '../../../../testHelpers/utils.js';
 import {getUsageRecordReportingPeriod} from '../../../../usageRecords/utils.js';
 import {deleteFileCascadeEntry} from '../file.js';
 import {DeleteResourceCascadeEntry} from '../types.js';
