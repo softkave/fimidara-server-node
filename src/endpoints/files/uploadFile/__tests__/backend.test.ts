@@ -2,20 +2,20 @@ import assert from 'assert';
 import {afterAll, afterEach, beforeAll, describe, expect, test} from 'vitest';
 import {MemoryFilePersistenceProvider} from '../../../../contexts/file/MemoryFilePersistenceProvider.js';
 import {FileProviderResolver} from '../../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
 import {stringifyFolderpath} from '../../../folders/utils.js';
-import {generateTestFilepath} from '../../../testUtils/generate/file.js';
-import {kGenerateTestFileType} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {generateTestFilepath} from '../../../testHelpers/generate/file.js';
+import {kGenerateTestFileType} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {expectFileBodyEqual} from '../../../testHelpers/helpers/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {stringifyFilenamepath} from '../../utils.js';
 import {uploadFileBaseTest} from '../testutils/utils.js';
 
@@ -24,8 +24,8 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
-  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
+  defaultFileProviderResolver = kIjxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIjxUtils.suppliedConfig();
 });
 
 afterEach(() => {
@@ -52,6 +52,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         rootname: workspace.rootname,
         length: 4,
       });
+
       const [{rawMount: closerMount}, {rawMount: fartherMount}] =
         await Promise.all([
           insertFileBackendMountForTest(userToken, workspace, {
@@ -67,6 +68,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
             ),
           }),
         ]);
+
       const closerMountBackend = new MemoryFilePersistenceProvider();
       const fartherMountBackend = new MemoryFilePersistenceProvider();
       kRegisterIjxUtils.fileProviderResolver(forMount => {
@@ -77,7 +79,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         return fartherMountBackend;
       });
 
-      const {file, dataBuffer} = await uploadFileBaseTest({
+      const {resFile, dbFile, dataBuffer} = await uploadFileBaseTest({
         isMultipart,
         insertUserResult,
         insertWorkspaceResult,
@@ -88,12 +90,13 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       const persistedFile = closerMountBackend.getMemoryFile({
         mount: closerMount,
         workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath(resFile),
       });
+
       const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
         mount: fartherMount,
         workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath(resFile),
       });
 
       assert(persistedFile);
@@ -101,7 +104,6 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       expect(fartherMountPersistedFile).toBeFalsy();
       await expectFileBodyEqual(persistedFile.body, dataBuffer);
 
-      const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
       expect(dbFile?.isWriteAvailable).toBeTruthy();
     });
 
@@ -114,6 +116,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         rootname: workspace.rootname,
         length: 4,
       });
+
       const [{rawMount: closerMount}, {rawMount: fartherMount}] =
         await Promise.all([
           insertFileBackendMountForTest(userToken, workspace, {
@@ -131,6 +134,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
             index: 1,
           }),
         ]);
+
       const closerMountBackend = new MemoryFilePersistenceProvider();
       const fartherMountBackend = new MemoryFilePersistenceProvider();
       kRegisterIjxUtils.fileProviderResolver(forMount => {
@@ -141,7 +145,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         return fartherMountBackend;
       });
 
-      const {dataBuffer, file} = await uploadFileBaseTest({
+      const {dataBuffer, resFile} = await uploadFileBaseTest({
         isMultipart,
         insertUserResult,
         insertWorkspaceResult,
@@ -152,12 +156,13 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       const persistedFile = closerMountBackend.getMemoryFile({
         mount: closerMount,
         workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath(resFile),
       });
+
       const fartherMountPersistedFile = fartherMountBackend.getMemoryFile({
         mount: fartherMount,
         workspaceId: workspace.resourceId,
-        filepath: stringifyFilenamepath(file),
+        filepath: stringifyFilenamepath(resFile),
       });
 
       assert(persistedFile);

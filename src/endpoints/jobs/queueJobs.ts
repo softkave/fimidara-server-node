@@ -17,6 +17,10 @@ import {Agent, kFimidaraResourceType} from '../../definitions/system.js';
 import {getTimestamp} from '../../utils/dateFns.js';
 import {convertToArray} from '../../utils/fns.js';
 import {newResource} from '../../utils/resource.js';
+import {
+  getActionAgentFromSessionAgent,
+  isSessionAgent,
+} from '../../utils/sessionUtils.js';
 
 export interface JobInput<
   TParams extends AnyObject = AnyObject,
@@ -46,7 +50,6 @@ export async function queueJobs<
   } = {}
 ): Promise<Array<Job<TParams, TMeta>>> {
   const {opts, jobsToReturn = 'all'} = insertOptions;
-
   if (!isArray(jobsInput)) {
     jobsInput = convertToArray(jobsInput);
   }
@@ -82,7 +85,9 @@ export async function queueJobs<
       priority: input.priority ?? kJobPresetPriority.p1,
       shard: input.shard ?? kAppPresetShards.fimidaraMain,
       runAfter: input.runAfter ? convertToArray(input.runAfter) : undefined,
-      createdBy: input.createdBy,
+      createdBy: isSessionAgent(input.createdBy)
+        ? getActionAgentFromSessionAgent(input.createdBy)
+        : input.createdBy,
       ...status,
       ...insertOptions.seed,
     });

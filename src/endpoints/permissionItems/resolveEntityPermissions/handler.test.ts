@@ -7,9 +7,9 @@ import {
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFiles} from '../../testHelpers/generate/file.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testHelpers/generate/permissionGroup.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -18,7 +18,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {DEFAULT_ADMIN_PERMISSION_GROUP_NAME} from '../../workspaces/addWorkspace/utils.js';
 import {PermissionItemInput} from '../types.js';
 import resolveEntityPermissions from './handler.js';

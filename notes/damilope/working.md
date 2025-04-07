@@ -1,5 +1,7 @@
 # damilope's working notes
 
+## Working On
+
 ## TODOs
 
 - remove page auth required from files and folders to allow public access to files and folders
@@ -43,5 +45,10 @@
 - there is an infinite loop when logging in
 - move email to Resend
 - heartbeat issue
+- move to Next 15
+- start, upload, and complete multipart uploads
+- only one file shows after upload 2 files
+- delete file not removing file
+- usage thresholds completion
 
 ## Implementation notes

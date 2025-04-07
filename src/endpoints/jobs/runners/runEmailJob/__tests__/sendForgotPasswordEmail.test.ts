@@ -3,7 +3,7 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {IEmailProviderContext} from '../../../../../contexts/email/types.js';
 import {
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../../contexts/ijx/register.js';
 import {kEmailJobType} from '../../../../../definitions/job.js';
@@ -13,11 +13,11 @@ import {
 } from '../../../../../definitions/system.js';
 import {kForgotPasswordEmailArtifacts} from '../../../../../emailTemplates/forgotPassword.js';
 import {getNewIdForResource} from '../../../../../utils/resource.js';
-import MockTestEmailProviderContext from '../../../../testUtils/context/email/MockTestEmailProviderContext.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
-import {generateAndInsertUserListForTest} from '../../../../testUtils/generate/user.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import MockTestEmailProviderContext from '../../../../testHelpers/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testHelpers/generate/agentToken.js';
+import {generateAndInsertUserListForTest} from '../../../../testHelpers/generate/user.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {
   getForgotPasswordLinkFromToken,
   sendForgotPasswordEmail,
@@ -64,7 +64,7 @@ describe('sendForgotPasswordEmail', () => {
     expect(params.body.text).toBeTruthy();
     expect(params.destination).toEqual([user.email]);
     expect(params.subject).toBe(kForgotPasswordEmailArtifacts.title);
-    expect(params.source).toBe(kIkxUtils.suppliedConfig().senderEmailAddress);
+    expect(params.source).toBe(kIjxUtils.suppliedConfig().senderEmailAddress);
 
     const [dbExistingForgotTokens, dbNewForgotTokens] = await Promise.all([
       kIjxSemantic.agentToken().getManyByQuery({

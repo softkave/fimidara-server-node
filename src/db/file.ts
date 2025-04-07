@@ -1,5 +1,5 @@
 import {Connection, Document, Model, Schema} from 'mongoose';
-import {File} from '../definitions/file.js';
+import {File, FilePart} from '../definitions/file.js';
 import {ensureMongoTypeFields, workspaceResourceSchema} from './utils.js';
 
 const fileSchema = ensureMongoTypeFields<File>({
@@ -33,3 +33,29 @@ export function getFileModel(connection: Connection) {
 }
 
 export type FileModel = Model<File>;
+
+const filePartSchemaDefinition = ensureMongoTypeFields<FilePart>({
+  ...workspaceResourceSchema,
+  multipartId: {type: String, index: true},
+  part: {type: Number, index: true},
+  size: {type: Number},
+  partId: {type: String, index: true},
+  fileId: {type: String, index: true},
+});
+
+export type FilePartDocument = Document<FilePart>;
+
+const filePartSchema = new Schema<FilePart>(filePartSchemaDefinition);
+const filePartModelName = 'file-part';
+const filePartCollectionName = 'file-parts';
+
+export function getFilePartMongoModel(connection: Connection) {
+  const model = connection.model<FilePart>(
+    filePartModelName,
+    filePartSchema,
+    filePartCollectionName
+  );
+  return model;
+}
+
+export type FilePartMongoModel = Model<FilePart>;

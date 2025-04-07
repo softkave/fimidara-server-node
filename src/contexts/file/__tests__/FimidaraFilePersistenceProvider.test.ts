@@ -15,23 +15,23 @@ import {
   getFolderpathInfo,
   stringifyFolderpath,
 } from '../../../endpoints/folders/utils.js';
-import TestMemoryFilePersistenceProviderContext from '../../../endpoints/testUtils/context/file/TestMemoryFilePersistenceProviderContext.js';
+import TestMemoryFilePersistenceProviderContext from '../../../endpoints/testHelpers/context/file/TestMemoryFilePersistenceProviderContext.js';
 import {
   generateTestFilepath,
   generateTestFilepathString,
-} from '../../../endpoints/testUtils/generate/file.js';
+} from '../../../endpoints/testHelpers/generate/file.js';
 import {
   generateAndInsertResolvedMountEntryListForTest,
   generateFileBackendMountForTest,
-} from '../../../endpoints/testUtils/generate/fileBackend.js';
+} from '../../../endpoints/testHelpers/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
   generateTestFolderpathString,
-} from '../../../endpoints/testUtils/generate/folder.js';
-import {expectFileBodyEqual} from '../../../endpoints/testUtils/helpers/file.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/generate/folder.js';
+import {expectFileBodyEqual} from '../../../endpoints/testHelpers/helpers/file.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {
   FimidaraConfigFilePersistenceProvider,
   kFimidaraConfigFilePersistenceProvider,
@@ -43,7 +43,7 @@ import {
   pathJoin,
 } from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../ijx/register.js';
 import {
   FimidaraFilePersistenceProvider,
@@ -71,7 +71,7 @@ describe.each(
     await initTests();
 
     if (provider === kFimidaraConfigFilePersistenceProvider.fs) {
-      const testLocalFsDir = kIkxUtils.suppliedConfig().localFsDir;
+      const testLocalFsDir = kIjxUtils.suppliedConfig().localFsDir;
       assert(testLocalFsDir);
       testDir = path.normalize(
         path.resolve(testLocalFsDir) + '/' + testDirName
@@ -79,13 +79,13 @@ describe.each(
       await fse.ensureDir(testDir);
 
       kRegisterIjxUtils.suppliedConfig({
-        ...kIkxUtils.suppliedConfig(),
+        ...kIjxUtils.suppliedConfig(),
         fileBackend: provider,
         localFsDir: testDir,
       });
     } else {
       kRegisterIjxUtils.suppliedConfig({
-        ...kIkxUtils.suppliedConfig(),
+        ...kIjxUtils.suppliedConfig(),
         fileBackend: provider,
       });
     }
@@ -154,7 +154,7 @@ describe.each(
     await backend.uploadFile(params);
 
     if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
-      const s3Bucket = kIkxUtils.suppliedConfig().awsConfigs?.s3Bucket;
+      const s3Bucket = kIjxUtils.suppliedConfig().awsConfigs?.s3Bucket;
       assert(s3Bucket);
       expect(internalBackend.uploadFile).toBeCalledWith({
         ...params,
@@ -394,7 +394,7 @@ describe.each(
     await backend.readFile(params);
 
     if (provider === kFimidaraConfigFilePersistenceProvider.s3) {
-      const s3Bucket = kIkxUtils.suppliedConfig().awsConfigs?.s3Bucket;
+      const s3Bucket = kIjxUtils.suppliedConfig().awsConfigs?.s3Bucket;
       assert(s3Bucket);
       expect(internalBackend.readFile).toBeCalledWith({
         ...params,

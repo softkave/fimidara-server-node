@@ -6,14 +6,14 @@ import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
-import {generateAndInsertWorkspaceListForTest} from '../../testUtils/generate/workspace.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertWorkspaceListForTest} from '../../testHelpers/generate/workspace.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import countUserWorkspaces from './handler.js';
 
 beforeAll(async () => {

@@ -1,8 +1,8 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {generateAndInsertUserListForTest} from '../../../endpoints/testUtils/generate/user.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+import {generateAndInsertUserListForTest} from '../../../endpoints/testHelpers/generate/user.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {kIjxSemantic} from '../../ijx/injectables.js';
 
 beforeAll(async () => {

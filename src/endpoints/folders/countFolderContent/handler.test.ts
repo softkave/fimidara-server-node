@@ -1,16 +1,16 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFiles} from '../../testHelpers/generate/file.js';
+import {generateAndInsertTestFolders} from '../../testHelpers/generate/folder.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import countFolderContent from './handler.js';
 import {CountFolderContentEndpointParams} from './types.js';
 

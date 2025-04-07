@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   INewSignupsOnWaitlistJobMeta,
@@ -28,7 +28,7 @@ export async function runNewSignupsOnWaitlistJob(job: Job) {
     .countUsersCreatedBetween(startMs, endMs);
 
   if (newSignupsCount > 0) {
-    const {rootUserEmail} = kIkxUtils.suppliedConfig();
+    const {rootUserEmail} = kIjxUtils.suppliedConfig();
     assert(rootUserEmail, 'rootUserEmail not present in config');
 
     await queueJobs<EmailJobParams>(

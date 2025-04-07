@@ -1,14 +1,14 @@
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe, expect} from 'vitest';
+import {generateAndInsertJobListForTest} from '../../testHelpers/generate/job.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getJobStatus from './handler.js';
 
 beforeAll(async () => {
@@ -28,10 +28,12 @@ describe('getJobStatus', () => {
     });
 
     const result = await getJobStatus(
-      RequestData.fromExpressRequest(mockExpressRequestWithAgentToken(userToken), {
-        jobId: job.resourceId,
-      })
+      RequestData.fromExpressRequest(
+        mockExpressRequestWithAgentToken(userToken),
+        {jobId: job.resourceId}
+      )
     );
+
     assertEndpointResultOk(result);
     expect(result.status).toBe(job.status);
   });

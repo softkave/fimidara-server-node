@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {BusboyConfig} from 'busboy';
-import {kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {kEndpointConstants} from '../constants.js';
 
 const maxFileSizeInBytes = 1024 * 1024 ** 2; // 2Gb
@@ -21,6 +21,7 @@ export const kFileConstants = {
   maxFileWidth: 5000, // px
   maxFileHeight: 5000, // px
   uploadedFileFieldName: 'data',
+  maxClientMultipartIdLength: 100,
   routes: {
     readFile: `${kEndpointConstants.apiv1}/files/readFile`,
     readFile_get: `${kEndpointConstants.apiv1}/files/readFile/:filepathOrId`,
@@ -30,7 +31,9 @@ export const kFileConstants = {
     uploadFile: `${kEndpointConstants.apiv1}/files/uploadFile`,
     // TODO: better implement divide between express paths and mddoc def
     uploadFile_post: `${kEndpointConstants.apiv1}/files/uploadFile/:filepathOrId`,
-    getPartDetails: `${kEndpointConstants.apiv1}/files/getPartDetails`,
+    listParts: `${kEndpointConstants.apiv1}/files/listParts`,
+    startMultipartUpload: `${kEndpointConstants.apiv1}/files/startMultipartUpload`,
+    completeMultipartUpload: `${kEndpointConstants.apiv1}/files/completeMultipartUpload`,
   },
   headers: {
     'x-fimidara-file-encoding': 'x-fimidara-file-encoding',
@@ -42,7 +45,6 @@ export const kFileConstants = {
     'x-fimidara-multipart-is-last-part': 'x-fimidara-multipart-is-last-part',
   } as const,
   multipartLockTimeoutSeconds: 60 * 60 * 24, // 24 hours
-  maxPartLength: 10_000,
   partResultCacheKeyPrefix: 'mpr_', // + multipartId + part hash
   getPartCacheKey: (multipartId: string, part: number) => {
     return `${kFileConstants.partResultCacheKeyPrefix}${multipartId}_${part}`;
@@ -51,13 +53,13 @@ export const kFileConstants = {
   addInternalMultipartIdProcessCount: 100,
   getAddInternalMultipartIdPubSubChannel: (workspaceId: string) =>
     `${
-      kIkxUtils.suppliedConfig().addInternalMultipartIdPubSubChannelPrefix
+      kIjxUtils.suppliedConfig().addInternalMultipartIdPubSubChannelPrefix
     }-${workspaceId}`,
   getAddInternalMultipartIdQueueWithNo: (num: number) =>
-    `${kIkxUtils.suppliedConfig().addInternalMultipartIdQueuePrefix}${num}`,
+    `${kIjxUtils.suppliedConfig().addInternalMultipartIdQueuePrefix}${num}`,
   getAddInternalMultipartIdQueueKey: (workspaceId: string) => {
     const {addInternalMultipartIdQueueStart, addInternalMultipartIdQueueEnd} =
-      kIkxUtils.suppliedConfig();
+      kIjxUtils.suppliedConfig();
 
     assert.ok(addInternalMultipartIdQueueStart);
     assert.ok(addInternalMultipartIdQueueEnd);
@@ -83,13 +85,13 @@ export const kFileConstants = {
   prepareFileProcessCount: 100,
   getPrepareFilePubSubChannel: (workspaceId: string) =>
     `${
-      kIkxUtils.suppliedConfig().prepareFilePubSubChannelPrefix
+      kIjxUtils.suppliedConfig().prepareFilePubSubChannelPrefix
     }-${workspaceId}`,
   getPrepareFileQueueWithNo: (num: number) =>
-    `${kIkxUtils.suppliedConfig().prepareFileQueuePrefix}${num}`,
+    `${kIjxUtils.suppliedConfig().prepareFileQueuePrefix}${num}`,
   getPrepareFileQueueKey: (workspaceId: string) => {
     const {prepareFileQueueStart, prepareFileQueueEnd} =
-      kIkxUtils.suppliedConfig();
+      kIjxUtils.suppliedConfig();
 
     assert.ok(prepareFileQueueStart);
     assert.ok(prepareFileQueueEnd);

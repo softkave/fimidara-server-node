@@ -1,5 +1,5 @@
 import {getDeferredPromise} from 'softkave-js-utils';
-import {kIjxSemantic, kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../contexts/ijx/injectables.js';
 import {kJobStatus} from '../definitions/job.js';
 
 export async function runScript(params: {
@@ -15,12 +15,12 @@ export async function runScript(params: {
   });
 
   if (!result.inserted) {
-    kIkxUtils
+    kIjxUtils
       .logger()
       .log(`Waiting for script to complete: ${result.script.name}`);
 
     const deferred = getDeferredPromise();
-    const pollIntervalMs = kIkxUtils.suppliedConfig().scriptPollIntervalMs;
+    const pollIntervalMs = kIjxUtils.suppliedConfig().scriptPollIntervalMs;
 
     await scriptProvider.pollScriptStatus({
       scriptId: result.script.resourceId,
@@ -33,7 +33,7 @@ export async function runScript(params: {
             deferred.reject(new Error(`Script failed: ${result.script.name}`));
           } else {
             deferred.resolve();
-            kIkxUtils.logger().log(`Script failed: ${result.script.name}`);
+            kIjxUtils.logger().log(`Script failed: ${result.script.name}`);
           }
         } else if (status.isRunnerHeartbeatStale) {
           if (params.isMandatory) {
@@ -42,7 +42,7 @@ export async function runScript(params: {
             );
           } else {
             deferred.resolve();
-            kIkxUtils
+            kIjxUtils
               .logger()
               .log(`Script heartbeat stale: ${result.script.name}`);
           }
@@ -51,14 +51,14 @@ export async function runScript(params: {
     });
 
     await deferred.promise;
-    kIkxUtils.logger().log(`Script completed: ${result.script.name}`);
+    kIjxUtils.logger().log(`Script completed: ${result.script.name}`);
     return;
   }
 
   try {
-    kIkxUtils.logger().log(`Running script: ${result.script.name}`);
+    kIjxUtils.logger().log(`Running script: ${result.script.name}`);
     await params.fn();
-    kIkxUtils.logger().log(`Script completed: ${result.script.name}`);
+    kIjxUtils.logger().log(`Script completed: ${result.script.name}`);
     await kIjxSemantic.utils().withTxn(async opts => {
       await scriptProvider.endScript(
         {scriptId: result.script.resourceId, status: kJobStatus.completed},
@@ -66,7 +66,7 @@ export async function runScript(params: {
       );
     });
   } catch (error) {
-    kIkxUtils.logger().log(`Script failed: ${result.script.name}`);
+    kIjxUtils.logger().log(`Script failed: ${result.script.name}`);
     await kIjxSemantic.utils().withTxn(async opts => {
       await scriptProvider.endScript(
         {scriptId: result.script.resourceId, status: kJobStatus.failed},

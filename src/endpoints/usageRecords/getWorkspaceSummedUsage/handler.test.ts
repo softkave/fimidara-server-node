@@ -12,15 +12,15 @@ import {
 } from '../../../definitions/usageRecord.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertUsageRecordList} from '../../testUtils/generate/usageRecord.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertUsageRecordList} from '../../testHelpers/generate/usageRecord.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getWorkspaceSummedUsage from './handler.js';
 import {GetWorkspaceSummedUsageEndpointParams} from './types.js';
 

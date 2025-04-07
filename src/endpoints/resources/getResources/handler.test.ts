@@ -13,10 +13,10 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {collaboratorExtractor} from '../../collaborators/utils.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
 import {stringifyFolderpath} from '../../folders/utils.js';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
-import {generateAndInsertPermissionItemListForTest} from '../../testUtils/generate/permissionItem.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFiles} from '../../testHelpers/generate/file.js';
+import {generateAndInsertTestFolders} from '../../testHelpers/generate/folder.js';
+import {generateAndInsertPermissionItemListForTest} from '../../testHelpers/generate/permissionItem.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -24,7 +24,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {FetchResourceItem} from '../types.js';
 import getResources from './handler.js';
 import {GetResourcesEndpointParams} from './types.js';

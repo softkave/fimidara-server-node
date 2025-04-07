@@ -1,6 +1,6 @@
 import {compact, first} from 'lodash-es';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {getIgnoreCaseDataQueryRegExp} from '../../../../contexts/semantic/utils.js';
 import {EmailJobParams} from '../../../../definitions/job.js';
 import {User} from '../../../../definitions/user.js';
@@ -36,7 +36,7 @@ export async function getBaseEmailTemplateProps(
   base: BaseEmailTemplateProps;
   source: string;
 }> {
-  const suppliedConfig = kIkxUtils.suppliedConfig();
+  const suppliedConfig = kIjxUtils.suppliedConfig();
 
   appAssert(
     suppliedConfig.clientLoginLink,

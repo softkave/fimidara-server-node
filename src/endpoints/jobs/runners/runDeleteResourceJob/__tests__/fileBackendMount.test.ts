@@ -5,9 +5,9 @@ import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {
   generateAndInsertFileBackendMountListForTest,
   generateAndInsertResolvedMountEntryListForTest,
-} from '../../../../testUtils/generate/fileBackend.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+} from '../../../../testHelpers/generate/fileBackend.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteFileBackendMountCascadeEntry} from '../fileBackendMount.js';
 import {
   GenerateResourceFn,

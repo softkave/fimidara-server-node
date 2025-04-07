@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -8,13 +8,13 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import sendEmailVerificationCode from './handler.js';
 
 /**
@@ -50,7 +50,7 @@ test('sendEmailVerificationCode', async () => {
   );
   assertEndpointResultOk(result);
 
-  await kIkxUtils.promises().flush();
+  await kIjxUtils.promises().flush();
   // const query: DataQuery<EmailMessage> = {
   //   type: kEmailMessageType.confirmEmailAddress,
   //   emailAddress: {$all: [user.email]},

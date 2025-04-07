@@ -2,15 +2,15 @@ import {randomUUID} from 'crypto';
 import {tmpdir} from 'os';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {kFileBackendType} from '../../../definitions/fileBackend.js';
-import {generateTestFilepath} from '../../../endpoints/testUtils/generate/file.js';
+import {generateTestFilepath} from '../../../endpoints/testHelpers/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateFileBackendConfigForTest,
   generateFileBackendMountForTest,
-} from '../../../endpoints/testUtils/generate/fileBackend.js';
-import {generateTestFolderpath} from '../../../endpoints/testUtils/generate/folder.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/generate/fileBackend.js';
+import {generateTestFolderpath} from '../../../endpoints/testHelpers/generate/folder.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {pathJoin} from '../../../utils/fns.js';
 import {FimidaraFilePersistenceProvider} from '../FimidaraFilePersistenceProvider.js';
 import {LocalFsFilePersistenceProvider} from '../LocalFsFilePersistenceProvider.js';

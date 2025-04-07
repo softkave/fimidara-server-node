@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {Tag} from '../../../../../definitions/tag.js';
-import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertTagListForTest} from '../../../../testHelpers/generate/tag.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteTagCascadeEntry} from '../tag.js';
 import {
   GenerateResourceFn,

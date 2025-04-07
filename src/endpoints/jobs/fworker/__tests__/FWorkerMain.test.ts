@@ -9,10 +9,10 @@ import {
   test,
   vi,
 } from 'vitest';
-import {kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {waitTimeout} from '../../../../utils/fns.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {FWorkerMain} from '../FWorkerMain.js';
 import {FWorkerMessager} from '../FWorkerMessager.js';
 
@@ -34,7 +34,7 @@ afterAll(async () => {
 
 describe('FWorkerMain', () => {
   test('startNewWorker', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
 
     await Promise.all([
       workerMain.startNewWorker(kWorkerTestFilepath, '1'),
@@ -46,7 +46,7 @@ describe('FWorkerMain', () => {
   });
 
   test('terminate', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
 
     await Promise.all([
       workerMain.startNewWorker(kWorkerTestFilepath, '1'),
@@ -63,7 +63,7 @@ describe('FWorkerMain', () => {
   });
 
   test('graceful terminate', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
     const gracefulTerminateFn = vi.fn();
 
     await Promise.all([
@@ -81,7 +81,7 @@ describe('FWorkerMain', () => {
   });
 
   test('graceful terminate timeout', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
     const gracefulTerminateTimeoutMs = 20;
     const gracefulTerminateFn = vi.fn().mockImplementation(async () => {
       await waitTimeout(gracefulTerminateTimeoutMs * 3);
@@ -107,7 +107,7 @@ describe('FWorkerMain', () => {
   });
 
   test('stopWorker', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
 
     await Promise.all([
       workerMain.startNewWorker(kWorkerTestFilepath, '1'),
@@ -124,7 +124,7 @@ describe('FWorkerMain', () => {
   });
 
   test('message worker', async () => {
-    workerMain = new FWorkerMain({promises: kIkxUtils.promises()});
+    workerMain = new FWorkerMain({promises: kIjxUtils.promises()});
     await Promise.all([
       workerMain.startNewWorker(kWorkerTestFilepath, '1'),
       workerMain.startNewWorker(kWorkerTestFilepath, '2'),

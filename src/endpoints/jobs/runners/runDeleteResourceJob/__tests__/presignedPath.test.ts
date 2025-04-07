@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {PresignedPath} from '../../../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testHelpers/generate/file.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deletePresignedPathCascadeEntry} from '../presignedPath.js';
 import {
   GenerateResourceFn,

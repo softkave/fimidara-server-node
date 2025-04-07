@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getWorkspaceFromEndpointInput} from '../../workspaces/utils.js';
 import {getWorkspaceAgentTokensQuery} from '../getWorkspaceTokens/utils.js';
@@ -9,7 +9,7 @@ import {countWorkspaceAgentTokenJoiSchema} from './validation.js';
 const countWorkspaceAgentTokens: CountWorkspaceAgentTokensEndpoint =
   async reqData => {
     const data = validate(reqData.data, countWorkspaceAgentTokenJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

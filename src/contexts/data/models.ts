@@ -3,7 +3,7 @@ import {App, AppShard} from '../../definitions/app.js';
 import {AssignedItem} from '../../definitions/assignedItem.js';
 import {CollaborationRequest} from '../../definitions/collaborationRequest.js';
 import {EmailBlocklist, EmailMessage} from '../../definitions/email.js';
-import {File} from '../../definitions/file.js';
+import {File, FilePart} from '../../definitions/file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -49,6 +49,7 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
+  FilePartDataProvider,
   FolderDataProvider,
   JobDataProvider,
   JobHistoryDataProvider,
@@ -228,6 +229,13 @@ export class JobHistoryMongoDataProvider
 export class ScriptMongoDataProvider
   extends BaseMongoDataProvider<AppScript>
   implements ScriptDataProvider
+{
+  throwNotFound = throwNotFound;
+}
+
+export class FilePartMongoDataProvider
+  extends BaseMongoDataProvider<FilePart>
+  implements FilePartDataProvider
 {
   throwNotFound = throwNotFound;
 }

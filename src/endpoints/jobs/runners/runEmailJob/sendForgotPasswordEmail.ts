@@ -1,6 +1,6 @@
 import {add} from 'date-fns';
 import {stringify} from 'querystring';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
 import {EmailJobParams, kEmailJobType} from '../../../../definitions/job.js';
 import {
@@ -29,8 +29,8 @@ function getForgotPasswordExpiration() {
 }
 
 export async function getForgotPasswordLinkFromToken(forgotToken: AgentToken) {
-  const suppliedConfig = kIkxUtils.suppliedConfig();
-  const encodedToken = await kIkxUtils.session().encodeToken({
+  const suppliedConfig = kIjxUtils.suppliedConfig();
+  const encodedToken = await kIjxUtils.session().encodeToken({
     tokenId: forgotToken.resourceId,
     expiresAt: forgotToken.expiresAt,
     issuedAt: forgotToken.createdAt,
@@ -101,7 +101,7 @@ export async function sendForgotPasswordEmail(
   const html = forgotPasswordEmailHTML(emailProps);
   const text = forgotPasswordEmailText(emailProps);
 
-  return await kIkxUtils.email().sendEmail({
+  return await kIjxUtils.email().sendEmail({
     source,
     subject: kForgotPasswordEmailArtifacts.title,
     body: {html, text},

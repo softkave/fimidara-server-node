@@ -32,7 +32,7 @@ import {
   isMongoConnection,
 } from '../../db/connection.js';
 import {getEmailBlocklistModel, getEmailMessageModel} from '../../db/email.js';
-import {getFileModel} from '../../db/file.js';
+import {getFileModel, getFilePartMongoModel} from '../../db/file.js';
 import {getFolderDatabaseModel} from '../../db/folder.js';
 import {getJobModel} from '../../db/job.js';
 import {getJobHistoryMongoModel} from '../../db/jobHistory.js';
@@ -87,6 +87,7 @@ import {
   FileBackendConfigMongoDataProvider,
   FileBackendMountMongoDataProvider,
   FileMongoDataProvider,
+  FilePartMongoDataProvider,
   FolderMongoDataProvider,
   JobHistoryMongoDataProvider,
   JobMongoDataProvider,
@@ -113,6 +114,7 @@ import {
   FileBackendConfigDataProvider,
   FileBackendMountDataProvider,
   FileDataProvider,
+  FilePartDataProvider,
   FolderDataProvider,
   JobDataProvider,
   JobHistoryDataProvider,
@@ -156,11 +158,10 @@ import {
   SemanticEmailBlocklistProvider,
   SemanticEmailMessageProvider,
 } from '../semantic/email/types.js';
+import {SemanticFilePartProviderImpl} from '../semantic/file/SemanticFilePartProviderImpl.js';
+import {SemanticFileProviderImpl} from '../semantic/file/SemanticFileProviderImpl.js';
 import {
-  DataSemanticFile,
-  DataSemanticPresignedPathProvider,
-} from '../semantic/file/model.js';
-import {
+  SemanticFilePartProvider,
   SemanticFileProvider,
   SemanticPresignedPathProvider,
 } from '../semantic/file/types.js';
@@ -182,6 +183,7 @@ import {DataSemanticPermission} from '../semantic/permission/model.js';
 import {SemanticPermissionProviderType} from '../semantic/permission/types.js';
 import {DataSemanticPermissionItem} from '../semantic/permissionItem/model.js';
 import {SemanticPermissionItemProviderType} from '../semantic/permissionItem/types.js';
+import {DataSemanticPresignedPathProvider} from '../semantic/presignedPath/model.js';
 import {DataSemanticResolvedMountEntry} from '../semantic/resolvedMountEntry/model.js';
 import {SemanticResolvedMountEntryProvider} from '../semantic/resolvedMountEntry/types.js';
 import {SemanticScriptProvider} from '../semantic/script/provider.js';
@@ -202,7 +204,7 @@ import {DataSemanticWorkspace} from '../semantic/workspace/model.js';
 import {SemanticWorkspaceProviderType} from '../semantic/workspace/types.js';
 import {UsageProvider} from '../usage/UsageProvider.js';
 import {IUsageContext} from '../usage/types.js';
-import {kIjxData, kIkxUtils} from './injectables.js';
+import {kIjxData, kIjxUtils} from './injectables.js';
 import {kIjxKeys} from './keys.js';
 
 function registerToken(
@@ -215,7 +217,7 @@ function registerToken(
     container.register(token, {useFactory: item as AnyFn});
   } else {
     if (isFunction((item as DisposableResource | undefined)?.dispose)) {
-      kIkxUtils.disposables().add(item as DisposableResource);
+      kIjxUtils.disposables().add(item as DisposableResource);
     }
 
     container.register(token, {useValue: item});
@@ -271,6 +273,8 @@ export const kRegisterIjxSemantic = {
     registerToken(kIjxKeys.semantic.utils, item),
   script: (item: ISemanticScriptProvider) =>
     registerToken(kIjxKeys.semantic.script, item),
+  filePart: (item: SemanticFilePartProvider) =>
+    registerToken(kIjxKeys.semantic.filePart, item),
 };
 
 export const kRegisterIjxData = {
@@ -316,6 +320,8 @@ export const kRegisterIjxData = {
   utils: (item: DataProviderUtils) => registerToken(kIjxKeys.data.utils, item),
   script: (item: ScriptDataProvider) =>
     registerToken(kIjxKeys.data.script, item),
+  filePart: (item: FilePartDataProvider) =>
+    registerToken(kIjxKeys.data.filePart, item),
 };
 
 export const kRegisterIjxUtils = {
@@ -357,7 +363,7 @@ export const kRegisterIjxUtils = {
 };
 
 export function registerIjxData() {
-  const connection = kIkxUtils.dbConnection().get();
+  const connection = kIjxUtils.dbConnection().get();
   appAssert(isMongoConnection(connection));
 
   kRegisterIjxData.user(new UserMongoDataProvider(getUserModel(connection)));
@@ -426,11 +432,16 @@ export function registerIjxData() {
   kRegisterIjxData.script(
     new ScriptMongoDataProvider(getScriptMongoModel(connection))
   );
+  kRegisterIjxData.filePart(
+    new FilePartMongoDataProvider(getFilePartMongoModel(connection))
+  );
 }
 
 export function registerIjxSemantic() {
   kRegisterIjxSemantic.user(new DataSemanticUser(kIjxData.user(), assertUser));
-  kRegisterIjxSemantic.file(new DataSemanticFile(kIjxData.file(), assertFile));
+  kRegisterIjxSemantic.file(
+    new SemanticFileProviderImpl(kIjxData.file(), assertFile)
+  );
   kRegisterIjxSemantic.agentToken(
     new DataSemanticAgentToken(kIjxData.agentToken(), assertAgentToken)
   );
@@ -514,6 +525,9 @@ export function registerIjxSemantic() {
   kRegisterIjxSemantic.script(
     new SemanticScriptProvider(kIjxData.script(), assertNotFound)
   );
+  kRegisterIjxSemantic.filePart(
+    new SemanticFilePartProviderImpl(kIjxData.filePart(), assertNotFound)
+  );
 }
 
 export async function registerIjxUtils(
@@ -573,7 +587,7 @@ export async function registerIjxUtils(
     kRegisterIjxUtils.dbConnection(new NoopDbConnection());
   }
 
-  const {redisURL} = kIkxUtils.suppliedConfig();
+  const {redisURL} = kIjxUtils.suppliedConfig();
   if (redisURL) {
     const redis = await getRedis();
     const ioRedis = await getIoRedis();

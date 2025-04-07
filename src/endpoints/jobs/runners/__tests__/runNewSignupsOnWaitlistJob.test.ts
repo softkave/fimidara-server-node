@@ -2,7 +2,7 @@ import assert from 'assert';
 import {getNewId} from 'softkave-js-utils';
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {AppShardId} from '../../../../definitions/app.js';
 import {
   EmailJobParams,
@@ -11,9 +11,9 @@ import {
   kJobType,
 } from '../../../../definitions/job.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
-import {generateAndInsertUserListForTest} from '../../../testUtils/generate/user.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {generateAndInsertUserListForTest} from '../../../testHelpers/generate/user.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {queueJobs} from '../../queueJobs.js';
 import {runNewSignupsOnWaitlistJob} from '../runNewSignupsOnWaitlistJob.js';
 
@@ -26,7 +26,7 @@ afterEach(async () => {
 });
 
 async function getDBEmailJob(shard: AppShardId) {
-  const {rootUserEmail} = kIkxUtils.suppliedConfig();
+  const {rootUserEmail} = kIjxUtils.suppliedConfig();
   assert(rootUserEmail);
 
   const query: DataQuery<Job<EmailJobParams>> = {
@@ -80,7 +80,7 @@ describe('runNewSignupsOnWaitlistJob', () => {
       );
 
       await runNewSignupsOnWaitlistJob(job);
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
 
       let dbEmailJob = await getDBEmailJob(shard);
 
@@ -108,7 +108,7 @@ describe('runNewSignupsOnWaitlistJob', () => {
       );
 
       await runNewSignupsOnWaitlistJob(job);
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
 
       dbEmailJob = await getDBEmailJob(shard);
 

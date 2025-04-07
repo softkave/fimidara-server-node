@@ -1,18 +1,18 @@
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import getUsers from './handler.js';
 import {GetUsersEndpointParams} from './types.js';
@@ -33,7 +33,7 @@ describe('getUsers', () => {
       kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kIkxUtils.runtimeConfig().appWorkspaceId,
+          kIjxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );

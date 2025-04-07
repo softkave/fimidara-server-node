@@ -1,7 +1,7 @@
 import {first, last} from 'lodash-es';
 import {format, formatWithOptions} from 'util';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {ServerError} from '../../../utils/errors.js';
 import {validate} from '../../../utils/validate.js';
@@ -13,7 +13,7 @@ import {addFolderJoiSchema} from './validation.js';
 
 const addFolder: AddFolderEndpoint = async reqData => {
   const data = validate(reqData.data, addFolderJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -41,7 +41,7 @@ const addFolder: AddFolderEndpoint = async reqData => {
 
   failedInput.forEach(failedItem => {
     const stringifiedInput = formatWithOptions({depth: 5}, data);
-    kIkxUtils
+    kIjxUtils
       .logger()
       .error(
         `Error adding folders ${stringifiedInput} with reason ${format(

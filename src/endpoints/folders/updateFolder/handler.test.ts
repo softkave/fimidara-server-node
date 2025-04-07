@@ -4,7 +4,7 @@ import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   IInsertUserForTestResult,
   IInsertWorkspaceForTestResult,
@@ -14,7 +14,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {folderExtractor, stringifyFolderpath} from '../utils.js';
 import updateFolder from './handler.js';
 import {UpdateFolderEndpointParams, UpdateFolderInput} from './types.js';

@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -14,7 +14,7 @@ import {getWorkspacePermissionGroupsJoiSchema} from './validation.js';
 const getWorkspacePermissionGroups: GetWorkspacePermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, getWorkspacePermissionGroupsJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

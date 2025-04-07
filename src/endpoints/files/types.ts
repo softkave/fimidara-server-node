@@ -6,14 +6,16 @@ import {
   HttpEndpointRequestHeaders_AuthOptional_ContentType,
   HttpEndpointResponseHeaders_ContentType_ContentLength,
 } from '../types.js';
+import {CompleteMultipartUploadEndpoint} from './completeMultipartUpload/types.js';
 import {DeleteFileEndpoint} from './deleteFile/types.js';
 import {GetFileDetailsEndpoint} from './getFileDetails/types.js';
-import {GetPartDetailsEndpoint} from './getPartDetails/types.js';
+import {ListPartsEndpoint} from './listParts/types.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types.js';
+import {StartMultipartUploadEndpoint} from './startMultipartUpload/types.js';
 import {UpdateFileDetailsEndpoint} from './updateFileDetails/types.js';
 import {
   UploadFileEndpoint,
@@ -62,8 +64,8 @@ export type DeleteFileHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<DeleteFileEndpoint>;
 export type GetFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<GetFileDetailsEndpoint>;
-export type GetPartDetailsHttpEndpoint =
-  ExportedHttpEndpointWithMddocDefinition<GetPartDetailsEndpoint>;
+export type ListPartsHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<ListPartsEndpoint>;
 export type UpdateFileDetailsHttpEndpoint =
   ExportedHttpEndpointWithMddocDefinition<UpdateFileDetailsEndpoint>;
 export type UploadFileEndpointSdkParams = UploadFileEndpointParams;
@@ -77,6 +79,10 @@ export type UploadFileHttpEndpoint = ExportedHttpEndpointWithMddocDefinition<
   /** TResponseBody */ UploadFileEndpointResult,
   /** TSdkparams */ UploadFileEndpointSdkParams
 >;
+export type StartMultipartUploadHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<StartMultipartUploadEndpoint>;
+export type CompleteMultipartUploadHttpEndpoint =
+  ExportedHttpEndpointWithMddocDefinition<CompleteMultipartUploadEndpoint>;
 
 export type FilesExportedEndpoints = {
   readFile: [ReadFilePOSTHttpEndpoint, ReadFileGETHttpEndpoint];
@@ -84,7 +90,9 @@ export type FilesExportedEndpoints = {
   getFileDetails: GetFileDetailsHttpEndpoint;
   updateFileDetails: UpdateFileDetailsHttpEndpoint;
   uploadFile: UploadFileHttpEndpoint;
-  getPartDetails: GetPartDetailsHttpEndpoint;
+  listParts: ListPartsHttpEndpoint;
+  startMultipartUpload: StartMultipartUploadHttpEndpoint;
+  completeMultipartUpload: CompleteMultipartUploadHttpEndpoint;
 };
 
 export type FileMatcherPathParameters = {

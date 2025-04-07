@@ -492,14 +492,6 @@
                     },
                     "__id": "FieldObjectField",
                     "required": false
-                },
-                "isLastPart": {
-                    "data": {
-                        "__id": "FieldBoolean",
-                        "description": "Whether this is the last part of the multipart upload"
-                    },
-                    "__id": "FieldObjectField",
-                    "required": false
                 }
             },
             "name": "UploadFileEndpointParams"

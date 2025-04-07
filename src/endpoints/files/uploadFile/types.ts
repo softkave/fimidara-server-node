@@ -1,10 +1,14 @@
+import {OmitFrom} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {
   FilePersistenceStartMultipartUploadParams,
   FilePersistenceStartMultipartUploadResult,
 } from '../../../contexts/file/types.js';
-import {File, FileMatcher, PublicFile} from '../../../definitions/file.js';
-import {Workspace} from '../../../definitions/workspace.js';
+import {
+  FileMatcher,
+  FileWithRuntimeData,
+  PublicFile,
+} from '../../../definitions/file.js';
 import {Endpoint} from '../../types.js';
 
 export interface UploadFileEndpointParams extends FileMatcher {
@@ -13,9 +17,7 @@ export interface UploadFileEndpointParams extends FileMatcher {
   encoding?: string;
   data: Readable;
   size: number;
-  /** 0-based part number */
   part?: number;
-  isLastPart?: boolean;
   clientMultipartId?: string;
 }
 
@@ -28,20 +30,24 @@ export type UploadFileEndpoint = Endpoint<
   UploadFileEndpointResult
 >;
 
-export type IInternalMultipartIdQueueInput =
-  FilePersistenceStartMultipartUploadParams & {
-    namepath: string[];
-  };
+export type IInternalMultipartIdQueueInput = OmitFrom<
+  FilePersistenceStartMultipartUploadParams,
+  'filepath'
+> & {
+  namepath: string[];
+  clientMultipartId: string;
+  mountFilepath: string;
+};
 
 export type IInternalMultipartIdQueueOutput =
   FilePersistenceStartMultipartUploadResult;
 
-export interface IPrepareFileQueueInput {
-  workspace: Pick<Workspace, 'resourceId' | 'rootname'>;
-  data: Pick<
+export interface IPrepareFileQueueInput
+  extends Pick<
     UploadFileEndpointParams,
-    'filepath' | 'clientMultipartId' | 'part' | 'fileId'
-  >;
+    'filepath' | 'clientMultipartId' | 'fileId'
+  > {
+  workspaceId: string;
 }
 
-export type IPrepareFileQueueOutput = File;
+export type IPrepareFileQueueOutput = FileWithRuntimeData;

@@ -6,51 +6,50 @@ import {
 } from '../../../contexts/usage/usageFns.js';
 import {File} from '../../../definitions/file.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
-import RequestData from '../../RequestData.js';
+import {Agent, SessionAgent} from '../../../definitions/system.js';
+import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
 
 export async function handleIntermediateStorageUsageRecords(params: {
-  reqData: RequestData;
+  requestId: string;
+  sessionAgent: SessionAgent;
   file: File;
   size: number;
-  isNewFile: boolean;
 }) {
-  const {reqData, file, size, isNewFile} = params;
+  const {requestId, sessionAgent, file, size} = params;
 
-  if (!isNewFile) {
-    await decrementStorageUsageRecord(reqData, file);
-  }
-
-  // TODO: why is resourceId undefined?
+  // TODO(abayomi): why is resourceId undefined?
   const fileWithSize = {...file, size, resourceId: undefined};
+  const agent = getActionAgentFromSessionAgent(sessionAgent);
   await Promise.all([
-    incrementBandwidthInUsageRecord(
-      reqData,
-      fileWithSize,
-      kFimidaraPermissionActions.uploadFile
-    ),
-    incrementStorageEverConsumedUsageRecord(
-      reqData,
-      fileWithSize,
-      kFimidaraPermissionActions.uploadFile
-    ),
+    incrementBandwidthInUsageRecord({
+      requestId,
+      agent,
+      file: fileWithSize,
+      action: kFimidaraPermissionActions.uploadFile,
+    }),
+    incrementStorageEverConsumedUsageRecord({
+      requestId,
+      agent,
+      file: fileWithSize,
+      action: kFimidaraPermissionActions.uploadFile,
+    }),
   ]);
 }
 
 export async function handleFinalStorageUsageRecords(params: {
-  reqData: RequestData;
+  requestId: string;
+  agent: Agent;
   file: File;
   size: number;
-  isMultipart: boolean;
-  isLastPart?: boolean;
 }) {
-  const {reqData, file, size, isMultipart, isLastPart} = params;
+  const {requestId, agent, file, size} = params;
   const fileWithSize = {...file, size, resourceId: undefined};
 
-  if (!isMultipart || isLastPart) {
-    await incrementStorageUsageRecord(
-      reqData,
-      fileWithSize,
-      kFimidaraPermissionActions.uploadFile
-    );
-  }
+  await decrementStorageUsageRecord({agent, file});
+  await incrementStorageUsageRecord({
+    requestId,
+    agent,
+    file: fileWithSize,
+    action: kFimidaraPermissionActions.uploadFile,
+  });
 }

@@ -1,28 +1,46 @@
 import {faker} from '@faker-js/faker';
 import assert from 'assert';
-import {compact, isNumber, merge, omit} from 'lodash-es';
+import {compact, isNumber, last, merge, omit} from 'lodash-es';
 import {
   getNewId,
   kLoopAsyncSettlementType,
+  noopAsync,
   OrPromise,
   pathJoin,
 } from 'softkave-js-utils';
 import {Readable} from 'stream';
+import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../../definitions/agentToken.js';
+import {kJobStatus} from '../../../../definitions/job.js';
 import {Workspace} from '../../../../definitions/workspace.js';
 import {addRootnameToPath} from '../../../folders/utils.js';
-import {generateTestFileName} from '../../../testUtils/generate/file.js';
+import {runJob} from '../../../jobs/runJob.js';
+import RequestData from '../../../RequestData.js';
+import {generateTestFileName} from '../../../testHelpers/generate/file.js';
 import {
   generateTestFileBinary,
   GenerateTestFileType,
-} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {IGenerateImageProps} from '../../../testUtils/generate/file/generateTestImage.js';
-import {insertFileForTest} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {IGenerateImageProps} from '../../../testHelpers/generate/file/generateTestImage.js';
+import {
+  insertFileForTest,
+  mockExpressRequestForPublicAgent,
+  mockExpressRequestWithAgentToken,
+} from '../../../testHelpers/utils.js';
+import completeMultipartUpload from '../../completeMultipartUpload/handler.js';
+import {
+  CompleteMultipartUploadEndpointParams,
+  CompleteMultipartUploadEndpointResult,
+} from '../../completeMultipartUpload/types.js';
+import startMultipartUpload from '../../startMultipartUpload/handler.js';
+import {
+  StartMultipartUploadEndpointParams,
+  StartMultipartUploadEndpointResult,
+} from '../../startMultipartUpload/types.js';
 import {UploadFileEndpointParams} from '../types.js';
 
-type AfterEachFn = (
-  partResult: Awaited<ReturnType<typeof insertFileForTest>>
-) => OrPromise<void>;
+type InsertFileForTestResult = Awaited<ReturnType<typeof insertFileForTest>>;
+type AfterEachFn = (partResult: InsertFileForTestResult) => OrPromise<void>;
 
 type RunAllFn = (params?: {
   shuffle?: boolean;
@@ -30,15 +48,23 @@ type RunAllFn = (params?: {
   settlementType?:
     | typeof kLoopAsyncSettlementType.all
     | typeof kLoopAsyncSettlementType.oneByOne;
-}) => Promise<Awaited<ReturnType<typeof insertFileForTest>>[]>;
+}) => Promise<InsertFileForTestResult[]>;
 
 type RunNextFn = (params?: {
   forceRun?: boolean;
   part?: number;
   afterEach?: AfterEachFn;
-}) => Promise<
-  (Awaited<ReturnType<typeof insertFileForTest>> & {part: number}) | null
->;
+}) => Promise<InsertFileForTestResult | null>;
+
+interface ITestUploadFnResult {
+  runAll: RunAllFn;
+  runNext: RunNextFn;
+  dataBuffer: Buffer | undefined;
+  startUpload: () => Promise<StartMultipartUploadEndpointResult | void>;
+  completeUpload: (params?: {
+    shouldWaitForJob?: boolean;
+  }) => Promise<CompleteMultipartUploadEndpointResult | void>;
+}
 
 export const singleFileUpload = async (params: {
   userToken: AgentToken | null;
@@ -46,15 +72,23 @@ export const singleFileUpload = async (params: {
   fileInput?: Partial<UploadFileEndpointParams>;
   type?: GenerateTestFileType;
   imageProps?: IGenerateImageProps;
-}) => {
+}): Promise<ITestUploadFnResult> => {
   const {userToken, workspace, fileInput, type, imageProps} = params;
+  const {dataBuffer} = await generateTestFileBinary({
+    type,
+    imageProps,
+  });
 
   const runNext: RunNextFn = async runParams => {
     const {afterEach} = runParams ?? {};
     const result = await insertFileForTest(
       userToken,
       workspace,
-      omit(fileInput, ['part', 'isLastPart', 'clientMultipartId']),
+      /** fileInput */ {
+        ...omit(fileInput, ['part', 'isLastPart', 'clientMultipartId']),
+        data: Readable.from(dataBuffer),
+        size: dataBuffer.byteLength,
+      },
       type,
       imageProps
     );
@@ -68,8 +102,10 @@ export const singleFileUpload = async (params: {
     return compact([result]);
   };
 
-  const dataBuffer: Buffer | undefined = undefined;
-  return {runAll, runNext, dataBuffer};
+  const startUpload = noopAsync;
+  const completeUpload = noopAsync;
+
+  return {runAll, runNext, dataBuffer, startUpload, completeUpload};
 };
 
 export const multipartFileUpload = async (params: {
@@ -80,7 +116,7 @@ export const multipartFileUpload = async (params: {
   clientMultipartId?: string;
   type?: GenerateTestFileType;
   imageProps?: IGenerateImageProps;
-}) => {
+}): Promise<ITestUploadFnResult> => {
   const {
     userToken,
     workspace,
@@ -100,20 +136,24 @@ export const multipartFileUpload = async (params: {
     description: faker.lorem.paragraph(),
     mimetype: 'application/octet-stream',
   };
-  const fileInput = merge(padEmptyParams, params.fileInput);
 
+  const fileInput = merge(padEmptyParams, params.fileInput);
   const {dataBuffer} = await generateTestFileBinary({
     type,
     imageProps,
   });
+
   const partLengthOrDefault = partLength ?? 3;
   const clientMultipartIdOrDefault = clientMultipartId ?? getNewId();
+  const completedParts: number[] = [];
+
   const uploadPart = async (part: number) => {
     const slicePart = part - 1;
     const partData = dataBuffer.subarray(
       slicePart * (dataBuffer.byteLength / partLengthOrDefault),
       (slicePart + 1) * (dataBuffer.byteLength / partLengthOrDefault)
     );
+
     const result = await insertFileForTest(userToken, workspace, {
       clientMultipartId: clientMultipartIdOrDefault,
       ...fileInput,
@@ -121,19 +161,63 @@ export const multipartFileUpload = async (params: {
       data: Readable.from(partData),
       size: partData.byteLength,
     });
+
+    completedParts.push(part);
     return result;
   };
 
-  const uploadLast = async () => {
-    const buf = Buffer.alloc(0);
-    return await insertFileForTest(userToken, workspace, {
-      clientMultipartId: clientMultipartIdOrDefault,
-      ...fileInput,
-      part: -1,
-      data: Readable.from(buf),
-      size: buf.byteLength,
-      isLastPart: true,
-    });
+  const startUpload = async () => {
+    const reqData =
+      RequestData.fromExpressRequest<StartMultipartUploadEndpointParams>(
+        userToken
+          ? mockExpressRequestWithAgentToken(userToken)
+          : mockExpressRequestForPublicAgent(),
+        {
+          clientMultipartId: clientMultipartIdOrDefault,
+          fileId: fileInput.fileId,
+          filepath: fileInput.filepath,
+        }
+      );
+
+    const result = await startMultipartUpload(reqData);
+    return result;
+  };
+
+  const completeUpload = async (
+    params: {
+      shouldWaitForJob?: boolean;
+    } = {}
+  ) => {
+    const {shouldWaitForJob = true} = params;
+    const reqData =
+      RequestData.fromExpressRequest<CompleteMultipartUploadEndpointParams>(
+        userToken
+          ? mockExpressRequestWithAgentToken(userToken)
+          : mockExpressRequestForPublicAgent(),
+        {
+          clientMultipartId: clientMultipartIdOrDefault,
+          parts: completedParts.map(part => ({part})),
+          fileId: fileInput.fileId,
+          filepath: fileInput.filepath,
+        }
+      );
+
+    const result = await completeMultipartUpload(reqData);
+    if (shouldWaitForJob) {
+      assert.ok(result.jobId);
+
+      const job = await kIjxSemantic.job().getOneById(result.jobId);
+      assert.ok(job);
+
+      const jobResult = await runJob(job);
+      assert.ok(jobResult);
+
+      if (jobResult.status === kJobStatus.failed) {
+        throw new Error(jobResult.errorMessage);
+      }
+    }
+
+    return result;
   };
 
   const runOrder = Array.from({length: partLengthOrDefault}, (_, i) => i + 1);
@@ -146,13 +230,6 @@ export const multipartFileUpload = async (params: {
   const runNext: RunNextFn = async runParams => {
     const {afterEach, forceRun} = runParams ?? {};
     const part = runParams?.part ?? getNextPart();
-
-    if (part === -1) {
-      const uploadResult = await uploadLast();
-      const partResult = {...uploadResult, part};
-      await afterEach?.(partResult);
-      return partResult;
-    }
 
     if (
       !isNumber(part) ||
@@ -187,8 +264,6 @@ export const multipartFileUpload = async (params: {
         results.push(partResult);
         partResult = await runNext();
       }
-
-      results.push(await runNext({part: -1, ...runParams}));
     } else {
       results = await Promise.all(
         runOrder.map(async part => {
@@ -196,13 +271,12 @@ export const multipartFileUpload = async (params: {
           return result;
         })
       );
-      results.push(await runNext({part: -1, ...runParams}));
     }
 
     return compact(results);
   };
 
-  return {runAll, runNext, dataBuffer};
+  return {runAll, runNext, dataBuffer, startUpload, completeUpload};
 };
 
 export const runUpload = async (
@@ -221,17 +295,21 @@ export const simpleRunUpload = async (
   isMultipart: boolean,
   uploadParams: Parameters<typeof singleFileUpload>[0]
 ) => {
-  const {runAll, dataBuffer} = await runUpload(
+  const {runAll, dataBuffer, startUpload, completeUpload} = await runUpload(
     isMultipart,
     /** singleParams */ uploadParams,
     /** multipartParams */ uploadParams
   );
 
-  const results = await runAll();
-  const result =
-    results.length === 1
-      ? results[0]
-      : results.filter(r => r.reqData.data?.isLastPart)[0];
+  await startUpload();
+  const runResults = await runAll();
+  const completeResult = await completeUpload();
+
+  const result = completeResult || last(runResults);
   assert.ok(result);
-  return {...result, dataBuffer: dataBuffer ?? result.dataBuffer};
+  const resFile = result.file;
+  const dbFile = await kIjxSemantic.file().getOneById(resFile.resourceId);
+  assert.ok(dbFile);
+
+  return {dbFile, resFile, dataBuffer};
 };

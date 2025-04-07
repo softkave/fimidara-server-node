@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   Job,
@@ -11,15 +11,15 @@ import {
 import RequestData from '../../RequestData.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import EndpointReusableQueries from '../../queries.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 import {userExtractor} from '../utils.js';
 import updateUser from './handler.js';
@@ -64,7 +64,7 @@ describe('updateUser', () => {
     expect(userExtractor(savedUser)).toMatchObject(result.user);
     expect(savedUser).toMatchObject(updateInput);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.confirmEmailAddress,
     //   emailAddress: {$all: [savedUser.email]},

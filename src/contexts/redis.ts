@@ -1,10 +1,10 @@
 import assert from 'assert';
 import Redis from 'ioredis';
 import {RedisClientType, createClient} from 'redis';
-import {kIkxUtils} from './ijx/injectables.js';
+import {kIjxUtils} from './ijx/injectables.js';
 
 export async function getRedis() {
-  const {redisDatabase, redisURL} = kIkxUtils.suppliedConfig();
+  const {redisDatabase, redisURL} = kIjxUtils.suppliedConfig();
   assert.ok(redisURL);
 
   const redis: RedisClientType = createClient({
@@ -13,14 +13,14 @@ export async function getRedis() {
   });
 
   await redis
-    .on('error', err => kIkxUtils.logger().error('Redis error', err))
+    .on('error', err => kIjxUtils.logger().error('Redis error', err))
     .connect();
 
   return redis;
 }
 
 export async function getIoRedis() {
-  const {redisDatabase, redisURL} = kIkxUtils.suppliedConfig();
+  const {redisDatabase, redisURL} = kIjxUtils.suppliedConfig();
   assert.ok(redisURL);
 
   const p = new URL(redisURL);
@@ -34,7 +34,7 @@ export async function getIoRedis() {
   });
 
   await redis
-    .on('error', err => kIkxUtils.logger().error('Redis error', err))
+    .on('error', err => kIjxUtils.logger().error('Redis error', err))
     .connect();
 
   return redis;

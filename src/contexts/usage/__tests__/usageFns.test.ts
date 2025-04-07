@@ -14,18 +14,18 @@ import {
 } from '../../../definitions/usageRecord.js';
 import {UsageThreshold} from '../../../definitions/workspace.js';
 import RequestData from '../../../endpoints/RequestData.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testUtils/generate/agentToken.js';
-import {generateAndInsertTestFiles} from '../../../endpoints/testUtils/generate/file.js';
-import {getRandomPermissionAction} from '../../../endpoints/testUtils/generate/permissionItem.js';
-import {generateAndInsertUsageRecordList} from '../../../endpoints/testUtils/generate/usageRecord.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testUtils/generate/workspace.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testHelpers/generate/agentToken.js';
+import {generateAndInsertTestFiles} from '../../../endpoints/testHelpers/generate/file.js';
+import {getRandomPermissionAction} from '../../../endpoints/testHelpers/generate/permissionItem.js';
+import {generateAndInsertUsageRecordList} from '../../../endpoints/testHelpers/generate/usageRecord.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../endpoints/testHelpers/generate/workspace.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/utils.js';
 import {
   getCostForUsage,
   getUsageForCost,
@@ -94,13 +94,14 @@ describe.each([
     fn: async (reqData: RequestData, file: File, nothrow: boolean) => {
       // const markName = `incrementStorageUsageRecord-storage-${file.resourceId}`;
       // performance.mark(markName);
-      await incrementStorageUsageRecord(
-        reqData,
+      await incrementStorageUsageRecord({
+        requestId: reqData.requestId,
+        agent: kSystemSessionAgent,
         file,
-        getRandomPermissionAction(),
-        /** artifact */ {},
-        nothrow
-      );
+        action: getRandomPermissionAction(),
+        artifactMetaInput: {},
+        nothrow,
+      });
       // const usageMeasure = performance.measure(
       //   `incrementStorageUsageRecord-storage`,
       //   markName
@@ -114,13 +115,14 @@ describe.each([
     fn: async (reqData: RequestData, file: File, nothrow: boolean) => {
       // const markName = `incrementStorageEverConsumedUsageRecord-storageEverConsumed-${file.resourceId}`;
       // performance.mark(markName);
-      await incrementStorageEverConsumedUsageRecord(
-        reqData,
+      await incrementStorageEverConsumedUsageRecord({
+        requestId: reqData.requestId,
+        agent: kSystemSessionAgent,
         file,
-        getRandomPermissionAction(),
-        /** artifact */ {},
-        nothrow
-      );
+        action: getRandomPermissionAction(),
+        artifactMetaInput: {},
+        nothrow,
+      });
       // const usageMeasure = performance.measure(
       //   `incrementStorageEverConsumedUsageRecord-storageEverConsumed`,
       //   markName
@@ -134,12 +136,13 @@ describe.each([
     fn: async (reqData: RequestData, file: File, nothrow: boolean) => {
       // const markName = `incrementBandwidthInUsageRecord-bandwidthIn-${file.resourceId}`;
       // performance.mark(markName);
-      await incrementBandwidthInUsageRecord(
-        reqData,
+      await incrementBandwidthInUsageRecord({
+        requestId: reqData.requestId,
+        agent: kSystemSessionAgent,
         file,
-        getRandomPermissionAction(),
-        nothrow
-      );
+        action: getRandomPermissionAction(),
+        nothrow,
+      });
       // const usageMeasure = performance.measure(
       //   `incrementBandwidthInUsageRecord-bandwidthIn`,
       //   markName
@@ -153,12 +156,13 @@ describe.each([
     fn: async (reqData: RequestData, file: File, nothrow: boolean) => {
       // const markName = `incrementBandwidthOutUsageRecord-bandwidthOut-${file.resourceId}`;
       // performance.mark(markName);
-      await incrementBandwidthOutUsageRecord(
-        reqData,
+      await incrementBandwidthOutUsageRecord({
+        requestId: reqData.requestId,
+        agent: kSystemSessionAgent,
         file,
-        getRandomPermissionAction(),
-        nothrow
-      );
+        action: getRandomPermissionAction(),
+        nothrow,
+      });
       // const usageMeasure = performance.measure(
       //   `incrementBandwidthOutUsageRecord-bandwidthOut`,
       //   markName
@@ -266,7 +270,7 @@ describe.each([
     fn: async (reqData: RequestData, file: File) => {
       // const markName = `decrementStorageUsageRecord-storage-${file.resourceId}`;
       // performance.mark(markName);
-      await decrementStorageUsageRecord(reqData, file);
+      await decrementStorageUsageRecord({agent: kSystemSessionAgent, file});
       // const usageMeasure = performance.measure(
       //   `decrementStorageUsageRecord-storage`,
       //   markName

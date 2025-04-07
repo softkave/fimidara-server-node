@@ -1,5 +1,5 @@
 import {checkAuthorizationWithAgent} from '../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../contexts/ijx/injectables.js';
 import {SemanticProviderOpParams} from '../../contexts/semantic/types.js';
 import {
   AgentToken,
@@ -103,7 +103,7 @@ export async function encodeAgentToken(
     );
   }
 
-  return await kIkxUtils.session().encodeToken({
+  return await kIjxUtils.session().encodeToken({
     expiresAt,
     shouldRefresh: token.shouldRefresh,
     tokenId: token.resourceId,

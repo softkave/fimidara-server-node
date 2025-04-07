@@ -3,25 +3,25 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {PermissionEntityInheritanceMapItem} from '../../../definitions/permissionGroups.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testUtils/generate/agentToken.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../endpoints/testHelpers/generate/agentToken.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../endpoints/testUtils/generate/permissionGroup.js';
+} from '../../../endpoints/testHelpers/generate/permissionGroup.js';
 import {
   generateAndInsertPermissionItemListForTest,
   generatePermissionItemForTest,
   generatePermissionItemListForTest,
-} from '../../../endpoints/testUtils/generate/permissionItem.js';
-import {generateAndInsertUserListForTest} from '../../../endpoints/testUtils/generate/user.js';
+} from '../../../endpoints/testHelpers/generate/permissionItem.js';
+import {generateAndInsertUserListForTest} from '../../../endpoints/testHelpers/generate/user.js';
 import {
   generateAgent,
   generateTestList,
-} from '../../../endpoints/testUtils/generate/utils.js';
-import {expectContainsExactly} from '../../../endpoints/testUtils/helpers/assertion.js';
-import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
+} from '../../../endpoints/testHelpers/generate/utils.js';
+import {expectContainsExactly} from '../../../endpoints/testHelpers/helpers/assertion.js';
+import {expectErrorThrown} from '../../../endpoints/testHelpers/helpers/error.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import {kIjxSemantic} from '../../ijx/injectables.js';

@@ -31,7 +31,7 @@ import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../utils/sessionUtils.js';
-import {kIjxSemantic, kIkxUtils} from './ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from './ijx/injectables.js';
 
 export const kSessionUtils = {
   permittedAgentTypes: {
@@ -88,7 +88,7 @@ export interface SessionContextType {
 
 export default class SessionContext implements SessionContextType {
   constructor() {
-    const {interServerAuthSecret} = kIkxUtils.suppliedConfig();
+    const {interServerAuthSecret} = kIjxUtils.suppliedConfig();
     appAssert(
       interServerAuthSecret,
       new ServerError(),
@@ -100,7 +100,7 @@ export default class SessionContext implements SessionContextType {
     const inputSystemAuthId = req.getSystemAuthId();
     appAssert(inputSystemAuthId, new InvalidCredentialsError());
 
-    const {interServerAuthSecret} = kIkxUtils.suppliedConfig();
+    const {interServerAuthSecret} = kIjxUtils.suppliedConfig();
     appAssert(
       interServerAuthSecret,
       new ServerError(),
@@ -179,7 +179,7 @@ export default class SessionContext implements SessionContextType {
     data: RequestData,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) => {
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(data, [kFimidaraResourceType.User], tokenAccessScope);
     appAssert(agent.user, new ServerError());
@@ -187,7 +187,7 @@ export default class SessionContext implements SessionContextType {
   };
 
   decodeToken = (token: string) => {
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     appAssert(suppliedConfig.jwtSecret);
 
     const tokenData = cast<BaseTokenData<TokenSubjectDefault>>(
@@ -218,7 +218,7 @@ export default class SessionContext implements SessionContextType {
   encodeToken = async (props: ISessionContextEncodeTokenParams) => {
     const {tokenId, shouldRefresh, expiresAt, issuedAt} = props;
 
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     appAssert(suppliedConfig.jwtSecret);
 
     const payload: Omit<BaseTokenData, 'iat'> & {iat?: number} = {
@@ -276,7 +276,7 @@ export default class SessionContext implements SessionContextType {
     agent: SessionAgent,
     tokenAccessScope: TokenAccessScope | TokenAccessScope[]
   ) {
-    const containsScope = kIkxUtils
+    const containsScope = kIjxUtils
       .session()
       .tokenContainsScope(agent.agentToken, tokenAccessScope);
     appAssert(

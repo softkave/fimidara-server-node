@@ -3,15 +3,15 @@ import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
-import {insertTagForTest} from '../../testUtils/helpers/tag.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {insertTagForTest} from '../../testHelpers/helpers/tag.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {tagExtractor} from '../utils.js';
 import updateTag from './handler.js';
 import {UpdateTagEndpointParams, UpdateTagInput} from './types.js';

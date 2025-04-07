@@ -48,4 +48,5 @@ export const kCascadeDeleteDefinitions: DeleteResourceCascadeDefinitions = {
   [kFimidaraResourceType.FileBackendConfig]:
     deleteFileBackendConfigCascadeEntry,
   [kFimidaraResourceType.PermissionItem]: deletePermissionItemCascadeEntry,
+  [kFimidaraResourceType.filePart]: noopDeleteCascadeEntry,
 };

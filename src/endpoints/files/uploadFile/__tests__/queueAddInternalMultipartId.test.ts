@@ -3,14 +3,14 @@ import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {resolveBackendsMountsAndConfigs} from '../../../fileBackends/mountUtils.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
-import {prepareFilepath} from '../../utils/prepareFilepath.js';
+} from '../../../testHelpers/utils.js';
+import {prepareMountFilepath} from '../../utils/prepareMountFilepath.js';
 import {queueAddInternalMultipartId} from '../queueAddInternalMultipartId.js';
 
 beforeAll(async () => {
@@ -26,23 +26,22 @@ describe('queueAddInternalMultipartId', () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
         fileId: file.resourceId,
         mount: primaryMount,
-        filepath,
+        mountFilepath,
         workspaceId: workspace.resourceId,
         namepath: file.namepath,
+        clientMultipartId,
       },
     });
 
@@ -50,19 +49,17 @@ describe('queueAddInternalMultipartId', () => {
 
     const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(multipartId);
+    expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
   });
 
   test('should reuse multipart id', async () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
     const existingMultipartId = '123';
     await kIjxSemantic.utils().withTxn(async opts => {
@@ -75,15 +72,17 @@ describe('queueAddInternalMultipartId', () => {
         );
     });
 
-    const filepath = await prepareFilepath({primaryMount, file});
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
         fileId: file.resourceId,
         mount: primaryMount,
-        filepath,
+        mountFilepath,
         workspaceId: workspace.resourceId,
         namepath: file.namepath,
+        clientMultipartId,
       },
     });
 
@@ -97,25 +96,23 @@ describe('queueAddInternalMultipartId', () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {workspace} = await insertWorkspaceForTest(userToken);
     const {rawFile: file} = await insertFileForTest(userToken, workspace);
-    const {primaryMount} = await resolveBackendsMountsAndConfigs(
-      /** file */ {
-        workspaceId: workspace.resourceId,
-        namepath: file.namepath,
-      },
-      /** initPrimaryBackendOnly */ true
-    );
+    const {primaryMount} = await resolveBackendsMountsAndConfigs({
+      file: {workspaceId: workspace.resourceId, namepath: file.namepath},
+      initPrimaryBackendOnly: true,
+    });
 
-    const filepath = await prepareFilepath({primaryMount, file});
-
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     async function addMultipartId() {
       const {multipartId} = await queueAddInternalMultipartId({
         agent: sessionAgent,
         input: {
           fileId: file.resourceId,
           mount: primaryMount,
-          filepath,
+          mountFilepath,
           workspaceId: workspace.resourceId,
           namepath: file.namepath,
+          clientMultipartId,
         },
       });
       return multipartId;
@@ -132,5 +129,6 @@ describe('queueAddInternalMultipartId', () => {
 
     const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(uniqueMultipartIds[0]);
+    expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
   });
 });

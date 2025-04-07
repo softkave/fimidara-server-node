@@ -115,6 +115,7 @@ describe.each([
         faker.system.filePath(),
         testVars.workspaceRootname
       );
+
       const mimetype = faker.system.mimeType();
       const result = await multipartUploadNode({
         data,
@@ -135,7 +136,7 @@ describe.each([
 
       await expectReadEqualsBuffer(result.file.resourceId, slopBuffer!);
     },
-    1000 * 60 * 5 // 5 minutes
+    1000 * 30 // 30 seconds
   );
 
   test.each([
@@ -232,7 +233,7 @@ describe.each([
         await expectReadEqualsBuffer(retryResult.file.resourceId, slopBuffer!);
       }
     },
-    1000 * 60 * 5 // 5 minutes
+    1000 * 30 // 30 seconds
   );
 });
 
@@ -289,7 +290,7 @@ describe('multipartUploadNode, maxRetryCount', () => {
         endpoints: fimidara,
         maxRetryCount: 3,
         __beforePart: p => {
-          if (p.part === 0) {
+          if (p.part === 1) {
             throw new Error('Simulated error');
           }
         },

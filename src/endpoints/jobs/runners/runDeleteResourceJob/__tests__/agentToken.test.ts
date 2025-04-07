@@ -2,11 +2,11 @@ import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {AgentToken} from '../../../../../definitions/agentToken.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
-import {generateAndInsertTestPresignedPathList} from '../../../../testUtils/generate/file.js';
-import {generateAndInsertAssignedItemListForTest} from '../../../../testUtils/generate/permissionGroup.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testHelpers/generate/agentToken.js';
+import {generateAndInsertTestPresignedPathList} from '../../../../testHelpers/generate/file.js';
+import {generateAndInsertAssignedItemListForTest} from '../../../../testHelpers/generate/permissionGroup.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteAgentTokenCascadeEntry} from '../agentToken.js';
 import {
   GenerateResourceFn,

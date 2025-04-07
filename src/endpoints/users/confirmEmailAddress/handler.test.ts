@@ -10,14 +10,14 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {newResource} from '../../../utils/resource.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {assertUserTokenIsSame} from '../../testUtils/helpers/user.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {assertUserTokenIsSame} from '../../testHelpers/helpers/user.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import confirmEmailAddress from './handler.js';
 
 beforeAll(async () => {

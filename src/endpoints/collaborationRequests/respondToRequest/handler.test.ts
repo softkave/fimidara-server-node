@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -10,7 +10,7 @@ import {
 } from '../../../definitions/job.js';
 import EndpointReusableQueries from '../../queries.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -18,7 +18,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import respondToCollaborationRequest from './handler.js';
 import {RespondToCollaborationRequestEndpointParams} from './types.js';
@@ -70,7 +70,7 @@ test('collaboration request declined', async () => {
     kCollaborationRequestStatusTypeMap.Accepted
   );
 
-  await kIkxUtils.promises().flush();
+  await kIjxUtils.promises().flush();
   // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
   //   type: kEmailJobType.collaborationRequestResponse,
   //   emailAddress: {$all: [user.email]},

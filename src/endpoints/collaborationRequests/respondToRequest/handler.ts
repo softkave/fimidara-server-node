@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import {RespondToCollaborationRequestEndpoint} from './types.js';
@@ -12,7 +12,7 @@ import {respondToCollaborationRequestJoiSchema} from './validation.js';
 const respondToCollaborationRequest: RespondToCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, respondToCollaborationRequestJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

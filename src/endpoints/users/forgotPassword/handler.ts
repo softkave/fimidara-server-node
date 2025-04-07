@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -29,7 +29,7 @@ export async function INTERNAL_forgotPassword(user: User) {
     )
   );
 
-  kIkxUtils.promises().callAndForget(() =>
+  kIjxUtils.promises().callAndForget(() =>
     queueJobs<EmailJobParams>(
       /** workspace ID */ undefined,
       /** parent job ID */ undefined,

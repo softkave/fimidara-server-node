@@ -1,14 +1,14 @@
 import assert from 'assert';
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertAgentTokenForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {encodeAgentToken} from '../utils.js';
 
 beforeAll(async () => {
@@ -40,7 +40,7 @@ describe('encodeAgentToken', () => {
 
     await waitTimeout(500);
     await expect(
-      async () => await kIkxUtils.session().decodeToken(result.jwtToken)
+      async () => await kIjxUtils.session().decodeToken(result.jwtToken)
     ).rejects.toThrow('jwt expired');
   });
 });

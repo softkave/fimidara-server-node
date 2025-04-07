@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {validate} from '../../../utils/validate.js';
 import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
@@ -14,7 +14,7 @@ import {changePasswordWithTokenJoiSchema} from './validation.js';
 const changePasswordWithToken: ChangePasswordWithTokenEndpoint =
   async reqData => {
     const data = validate(reqData.data, changePasswordWithTokenJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

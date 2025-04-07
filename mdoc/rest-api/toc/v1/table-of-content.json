@@ -84,7 +84,7 @@
         "post"
     ],
     [
-        "/v1/files/getPartDetails",
+        "/v1/files/listParts",
         "post"
     ],
     [
@@ -101,6 +101,14 @@
     ],
     [
         "/v1/files/uploadFile/:filepathOrId",
+        "post"
+    ],
+    [
+        "/v1/files/startMultipartUpload",
+        "post"
+    ],
+    [
+        "/v1/files/completeMultipartUpload",
         "post"
     ],
     [

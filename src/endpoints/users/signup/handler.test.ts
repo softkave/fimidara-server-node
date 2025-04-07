@@ -1,7 +1,7 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
@@ -10,10 +10,10 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {mergeData} from '../../../utils/fns.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests, insertUserForTest} from '../../testUtils/testUtils.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests, insertUserForTest} from '../../testHelpers/utils.js';
 import {EmailAddressNotAvailableError} from '../errors.js';
 
 /**
@@ -46,7 +46,7 @@ describe('signup', () => {
     expect(result.userToken).toBeTruthy();
     expect(result.token).toBeTruthy();
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.confirmEmailAddress,
     //   emailAddress: {$all: [savedUser.email]},
@@ -79,7 +79,7 @@ describe('signup', () => {
 
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -94,7 +94,7 @@ describe('signup', () => {
     // this test instead
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: false},
         {arrayUpdateStrategy: 'replace'}
       )

@@ -3,7 +3,7 @@ import {
   checkAuthorizationWithAgent,
   getResourcePermissionContainers,
 } from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {Resource, kFimidaraResourceType} from '../../../definitions/system.js';
@@ -22,7 +22,7 @@ import {issuePresignedPathJoiSchema} from './validation.js';
 
 const issuePresignedPath: IssuePresignedPathEndpoint = async reqData => {
   const data = validate(reqData.data, issuePresignedPathJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

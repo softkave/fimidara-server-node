@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
@@ -12,12 +12,12 @@ import {
 import {UserWithWorkspace} from '../../../definitions/user.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {mergeData} from '../../../utils/fns.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertUserWithOAuthForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 
 beforeAll(async () => {
   await initTests();
@@ -46,7 +46,7 @@ describe('signupWithOAuth', () => {
       },
     });
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     const query: DataQuery<Job<EmailJobParams>> = {
       type: kJobType.email,
       params: {
@@ -65,7 +65,7 @@ describe('signupWithOAuth', () => {
   test('new signups are waitlisted', async () => {
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -82,7 +82,7 @@ describe('signupWithOAuth', () => {
     // this test instead
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: false},
         {arrayUpdateStrategy: 'replace'}
       )

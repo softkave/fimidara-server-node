@@ -6,7 +6,7 @@ import {
   kResolvedTargetChildrenAccess,
 } from '../contexts/authorizationChecks/checkAuthorizaton.js';
 import {DataQuery} from '../contexts/data/types.js';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {getInAndNinQuery} from '../contexts/semantic/utils.js';
 import {IServerRequest} from '../contexts/types.js';
 import {Agent, WorkspaceResource} from '../definitions/system.js';
@@ -88,15 +88,15 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
   cleanup?: ExportedHttpEndpoint_Cleanup | Array<ExportedHttpEndpoint_Cleanup>
 ): ((req: Request, res: Response) => unknown) => {
   return async (req: Request, res: Response) => {
-    await kIkxUtils.asyncLocalStorage().run(async () => {
+    await kIjxUtils.asyncLocalStorage().run(async () => {
       try {
         const data = await (getData ? getData(req) : req.body);
         const reqData = RequestData.fromExpressRequest(
           req as unknown as IServerRequest,
           data
         );
-        const result = await endpoint(reqData);
 
+        const result = await endpoint(reqData);
         if (handleResponse) {
           await handleResponse(res, result, req, data);
         } else {
@@ -104,23 +104,20 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
         }
       } catch (error: unknown) {
         try {
-          kIkxUtils
+          kIjxUtils
             .logger()
             .log(`error with ${endpoint.name}, URL: ${req.url}`);
-          kIkxUtils.logger().error(error);
 
+          kIjxUtils.logger().error(error);
           const {statusCode, preppedErrors} = prepareResponseError(error);
-
           if (handleError) {
             const deferHandling = handleError(res, preppedErrors, error);
-
             if (deferHandling !== true) {
               return;
             }
           }
 
           const result = {errors: preppedErrors};
-
           if (res.writable) {
             if (!res.headersSent) {
               res.status(statusCode).json(result);
@@ -129,12 +126,12 @@ export const wrapEndpointREST = <EndpointType extends Endpoint>(
             }
           }
         } catch (serverError) {
-          kIkxUtils.logger().error(serverError);
+          kIjxUtils.logger().error(serverError);
           res.end();
         }
       } finally {
         toCompactArray(cleanup).forEach(fn =>
-          kIkxUtils.promises().callAndForget(() => fn(req, res))
+          kIjxUtils.promises().callAndForget(() => fn(req, res))
         );
       }
     });

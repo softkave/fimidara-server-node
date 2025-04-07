@@ -1,7 +1,7 @@
 import {compact} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   CollaborationRequest,
   kCollaborationRequestStatusTypeMap,
@@ -26,7 +26,7 @@ import {sendCollaborationRequestJoiSchema} from './validation.js';
 const sendCollaborationRequest: SendCollaborationRequestEndpoint =
   async reqData => {
     const data = validate(reqData.data, sendCollaborationRequestJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -100,7 +100,7 @@ const sendCollaborationRequest: SendCollaborationRequestEndpoint =
         return {request, existingUser};
       });
 
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       queueJobs<EmailJobParams>(workspace.resourceId, undefined, {
         createdBy: agent,
         type: kJobType.email,

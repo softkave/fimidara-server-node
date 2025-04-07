@@ -1,65 +1,51 @@
 import {isString} from 'lodash-es';
 import {FilePersistenceProvider} from '../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
-import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {File, FileWithRuntimeData} from '../../../definitions/file.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {appAssert} from '../../../utils/assertion.js';
-import {mergeData} from '../../../utils/fns.js';
-import {
-  deleteMultipartUpload,
-  getCleanupMultipartFileUpdate,
-} from '../deleteFile/deleteMultipartUpload.js';
-import {
-  deleteMultipartUploadPartMetas,
-  getMultipartUploadPartMetas,
-} from '../utils/multipartUploadMeta.js';
-import {cleanupConcurrencyKeys} from './clean.js';
-import {UploadFileEndpointParams} from './types.js';
+import {deleteMultipartUpload} from '../deleteFile/deleteMultipartUpload.js';
+import {completeFileUpload} from './completeFileUpload.js';
 
-export async function beginCleanupExpiredMultipartUpload(
-  file: File,
-  opts: SemanticProviderMutationParams
-) {
-  const update = getCleanupMultipartFileUpdate();
+export async function beginCleanupExpiredMultipartUpload(file: File) {
   appAssert(isString(file.internalMultipartId));
-  await kIjxSemantic.file().updateOneById(file.resourceId, update, opts);
-
   (file as FileWithRuntimeData).RUNTIME_ONLY_shouldCleanupMultipart = true;
   (file as FileWithRuntimeData).RUNTIME_ONLY_internalMultipartId =
     file.internalMultipartId;
-
-  mergeData(file, update);
 }
 
 export function fireAndForgetHandleMultipartCleanup(params: {
   file: FileWithRuntimeData;
   primaryBackend: FilePersistenceProvider;
   primaryMount: FileBackendMount;
-  filepath: string;
-  data: UploadFileEndpointParams;
+  mountFilepath: string;
+  forceInternalMultipartId?: string;
 }) {
   // TODO: this should be moved to a background job
-  const {file, primaryBackend, primaryMount, filepath, data} = params;
-  if (file.RUNTIME_ONLY_shouldCleanupMultipart) {
+  const {
+    file,
+    primaryBackend,
+    primaryMount,
+    mountFilepath,
+    forceInternalMultipartId,
+  } = params;
+  if (file.RUNTIME_ONLY_shouldCleanupMultipart || forceInternalMultipartId) {
+    const multipartIdToUse =
+      forceInternalMultipartId ?? file.RUNTIME_ONLY_internalMultipartId;
     file.RUNTIME_ONLY_shouldCleanupMultipart = false;
-    appAssert(isString(file.RUNTIME_ONLY_internalMultipartId));
-
-    kIkxUtils.promises().callAndForget(() =>
-      Promise.all([
-        cleanupConcurrencyKeys({file, data}),
-        deleteMultipartUpload({
-          file,
-          primaryBackend,
-          primaryMount,
-          filepath,
-          multipartId: file.RUNTIME_ONLY_internalMultipartId!,
-          // we don't want to cleanup the file here, because we've done that
-          // already, and there's a chance a different multipart upload is going
-          // on
-          shouldCleanupFile: false,
-        }),
-      ])
+    appAssert(isString(multipartIdToUse));
+    kIjxUtils.promises().callAndForget(() =>
+      deleteMultipartUpload({
+        file,
+        primaryBackend,
+        primaryMount,
+        mountFilepath,
+        multipartId: multipartIdToUse,
+        // we don't want to cleanup the file here, because we've done that
+        // already, and there's a chance a different multipart upload is going
+        // on
+        shouldCleanupFile: false,
+      })
     );
   }
 }
@@ -68,35 +54,52 @@ export async function handleLastMultipartUpload(params: {
   file: File;
   primaryBackend: FilePersistenceProvider;
   primaryMount: FileBackendMount;
-  filepath: string;
-  data: UploadFileEndpointParams;
+  mountFilepath: string;
+  partNumsToUse: Array<{part: number}>;
+  requestId: string;
 }) {
-  const {file, primaryBackend, primaryMount, filepath, data} = params;
+  const {
+    file,
+    primaryBackend,
+    primaryMount,
+    mountFilepath,
+    partNumsToUse,
+    requestId,
+  } = params;
+
   appAssert(isString(file.clientMultipartId));
   appAssert(isString(file.internalMultipartId));
-
-  const {parts} = await getMultipartUploadPartMetas({
+  const parts = await kIjxSemantic.filePart().getManyByMultipartIdAndPart({
     multipartId: file.internalMultipartId,
+    part: partNumsToUse.map(p => p.part),
   });
 
   const pMountData = await primaryBackend.completeMultipartUpload({
-    filepath,
     parts,
+    filepath: mountFilepath,
     fileId: file.resourceId,
     multipartId: file.internalMultipartId,
     mount: primaryMount,
     workspaceId: file.workspaceId,
   });
 
-  kIkxUtils.promises().callAndForget(() =>
-    Promise.all([
-      cleanupConcurrencyKeys({file, data}),
-      deleteMultipartUploadPartMetas({
-        multipartId: file.internalMultipartId!,
-      }),
-    ])
-  );
-
   const size = parts.reduce((acc, part) => acc + part.size, 0);
-  return {size, pMountData};
+
+  await completeFileUpload({
+    file,
+    data: {},
+    primaryMount,
+    persistedMountData: pMountData,
+    requestId,
+    agent: file.createdBy,
+    size,
+  });
+
+  fireAndForgetHandleMultipartCleanup({
+    file,
+    primaryBackend,
+    primaryMount,
+    mountFilepath,
+    forceInternalMultipartId: file.internalMultipartId,
+  });
 }

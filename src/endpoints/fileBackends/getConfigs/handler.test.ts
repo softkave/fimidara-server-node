@@ -3,24 +3,24 @@ import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateFileBackendType,
-} from '../../testUtils/generate/fileBackend.js';
+} from '../../testHelpers/generate/fileBackend.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils.js';
+} from '../../testHelpers/generate/utils.js';
 import {
   completeTests,
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getFileBackendConfigs from './handler.js';
 import {GetFileBackendConfigsEndpointParamsBase} from './types.js';
 

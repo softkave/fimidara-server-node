@@ -6,7 +6,7 @@ import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {noopAsync, pathJoin} from '../../utils/fns.js';
 import {AnyFn} from '../../utils/types.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
@@ -341,7 +341,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
         stopIndex < children.length - 1 ? stopIndex : undefined;
       return {continuationToken: nextContinuationToken};
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
       return {};
     }
   };
@@ -356,7 +356,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
           const stat = await fse.promises.stat(nextPath);
           return process(stat, nextPath, index);
         } catch (error) {
-          kIkxUtils.logger().error(error);
+          kIjxUtils.logger().error(error);
           return undefined;
         }
       })
@@ -414,6 +414,7 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       fimidaraPath: params.filepath,
       mount: params.mount,
     });
+
     await fse.ensureFile(nativePath);
     const writeStream = fse.createWriteStream(nativePath, {
       autoClose: true,
@@ -444,12 +445,12 @@ export class LocalFsFilePersistenceProvider implements FilePersistenceProvider {
       await promise;
     }
 
-    kIkxUtils.promises().callAndForget(() => this.cleanupPartsFile(params));
+    kIjxUtils.promises().callAndForget(() => this.cleanupPartsFile(params));
   }
 }
 
 export function getLocalFsDirFromSuppliedConfig(
-  config: FimidaraSuppliedConfig = kIkxUtils.suppliedConfig()
+  config: FimidaraSuppliedConfig = kIjxUtils.suppliedConfig()
 ) {
   const configLocalFsDir = config.localFsDir;
   const configLocalPartsFsDir = config.localPartsFsDir;

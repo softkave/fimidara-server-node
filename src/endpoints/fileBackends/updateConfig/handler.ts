@@ -1,7 +1,7 @@
 import {pick} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileBackendConfig} from '../../../definitions/fileBackend.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -17,10 +17,10 @@ import {updateFileBackendConfigJoiSchema} from './validation.js';
 const updateFileBackendConfig: UpdateFileBackendConfigEndpoint =
   async reqData => {
     const configModel = kIjxSemantic.fileBackendConfig();
-    const secretsManager = kIkxUtils.secretsManager();
+    const secretsManager = kIjxUtils.secretsManager();
 
     const data = validate(reqData.data, updateFileBackendConfigJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

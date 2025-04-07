@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -8,7 +8,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {addRootnameToPath} from '../utils.js';
 import getFolder from './handler.js';
 import {GetFolderEndpointParams} from './types.js';

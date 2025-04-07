@@ -31,7 +31,6 @@ export async function queueIncrementUsageRecord(params: {
     IUsageRecordQueueOutput
   >({
     agent,
-    workspaceId: input.workspaceId,
     item: queueInput,
     queueKey: kUsageProviderConstants.getAddUsageRecordQueueKey(
       input.workspaceId
@@ -55,7 +54,6 @@ export async function queueDecrementUsageRecord(params: {
 
   await queueShardRunner({
     agent,
-    workspaceId: input.workspaceId,
     item: queueInput,
     queueKey: kUsageProviderConstants.getAddUsageRecordQueueKey(
       input.workspaceId

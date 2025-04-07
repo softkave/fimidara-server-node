@@ -4,6 +4,7 @@ import {
   kLoopAsyncSettlementType,
   loopAsync,
   OrPromise,
+  waitTimeout,
 } from 'softkave-js-utils';
 import type {FimidaraEndpoints} from '../endpoints/publicEndpoints.js';
 import type {
@@ -19,9 +20,6 @@ const kMaxInMemoryBufferSize = 50 * 1024 * 1024; // 50MB
 const kMaxRetryCount = 50;
 const kDefaultRetryCount = 10;
 const kMaxRetryCountForFailedParts = 3;
-const kLastPartId = -1;
-const kLastPartSize = 0;
-const kLastPartData = ''; // empty blob to signify end of multipart upload
 
 function determineMultipartParams(
   size: number,
@@ -41,36 +39,36 @@ function determineMultipartParams(
   return {numStreams, numParts, partSize};
 }
 
-async function getUploadPartDetails(params: {
+async function listUploadedParts(params: {
   fileId?: string;
   filepath?: string;
   endpoints: FimidaraEndpoints;
 }) {
   try {
-    let continuationToken: string | undefined;
-    let details: PartDetails[] = [];
+    let page: number | undefined;
+    let parts: PartDetails[] = [];
     let clientMultipartId: string | undefined;
 
     while (true) {
-      const result = await params.endpoints.files.getPartDetails({
-        continuationToken,
+      const result = await params.endpoints.files.listParts({
+        page,
         fileId: params.fileId,
         filepath: params.filepath,
       });
 
-      details.push(...result.details);
-      continuationToken = result.continuationToken;
+      parts.push(...result.parts);
+      page = result.page + 1;
       clientMultipartId = result.clientMultipartId;
 
-      if (!continuationToken || result.isDone || !result.clientMultipartId) {
+      if (result.parts.length === 0) {
         break;
       }
     }
 
-    return {details, clientMultipartId};
+    return {parts, clientMultipartId};
   } catch (error: unknown) {
     if (error instanceof FimidaraEndpointError && error.statusCode === 404) {
-      return {details: [], clientMultipartId: undefined};
+      return {parts: [], clientMultipartId: undefined};
     }
 
     throw error;
@@ -102,8 +100,8 @@ export interface IMultipartUploadParams
   afterPart?: (params: IMultipartUploadHookFnParams) => OrPromise<void>;
   numConcurrentParts?: number;
   /**
-   * If `true`, upload will be resumed from the last part that was uploaded. If
-   * `false`, upload will be started from the beginning. Default is `true`.
+   * If `true`, upload will be resumed from the last part uploaded. If `false`,
+   * upload will start afresh. Default is `true`.
    */
   resume?: boolean;
   /**
@@ -111,11 +109,17 @@ export interface IMultipartUploadParams
    */
   firePartEventsForResumedParts?: boolean;
   /**
-   * The maximum number of times to retry an upload part. Default is `10`. Max
-   * is `50`. If a part fails more than 3 times, it will be marked as failed and
-   * the upload will fail.
+   * The maximum number of times to retry failed parts. This threshold is shared
+   * across all parts, although if a part fails more than 3 times, it will be
+   * marked failed and the upload will fail as a whole. Default is `10`, max is
+   * `50`.
    */
   maxRetryCount?: number;
+  /**
+   * If `true`, the upload will wait for the complete upload job to finish.
+   * Default is `true`.
+   */
+  shouldWaitForCompleteUploadJob?: boolean;
 }
 
 export interface IMultipartUploadParamsWithTestInstrumentation {
@@ -150,7 +154,7 @@ async function uploadOnce(params: IMultipartUploadParams) {
 
   const {data, size: partSize} = await readFrom(0, size, size);
   const beforePartHookParams: IMultipartUploadHookFnParams = {
-    part: 0,
+    part: 1,
     size: partSize,
     estimatedNumParts: 1,
     percentComplete: 0,
@@ -178,6 +182,31 @@ async function uploadOnce(params: IMultipartUploadParams) {
   return result;
 }
 
+async function waitForCompleteUploadJob(params: {
+  jobId: string;
+  endpoints: FimidaraEndpoints;
+  fileId?: string;
+  filepath?: string;
+}) {
+  const result = await params.endpoints.jobs.getJobStatus({
+    jobId: params.jobId,
+  });
+
+  if (result.status === 'completed') {
+    const {file} = await params.endpoints.files.getFileDetails({
+      fileId: params.fileId,
+      filepath: params.filepath,
+    });
+
+    return file;
+  } else if (result.status === 'failed') {
+    throw new Error(result.errorMessage);
+  }
+
+  await waitTimeout(1_000);
+  return waitForCompleteUploadJob(params);
+}
+
 export async function multipartUpload(params: IMultipartUploadParams) {
   const {
     size,
@@ -189,12 +218,12 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     resume = true,
     firePartEventsForResumedParts = true,
     maxRetryCount: inputMaxRetryCount,
+    shouldWaitForCompleteUploadJob = true,
     ...rest
   } = params;
 
   let maxRetryCount = inputMaxRetryCount ?? kDefaultRetryCount;
   maxRetryCount = Math.min(maxRetryCount, kMaxRetryCount);
-
   if (size > kMaxFileSize) {
     throw new Error(
       `File size exceeds maximum allowed size of ${kMaxFileSize} bytes`
@@ -210,17 +239,18 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     numConcurrentParts
   );
 
-  const ranSet = new Set<number>();
+  const runningParts = new Set<number>();
+  const completedParts = new Set<number>();
   let retryCount = 0;
 
-  const {details: resumedParts, clientMultipartId: existingClientMultipartId} =
+  const {parts: resumedParts, clientMultipartId: existingClientMultipartId} =
     resume
-      ? await getUploadPartDetails({
+      ? await listUploadedParts({
           fileId: rest.fileId,
           filepath: rest.filepath,
           endpoints,
         })
-      : {details: [], clientMultipartId: undefined};
+      : {parts: [], clientMultipartId: undefined};
 
   if (existingClientMultipartId) {
     assert.equal(
@@ -228,6 +258,12 @@ export async function multipartUpload(params: IMultipartUploadParams) {
       params.clientMultipartId,
       'There is an existing multipart upload with a different clientMultipartId'
     );
+  } else {
+    await endpoints.files.startMultipartUpload({
+      clientMultipartId: params.clientMultipartId,
+      fileId: rest.fileId,
+      filepath: rest.filepath,
+    });
   }
 
   const clientMultipartId =
@@ -256,14 +292,12 @@ export async function multipartUpload(params: IMultipartUploadParams) {
 
   await Promise.all(
     resumedParts.map(async part => {
-      ranSet.add(part.part - 1);
+      completedParts.add(part.part);
       sizeComplete += part.size;
-      const percentComplete = (ranSet.size / numParts) * 100;
-      const partNo = part.part - 1;
-
+      const percentComplete = (completedParts.size / numParts) * 100;
       if (firePartEventsForResumedParts) {
         await fireAfterPart({
-          part: partNo,
+          part: part.part,
           size: part.size,
           estimatedNumParts: numParts,
           percentComplete,
@@ -274,8 +308,11 @@ export async function multipartUpload(params: IMultipartUploadParams) {
   );
 
   const getNextPart = () => {
-    for (let i = 0; i < numParts; i++) {
-      if (!ranSet.has(i)) {
+    // TODO: this can be optimized
+    for (let i = 1; i <= numParts; i++) {
+      const isRunning = runningParts.has(i);
+      const isCompleted = completedParts.has(i);
+      if (!isRunning && !isCompleted) {
         return i;
       }
     }
@@ -285,22 +322,22 @@ export async function multipartUpload(params: IMultipartUploadParams) {
 
   async function readNext(params: {part?: number; forceRun?: boolean} = {}) {
     const part = params?.part ?? getNextPart();
+    const isRunning = part && runningParts.has(part);
+    const isCompleted = part && completedParts.has(part);
 
     if (
       !isNumber(part) ||
-      part >= numParts ||
-      (ranSet.has(part) && !params?.forceRun)
+      part > numParts ||
+      ((isRunning || isCompleted) && !params?.forceRun)
     ) {
       return null;
     }
 
-    ranSet.add(part);
-    const partData = await readFrom(
-      part * partSize,
-      (part + 1) * partSize,
-      partSize
-    );
-
+    runningParts.add(part);
+    // -1 because underlying data is 0-indexed
+    const start = (part - 1) * partSize;
+    const end = start + partSize;
+    const partData = await readFrom(start, end, partSize);
     return {partData, part};
   }
 
@@ -322,7 +359,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
         size: data.partData.size,
         estimatedNumParts: numParts,
         // -1 because we're not counting the current part
-        percentComplete: ((ranSet.size - 1) / numParts) * 100,
+        percentComplete: ((completedParts.size - 1) / numParts) * 100,
         sizeCompleted: sizeComplete,
       };
 
@@ -334,7 +371,7 @@ export async function multipartUpload(params: IMultipartUploadParams) {
       await endpoints.files.uploadFile({
         clientMultipartId,
         size: data.partData.size,
-        part: data.part + 1,
+        part: data.part,
         data: data.partData.data,
         description: rest.description,
         encoding: rest.encoding,
@@ -343,10 +380,12 @@ export async function multipartUpload(params: IMultipartUploadParams) {
         filepath: rest.filepath,
       });
 
+      completedParts.add(data.part);
+      runningParts.delete(data.part);
       sizeComplete += data.partData.size;
       const afterPartHookParams: IMultipartUploadHookFnParams = {
         ...beforePartHookParams,
-        percentComplete: (ranSet.size / numParts) * 100,
+        percentComplete: (completedParts.size / numParts) * 100,
         sizeCompleted: sizeComplete,
       };
 
@@ -374,7 +413,6 @@ export async function multipartUpload(params: IMultipartUploadParams) {
         }
 
         let dataOrNull = await readNext();
-
         while (dataOrNull && dataOrNull.partData.size) {
           await runPart(dataOrNull);
           dataOrNull = await readNext();
@@ -387,18 +425,25 @@ export async function multipartUpload(params: IMultipartUploadParams) {
     isDone = true;
   }
 
-  const result = await endpoints.files.uploadFile({
-    clientMultipartId,
-    size: kLastPartSize,
-    data: kLastPartData,
-    part: kLastPartId,
-    isLastPart: true,
-    description: rest.description,
-    encoding: rest.encoding,
-    mimetype: rest.mimetype,
+  const result = await endpoints.files.completeMultipartUpload({
     fileId: rest.fileId,
     filepath: rest.filepath,
+    clientMultipartId,
+    parts: Array.from(completedParts).map(part => ({
+      part,
+    })),
   });
+
+  if (shouldWaitForCompleteUploadJob && result.jobId) {
+    const file = await waitForCompleteUploadJob({
+      jobId: result.jobId,
+      endpoints,
+      fileId: rest.fileId,
+      filepath: rest.filepath,
+    });
+
+    return {...result, file};
+  }
 
   return result;
 }

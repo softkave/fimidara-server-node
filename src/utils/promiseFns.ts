@@ -1,11 +1,11 @@
 import {AnyFn} from 'softkave-js-utils';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {appAssert} from './assertion.js';
 
 export async function waitOnPromisesAndLogErrors(promises: Promise<unknown>[]) {
   (await Promise.allSettled(promises)).forEach(
     result =>
-      result.status === 'rejected' && kIkxUtils.logger().error(result.reason)
+      result.status === 'rejected' && kIjxUtils.logger().error(result.reason)
   );
 }
 

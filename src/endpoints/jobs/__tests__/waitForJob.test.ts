@@ -10,10 +10,10 @@ import {
 import {TimeoutError} from '../../../utils/errors.js';
 import {extractResourceIdList, waitTimeout} from '../../../utils/fns.js';
 import {getNewId} from '../../../utils/resource.js';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests} from '../../testUtils/testUtils.js';
+import {generateAndInsertJobListForTest} from '../../testHelpers/generate/job.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {waitForJob} from '../waitForJob.js';
 
 const shard = getNewId();

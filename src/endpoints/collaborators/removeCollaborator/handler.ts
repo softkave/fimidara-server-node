@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {getWorkspaceIdFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -11,7 +11,7 @@ import {removeCollaboratorJoiSchema} from './validation.js';
 
 const removeCollaborator: RemoveCollaboratorEndpoint = async reqData => {
   const data = validate(reqData.data, removeCollaboratorJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

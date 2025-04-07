@@ -1,11 +1,11 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {getLoginResult} from '../login/utils.js';
 import {assertUser} from '../utils.js';
 import {GetUserDataEndpoint} from './types.js';
 
 const getUserData: GetUserDataEndpoint = async reqData => {
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

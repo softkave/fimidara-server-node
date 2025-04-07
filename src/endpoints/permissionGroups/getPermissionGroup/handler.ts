@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {populateAssignedTags} from '../../assignedItems/getAssignedItems.js';
 import {
@@ -11,7 +11,7 @@ import {getPermissionGroupJoiSchema} from './validation.js';
 
 const getPermissionGroup: GetPermissionGroupEndpoint = async reqData => {
   const data = validate(reqData.data, getPermissionGroupJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

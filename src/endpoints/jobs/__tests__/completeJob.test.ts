@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {omit} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   JobStatus,
   kJobRunCategory,
@@ -10,10 +10,10 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {getNewId} from '../../../utils/resource.js';
-import {generateAndInsertJobListForTest} from '../../testUtils/generate/job.js';
-import {confirmJobHistoryEntry} from '../../testUtils/helpers/job.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests} from '../../testUtils/testUtils.js';
+import {generateAndInsertJobListForTest} from '../../testHelpers/generate/job.js';
+import {confirmJobHistoryEntry} from '../../testHelpers/helpers/job.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {completeJob} from '../completeJob.js';
 
 const shard = getNewId();
@@ -156,7 +156,7 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
       const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);
@@ -250,7 +250,7 @@ describe('completeJob', () => {
 
       // Wait for existing promises to resolve. completeJob updates parent jobs,
       // but adds them to the promise store, so we wait.
-      await kIkxUtils.promises().flush();
+      await kIjxUtils.promises().flush();
       const dbParentJob = await kIjxSemantic
         .job()
         .getOneById(parentJob.resourceId);

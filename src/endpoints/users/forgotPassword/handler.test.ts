@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
@@ -9,14 +9,14 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import MockTestEmailProviderContext from '../../testHelpers/context/email/MockTestEmailProviderContext.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import forgotPassword from './handler.js';
 import {ForgotPasswordEndpointParams} from './types.js';
 
@@ -47,7 +47,7 @@ describe('forgotPassword', () => {
     const result = await forgotPassword(reqData);
     assertEndpointResultOk(result);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     // const query: DataQuery<EmailMessage> = {
     //   type: kEmailMessageType.forgotPassword,
     //   emailAddress: {$all: [user.email]},

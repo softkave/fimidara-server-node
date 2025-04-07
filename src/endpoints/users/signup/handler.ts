@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {getLoginResult} from '../login/utils.js';
 import {INTERNAL_sendEmailVerificationCode} from '../sendEmailVerificationCode/handler.js';
@@ -12,7 +12,7 @@ const signup: SignupEndpoint = async reqData => {
     .utils()
     .withTxn(opts => INTERNAL_signupUser(data, {}, opts));
 
-  kIkxUtils
+  kIjxUtils
     .promises()
     .callAndForget(() => INTERNAL_sendEmailVerificationCode(user));
   return await getLoginResult(user);

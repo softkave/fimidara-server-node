@@ -1,6 +1,6 @@
 import {first} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {Job} from '../../../definitions/job.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {appAssert} from '../../../utils/assertion.js';
@@ -14,7 +14,7 @@ import {deleteFileJoiSchema} from './validation.js';
 
 const deleteFile: DeleteFileEndpoint = async reqData => {
   const data = validate(reqData.data, deleteFileJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -37,8 +37,9 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
   if (data.clientMultipartId) {
     appAssert(
       file.internalMultipartId,
-      new InvalidRequestError('File is not a multipart upload')
+      new InvalidRequestError('File is not a multipart upload.')
     );
+
     await deleteMultipartUpload({
       file,
       multipartId: file.internalMultipartId,
@@ -53,6 +54,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
       workspaceId: file.workspaceId,
       resources: [file],
     });
+
     job = first(jobs);
     appAssert(job);
     return {jobId: job.resourceId};

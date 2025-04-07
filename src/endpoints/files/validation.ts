@@ -8,6 +8,7 @@ import {kFileConstants} from './constants.js';
 const fileSizeInBytes = Joi.number()
   .min(0)
   .max(kFileConstants.maxFileSizeInBytes);
+
 const mimetype = Joi.string().max(kFileConstants.maxMimeTypeCharLength);
 const encoding = Joi.string().max(kFileConstants.maxEncodingCharLength);
 const ext = Joi.string().max(kFileConstants.maxExtCharLength);
@@ -20,6 +21,16 @@ const filepath = Joi.string()
       (kFolderConstants.maxFolderDepth + 1) +
       kFileConstants.maxExtCharLength
   );
+
+const clientMultipartId = Joi.string().max(
+  kFileConstants.maxClientMultipartIdLength
+);
+
+const part = Joi.number()
+  .integer()
+  .min(kFileConstants.minPartNumber)
+  .max(kFileConstants.maxPartNumber);
+
 const readable = Joi.any().custom((value, helpers) => {
   if (value instanceof Readable) {
     return value;
@@ -40,6 +51,8 @@ const fileValidationSchemas = {
   ext,
   readable,
   fileMatcherParts,
+  clientMultipartId,
+  part,
 };
 
 export default fileValidationSchemas;

@@ -41,7 +41,7 @@ export function getClassAccessorFields(
     if (isFunction(instance[key])) continue;
 
     // TODO: could be a potential bottleneck but since we're using only for docs
-    // for now, it should be okays
+    // for now, it should be okay
     if (skipFieldsWithPrefix.some(prefix => key.startsWith(prefix))) continue;
 
     accessorFields.push(key);

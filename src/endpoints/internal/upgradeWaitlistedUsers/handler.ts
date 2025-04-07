@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   EmailJobParams,
   kEmailJobType,
@@ -16,7 +16,7 @@ import {upgradeWaitlistedUsersJoiSchema} from './validation.js';
 const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
   async reqData => {
     const data = validate(reqData.data, upgradeWaitlistedUsersJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,
@@ -45,7 +45,7 @@ const upgradeWaitlistedUsers: UpgradeWaitlistedUsersEndpoint =
     });
 
     users.map(user => {
-      kIkxUtils.promises().callAndForget(() =>
+      kIjxUtils.promises().callAndForget(() =>
         queueJobs<EmailJobParams>(
           /** workspace ID */ undefined,
           /** parent job ID */ undefined,

@@ -2,7 +2,7 @@ import {faker} from '@faker-js/faker';
 import {add} from 'date-fns';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -11,13 +11,13 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertRequestForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {CollaborationRequestInput} from './types.js';
 
 beforeAll(async () => {
@@ -52,7 +52,7 @@ describe('sendCollaborationRequest', () => {
       kCollaborationRequestStatusTypeMap.Pending
     );
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
     //   type: kEmailMessageType.collaborationRequest,
     //   emailAddress: {$all: [user02.email]},

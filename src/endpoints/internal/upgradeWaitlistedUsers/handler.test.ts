@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   EmailJobParams,
@@ -15,16 +15,16 @@ import {indexArray} from '../../../utils/indexArray.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
 import RequestData from '../../RequestData.js';
 import {assignWorkspaceToUser} from '../../assignedItems/addAssignedItems.js';
-import MockTestEmailProviderContext from '../../testUtils/context/email/MockTestEmailProviderContext.js';
-import {generateAndInsertUserListForTest} from '../../testUtils/generate/user.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import MockTestEmailProviderContext from '../../testHelpers/context/email/MockTestEmailProviderContext.js';
+import {generateAndInsertUserListForTest} from '../../testHelpers/generate/user.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import upgradeWaitlistedUsers from './handler.js';
 import {UpgradeWaitlistedUsersEndpointParams} from './types.js';
@@ -47,7 +47,7 @@ describe('upgradeWaitlistedUsers', () => {
       kIjxSemantic.utils().withTxn(opts => {
         return assignWorkspaceToUser(
           kSystemSessionAgent,
-          kIkxUtils.runtimeConfig().appWorkspaceId,
+          kIjxUtils.runtimeConfig().appWorkspaceId,
           user.resourceId,
           opts
         );
@@ -72,7 +72,7 @@ describe('upgradeWaitlistedUsers', () => {
     const usersMap = indexArray(users, {path: 'resourceId'});
     expect(users).toHaveLength(waitlistedUsers.length);
 
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
     await Promise.all(
       users.map(async user => {
         expect(usersMap[user.resourceId]).toBeTruthy();

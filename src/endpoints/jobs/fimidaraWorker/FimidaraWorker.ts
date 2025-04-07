@@ -1,13 +1,13 @@
 import {LockableResource} from 'softkave-js-utils';
 import {globalDispose, globalSetup} from '../../../contexts/globalUtils.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FWorker} from '../fworker/FWorker.js';
 import {FWorkerMessager} from '../fworker/FWorkerMessager.js';
 import {runJob} from '../runJob.js';
 import {FimidaraWorkerMessage, kFimidaraWorkerMessageType} from './types.js';
 import {isFimidaraWorkerMessage} from './utils.js';
 
-const kNoJobSleepForMs = 2 * 60_000; // 2 minutes
+const kDefaultNoJobSleepForMs = 1 * 60_000; // 1 minute
 
 export class FimidaraWorker extends FWorker {
   /** Whether this runner thread is scheduled to terminate or not. */
@@ -24,13 +24,13 @@ export class FimidaraWorker extends FWorker {
       }
     );
     this.workerEndedLock = new LockableResource<boolean>(
-      kIkxUtils.locks(),
+      kIjxUtils.locks(),
       /** resource */ false
     );
     this.getPort().on('message', this.handleMessage);
     this.informMainThreadWorkerIsReady();
-    kIkxUtils.logger().log('Started worker ', this.getWorkerData().workerId);
-    kIkxUtils.promises().callAndForget(() => this.run());
+    kIjxUtils.logger().log('Started worker ', this.getWorkerData().workerId);
+    kIjxUtils.promises().callAndForget(() => this.run());
   }
 
   protected run = async () => {
@@ -44,7 +44,6 @@ export class FimidaraWorker extends FWorker {
       //   .logger()
       //   .log(`FimidaraWorker ${wData.workerId} attempting to get next job`);
       const job = await this.getNextJob();
-
       if (job) {
         // kUtilsInjectables
         //   .logger()
@@ -56,7 +55,9 @@ export class FimidaraWorker extends FWorker {
       }
 
       // Run again if there's a job or wait a bit if there isn't
-      const runAgainTimeoutMs = job ? 0 : kNoJobSleepForMs;
+      const noJobSleepForMs =
+        kIjxUtils.suppliedConfig().noJobSleepForMs ?? kDefaultNoJobSleepForMs;
+      const runAgainTimeoutMs = job ? 0 : noJobSleepForMs;
       setTimeout(this.run, runAgainTimeoutMs);
       // kUtilsInjectables.logger().log(
       //   `FimidaraWorker ${wData.workerId} running again after ${formatDuration({
@@ -87,7 +88,7 @@ export class FimidaraWorker extends FWorker {
         return response.value.job;
       }
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     }
 
     return undefined;

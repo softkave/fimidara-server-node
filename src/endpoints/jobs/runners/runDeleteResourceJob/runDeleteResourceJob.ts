@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {AnyObject} from 'softkave-js-utils';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../../contexts/semantic/types.js';
 import {
   DeleteResourceCascadeFnDefaultArgs,
@@ -95,7 +95,7 @@ async function getArtifactsAndQueueDeleteJobs(
     );
 
     page += 1;
-    kIkxUtils
+    kIjxUtils
       .promises()
       .callAndForget(() =>
         setDeleteJobGetArtifactsMeta(helpers.job, type, page, pageSize)
@@ -153,7 +153,7 @@ async function processDeleteArtifactsFromDef(
 
     if (deleteFn && !skipTypes.includes(type as FimidaraResourceType)) {
       await deleteFn({args, helpers, preRunMeta});
-      kIkxUtils
+      kIjxUtils
         .promises()
         .callAndForget(() =>
           setDeleteJobDeleteArtifactsMeta(

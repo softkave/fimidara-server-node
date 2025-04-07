@@ -1,6 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {Folder} from '../../../definitions/folder.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getActionAgentFromSessionAgent} from '../../../utils/sessionUtils.js';
@@ -16,7 +16,7 @@ import {updateFolderJoiSchema} from './validation.js';
 
 const updateFolder: UpdateFolderEndpoint = async reqData => {
   const data = validate(reqData.data, updateFolderJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

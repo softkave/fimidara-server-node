@@ -7,7 +7,7 @@ import {
 } from 'softkave-js-utils';
 import {ReadonlyDeep} from 'type-fest';
 import {MessageChannel, MessagePort, Worker} from 'worker_threads';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FWorker, FWorkerData, kFWorkerMessageType} from './FWorker.js';
 import {FWorkerMessager} from './FWorkerMessager.js';
 
@@ -62,7 +62,7 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
     return new Promise<ReadonlyDeep<FWorkerMainWorkerEntry>>(resolve => {
       const {port1: parentPort, port2: workerPort} = new MessageChannel();
       parentPort.on('messageerror', (...args) =>
-        kIkxUtils.logger().error(...args)
+        kIjxUtils.logger().error(...args)
       );
 
       const wData: FWorkerData = {workerId, port: workerPort};
@@ -102,11 +102,11 @@ export abstract class FWorkerMainBase extends FWorkerMessager {
         }
       });
       worker.on('error', (error: unknown) => {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
         delete this.workers[workerId];
       });
       worker.on('messageerror', (error: unknown) => {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
       });
       worker.on('exit', () => {
         delete this.workers[workerId];

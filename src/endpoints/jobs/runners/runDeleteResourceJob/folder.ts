@@ -1,5 +1,5 @@
 import {pathJoin} from 'softkave-js-utils';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {ResolvedMountEntry} from '../../../../definitions/fileBackend.js';
 import {DeleteResourceCascadeFnDefaultArgs} from '../../../../definitions/job.js';
 import {kFimidaraResourceType} from '../../../../definitions/system.js';
@@ -51,13 +51,11 @@ const deleteResourceFn: DeleteResourceFn<
     return;
   }
 
-  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs(
-    /** folder */ {
-      workspaceId: args.workspaceId,
-      namepath: preRunMeta.namepath,
-    },
-    /** init primary backend only */ false
-  );
+  const {providersMap, mounts} = await resolveBackendsMountsAndConfigs({
+    file: {workspaceId: args.workspaceId, namepath: preRunMeta.namepath},
+    initPrimaryBackendOnly: false,
+  });
+
   await Promise.all(
     mounts.map(async mount => {
       try {
@@ -74,7 +72,7 @@ const deleteResourceFn: DeleteResourceFn<
           })),
         });
       } catch (error) {
-        kIkxUtils.logger().error(error);
+        kIjxUtils.logger().error(error);
       }
     })
   );

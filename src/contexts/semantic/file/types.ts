@@ -1,4 +1,4 @@
-import {File} from '../../../definitions/file.js';
+import {File, FilePart} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {
   SemanticProviderMutationParams,
@@ -61,4 +61,24 @@ export interface SemanticPresignedPathProvider
     ids: string[],
     opts?: SemanticProviderQueryListParams<PresignedPath>
   ): Promise<PresignedPath[]>;
+}
+
+export interface SemanticFilePartProvider
+  extends SemanticWorkspaceResourceProviderType<FilePart> {
+  getManyByFileId(
+    id: string,
+    opts?: SemanticProviderQueryListParams<FilePart>
+  ): Promise<FilePart[]>;
+  getManyByMultipartIdAndPart(
+    filter: {multipartId: string; part?: number | number[]},
+    opts?: SemanticProviderQueryListParams<FilePart>
+  ): Promise<FilePart[]>;
+  deleteManyByMultipartIdAndPart(
+    filter: {multipartId: string; part?: number | number[]},
+    opts?: SemanticProviderMutationParams
+  ): Promise<void>;
+  deleteManyByFileId(
+    id: string,
+    opts?: SemanticProviderMutationParams
+  ): Promise<void>;
 }

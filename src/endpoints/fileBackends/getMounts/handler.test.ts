@@ -8,25 +8,25 @@ import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendType,
-} from '../../testUtils/generate/fileBackend.js';
-import {generateTestFolderpathString} from '../../testUtils/generate/folder.js';
+} from '../../testHelpers/generate/fileBackend.js';
+import {generateTestFolderpathString} from '../../testHelpers/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
-} from '../../testUtils/generate/utils.js';
+} from '../../testHelpers/generate/utils.js';
 import {
   completeTests,
   expectFields,
   performPaginationTest,
   testCombinations,
-} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getFileBackendMounts from './handler.js';
 import {GetFileBackendMountsEndpointParamsBase} from './types.js';
 

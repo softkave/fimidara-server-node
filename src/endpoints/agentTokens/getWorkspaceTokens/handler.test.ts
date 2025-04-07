@@ -2,8 +2,8 @@ import {calculatePageSize} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertAgentTokenListForTest} from '../../testUtils/generate/agentToken.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertAgentTokenListForTest} from '../../testHelpers/generate/agentToken.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -11,7 +11,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getWorkspaceAgentTokens from './handler.js';
 import {GetWorkspaceAgentTokensEndpointParams} from './types.js';
 

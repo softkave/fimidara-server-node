@@ -22,7 +22,7 @@ import {FimidaraSuppliedConfig} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
 import {kReuseableErrors} from '../../utils/reusableErrors.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {
   FilePersistenceCleanupMultipartUploadParams,
   FilePersistenceCompleteMultipartUploadParams,
@@ -490,7 +490,7 @@ export class S3FilePersistenceProvider implements FilePersistenceProvider {
 }
 
 export function getAWSS3ConfigFromSuppliedConfig(
-  config: FimidaraSuppliedConfig = kIkxUtils.suppliedConfig()
+  config: FimidaraSuppliedConfig = kIjxUtils.suppliedConfig()
 ) {
   const awsCreds = merge({}, config.awsConfigs?.all, config.awsConfigs?.s3);
   const s3Bucket = config.awsConfigs?.s3Bucket;

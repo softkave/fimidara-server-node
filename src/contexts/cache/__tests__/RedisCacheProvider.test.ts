@@ -1,8 +1,8 @@
 import {waitTimeout} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {RedisCacheProvider} from '../RedisCacheProvider.js';
 
 beforeAll(async () => {
@@ -15,7 +15,7 @@ afterAll(async () => {
 
 describe('RedisCacheProvider', () => {
   test('get', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.get('test');
     expect(value).toBeNull();
@@ -27,7 +27,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('getJson', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getJson<{test: string}>('test');
     expect(value).toBeNull();
@@ -39,7 +39,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('set', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key = 'test' + Math.random();
     await cache.set(key, 'value');
@@ -48,7 +48,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('set with ttl', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key = 'test' + Math.random();
     await cache.set(key, 'value', {ttlMs: 100});
@@ -61,7 +61,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('setJson', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key = 'test' + Math.random();
     await cache.setJson(key, {test: 'value'});
@@ -70,7 +70,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('setJson with ttl', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key = 'test' + Math.random();
     await cache.setJson(key, {test: 'value'}, {ttlMs: 100});
@@ -83,7 +83,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('delete', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     await cache.delete('test');
     const key = 'test' + Math.random();
@@ -92,7 +92,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('getList', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getList(['test1', 'test2']);
     expect(value).toEqual([null, null]);
@@ -108,7 +108,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('getJsonList', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const value = await cache.getJsonList<{test: string}>(['test1', 'test2']);
     expect(value).toEqual([null, null]);
@@ -124,7 +124,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('setList', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key1 = 'test1' + Math.random();
     const key2 = 'test2' + Math.random();
@@ -137,7 +137,7 @@ describe('RedisCacheProvider', () => {
   });
 
   test('setJsonList', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const cache = new RedisCacheProvider(redis);
     const key1 = 'test1' + Math.random();
     const key2 = 'test2' + Math.random();

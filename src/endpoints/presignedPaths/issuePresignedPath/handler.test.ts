@@ -9,10 +9,10 @@ import readFile from '../../files/readFile/handler.js';
 import {ReadFileEndpointParams} from '../../files/readFile/types.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
 import {addRootnameToPath} from '../../folders/utils.js';
-import {generateTestFileName} from '../../testUtils/generate/file.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {expectFileBodyEqualById} from '../../testUtils/helpers/file.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateTestFileName} from '../../testHelpers/generate/file.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {expectFileBodyEqualById} from '../../testHelpers/helpers/file.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -23,7 +23,7 @@ import {
   insertWorkspaceForTest,
   mockExpressRequestForPublicAgent,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../users/errors.js';
 import issuePresignedPath from './handler.js';
 import {IssuePresignedPathEndpointParams} from './types.js';

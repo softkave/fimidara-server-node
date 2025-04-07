@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {FileBackendConfig} from '../../../../../definitions/fileBackend.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {generateAndInsertFileBackendConfigListForTest} from '../../../../testUtils/generate/fileBackend.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertFileBackendConfigListForTest} from '../../../../testHelpers/generate/fileBackend.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteFileBackendConfigCascadeEntry} from '../fileBackendConfig.js';
 import {
   GenerateResourceFn,

@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {mergeData} from '../../../utils/fns.js';
@@ -9,13 +9,13 @@ import {populateUserWorkspaces} from '../../assignedItems/getAssignedItems.js';
 import {ResourceExistsError} from '../../errors.js';
 import {fetchEntityAssignedPermissionGroupList} from '../../permissionGroups/getEntityAssignedPermissionGroups/utils.js';
 import EndpointReusableQueries from '../../queries.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {
   assertWorkspace,
   makeRootnameFromName,
@@ -122,7 +122,7 @@ describe('addWorkspace', () => {
   test('fails if user is on waitlist', async () => {
     kRegisterIjxUtils.suppliedConfig(
       mergeData(
-        kIkxUtils.suppliedConfig(),
+        kIjxUtils.suppliedConfig(),
         {FLAG_waitlistNewSignups: true},
         {arrayUpdateStrategy: 'replace'}
       )
@@ -142,7 +142,7 @@ describe('addWorkspace', () => {
         // for this test instead
         kRegisterIjxUtils.suppliedConfig(
           mergeData(
-            kIkxUtils.suppliedConfig(),
+            kIjxUtils.suppliedConfig(),
             {FLAG_waitlistNewSignups: false},
             {arrayUpdateStrategy: 'replace'}
           )

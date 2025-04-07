@@ -1,4 +1,4 @@
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {BaseEmailTemplateProps, EmailMode} from './types.js';
 
 export const emailHelperChars = {emDash: '—'};
@@ -54,7 +54,7 @@ export function getFooterHTML(withDonotReply = true): string {
   return `
 <footer class="${classNamePrefix}-footer ${classNamePrefix}-content-center">
   ${withDonotReply ? 'Auto-generated email, do not reply. <br />' : ''}
-  &copy; - ${kIkxUtils.suppliedConfig().appName} - ${new Date().getFullYear()}
+  &copy; - ${kIjxUtils.suppliedConfig().appName} - ${new Date().getFullYear()}
 </footer>
     `;
 }
@@ -62,7 +62,7 @@ export function getFooterHTML(withDonotReply = true): string {
 export function getHeaderHTML(title: string) {
   return `
 <header class="${classNamePrefix}-header ${classNamePrefix}-content-center">
-  <h1>${kIkxUtils.suppliedConfig().appName} ${
+  <h1>${kIjxUtils.suppliedConfig().appName} ${
     emailHelperChars.emDash
   } <br /> ${title}</h1>
 </header>
@@ -123,7 +123,7 @@ Login to your account here ${emailHelperChars.emDash} ${props.loginLink}\n
 }
 
 export function getHeaderText(title: string) {
-  return `${kIkxUtils.suppliedConfig().appName} ${
+  return `${kIjxUtils.suppliedConfig().appName} ${
     emailHelperChars.emDash
   } ${title}`;
 }

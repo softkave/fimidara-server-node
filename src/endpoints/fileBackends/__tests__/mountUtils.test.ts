@@ -12,7 +12,7 @@ import {
 import {FimidaraFilePersistenceProvider} from '../../../contexts/file/FimidaraFilePersistenceProvider.js';
 import {S3FilePersistenceProvider} from '../../../contexts/file/S3FilePersistenceProvider.js';
 import {IFilePersistenceProviderMount} from '../../../contexts/file/types.js';
-import {kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../contexts/ijx/register.js';
 import {
   FileBackendConfig,
@@ -21,25 +21,25 @@ import {
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {extractResourceIdList} from '../../../utils/fns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
-import NoopFilePersistenceProviderContext from '../../testUtils/context/file/NoopFilePersistenceProviderContext.js';
-import {generateTestFileName} from '../../testUtils/generate/file.js';
+import NoopFilePersistenceProviderContext from '../../testHelpers/context/file/NoopFilePersistenceProviderContext.js';
+import {generateTestFileName} from '../../testHelpers/generate/file.js';
 import {
   generateAWSS3Credentials,
   generateAndInsertFileBackendMountListForTest,
   generateFileBackendMountForTest,
-} from '../../testUtils/generate/fileBackend.js';
+} from '../../testHelpers/generate/fileBackend.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/generate/folder.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendConfigForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {
   initBackendProvidersForMounts,
   resolveBackendsMountsAndConfigs,
@@ -120,7 +120,7 @@ describe('file backend mount utils', () => {
   });
 
   test.only('initBackendProvidersForMounts', async () => {
-    await kIkxUtils.asyncLocalStorage().run(async () => {
+    await kIjxUtils.asyncLocalStorage().run(async () => {
       const {userToken} = await insertUserForTest();
       const {workspace} = await insertWorkspaceForTest(userToken);
       const [[fimidaraMount], {rawConfig: s3Config}] = await Promise.all([
@@ -145,7 +145,7 @@ describe('file backend mount utils', () => {
 
       const fimidaraProvider = result[fimidaraMount.resourceId];
       const s3Provider = result[s3Mount.resourceId];
-      const disposablesMap = kIkxUtils
+      const disposablesMap = kIjxUtils
         .asyncLocalStorage()
         .disposables()
         .getMap();
@@ -198,10 +198,10 @@ describe('file backend mount utils', () => {
       }),
     ]);
 
-    const result = await resolveBackendsMountsAndConfigs(
-      {namepath: fileNamepath, workspaceId: workspace.resourceId},
-      /** init primary backend only */ true
-    );
+    const result = await resolveBackendsMountsAndConfigs({
+      file: {namepath: fileNamepath, workspaceId: workspace.resourceId},
+      initPrimaryBackendOnly: true,
+    });
 
     expect(result.primaryBackend).toBeInstanceOf(
       FimidaraFilePersistenceProvider
@@ -245,10 +245,10 @@ describe('file backend mount utils', () => {
       }),
     ]);
 
-    const result = await resolveBackendsMountsAndConfigs(
-      {namepath: fileNamepath, workspaceId: workspace.resourceId},
-      /** init primary backend only */ false
-    );
+    const result = await resolveBackendsMountsAndConfigs({
+      file: {namepath: fileNamepath, workspaceId: workspace.resourceId},
+      initPrimaryBackendOnly: false,
+    });
 
     expect(result.primaryBackend).toBeInstanceOf(S3FilePersistenceProvider);
     expect(result.primaryMount).toMatchObject(s3Mount);

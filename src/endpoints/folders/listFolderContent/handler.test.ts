@@ -10,13 +10,13 @@ import RequestData from '../../RequestData.js';
 import {
   generateAndInsertTestFiles,
   generateTestFileName,
-} from '../../testUtils/generate/file.js';
+} from '../../testHelpers/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
-} from '../../testUtils/generate/folder.js';
-import {expectContainsExactly} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/generate/folder.js';
+import {expectContainsExactly} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -26,7 +26,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {addRootnameToPath, stringifyFolderpath} from '../utils.js';
 import listFolderContent from './handler.js';
 import {ListFolderContentEndpointParams} from './types.js';

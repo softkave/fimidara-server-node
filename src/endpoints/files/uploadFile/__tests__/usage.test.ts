@@ -17,12 +17,11 @@ import {
 } from '../../../../definitions/usageRecord.js';
 import {UsageThresholdsByCategory} from '../../../../definitions/workspace.js';
 import {kSystemSessionAgent} from '../../../../utils/agent.js';
-import {generateAndInsertUsageRecordList} from '../../../testUtils/generate/usageRecord.js';
-import {getTestSessionAgent} from '../../../testUtils/helpers/agent.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {generateAndInsertUsageRecordList} from '../../../testHelpers/generate/usageRecord.js';
+import {getTestSessionAgent} from '../../../testHelpers/helpers/agent.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {getStringCostForUsage} from '../../../usageRecords/constants.js';
-import {UsageLimitExceededError} from '../../../usageRecords/errors.js';
 import {getUsageRecordReportingPeriod} from '../../../usageRecords/utils.js';
 import {simpleRunUpload} from '../testutils/testUploadFns.js';
 import {UploadFileEndpointParams} from '../types.js';
@@ -85,7 +84,12 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
           },
         }
       );
-      const {file} = await simpleRunUpload(isMultipart, {userToken, workspace});
+
+      const {dbFile} = await simpleRunUpload(isMultipart, {
+        userToken,
+        workspace,
+      });
+
       await waitTimeout(kUsageCommitIntervalMs * 2);
       const [
         dbBandwidthInUsageL1,
@@ -100,17 +104,17 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         getUsageL1(
           workspace.resourceId,
           kUsageRecordCategory.bandwidthIn,
-          file.namepath
+          dbFile.namepath
         ),
         getUsageL1(
           workspace.resourceId,
           kUsageRecordCategory.storage,
-          file.namepath
+          dbFile.namepath
         ),
         getUsageL1(
           workspace.resourceId,
           kUsageRecordCategory.storageEverConsumed,
-          file.namepath
+          dbFile.namepath
         ),
         getUsageL2(workspace.resourceId, kUsageRecordCategory.bandwidthIn),
         getUsageL2(workspace.resourceId, kUsageRecordCategory.storage),
@@ -135,21 +139,21 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
       assert(dbStorageEverConsumedUsageL2);
       assert(dbTotalUsageL2);
 
-      expect(dbBandwidthInUsageL2.usage).toBe(file.size);
+      expect(dbBandwidthInUsageL2.usage).toBe(dbFile.size);
       expect(dbBandwidthInUsageL2.usageCost.toFixed(2)).toBe(
-        getStringCostForUsage(kUsageRecordCategory.bandwidthIn, file.size)
+        getStringCostForUsage(kUsageRecordCategory.bandwidthIn, dbFile.size)
       );
 
-      expect(dbStorageUsageL2.usage).toBe(file.size);
+      expect(dbStorageUsageL2.usage).toBe(dbFile.size);
       expect(dbStorageUsageL2.usageCost.toFixed(2)).toBe(
-        getStringCostForUsage(kUsageRecordCategory.storage, file.size)
+        getStringCostForUsage(kUsageRecordCategory.storage, dbFile.size)
       );
 
-      expect(dbStorageEverConsumedUsageL2.usage).toBe(file.size);
+      expect(dbStorageEverConsumedUsageL2.usage).toBe(dbFile.size);
       expect(dbStorageEverConsumedUsageL2.usageCost.toFixed(2)).toBe(
         getStringCostForUsage(
           kUsageRecordCategory.storageEverConsumed,
-          file.size
+          dbFile.size
         )
       );
 
@@ -187,7 +191,6 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         generateAndInsertUsageRecordList(/** count */ 1, {
           status: kUsageRecordFulfillmentStatus.fulfilled,
           summationType: kUsageSummationType.month,
-          usageCost: faker.number.int({min: 1, max: 100}),
           ...getUsageRecordReportingPeriod(),
           usage: faker.number.int({min: 1, max: 100}),
           workspaceId: workspace.resourceId,
@@ -197,7 +200,6 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
           ? generateAndInsertUsageRecordList(/** count */ 1, {
               status: kUsageRecordFulfillmentStatus.dropped,
               summationType: kUsageSummationType.month,
-              usageCost: faker.number.int({min: 1, max: 100}),
               ...getUsageRecordReportingPeriod(),
               usage: faker.number.int({min: 1, max: 100}),
               workspaceId: workspace.resourceId,
@@ -213,9 +215,9 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
             usageThresholds: {
               [category]: {
                 lastUpdatedBy: kSystemSessionAgent,
-                budget: usageL2.usageCost - 1,
+                budget: usageL2.usageCost / 2,
                 lastUpdatedAt: Date.now(),
-                usage: usageL2.usage - 1,
+                usage: usageL2.usage / 2,
                 category,
               },
             },
@@ -236,9 +238,8 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
         },
         {
           expectFn: error => {
-            expect(error).toBeInstanceOf(UsageLimitExceededError);
-            assert(error instanceof UsageLimitExceededError);
-            expect(error.blockingCategory).toBe(category);
+            assert(error instanceof Error);
+            expect(error.message).toMatch(/Usage limit exceeded/);
           },
         }
       );

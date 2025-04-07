@@ -1,5 +1,5 @@
 import {globalDispose} from '../contexts/globalUtils.js';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {registerIjxUtils} from '../contexts/ijx/register.js';
 import {
   kFimidaraConfigDbType,
@@ -21,7 +21,7 @@ async function main() {
 
   try {
     await Promise.all([restApiEndpointsInfoGen(), restApiTableOfContentGen()]);
-    kIkxUtils.logger().log('mddoc gen rest api complete');
+    kIjxUtils.logger().log('mddoc gen rest api complete');
   } finally {
     await globalDispose();
   }

@@ -4,15 +4,15 @@ import {pathJoin} from '../../../utils/fns.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {ResourceExistsError} from '../../errors.js';
 import {stringifyFolderpath} from '../../folders/utils.js';
-import {generateUniqueFolderpath} from '../../testUtils/generate/folder.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateUniqueFolderpath} from '../../testHelpers/generate/folder.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertFileBackendMountForTest,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {fileBackendMountExtractor} from '../utils.js';
 
 beforeAll(async () => {

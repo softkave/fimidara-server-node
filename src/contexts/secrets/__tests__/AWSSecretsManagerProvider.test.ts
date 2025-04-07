@@ -2,10 +2,10 @@ import {faker} from '@faker-js/faker';
 import assert from 'assert';
 import {merge} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {expectErrorThrown} from '../../../endpoints/testUtils/helpers/error.js';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {expectErrorThrown} from '../../../endpoints/testHelpers/helpers/error.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {AWSSecretsManagerProvider} from '../AWSSecretsManagerProvider.js';
 import {SecretsManagerProvider} from '../types.js';
 
@@ -84,7 +84,7 @@ describe.skip('AWSSecretsManagerProvider', () => {
 });
 
 function getTestAWSConfig() {
-  const conf = kIkxUtils.suppliedConfig();
+  const conf = kIjxUtils.suppliedConfig();
   const awsCreds = merge(
     {},
     conf.awsConfigs?.all,

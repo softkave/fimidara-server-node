@@ -1,9 +1,9 @@
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {PermissionGroup} from '../../../../../definitions/permissionGroups.js';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../../../testUtils/generate/permissionGroup.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../../../testHelpers/generate/permissionGroup.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deletePermissionGroupCascadeEntry} from '../permissionGroup.js';
 import {
   GenerateResourceFn,

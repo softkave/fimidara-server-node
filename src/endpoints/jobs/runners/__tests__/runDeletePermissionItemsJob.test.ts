@@ -1,7 +1,7 @@
 import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {DataQuery} from '../../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {
   DeleteResourceJobParams,
   Job,
@@ -13,13 +13,13 @@ import {kSystemSessionAgent} from '../../../../utils/agent.js';
 import {extractResourceIdList} from '../../../../utils/fns.js';
 import {getNewId} from '../../../../utils/resource.js';
 import {DeletePermissionItemInput} from '../../../permissionItems/deleteItems/types.js';
-import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
-import {generateAndInsertTestFolders} from '../../../testUtils/generate/folder.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../../testUtils/generate/permissionGroup.js';
-import {generateAndInsertPermissionItemListForTest} from '../../../testUtils/generate/permissionItem.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../testUtils/generate/workspace.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../testUtils/testUtils.js';
+import {generateAndInsertTestFiles} from '../../../testHelpers/generate/file.js';
+import {generateAndInsertTestFolders} from '../../../testHelpers/generate/folder.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../../testHelpers/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../testHelpers/generate/permissionItem.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../testHelpers/generate/workspace.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../testHelpers/utils.js';
 import {queueJobs} from '../../queueJobs.js';
 import {runDeletePermissionItemsJob} from '../runDeletePermissionItemsJob.js';
 
@@ -89,7 +89,7 @@ describe('runDeletePermissionItemsJob', () => {
     );
 
     await runDeletePermissionItemsJob(job);
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     const itemIds = extractResourceIdList(pgItems);
     const query: DataQuery<Job<DeleteResourceJobParams>> = {

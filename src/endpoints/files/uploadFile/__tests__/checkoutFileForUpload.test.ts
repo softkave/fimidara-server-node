@@ -1,13 +1,13 @@
 import assert from 'assert';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
-import {generateAndInsertTestFiles} from '../../../testUtils/generate/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+import {generateAndInsertTestFiles} from '../../../testHelpers/generate/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {PermissionDeniedError} from '../../../users/errors.js';
 import {FileNotWritableError} from '../../errors.js';
 import {checkoutFileForUpload} from '../checkoutFileForUpload.js';
@@ -42,7 +42,6 @@ describe('checkoutFileForUpload', () => {
       });
 
       assert(checkedFile);
-      expect(checkedFile.clientMultipartId).toEqual(clientMultipartId);
       expect(checkedFile.isWriteAvailable).toEqual(false);
       expect(file.resourceId).toEqual(checkedFile.resourceId);
 

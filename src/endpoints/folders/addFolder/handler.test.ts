@@ -12,13 +12,13 @@ import {
   sortStringListLexographically,
 } from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {generateTestFilepathString} from '../../testUtils/generate/file.js';
+import {generateTestFilepathString} from '../../testHelpers/generate/file.js';
 import {
   generateAndInsertTestFolders,
   generateTestFolderName,
   generateTestFolderpath,
-} from '../../testUtils/generate/folder.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/generate/folder.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -26,7 +26,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {FolderQueries} from '../queries.js';
 import {addRootnameToPath, stringifyFolderpath} from '../utils.js';
 import {createFolderList} from './createFolderList.js';

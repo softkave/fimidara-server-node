@@ -7,7 +7,7 @@ import {kEmailBlocklistReason} from '../../definitions/email.js';
 import {kFimidaraConfigEmailProvider} from '../../resources/config.js';
 import {appAssert} from '../../utils/assertion.js';
 import {S3FilePersistenceProviderInitParams} from '../file/S3FilePersistenceProvider.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {
   EmailProviderBlockEmailAddressItem,
   EmailProviderSendEmailResult,
@@ -19,7 +19,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
   protected ses: SESv2Client;
 
   constructor(params: S3FilePersistenceProviderInitParams) {
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     appAssert(
       suppliedConfig.awsConfigs?.sesEmailEncoding,
       'No sesEmailEncoding set in awsConfigs'
@@ -37,7 +37,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
   sendEmail = async (
     params: SendEmailParams
   ): Promise<EmailProviderSendEmailResult | undefined> => {
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     const sesEmailEncoding = suppliedConfig.awsConfigs?.sesEmailEncoding;
     appAssert(sesEmailEncoding, 'No sesEmailEncoding set in awsConfigs');
 
@@ -99,7 +99,7 @@ export class SESEmailProviderContext implements IEmailProviderContext {
         },
       };
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
       return {};
     }
   }

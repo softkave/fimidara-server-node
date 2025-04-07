@@ -1,7 +1,7 @@
 import {compact, last, uniqWith} from 'lodash-es';
 import {AnyFn, OmitFrom} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
-import {kIkxUtils} from '../contexts/ijx/injectables.js';
+import {kIjxUtils} from '../contexts/ijx/injectables.js';
 import {DeferredPromise, getDeferredPromise} from './promiseFns.js';
 
 /** shard ID is case-sensitive, so `["shard-01"] !== ["SHARD-01"]` */
@@ -154,15 +154,15 @@ export class ShardedRunner {
       ([key, {id}]) => {
         // check if there's an existing runner
         const lockName = this.getLockName(id, key);
-        const isRunning = kIkxUtils.locks().has(lockName);
+        const isRunning = kIjxUtils.locks().has(lockName);
 
         // start a runner if there isn't one already. we don't need to wait for
         // individual runners, seeing they don't handle just a single shard, but a
         // sequence of shards until there's none left. we wait instead for the
         // deferred promise of touched shards
         if (!isRunning) {
-          kIkxUtils.promises().callAndForget(() =>
-            kIkxUtils.locks().run(lockName, async () => {
+          kIjxUtils.promises().callAndForget(() =>
+            kIjxUtils.locks().run(lockName, async () => {
               await this.runShard(id, key);
             })
           );
@@ -302,7 +302,7 @@ export class ShardedRunner {
     results.forEach(result => {
       if (result.status !== 'fulfilled') {
         // should not happen
-        kIkxUtils.logger().error(result.reason);
+        kIjxUtils.logger().error(result.reason);
         return;
       }
 

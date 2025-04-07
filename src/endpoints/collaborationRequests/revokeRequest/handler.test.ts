@@ -1,6 +1,6 @@
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kCollaborationRequestStatusTypeMap} from '../../../definitions/collaborationRequest.js';
 import {
   EmailJobParams,
@@ -9,7 +9,7 @@ import {
   kJobType,
 } from '../../../definitions/job.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -17,7 +17,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import {collaborationRequestForUserExtractor} from '../utils.js';
 import revokeCollaborationRequest from './handler.js';
 import {RevokeCollaborationRequestEndpointParams} from './types.js';
@@ -58,7 +58,7 @@ test('collaboration request revoked', async () => {
     kCollaborationRequestStatusTypeMap.Revoked
   );
 
-  await kIkxUtils.promises().flush();
+  await kIjxUtils.promises().flush();
   // const query: DataQuery<EmailMessage<CollaborationRequestEmailMessageParams>> = {
   //   type: kEmailMessageType.collaborationRequestRevoked,
   //   emailAddress: {$all: [user02.email]},

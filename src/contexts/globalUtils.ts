@@ -2,24 +2,24 @@ import {startHandleAddInternalMultipartIdQueue} from '../endpoints/files/uploadF
 import {startHandlePrepareFileQueue} from '../endpoints/files/uploadFile/handlePrepareFileQueue.js';
 import {startHandleAddFolderQueue} from '../endpoints/folders/addFolder/handleAddFolderQueue.js';
 import {FimidaraSuppliedConfig} from '../resources/config.js';
-import {kIkxUtils} from './ijx/injectables.js';
+import {kIjxUtils} from './ijx/injectables.js';
 import {clearIjx, registerIjx} from './ijx/register.js';
 import {startHandleUsageRecordQueue} from './usage/handleUsageOps.js';
 
 export async function globalDispose() {
-  kIkxUtils.runtimeState().setIsEnded(true);
-  await kIkxUtils.disposables().awaitDisposeAll();
-  await kIkxUtils.promises().close().flush();
+  kIjxUtils.runtimeState().setIsEnded(true);
+  await kIjxUtils.disposables().awaitDisposeAll();
+  await kIjxUtils.promises().close().flush();
 
-  const {redisURL} = kIkxUtils.suppliedConfig();
+  const {redisURL} = kIjxUtils.suppliedConfig();
   if (redisURL) {
     await Promise.allSettled([
-      ...kIkxUtils.redis().map(redis => redis.quit()),
-      ...kIkxUtils.ioredis().map(redis => redis.quit()),
+      ...kIjxUtils.redis().map(redis => redis.quit()),
+      ...kIjxUtils.ioredis().map(redis => redis.quit()),
     ]);
   }
 
-  await kIkxUtils.dbConnection().close();
+  await kIjxUtils.dbConnection().close();
   clearIjx();
 }
 
@@ -33,19 +33,19 @@ export async function globalSetup(
   }
 ) {
   await registerIjx(overrideConfig);
-  await kIkxUtils.dbConnection().wait();
+  await kIjxUtils.dbConnection().wait();
 
-  const suppliedConfig = kIkxUtils.suppliedConfig();
-  const logger = kIkxUtils.logger();
+  const suppliedConfig = kIjxUtils.suppliedConfig();
+  const logger = kIjxUtils.logger();
 
   if (suppliedConfig.useFimidaraApp) {
     logger.log('starting server app');
-    await kIkxUtils.serverApp().startApp();
+    await kIjxUtils.serverApp().startApp();
     logger.log('started server app');
 
     if (suppliedConfig.useFimidaraWorkerPool) {
       logger.log('starting worker pool');
-      await kIkxUtils.workerPool().startPool();
+      await kIjxUtils.workerPool().startPool();
       logger.log('started worker pool');
     }
   }
@@ -60,8 +60,8 @@ export async function globalSetup(
     suppliedConfig.addUsageRecordQueueNo?.map(queueNo => {
       startHandleUsageRecordQueue(queueNo);
     });
-    kIkxUtils.usage().startCommitBatchedUsageL1Interval();
-    kIkxUtils.usage().startCommitBatchedUsageL2Interval();
+    kIjxUtils.usage().startCommitBatchedUsageL1Interval();
+    kIjxUtils.usage().startCommitBatchedUsageL2Interval();
   }
 
   if (otherConfig.useHandleAddInternalMultipartIdQueue) {

@@ -28,7 +28,7 @@ import {
   newWorkspaceResource,
 } from '../../utils/resource.js';
 import {BulkOpType} from '../data/types.js';
-import {kIjxData, kIjxSemantic, kIkxUtils} from '../ijx/injectables.js';
+import {kIjxData, kIjxSemantic, kIjxUtils} from '../ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../semantic/types.js';
 import {kUsageProviderConstants} from './constants.js';
 import {
@@ -122,6 +122,7 @@ export class UsageProvider implements IUsageContext {
 
     const usage = Math.max(0, usageL2.usage - input.usage);
     const usageCost = getCostForUsage(input.category, usage);
+
     await this.writeUsageL2({
       usageL2,
       update: {
@@ -155,12 +156,12 @@ export class UsageProvider implements IUsageContext {
 
   startCommitBatchedUsageL1Interval() {
     const intervalMs =
-      kIkxUtils.suppliedConfig().usageCommitIntervalMs ??
+      kIjxUtils.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL1Interval = setInterval(() => {
       if (this.commitBatchedUsageL1Interval) {
-        kIkxUtils
+        kIjxUtils
           .promises()
           .callAndForget(() => this.commitBatchedUsageL1Updates());
       }
@@ -169,12 +170,12 @@ export class UsageProvider implements IUsageContext {
 
   startCommitBatchedUsageL2Interval() {
     const intervalMs =
-      kIkxUtils.suppliedConfig().usageCommitIntervalMs ??
+      kIjxUtils.suppliedConfig().usageCommitIntervalMs ??
       kUsageProviderConstants.defaultBatchedUsageCommitIntervalMs;
 
     this.commitBatchedUsageL2Interval = setInterval(() => {
       if (this.commitBatchedUsageL2Interval) {
-        kIkxUtils
+        kIjxUtils
           .promises()
           .callAndForget(() => this.commitBatchedUsageL2Updates());
       }
@@ -203,7 +204,7 @@ export class UsageProvider implements IUsageContext {
 
       this.committingUsageL1BatchedUpdated = [];
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     } finally {
       this.isCommittingBatchedUsageL1Updates = false;
     }
@@ -238,7 +239,7 @@ export class UsageProvider implements IUsageContext {
 
       this.committingUsageL2BatchedUpdated = {};
     } catch (error) {
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
     } finally {
       this.isCommittingBatchedUsageL2Updates = false;
     }
@@ -439,9 +440,9 @@ export class UsageProvider implements IUsageContext {
 
     // const markPrefix = `getOrMakeUsageL2-${record.workspaceId}-${category}-${status}`;
 
-    if (kIkxUtils.locks().has(lockName)) {
+    if (kIjxUtils.locks().has(lockName)) {
       // performance.mark(`${markPrefix}-wait`);
-      await kIkxUtils.locks().wait({
+      await kIjxUtils.locks().wait({
         name: lockName,
         timeoutMs: kUsageProviderConstants.getUsageL2LockWaitTimeoutMs,
       });
@@ -464,7 +465,7 @@ export class UsageProvider implements IUsageContext {
     }
 
     // performance.mark(`${markPrefix}-run`);
-    return await kIkxUtils.locks().run(lockName, async () => {
+    return await kIjxUtils.locks().run(lockName, async () => {
       // const runMeasure = performance.measure(
       //   `${markPrefix}-run`,
       //   `${markPrefix}-run`
@@ -728,11 +729,11 @@ export class UsageProvider implements IUsageContext {
     this.usageL1BatchedUpdates.push(params.usageL1);
 
     const maxSize =
-      kIkxUtils.suppliedConfig().usageL1BatchedUpdatesSize ??
+      kIjxUtils.suppliedConfig().usageL1BatchedUpdatesSize ??
       kUsageProviderConstants.defaultUsageL1BatchedUpdatesSize;
 
     if (this.usageL1BatchedUpdates.length >= maxSize) {
-      kIkxUtils
+      kIjxUtils
         .promises()
         .callAndForget(() => this.commitBatchedUsageL1Updates());
     }
@@ -747,11 +748,11 @@ export class UsageProvider implements IUsageContext {
     this.setUsageL2Cache({usageL2});
 
     const maxSize =
-      kIkxUtils.suppliedConfig().usageL2BatchedUpdatesSize ??
+      kIjxUtils.suppliedConfig().usageL2BatchedUpdatesSize ??
       kUsageProviderConstants.defaultUsageL2BatchedUpdatesSize;
 
     if (Object.keys(this.usageL2BatchedUpdates).length >= maxSize) {
-      kIkxUtils
+      kIjxUtils
         .promises()
         .callAndForget(() => this.commitBatchedUsageL2Updates());
     }
@@ -774,7 +775,7 @@ export class UsageProvider implements IUsageContext {
   }
 
   protected async refreshWorkspace(params: {workspaceId: string}) {
-    if (kIkxUtils.runtimeState().getIsEnded()) {
+    if (kIjxUtils.runtimeState().getIsEnded()) {
       return;
     }
 
@@ -791,13 +792,12 @@ export class UsageProvider implements IUsageContext {
 
   protected startWorkspaceRefreshInterval(params: {workspaceId: string}) {
     const intervalMs =
-      kIkxUtils.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
+      kIjxUtils.suppliedConfig().usageRefreshWorkspaceIntervalMs ??
       kUsageProviderConstants.defaultWorkspaceRefreshIntervalMs;
 
     this.refreshWorkspaceInterval = setInterval(() => {
       if (this.refreshWorkspaceInterval) {
-        console.log('refreshWorkspaceInterval');
-        kIkxUtils
+        kIjxUtils
           .promises()
           .callAndForget(() =>
             this.refreshWorkspace({workspaceId: params.workspaceId})

@@ -31,6 +31,10 @@ const getJobStatusResponseBody = mddocConstruct
   .setName('GetJobStatusEndpointResult')
   .setFields({
     status: mddocConstruct.constructFieldObjectField(true, jobStatus),
+    errorMessage: mddocConstruct.constructFieldObjectField(
+      false,
+      mddocConstruct.constructFieldString()
+    ),
   });
 
 export const getJobStatusEndpointDefinition = mddocConstruct
@@ -41,14 +45,18 @@ export const getJobStatusEndpointDefinition = mddocConstruct
     InferFieldObjectType<
       GetJobStatusHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['query']>,
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['query']
+    >,
     InferFieldObjectOrMultipartType<
       GetJobStatusHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
       GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
-    InferFieldObjectType<GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody']>
+    InferFieldObjectType<
+      GetJobStatusHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
   >()
   .setBasePathname(jobConstants.routes.getJobStatus)
   .setMethod(HttpEndpointMethod.Post)
@@ -56,6 +64,8 @@ export const getJobStatusEndpointDefinition = mddocConstruct
   .setRequestHeaders(
     mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
   )
-  .setResponseHeaders(mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType)
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
   .setResponseBody(getJobStatusResponseBody)
   .setName('GetJobStatusEndpoint');

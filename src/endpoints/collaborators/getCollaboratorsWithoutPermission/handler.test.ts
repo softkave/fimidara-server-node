@@ -10,10 +10,10 @@ import {
   toAssignedPgListInput,
 } from '../../permissionGroups/testUtils.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertCollaboratorListForTest} from '../../testUtils/generate/collaborator.js';
-import {generateAndInsertPermissionGroupListForTest} from '../../testUtils/generate/permissionGroup.js';
-import {expectContainsNoneInForAnyType} from '../../testUtils/helpers/assertion.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertCollaboratorListForTest} from '../../testHelpers/generate/collaborator.js';
+import {generateAndInsertPermissionGroupListForTest} from '../../testHelpers/generate/permissionGroup.js';
+import {expectContainsNoneInForAnyType} from '../../testHelpers/helpers/assertion.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -21,7 +21,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import getCollaboratorsWithoutPermission from './handler.js';
 import {GetCollaboratorsWithoutPermissionEndpointParams} from './types.js';
 

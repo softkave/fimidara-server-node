@@ -1,7 +1,7 @@
 import {uniq} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {DataQuery} from '../../../contexts/data/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {AssignedItem} from '../../../definitions/assignedItem.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {indexArray} from '../../../utils/indexArray.js';
@@ -19,7 +19,7 @@ const getCollaboratorsWithoutPermission: GetCollaboratorsWithoutPermissionEndpoi
       reqData.data,
       getCollaboratorsWithoutPermissionJoiSchema
     );
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

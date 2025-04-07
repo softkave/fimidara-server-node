@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {
   applyDefaultEndpointPaginationOptions,
@@ -11,7 +11,7 @@ import {getUserWorkspacesJoiSchema} from './validation.js';
 
 const getUserWorkspaces: GetUserWorkspacesEndpoint = async reqData => {
   const data = validate(reqData.data, getUserWorkspacesJoiSchema);
-  const user = await kIkxUtils
+  const user = await kIjxUtils
     .session()
     .getUser(reqData, kSessionUtils.accessScopes.user);
   applyDefaultEndpointPaginationOptions(data);

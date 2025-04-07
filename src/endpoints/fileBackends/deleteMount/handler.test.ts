@@ -12,9 +12,9 @@ import {getNewIdForResource} from '../../../utils/resource.js';
 import {kReuseableErrors} from '../../../utils/reusableErrors.js';
 import {NotFoundError} from '../../errors.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testHelpers/generate/fileBackend.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -22,7 +22,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import deleteFileBackendMount from './handler.js';
 import {DeleteFileBackendMountEndpointParams} from './types.js';
 

@@ -10,29 +10,29 @@ import {NotFoundError} from '../../errors.js';
 import {stringifyFilenamepath} from '../../files/utils.js';
 import {stringifyFolderpath} from '../../folders/utils.js';
 import RequestData from '../../RequestData.js';
-import {generateAndInsertTestFiles} from '../../testUtils/generate/file.js';
-import {generateAndInsertFileBackendMountListForTest} from '../../testUtils/generate/fileBackend.js';
-import {generateAndInsertTestFolders} from '../../testUtils/generate/folder.js';
+import {generateAndInsertTestFiles} from '../../testHelpers/generate/file.js';
+import {generateAndInsertFileBackendMountListForTest} from '../../testHelpers/generate/fileBackend.js';
+import {generateAndInsertTestFolders} from '../../testHelpers/generate/folder.js';
 import {
   GenerateTestFieldsDef,
   TestFieldsPresetCombinations,
   generateTestFieldsCombinations,
   matchGenerators,
-} from '../../testUtils/generate/utils.js';
-import {expectListSubsetMatch} from '../../testUtils/helpers/assertion.js';
-import {expectErrorThrown} from '../../testUtils/helpers/error.js';
+} from '../../testHelpers/generate/utils.js';
+import {expectListSubsetMatch} from '../../testHelpers/helpers/assertion.js';
+import {expectErrorThrown} from '../../testHelpers/helpers/error.js';
 import {
   completeTests,
   matchExpects,
   testCombinations,
-} from '../../testUtils/helpers/testFns.js';
+} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import resolveFileBackendMounts from './handler.js';
 import {
   ResolveFileBackendMountsEndpointParams,

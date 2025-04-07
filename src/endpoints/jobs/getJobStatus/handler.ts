@@ -1,5 +1,5 @@
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   ResourceWrapper,
   kFimidaraResourceType,
@@ -14,7 +14,7 @@ import {getJobStatusJoiSchema} from './validation.js';
 
 const getJobStatus: GetJobStatusEndpoint = async reqData => {
   const data = validate(reqData.data, getJobStatusJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,
@@ -41,11 +41,12 @@ const getJobStatus: GetJobStatusEndpoint = async reqData => {
       ? kFimidaraResourceType.User
       : kFimidaraResourceType.AgentToken,
   };
+
   checkResourcesBelongsToWorkspace(job.workspaceId, [resource], () =>
     kReuseableErrors.job.notFound()
   );
 
-  return {status: job.status};
+  return {status: job.status, errorMessage: job.errorMessage};
 };
 
 export default getJobStatus;

@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
 import {
@@ -52,14 +52,14 @@ export async function getExistingUserClientAssignedToken(
   opts: SemanticProviderMutationParams
 ) {
   appAssert(
-    kIkxUtils.runtimeConfig().appWorkspaceId,
+    kIjxUtils.runtimeConfig().appWorkspaceId,
     new ServerError(),
     'App workspace ID not set'
   );
 
   const token = await kIjxSemantic
     .agentToken()
-    .getByProvidedId(kIkxUtils.runtimeConfig().appWorkspaceId, userId, opts);
+    .getByProvidedId(kIjxUtils.runtimeConfig().appWorkspaceId, userId, opts);
 
   return token;
 }
@@ -73,7 +73,7 @@ export async function getUserClientAssignedToken(
   if (!token?.shouldRefresh) {
     token = newResource<AgentToken>(kFimidaraResourceType.AgentToken, {
       providedResourceId: userId,
-      workspaceId: kIkxUtils.runtimeConfig().appWorkspaceId,
+      workspaceId: kIjxUtils.runtimeConfig().appWorkspaceId,
       version: kCurrentJWTTokenVersion,
       forEntityId: userId,
       entityType: kFimidaraResourceType.User,

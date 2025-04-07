@@ -1,6 +1,6 @@
 import {isObject} from 'lodash-es';
 import {AnyFn, AnyObject} from 'softkave-js-utils';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {
   IPubSubContext,
   IPubSubSubscription,
@@ -98,10 +98,10 @@ export class BasePubSubContext implements IPubSubContext {
         : message;
       return JSON.parse(strMessage) as AnyObject;
     } catch (error) {
-      kIkxUtils
+      kIjxUtils
         .logger()
         .log('Error processing json response from channel', {channel});
-      kIkxUtils.logger().error(error);
+      kIjxUtils.logger().error(error);
 
       return undefined;
     }

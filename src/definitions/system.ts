@@ -5,7 +5,7 @@ import {App, AppShard} from './app.js';
 import {AssignedItem} from './assignedItem.js';
 import {CollaborationRequest} from './collaborationRequest.js';
 import {EmailBlocklist, EmailMessage} from './email.js';
-import {File} from './file.js';
+import {File, FilePart} from './file.js';
 import {
   FileBackendConfig,
   FileBackendMount,
@@ -17,11 +17,11 @@ import {JobHistory} from './jobHistory.js';
 import {PermissionGroup} from './permissionGroups.js';
 import {PermissionItem} from './permissionItem.js';
 import {PresignedPath} from './presignedPath.js';
+import {AppScript} from './script.js';
 import {Tag} from './tag.js';
 import {UsageRecord} from './usageRecord.js';
 import {User} from './user.js';
 import {Workspace} from './workspace.js';
-import {AppScript} from './script.js';
 
 export const kCurrentJWTTokenVersion = 1;
 
@@ -99,6 +99,7 @@ export const kFimidaraResourceType = {
   appShard: 'appShard',
   jobHistory: 'jobHistory',
   script: 'script',
+  filePart: 'filePart',
 } as const;
 
 export type FimidaraResourceType = ValueOf<typeof kFimidaraResourceType>;
@@ -239,6 +240,7 @@ export const kResourceTypeToPossibleChildren: Record<
     kFimidaraResourceType.PermissionItem,
     kFimidaraResourceType.AssignedItem,
     kFimidaraResourceType.PresignedPath,
+    kFimidaraResourceType.filePart,
   ],
   [kFimidaraResourceType.User]: [
     kFimidaraResourceType.PermissionItem,
@@ -266,6 +268,7 @@ export const kResourceTypeToPossibleChildren: Record<
   [kFimidaraResourceType.appShard]: [],
   [kFimidaraResourceType.jobHistory]: [],
   [kFimidaraResourceType.script]: [],
+  [kFimidaraResourceType.filePart]: [],
 };
 
 export const kFimidaraTypeToTSTypeNotFound = 1_000 as const;
@@ -315,4 +318,6 @@ export type FimidaraTypeToTSType<T extends FimidaraResourceType> =
                                             ? JobHistory
                                             : T extends typeof kFimidaraResourceType.script
                                               ? AppScript
-                                              : typeof kFimidaraTypeToTSTypeNotFound;
+                                              : T extends typeof kFimidaraResourceType.filePart
+                                                ? FilePart
+                                                : typeof kFimidaraTypeToTSTypeNotFound;

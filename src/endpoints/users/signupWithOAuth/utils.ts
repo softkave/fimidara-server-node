@@ -1,4 +1,4 @@
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {User} from '../../../definitions/user.js';
@@ -40,7 +40,7 @@ export const INTERNAL_signupUserWithOAuth = async (params: {
       lastName,
       createdAt: now,
       lastUpdatedAt: now,
-      isOnWaitlist: kIkxUtils.suppliedConfig().FLAG_waitlistNewSignups || false,
+      isOnWaitlist: kIjxUtils.suppliedConfig().FLAG_waitlistNewSignups || false,
       oauthUserId: data.oauthUserId,
       emailVerifiedAt: data.emailVerifiedAt,
       isEmailVerified: !!data.emailVerifiedAt,

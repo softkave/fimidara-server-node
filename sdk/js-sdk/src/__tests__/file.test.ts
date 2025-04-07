@@ -100,17 +100,146 @@ describe('file', () => {
     await test_deleteFile();
   });
 
-  test('getPartDetails', async () => {
+  test('listParts', async () => {
     const {file} = await test_uploadFile_nodeReadable();
-    const result = await fimidaraTestInstance.files.getPartDetails({
+    const result = await fimidaraTestInstance.files.listParts({
       fileId: file.resourceId,
     });
 
     expect(result.clientMultipartId).toBeFalsy();
-    expect(result.continuationToken).toBeFalsy();
-    expect(result.details).toHaveLength(0);
-    expect(result.isDone).toBe(undefined);
+    expect(result.parts).toHaveLength(0);
+    expect(result.page).toBe(1);
 
     // TODO: add test for when multipart is in progress
+  });
+
+  test('start multipart upload', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+
+    // should throw error if a different multipart upload is already in progress
+    await expect(
+      fimidaraTestInstance.files.startMultipartUpload({
+        fileId: file.resourceId,
+        clientMultipartId: 'test test',
+      })
+    ).rejects.toThrow();
+
+    // should not throw error if the same multipart upload is already in
+    // progress
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+  });
+
+  test('delete multipart upload part', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+
+    const buf = Buffer.from('test');
+    await fimidaraTestInstance.files.uploadFile({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+      part: 1,
+      data: buf,
+      size: buf.length,
+    });
+
+    let uploadedParts = await fimidaraTestInstance.files.listParts({
+      fileId: file.resourceId,
+    });
+
+    expect(uploadedParts.clientMultipartId).toBe('test');
+    expect(uploadedParts.parts).toHaveLength(1);
+    expect(uploadedParts.parts[0].part).toBe(1);
+    expect(uploadedParts.parts[0].size).toBe(buf.length);
+
+    await fimidaraTestInstance.files.deleteFile({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+      part: 1,
+    });
+
+    uploadedParts = await fimidaraTestInstance.files.listParts({
+      fileId: file.resourceId,
+    });
+
+    expect(uploadedParts.parts).toHaveLength(0);
+  });
+
+  test('delete multipart upload', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+
+    const buf = Buffer.from('test');
+    await fimidaraTestInstance.files.uploadFile({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+      part: 1,
+      data: buf,
+      size: buf.length,
+    });
+
+    let uploadedParts = await fimidaraTestInstance.files.listParts({
+      fileId: file.resourceId,
+    });
+
+    expect(uploadedParts.clientMultipartId).toBe('test');
+    expect(uploadedParts.parts).toHaveLength(1);
+    expect(uploadedParts.parts[0].part).toBe(1);
+    expect(uploadedParts.parts[0].size).toBe(buf.length);
+
+    await fimidaraTestInstance.files.deleteFile({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+
+    uploadedParts = await fimidaraTestInstance.files.listParts({
+      fileId: file.resourceId,
+    });
+
+    expect(uploadedParts.parts).toHaveLength(0);
+
+    // should not throw because the multipart upload is already deleted
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test test',
+    });
+  });
+
+  test('complete multipart upload', async () => {
+    const {file} = await test_uploadFile_nodeReadable();
+    await fimidaraTestInstance.files.startMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+    });
+
+    const buf = Buffer.from('test');
+    await fimidaraTestInstance.files.uploadFile({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+      part: 1,
+      data: buf,
+      size: buf.length,
+    });
+
+    const result = await fimidaraTestInstance.files.completeMultipartUpload({
+      fileId: file.resourceId,
+      clientMultipartId: 'test',
+      parts: [{part: 1}],
+    });
+
+    expect(result.file.resourceId).toBe(file.resourceId);
+    expect(result.jobId).toBeDefined();
   });
 });

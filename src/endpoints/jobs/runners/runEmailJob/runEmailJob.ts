@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {EmailProviderSendEmailResult} from '../../../../contexts/email/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {
   EmailBlocklist,
   kEmailBlocklistTrailType,
@@ -54,7 +54,7 @@ export async function runEmailJob(
   const blockEmailAddressList = result?.blockEmailAddressList || [];
 
   if (blockEmailAddressList.length) {
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       kIjxSemantic.utils().withTxn(async opts => {
         const blocklistItems = blockEmailAddressList.map(item => {
           return newResource<EmailBlocklist>(
@@ -75,7 +75,7 @@ export async function runEmailJob(
   }
 
   if (result?.meta) {
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       kIjxSemantic.utils().withTxn(async opts => {
         await kIjxSemantic
           .job()

@@ -1,6 +1,6 @@
 import {omit} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {kFimidaraPermissionActions} from '../../../definitions/permissionItem.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {objectHasData} from '../../../utils/fns.js';
@@ -22,7 +22,7 @@ import {updateFileDetailsJoiSchema} from './validation.js';
 
 const updateFileDetails: UpdateFileDetailsEndpoint = async reqData => {
   const data = validate(reqData.data, updateFileDetailsJoiSchema);
-  const agent = await kIkxUtils
+  const agent = await kIjxUtils
     .session()
     .getAgentFromReq(
       reqData,

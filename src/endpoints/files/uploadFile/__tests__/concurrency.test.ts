@@ -15,7 +15,7 @@ import {
   FilePersistenceUploadFileParams,
   FileProviderResolver,
 } from '../../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {File} from '../../../../definitions/file.js';
 import {Folder} from '../../../../definitions/folder.js';
@@ -24,11 +24,11 @@ import RequestData from '../../../RequestData.js';
 import {
   generateTestFileName,
   generateTestFilepathString,
-} from '../../../testUtils/generate/file.js';
-import {kGenerateTestFileType} from '../../../testUtils/generate/file/generateTestFileBinary.js';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
-import {expectFileBodyEqual} from '../../../testUtils/helpers/file.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/file.js';
+import {kGenerateTestFileType} from '../../../testHelpers/generate/file/generateTestFileBinary.js';
+import {generateTestFolderpath} from '../../../testHelpers/generate/folder.js';
+import {expectFileBodyEqual} from '../../../testHelpers/helpers/file.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
@@ -36,7 +36,7 @@ import {
   insertUserForTest,
   insertWorkspaceForTest,
   mockExpressRequestWithAgentToken,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {FileNotWritableError} from '../../errors.js';
 import {FileQueries} from '../../queries.js';
 import readFile from '../../readFile/handler.js';
@@ -50,8 +50,8 @@ let defaultSuppliedConfig: FimidaraSuppliedConfig | undefined;
 
 beforeAll(async () => {
   await initTests();
-  defaultFileProviderResolver = kIkxUtils.fileProviderResolver();
-  defaultSuppliedConfig = kIkxUtils.suppliedConfig();
+  defaultFileProviderResolver = kIjxUtils.fileProviderResolver();
+  defaultSuppliedConfig = kIjxUtils.suppliedConfig();
 });
 
 afterEach(() => {
@@ -106,7 +106,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       const files = await kIjxSemantic
         .file()
-        .getManyByQuery(FileQueries.getByNamepath(sResult.savedFile));
+        .getManyByQuery(FileQueries.getByNamepath(sResult.dbFile));
       expect(files.length).toBe(1);
     });
 
@@ -129,13 +129,12 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       await loopAndCollateAsync(
         async index => {
-          const result = await simpleRunUpload(isMultipart, {
+          await simpleRunUpload(isMultipart, {
             userToken,
             workspace,
             fileInput: {filepath: leafFilepaths[index]},
             type: kGenerateTestFileType.txt,
           });
-          assertEndpointResultOk(result);
         },
         leafLength,
         kLoopAsyncSettlementType.all

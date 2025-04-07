@@ -1,7 +1,7 @@
 import {pick} from 'lodash-es';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {
   FileBackendMount,
   kFileBackendType,
@@ -43,7 +43,7 @@ const updateFileBackendMount: UpdateFileBackendMountEndpoint =
     const semanticUtils = kIjxSemantic.utils();
 
     const data = validate(reqData.data, updateFileBackendMountJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

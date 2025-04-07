@@ -19,20 +19,20 @@
     "compile": "npm run clean && tsc",
     "fix": "gts fix",
     "start": "node build/src/index.js",
-    "pretest": "npm run compile",
+    "pretest": "tsc",
     "prod": "tsc && env-cmd -f \".env.prod\" npm start",
     "dev": "tsc && env-cmd -f \".env.dev\" npm start",
     "test": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.config.ts",
-    "fn-test": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.fn.config.ts",
-    "integration-test": "env-cmd -f \".env.integration-test\" vitest --config ./vitest.config.ts",
-    "dev-for-test": "tsc && env-cmd -f \".env.unit-test\" npm start",
-    "check-circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
-    "gen-rest-api": "env-cmd -f \".env.dev\" npx tsx src/mddoc/restApiGen.ts",
-    "gen-js-sdk": "env-cmd -f \".env.dev\" npx tsx src/mddoc/jsSdkCodeGen.ts",
-    "dev-mongo-rs": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data --keep",
-    "test-mongo-rs": "npx run-rs --host localhost --portStart 27005 --dbpath test-mongo-rs-data",
-    "render-email-templates": "env-cmd -f \".env.dev\" npx tsx src/tools/email-templates/index.ts",
-    "sdk-test-setup": "npx env-cmd -f \".env.unit-test\" npx tsx src/tools/sdk-test-setup/index.ts"
+    "test:fn": "env-cmd -f \".env.unit-test\" vitest --config ./vitest.fn.config.ts",
+    "test:integration": "env-cmd -f \".env.integration-test\" vitest --config ./vitest.config.ts",
+    "dev:test": "tsc && env-cmd -f \".env.unit-test\" npm start",
+    "check:circular-deps": "npx dpdm --no-warning --no-tree ./src/index.ts",
+    "gen:rest-api": "env-cmd -f \".env.dev\" npx tsx src/mddoc/restApiGen.ts",
+    "gen:js-sdk": "env-cmd -f \".env.dev\" npx tsx src/mddoc/jsSdkCodeGen.ts",
+    "mongo:dev": "npx run-rs --host localhost --portStart 27000 --dbpath dev-mongo-rs-data --keep",
+    "mongo:test": "npx run-rs --host localhost --portStart 27005 --dbpath test-mongo-rs-data",
+    "render:email-templates": "env-cmd -f \".env.dev\" npx tsx src/tools/email-templates/index.ts",
+    "setup:sdk-test": "npx env-cmd -f \".env.unit-test\" npx tsx src/tools/sdk-test-setup/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.705.0",
@@ -63,7 +63,7 @@
     "softkave-js-utils": "0.14.0",
     "stripe": "^8.222.0",
     "tsyringe": "^4.8.0",
-    "type-fest": "^4.17.0",
+    "type-fest": "^4.39.1",
     "validator": "^13.5.2",
     "winston": "^3.8.2",
     "winston-daily-rotate-file": "^4.7.1",
@@ -91,6 +91,6 @@
     "gts": "^5.3.0",
     "inquirer": "^9.2.15",
     "typescript": "^5.3.3",
-    "vitest": "^1.5.3"
+    "vitest": "^3.1.1"
   }
 }

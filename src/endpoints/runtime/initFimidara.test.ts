@@ -2,11 +2,11 @@ import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {
   kIjxData,
   kIjxSemantic,
-  kIkxUtils,
+  kIjxUtils,
 } from '../../contexts/ijx/injectables.js';
 import EndpointReusableQueries from '../queries.js';
-import {completeTests} from '../testUtils/helpers/testFns.js';
-import {initTests} from '../testUtils/testUtils.js';
+import {completeTests} from '../testHelpers/helpers/testFns.js';
+import {initTests} from '../testHelpers/utils.js';
 import {initFimidara, kAppRuntimeStatsDocId} from './initFimidara.js';
 
 beforeEach(async () => {
@@ -20,7 +20,7 @@ afterEach(async () => {
 describe('init app setup', () => {
   test('app is setup', async () => {
     // setupApp is called internally when getting test context
-    const suppliedConfig = kIkxUtils.suppliedConfig();
+    const suppliedConfig = kIjxUtils.suppliedConfig();
     const runtimeVars = await kIjxData
       .appRuntimeState()
       .assertGetOneByQuery(
@@ -39,7 +39,7 @@ describe('init app setup', () => {
   });
 
   test('app not setup a second time', async () => {
-    const workspaceId = kIkxUtils.runtimeConfig().appWorkspaceId;
+    const workspaceId = kIjxUtils.runtimeConfig().appWorkspaceId;
     const workspace = await initFimidara();
     expect(workspace.resourceId).toBe(workspaceId);
   });

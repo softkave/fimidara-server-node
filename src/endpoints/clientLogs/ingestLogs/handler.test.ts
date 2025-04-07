@@ -1,13 +1,13 @@
+import {afterAll, beforeAll, describe, test} from 'vitest';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {waitTimeout} from '../../../utils/fns.js';
 import RequestData from '../../RequestData.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {test, beforeAll, afterAll, describe} from 'vitest';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
 import {
   assertEndpointResultOk,
   initTests,
   mockExpressRequestForPublicAgent,
-} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/utils.js';
 import ingestLogs from './handler.js';
 import {ClientLog, IngestLogsEndpointParams} from './types.js';
 

@@ -11,7 +11,7 @@ import {
   kShardRunnerOutputType,
   ShardRunnerProvidedHandlerResult,
 } from '../../utils/shardRunner/types.js';
-import {kIkxUtils} from '../ijx/injectables.js';
+import {kIjxUtils} from '../ijx/injectables.js';
 import {kUsageProviderConstants} from './constants.js';
 import {
   IUsageRecordQueueInput,
@@ -26,7 +26,7 @@ async function handleIncrementUsageRecord(params: {
   agent: Agent;
 }) {
   const {input, agent} = params;
-  const result = await kIkxUtils.usage().increment(agent, input);
+  const result = await kIjxUtils.usage().increment(agent, input);
   return result;
 }
 
@@ -35,7 +35,7 @@ async function handleDecrementUsageRecord(params: {
   agent: Agent;
 }) {
   const {input, agent} = params;
-  await kIkxUtils.usage().decrement(agent, input);
+  await kIjxUtils.usage().decrement(agent, input);
 }
 
 async function handleUsageRecordEntry(params: {

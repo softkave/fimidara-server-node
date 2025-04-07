@@ -2,28 +2,28 @@ import {flatten} from 'lodash-es';
 import {afterAll, beforeAll, describe, test} from 'vitest';
 import {kFimidaraResourceType} from '../../../../../definitions/system.js';
 import {Workspace} from '../../../../../definitions/workspace.js';
-import {generateAndInsertAgentTokenListForTest} from '../../../../testUtils/generate/agentToken.js';
-import {generateAndInsertCollaborationRequestListForTest} from '../../../../testUtils/generate/collaborationRequest.js';
+import {generateAndInsertAgentTokenListForTest} from '../../../../testHelpers/generate/agentToken.js';
+import {generateAndInsertCollaborationRequestListForTest} from '../../../../testHelpers/generate/collaborationRequest.js';
 import {
   generateAndInsertTestFiles,
   generateAndInsertTestPresignedPathList,
-} from '../../../../testUtils/generate/file.js';
+} from '../../../../testHelpers/generate/file.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
   generateAndInsertResolvedMountEntryListForTest,
-} from '../../../../testUtils/generate/fileBackend.js';
-import {generateAndInsertTestFolders} from '../../../../testUtils/generate/folder.js';
+} from '../../../../testHelpers/generate/fileBackend.js';
+import {generateAndInsertTestFolders} from '../../../../testHelpers/generate/folder.js';
 import {
   generateAndInsertAssignedItemListForTest,
   generateAndInsertPermissionGroupListForTest,
-} from '../../../../testUtils/generate/permissionGroup.js';
-import {generateAndInsertPermissionItemListForTest} from '../../../../testUtils/generate/permissionItem.js';
-import {generateAndInsertTagListForTest} from '../../../../testUtils/generate/tag.js';
-import {generateAndInsertUsageRecordList} from '../../../../testUtils/generate/usageRecord.js';
-import {generateAndInsertWorkspaceListForTest} from '../../../../testUtils/generate/workspace.js';
-import {completeTests} from '../../../../testUtils/helpers/testFns.js';
-import {initTests} from '../../../../testUtils/testUtils.js';
+} from '../../../../testHelpers/generate/permissionGroup.js';
+import {generateAndInsertPermissionItemListForTest} from '../../../../testHelpers/generate/permissionItem.js';
+import {generateAndInsertTagListForTest} from '../../../../testHelpers/generate/tag.js';
+import {generateAndInsertUsageRecordList} from '../../../../testHelpers/generate/usageRecord.js';
+import {generateAndInsertWorkspaceListForTest} from '../../../../testHelpers/generate/workspace.js';
+import {completeTests} from '../../../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../../../testHelpers/utils.js';
 import {deleteWorkspaceCascadeEntry} from '../workspace.js';
 import {
   GenerateResourceFn,

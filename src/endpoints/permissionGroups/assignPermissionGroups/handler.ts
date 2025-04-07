@@ -1,7 +1,7 @@
 import {convertToArray} from 'softkave-js-utils';
 import {kSessionUtils} from '../../../contexts/SessionContext.js';
 import {checkAuthorizationWithAgent} from '../../../contexts/authorizationChecks/checkAuthorizaton.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {validate} from '../../../utils/validate.js';
 import {addAssignedPermissionGroupList} from '../../assignedItems/addAssignedItems.js';
 import {checkPermissionEntitiesExist} from '../../permissionItems/checkPermissionArtifacts.js';
@@ -13,7 +13,7 @@ import {assignPermissionGroupsJoiSchema} from './validation.js';
 const assignPermissionGroups: AssignPermissionGroupsEndpoint =
   async reqData => {
     const data = validate(reqData.data, assignPermissionGroupsJoiSchema);
-    const agent = await kIkxUtils
+    const agent = await kIjxUtils
       .session()
       .getAgentFromReq(
         reqData,

@@ -13,6 +13,8 @@
 - input outline is truncated
 - server error when uploading large file, also it doesn't stop the upload
 - error page & component should only show public errors, and default to showing a generic error message
+- infinite loop on redirect
+- oauth sign-in not working
 
 ## CLI
 

@@ -1,8 +1,8 @@
 import {sortStringListLexicographically} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {completeTests} from '../../../endpoints/testUtils/helpers/testFns.js';
-import {initTests} from '../../../endpoints/testUtils/testUtils.js';
-import {kIkxUtils} from '../../ijx/injectables.js';
+import {completeTests} from '../../../endpoints/testHelpers/helpers/testFns.js';
+import {initTests} from '../../../endpoints/testHelpers/utils.js';
+import {kIjxUtils} from '../../ijx/injectables.js';
 import {RedisDSetProvider} from '../RedisDSetProvider.js';
 
 beforeAll(async () => {
@@ -15,7 +15,7 @@ afterAll(async () => {
 
 describe('RedisDSetProvider', () => {
   test('add', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -27,7 +27,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('delete, value', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -36,7 +36,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('delete, key', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -45,7 +45,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('has', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -54,7 +54,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('size', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -62,7 +62,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('scan', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);
@@ -79,7 +79,7 @@ describe('RedisDSetProvider', () => {
   });
 
   test('getAll', async () => {
-    const [redis] = kIkxUtils.redis();
+    const [redis] = kIjxUtils.redis();
     const dset = new RedisDSetProvider(redis);
     const key = 'test' + Math.random();
     await dset.add(key, ['a', 'b', 'c']);

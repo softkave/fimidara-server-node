@@ -7,9 +7,9 @@ import {getNewId, getNewIdForResource} from '../../../utils/resource.js';
 import {
   generateAndInsertJobListForTest,
   generateJobInput,
-} from '../../testUtils/generate/job.js';
-import {completeTests} from '../../testUtils/helpers/testFns.js';
-import {initTests} from '../../testUtils/testUtils.js';
+} from '../../testHelpers/generate/job.js';
+import {completeTests} from '../../testHelpers/helpers/testFns.js';
+import {initTests} from '../../testHelpers/utils.js';
 import {queueJobs} from '../queueJobs.js';
 
 beforeAll(async () => {

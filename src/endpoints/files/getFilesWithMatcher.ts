@@ -2,6 +2,7 @@ import {isNumber} from 'lodash-es';
 import {kIjxSemantic} from '../../contexts/ijx/injectables.js';
 import {
   SemanticProviderMutationParams,
+  SemanticProviderOpParams,
   SemanticProviderQueryParams,
 } from '../../contexts/semantic/types.js';
 import {File, FileMatcher} from '../../definitions/file.js';
@@ -20,6 +21,7 @@ import {
   makeUserSessionAgent,
   makeWorkspaceAgentTokenAgent,
 } from '../../utils/sessionUtils.js';
+import {NotFoundError} from '../errors.js';
 import {kFolderConstants} from '../folders/constants.js';
 import {PermissionDeniedError} from '../users/errors.js';
 import {
@@ -66,6 +68,24 @@ export function isPresignedPath(filepath: string) {
   return type === kFimidaraResourceType.PresignedPath;
 }
 
+export async function getPresignedPath(props: {
+  filepath: string;
+  opts?: SemanticProviderOpParams;
+}) {
+  const {filepath, opts} = props;
+  if (!isPresignedPath(filepath)) {
+    return {};
+  }
+
+  const resourceId = extractPresignedPathIdFromFilepath(filepath);
+  const presignedPath = await kIjxSemantic
+    .presignedPath()
+    .getOneById(resourceId, opts);
+
+  appAssert(presignedPath, new NotFoundError('Presigned path not found.'));
+  return {presignedPath};
+}
+
 export async function getFileByPresignedPath(props: {
   filepath: string;
   action: FimidaraPermissionAction;
@@ -73,17 +93,12 @@ export async function getFileByPresignedPath(props: {
   opts: SemanticProviderMutationParams & SemanticProviderQueryParams<File>;
 }) {
   const {filepath, action, incrementUsageCount, opts} = props;
-
-  if (!isPresignedPath(filepath)) {
-    return null;
+  let {presignedPath} = await getPresignedPath({filepath, opts});
+  if (!presignedPath) {
+    return {};
   }
 
-  const resourceId = extractPresignedPathIdFromFilepath(filepath);
-  let presignedPath = await kIjxSemantic
-    .presignedPath()
-    .assertGetOneByQuery({resourceId}, opts);
   const now = Date.now();
-
   if (presignedPath.expiresAt && presignedPath.expiresAt < now) {
     // TODO: should we use a different error type?
     throw kReuseableErrors.file.notFound();
@@ -109,6 +124,7 @@ export async function getFileByPresignedPath(props: {
     },
     opts
   );
+
   assertFile(file);
 
   // Check agent token exists, and that agent still has access to file. This is
@@ -122,7 +138,7 @@ export async function getFileByPresignedPath(props: {
     .agentToken()
     .assertGetOneByQuery({resourceId: presignedPath.issuerAgentTokenId}, opts);
 
-  await checkFileAuthorization(
+  const {workspace} = await checkFileAuthorization(
     agentToken.entityType === kFimidaraResourceType.User
       ? makeUserSessionAgent(
           // TODO: how can we reduce all the db fetches in this function
@@ -137,13 +153,13 @@ export async function getFileByPresignedPath(props: {
     opts
   );
 
-  return {presignedPath, file, isPresignedPath: true};
+  return {presignedPath, file, isPresignedPath: true, workspace};
 }
 
 export async function getFileByFilepath(props: {
   /** filepath with ext if present, and workspace rootname. */
   filepath: string;
-  opts: SemanticProviderMutationParams;
+  opts?: SemanticProviderOpParams;
   workspaceId?: string;
 }) {
   const fileModel = kIjxSemantic.file();
@@ -152,7 +168,7 @@ export async function getFileByFilepath(props: {
   let workspace: Workspace | undefined;
 
   if (!workspaceId) {
-    workspace = await getWorkspaceFromFilepath(filepath);
+    const {workspace} = await getWorkspaceFromFilepath(filepath);
     workspaceId = workspace.resourceId;
   }
 
@@ -160,6 +176,7 @@ export async function getFileByFilepath(props: {
     allowRootFolder: false,
     containsRootname: true,
   });
+
   const file = await fileModel.getOneByNamepath(
     {workspaceId, namepath: pathinfo.namepath},
     opts
@@ -179,7 +196,11 @@ export async function getFileWithMatcher(props: {
   /** Defaults to `true`. */
   incrementPresignedPathUsageCount?: boolean;
   shouldIngestFile?: boolean;
-}): Promise<{file?: File | null; presignedPath?: PresignedPath}> {
+}): Promise<{
+  file?: File | null;
+  presignedPath?: PresignedPath;
+  workspace?: Workspace;
+}> {
   const {
     matcher,
     opts,

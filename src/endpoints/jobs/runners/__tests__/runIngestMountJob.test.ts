@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {kIjxSemantic, kIkxUtils} from '../../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kFileBackendType} from '../../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobParams,
@@ -11,14 +11,14 @@ import {getNewId} from '../../../../utils/resource.js';
 import {
   generateAndInsertFileBackendConfigListForTest,
   generateAndInsertFileBackendMountListForTest,
-} from '../../../testUtils/generate/fileBackend.js';
-import {generateTestFolderpath} from '../../../testUtils/generate/folder.js';
-import {completeTests} from '../../../testUtils/helpers/testFns.js';
+} from '../../../testHelpers/generate/fileBackend.js';
+import {generateTestFolderpath} from '../../../testHelpers/generate/folder.js';
+import {completeTests} from '../../../testHelpers/helpers/testFns.js';
 import {
   initTests,
   insertUserForTest,
   insertWorkspaceForTest,
-} from '../../../testUtils/testUtils.js';
+} from '../../../testHelpers/utils.js';
 import {queueJobs} from '../../queueJobs.js';
 import {runIngestMountJob} from '../runIngestMountJob.js';
 
@@ -70,7 +70,7 @@ describe('runIngestMountJob', () => {
     );
 
     await runIngestMountJob(job);
-    await kIkxUtils.promises().flush();
+    await kIjxUtils.promises().flush();
 
     const injestFolderpathJobParams: IngestFolderpathJobParams = {
       ingestFrom: mountedFrom,

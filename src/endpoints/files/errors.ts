@@ -11,8 +11,7 @@ export class FileNotWritableError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      'File not in a writable state. ' +
-        'This is most likely because the file is currently being written to'
+      'File not writable because it is currently being written to.'
     );
   }
 }

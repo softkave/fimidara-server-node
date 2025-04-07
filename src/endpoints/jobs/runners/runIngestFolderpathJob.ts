@@ -6,7 +6,7 @@ import {
   FilePersistenceProvider,
   PersistedFolderDescription,
 } from '../../../contexts/file/types.js';
-import {kIjxSemantic, kIkxUtils} from '../../../contexts/ijx/injectables.js';
+import {kIjxSemantic, kIjxUtils} from '../../../contexts/ijx/injectables.js';
 import {FileBackendMount} from '../../../definitions/fileBackend.js';
 import {
   IngestFolderpathJobMeta,
@@ -105,7 +105,7 @@ async function ingestFolderpathContents(
       workspaceId: mount.workspaceId,
     });
     continuationToken = result?.continuationToken;
-    kIkxUtils.promises().callAndForget(() =>
+    kIjxUtils.promises().callAndForget(() =>
       setContinuationTokenInJob(job, {
         getContentContinuationToken: result?.continuationToken,
       })
@@ -114,7 +114,7 @@ async function ingestFolderpathContents(
       ingestPersistedFolders(agent, workspace, result.folders),
       ingestPersistedFiles(agent, workspace, result.files),
     ]);
-    kIkxUtils
+    kIjxUtils
       .promises()
       .callAndForget(() => queueIngestFolderJobFor(job, result?.folders ?? []));
   } while (
@@ -130,7 +130,7 @@ export async function runIngestFolderpathJob(job: Job) {
 
   const [mount, agent, job_] = await Promise.all([
     kIjxSemantic.fileBackendMount().getOneById(job.params.mountId),
-    kIkxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
+    kIjxUtils.session().getAgentByAgentTokenId(job.createdBy.agentTokenId),
     // Refetch job so as to use latest continuation token set in meta
     kIjxSemantic.job().getOneById(job.resourceId),
   ]);
