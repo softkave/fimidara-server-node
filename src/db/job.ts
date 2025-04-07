@@ -5,6 +5,7 @@ import {ensureMongoTypeFields, resourceSchema} from './utils.js';
 const statusItemSchema = ensureMongoTypeFields<JobStatusHistory>({
   status: {type: String, index: true},
   statusLastUpdatedAt: {type: Number, index: true},
+  errorMessage: {type: String},
   runnerId: {type: String, index: true},
 });
 const runAfterSchema = ensureMongoTypeFields<RunAfterJobItem>({

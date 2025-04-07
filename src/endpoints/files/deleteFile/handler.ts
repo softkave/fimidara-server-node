@@ -37,7 +37,7 @@ const deleteFile: DeleteFileEndpoint = async reqData => {
   if (data.clientMultipartId) {
     appAssert(
       file.internalMultipartId,
-      new InvalidRequestError('File is not a multipart upload')
+      new InvalidRequestError('File is not a multipart upload.')
     );
 
     await deleteMultipartUpload({

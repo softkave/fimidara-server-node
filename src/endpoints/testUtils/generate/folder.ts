@@ -32,6 +32,7 @@ export function generateTestFolderName(
   const separator = faker.helpers.arrayElement(
     separatorChars ?? kTestFolderNameSeparatorChars
   );
+
   let name = faker.lorem
     .words(wordCount)
     .split(' ')

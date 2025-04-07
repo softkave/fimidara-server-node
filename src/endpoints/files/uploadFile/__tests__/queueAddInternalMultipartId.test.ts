@@ -31,15 +31,17 @@ describe('queueAddInternalMultipartId', () => {
       initPrimaryBackendOnly: true,
     });
 
-    const filepath = await prepareMountFilepath({primaryMount, file});
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
         fileId: file.resourceId,
         mount: primaryMount,
-        filepath,
+        mountFilepath,
         workspaceId: workspace.resourceId,
         namepath: file.namepath,
+        clientMultipartId,
       },
     });
 
@@ -47,6 +49,7 @@ describe('queueAddInternalMultipartId', () => {
 
     const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(multipartId);
+    expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
   });
 
   test('should reuse multipart id', async () => {
@@ -69,15 +72,17 @@ describe('queueAddInternalMultipartId', () => {
         );
     });
 
-    const filepath = await prepareMountFilepath({primaryMount, file});
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     const {multipartId} = await queueAddInternalMultipartId({
       agent: sessionAgent,
       input: {
         fileId: file.resourceId,
         mount: primaryMount,
-        filepath,
+        mountFilepath,
         workspaceId: workspace.resourceId,
         namepath: file.namepath,
+        clientMultipartId,
       },
     });
 
@@ -96,17 +101,18 @@ describe('queueAddInternalMultipartId', () => {
       initPrimaryBackendOnly: true,
     });
 
-    const filepath = await prepareMountFilepath({primaryMount, file});
-
+    const mountFilepath = await prepareMountFilepath({primaryMount, file});
+    const clientMultipartId = '123';
     async function addMultipartId() {
       const {multipartId} = await queueAddInternalMultipartId({
         agent: sessionAgent,
         input: {
           fileId: file.resourceId,
           mount: primaryMount,
-          filepath,
+          mountFilepath,
           workspaceId: workspace.resourceId,
           namepath: file.namepath,
+          clientMultipartId,
         },
       });
       return multipartId;
@@ -123,5 +129,6 @@ describe('queueAddInternalMultipartId', () => {
 
     const dbFile = await kIjxSemantic.file().getOneById(file.resourceId);
     expect(dbFile?.internalMultipartId).toBe(uniqueMultipartIds[0]);
+    expect(dbFile?.clientMultipartId).toBe(clientMultipartId);
   });
 });

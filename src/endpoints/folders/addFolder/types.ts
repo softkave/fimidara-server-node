@@ -23,6 +23,7 @@ export type AddFolderEndpoint = Endpoint<
 export interface IAddFolderQueueShardRunnerInput extends NewFolderInput {
   UNSAFE_skipAuthCheck?: boolean;
   throwIfFolderExists?: boolean;
+  workspaceId: string;
 }
 
 export interface IAddFolderQueueWorkingInput extends NewFolderInput {

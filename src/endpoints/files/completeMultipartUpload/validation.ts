@@ -14,6 +14,7 @@ export const completeMultipartUploadJoiSchema =
             part: Joi.number().required(),
           })
         )
+        .min(1)
         .max(kFileConstants.maxPartNumber)
         .required(),
     })

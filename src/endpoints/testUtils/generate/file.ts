@@ -1,8 +1,9 @@
 import {faker} from '@faker-js/faker';
 import {isBoolean, isEqual, isString, isUndefined} from 'lodash-es';
-import {getRandomIntInclusive} from 'softkave-js-utils';
+import {getNewId, getRandomIntInclusive} from 'softkave-js-utils';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
-import {File} from '../../../definitions/file.js';
+import {SemanticProviderMutationParams} from '../../../contexts/semantic/types.js';
+import {File, FilePart} from '../../../definitions/file.js';
 import {PresignedPath} from '../../../definitions/presignedPath.js';
 import {kFimidaraResourceType} from '../../../definitions/system.js';
 import {kSystemSessionAgent} from '../../../utils/agent.js';
@@ -43,9 +44,9 @@ export function generateTestFileName(
     const extensionCount = getRandomIntInclusive(0, 5);
     filename = faker.system.fileName({extensionCount});
   } else if (isEqual(ext, false)) {
-    filename = generateTestFolderName(props);
+    filename = generateTestFolderName({...props, separatorChars});
   } else {
-    const name = generateTestFolderName(props);
+    const name = generateTestFolderName({...props, separatorChars});
     filename = addExtenstion(
       name,
       isBoolean(ext)
@@ -141,6 +142,28 @@ export function generateTestFile(
   return file;
 }
 
+export function generateTestFilePart(extra: Partial<FilePart> = {}) {
+  const id = getNewIdForResource(kFimidaraResourceType.filePart);
+  const createdAt = getTimestamp();
+  const filePart: FilePart = {
+    fileId: getNewIdForResource(kFimidaraResourceType.File),
+    partId: getNewIdForResource(kFimidaraResourceType.filePart),
+    createdAt,
+    createdBy: kSystemSessionAgent,
+    lastUpdatedAt: createdAt,
+    lastUpdatedBy: kSystemSessionAgent,
+    resourceId: id,
+    size: faker.number.int({min: 1}),
+    workspaceId: getNewIdForResource(kFimidaraResourceType.Workspace),
+    isDeleted: false,
+    part: getRandomIntInclusive(1, 10),
+    multipartId: getNewId(),
+    ...extra,
+  };
+
+  return filePart;
+}
+
 export function generateTestFiles(
   count = 20,
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
@@ -152,6 +175,18 @@ export function generateTestFiles(
   return files;
 }
 
+export function generateTestFilePartList(
+  count = 20,
+  extra: Partial<FilePart> = {}
+) {
+  const fileParts: FilePart[] = [];
+  for (let i = 0; i < count; i++) {
+    fileParts.push(generateTestFilePart(extra));
+  }
+
+  return fileParts;
+}
+
 export async function generateAndInsertTestFiles(
   count = 20,
   extra: Partial<File> & {parentId: string | null} = {parentId: null}
@@ -160,6 +195,22 @@ export async function generateAndInsertTestFiles(
   await kIjxSemantic
     .utils()
     .withTxn(async opts => kIjxSemantic.file().insertItem(items, opts));
+  return items;
+}
+
+export async function generateAndInsertTestFileParts(
+  count = 20,
+  extra: Partial<FilePart> = {},
+  opts?: SemanticProviderMutationParams
+) {
+  const items = generateTestFilePartList(count, extra);
+  await kIjxSemantic
+    .utils()
+    .withTxn(
+      async opts => kIjxSemantic.filePart().insertItem(items, opts),
+      opts
+    );
+
   return items;
 }
 

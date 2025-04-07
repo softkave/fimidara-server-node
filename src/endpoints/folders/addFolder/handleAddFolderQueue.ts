@@ -295,23 +295,23 @@ async function populateAgent(
   input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[]
 ) {
   return await Promise.all(
-    input.map(async input => {
+    input.map(async nextInput => {
       try {
         const agent = await kIjxUtils
           .session()
-          .getAgentByAgentTokenId(input.agent.agentTokenId);
+          .getAgentByAgentTokenId(nextInput.agent.agentTokenId);
         const workingInput: IAddFolderQueueWorkingInput = {
           agent,
-          id: input.id,
-          workspaceId: input.workspaceId,
-          folderpath: input.item.folderpath,
-          UNSAFE_skipAuthCheck: input.item.UNSAFE_skipAuthCheck ?? false,
-          throwIfFolderExists: input.item.throwIfFolderExists ?? false,
+          id: nextInput.id,
+          workspaceId: nextInput.item.workspaceId,
+          folderpath: nextInput.item.folderpath,
+          UNSAFE_skipAuthCheck: nextInput.item.UNSAFE_skipAuthCheck ?? false,
+          throwIfFolderExists: nextInput.item.throwIfFolderExists ?? false,
         };
 
         return {isError: false, workingInput};
       } catch (error) {
-        return {isError: true, error, input};
+        return {isError: true, error, input: nextInput};
       }
     })
   );
@@ -324,7 +324,7 @@ async function createFolderListWithWorkspace(
 
   const workspace = await kIjxSemantic
     .workspace()
-    .getOneById(input[0].workspaceId);
+    .getOneById(input[0].item.workspaceId);
   const result: ShardRunnerProvidedHandlerResultMap<IAddFolderQueueShardRunnerOutput> =
     {};
 
@@ -368,7 +368,7 @@ async function createFolderListWithWorkspace(
 async function addFolderQueueCreateFolderList(
   input: IShardRunnerEntry<IAddFolderQueueShardRunnerInput>[]
 ) {
-  const inputByWorkspace = groupBy(input, next => next.workspaceId);
+  const inputByWorkspace = groupBy(input, next => next.item.workspaceId);
   const result = await Promise.all(
     Object.entries(inputByWorkspace).map(async ([, input]) => {
       return await createFolderListWithWorkspace(input);

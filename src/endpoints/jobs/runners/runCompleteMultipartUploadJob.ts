@@ -10,7 +10,9 @@ import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js'
 import {handleLastMultipartUpload} from '../../files/uploadFile/multipart.js';
 import {prepareMountFilepath} from '../../files/utils/prepareMountFilepath.js';
 
-export async function runCompleteMultipartUploadJob(job: Job) {
+export async function runCompleteMultipartUploadJob(
+  job: Pick<Job, 'type' | 'params'>
+) {
   assert(job.type === kJobType.completeMultipartUpload);
   const completeParams = job.params as CompleteMultipartUploadJobParams;
   const file = await kIjxSemantic.file().getOneById(completeParams.fileId);

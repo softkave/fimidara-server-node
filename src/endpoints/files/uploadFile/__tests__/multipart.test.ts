@@ -11,6 +11,9 @@ import {
 import {kIjxSemantic, kIjxUtils} from '../../../../contexts/ijx/injectables.js';
 import {kRegisterIjxUtils} from '../../../../contexts/ijx/register.js';
 import {FimidaraSuppliedConfig} from '../../../../resources/config.js';
+import RequestData from '../../../RequestData.js';
+import {addRootnameToPath} from '../../../folders/utils.js';
+import {generateTestFileName} from '../../../testUtils/generate/file.js';
 import {expectErrorThrown} from '../../../testUtils/helpers/error.js';
 import {completeTests} from '../../../testUtils/helpers/testFns.js';
 import {
@@ -18,10 +21,12 @@ import {
   insertFileForTest,
   insertUserForTest,
   insertWorkspaceForTest,
+  mockExpressRequestWithAgentToken,
 } from '../../../testUtils/testUtils.js';
+import startMultipartUpload from '../../startMultipartUpload/handler.js';
+import {StartMultipartUploadEndpointParams} from '../../startMultipartUpload/types.js';
 import {stringifyFilenamepath} from '../../utils.js';
 import {getNextMultipartTimeout} from '../../utils/getNextMultipartTimeout.js';
-import {getMultipartUploadPartMeta} from '../../utils/multipartUploadMeta.js';
 import {
   multipartFileUpload,
   singleFileUpload,
@@ -52,11 +57,12 @@ describe('multipart.uploadFile', () => {
   test('timeout extended', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
-    const {runNext} = await multipartFileUpload({
+    const {runNext, startUpload} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
     });
 
+    await startUpload();
     let lowerTimeout = getNextMultipartTimeout();
     const {rawFile: rf01} = (await runNext()) ?? {};
     expect(rf01?.multipartTimeout).toBeGreaterThan(lowerTimeout);
@@ -69,12 +75,13 @@ describe('multipart.uploadFile', () => {
   test('file still locked on error', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
-    const {runNext} = await multipartFileUpload({
+    const {runNext, startUpload} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
     });
 
     // kick off upload
+    await startUpload();
     const {rawFile: rf01} = (await runNext()) ?? {};
 
     class TestFileProvider
@@ -102,12 +109,14 @@ describe('multipart.uploadFile', () => {
   test('file cleaned on success', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
-    const {runAll} = await multipartFileUpload({
+    const {runAll, startUpload, completeUpload} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
     });
 
+    await startUpload();
     const results = await runAll();
+    await completeUpload();
     const rf01 = last(results)?.rawFile;
 
     assert.ok(rf01);
@@ -122,20 +131,38 @@ describe('multipart.uploadFile', () => {
   test('overwrite part', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
+    const filepath = addRootnameToPath(
+      generateTestFileName(),
+      rawWorkspace.rootname
+    );
+
+    const clientMultipartId = '1';
+    const startReq =
+      RequestData.fromExpressRequest<StartMultipartUploadEndpointParams>(
+        mockExpressRequestWithAgentToken(userToken),
+        {filepath, clientMultipartId}
+      );
+
+    const startResult = await startMultipartUpload(startReq);
+
     const buf01 = Buffer.from('01');
     const {rawFile: rf01} = await insertFileForTest(userToken, rawWorkspace, {
       part: 1,
       data: Readable.from(buf01),
       size: buf01.byteLength,
-      clientMultipartId: '1',
+      clientMultipartId,
+      fileId: startResult.file.resourceId,
     });
 
     assert.ok(rf01);
     assert.ok(rf01.internalMultipartId);
-    const partMeta = await getMultipartUploadPartMeta({
-      multipartId: rf01.internalMultipartId,
-      part: 1,
-    });
+    const [partMeta] = await kIjxSemantic
+      .filePart()
+      .getManyByMultipartIdAndPart({
+        multipartId: rf01.internalMultipartId,
+        part: 1,
+      });
+
     assert.ok(partMeta);
     expect(partMeta.size).toBe(buf01.byteLength);
     expect(partMeta.multipartId).toBe(rf01.internalMultipartId);
@@ -151,10 +178,13 @@ describe('multipart.uploadFile', () => {
 
     assert.ok(rf02);
     assert.ok(rf02.internalMultipartId);
-    const partMeta2 = await getMultipartUploadPartMeta({
-      multipartId: rf02.internalMultipartId,
-      part: 1,
-    });
+    const [partMeta2] = await kIjxSemantic
+      .filePart()
+      .getManyByMultipartIdAndPart({
+        multipartId: rf02.internalMultipartId,
+        part: 1,
+      });
+
     assert.ok(partMeta2);
     expect(rf01.internalMultipartId).toBe(rf02.internalMultipartId);
     expect(partMeta2.size).toBe(buf02.byteLength);
@@ -172,11 +202,12 @@ describe('multipart.uploadFile', () => {
 
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
-    const {runNext} = await multipartFileUpload({
+    const {runNext, startUpload} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
     });
 
+    await startUpload();
     const {rawFile: rf01} = (await runNext()) ?? {};
     assert.ok(rf01);
 
@@ -202,12 +233,13 @@ describe('multipart.uploadFile', () => {
   test('single internal multipart ID created', async () => {
     const {userToken} = await insertUserForTest();
     const {rawWorkspace} = await insertWorkspaceForTest(userToken);
-    const {runNext} = await multipartFileUpload({
+    const {runNext, startUpload} = await multipartFileUpload({
       userToken,
       workspace: rawWorkspace,
       partLength: 3,
     });
 
+    await startUpload();
     const results01 = await Promise.allSettled([
       runNext({part: 0, forceRun: true}),
       runNext({part: 0, forceRun: true}),
@@ -219,6 +251,7 @@ describe('multipart.uploadFile', () => {
       runNext({part: 1, forceRun: true}),
       runNext({part: 1, forceRun: true}),
     ]);
+
     // run again
     const results02 = await Promise.allSettled([
       runNext({part: 1, forceRun: true}),
@@ -232,6 +265,7 @@ describe('multipart.uploadFile', () => {
       runNext({part: 2, forceRun: true}),
       runNext({part: 2, forceRun: true}),
     ]);
+
     const results = results01.concat(results02);
     const successResults = results.filter(
       (
@@ -240,6 +274,7 @@ describe('multipart.uploadFile', () => {
         NonNullable<Awaited<ReturnType<typeof runNext>>>
       > => r.status === 'fulfilled' && !isNil(r.value)
     );
+
     assert.ok(successResults.length);
     const rfList = successResults.map(r => r.value.rawFile);
     const multipartIds = rfList.map(rf => rf.internalMultipartId);

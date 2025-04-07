@@ -12,7 +12,6 @@ describe('compiledDefinitions', () => {
   test('cascade defs contains every child type', () => {
     forEach(kResourceTypeToPossibleChildren, (childrenTypes, type) => {
       const def = kCascadeDeleteDefinitions[type as FimidaraResourceType];
-
       if (def === noopDeleteCascadeEntry) {
         return;
       }

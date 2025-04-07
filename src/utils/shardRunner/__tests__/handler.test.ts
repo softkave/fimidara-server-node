@@ -185,7 +185,6 @@ describe('shardRunner handler > handleShardQueue', () => {
         id,
         item: {id},
         outputChannel,
-        workspaceId: workspace.resourceId,
         agent: sessionAgent,
       };
       const message: IShardRunnerMessage = {
@@ -270,7 +269,6 @@ describe('shardRunner handler > singleItemHandleShardQueue', () => {
         id,
         item: {id},
         outputChannel,
-        workspaceId: workspace.resourceId,
         agent: sessionAgent,
       };
       const message: IShardRunnerMessage = {
@@ -364,7 +362,6 @@ describe('shardRunner handler > singleItemHandleShardQueue', () => {
         id,
         item: {id},
         outputChannel,
-        workspaceId: workspace.resourceId,
         agent: sessionAgent,
       };
       const message: IShardRunnerMessage = {
@@ -465,7 +462,6 @@ describe('shardRunner handler > multiItemsHandleShardQueue', () => {
         id,
         item: {id},
         outputChannel,
-        workspaceId: workspace.resourceId,
         agent: sessionAgent,
       };
       const message: IShardRunnerMessage = {
@@ -559,7 +555,6 @@ describe('shardRunner handler > multiItemsHandleShardQueue', () => {
         id,
         item: {id},
         outputChannel,
-        workspaceId: workspace.resourceId,
         agent: sessionAgent,
       };
       const message: IShardRunnerMessage = {

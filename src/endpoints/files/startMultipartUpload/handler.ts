@@ -16,8 +16,20 @@ const startMultipartUpload: StartMultipartUploadEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  let {file} = await prepareFileForUpload(data, agent);
-  file = await prepareMultipart({file, agent});
+  let {file, primaryMount, mountFilepath} = await prepareFileForUpload({
+    data,
+    agent,
+  });
+
+  if (!file.internalMultipartId) {
+    file = await prepareMultipart({
+      file,
+      agent,
+      clientMultipartId: data.clientMultipartId,
+      primaryMount,
+      mountFilepath,
+    });
+  }
 
   return {file: fileExtractor(file)};
 };

@@ -18,6 +18,7 @@ import {
 } from '../../../utils/shardRunner/types.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
 import {kFileConstants} from '../constants.js';
+import {getNextMultipartTimeout} from '../utils/getNextMultipartTimeout.js';
 import {IInternalMultipartIdQueueInput} from './types.js';
 
 async function addFileInternalMultipartId(params: {
@@ -32,20 +33,23 @@ async function addFileInternalMultipartId(params: {
   });
 
   const startResult = await primaryBackend.startMultipartUpload({
-    filepath: input.filepath,
+    filepath: input.mountFilepath,
     workspaceId: input.workspaceId,
     fileId: input.fileId,
     mount: primaryMount,
   });
 
   await kIjxSemantic.utils().withTxn(async opts => {
-    await kIjxSemantic
-      .file()
-      .updateOneById(
-        input.fileId,
-        {internalMultipartId: startResult.multipartId},
-        opts
-      );
+    const multipartTimeout = getNextMultipartTimeout();
+    await kIjxSemantic.file().updateOneById(
+      input.fileId,
+      {
+        multipartTimeout,
+        internalMultipartId: startResult.multipartId,
+        clientMultipartId: input.clientMultipartId,
+      },
+      opts
+    );
   });
 
   return startResult;
@@ -72,7 +76,6 @@ async function handleAddInternalMultipartIdEntry(params: {
   );
 
   const existingInternalId = await getFileInternalMultipartId({input});
-
   if (existingInternalId) {
     return {
       type: kShardRunnerOutputType.success,

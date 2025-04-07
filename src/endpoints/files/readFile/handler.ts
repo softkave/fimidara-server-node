@@ -67,11 +67,12 @@ const readFile: ReadFileEndpoint = async reqData => {
   });
 
   assertFile(file);
-  await incrementBandwidthOutUsageRecord(
-    reqData,
+  await incrementBandwidthOutUsageRecord({
+    agent,
     file,
-    kFimidaraPermissionActions.readFile
-  );
+    requestId: reqData.requestId,
+    action: kFimidaraPermissionActions.readFile,
+  });
 
   const persistedFile = await readPersistedFile(file);
   const isImageResizeEmpty = isObjectFieldsEmpty(data.imageResize ?? {});

@@ -141,6 +141,8 @@ const kGetResourcesByIdDef: GetResourcesByIdDefinition = {
     kIjxSemantic.emailMessage().getManyByIdList(idList),
   [kFimidaraResourceType.emailBlocklist]: ({idList}) =>
     kIjxSemantic.emailBlocklist().getManyByIdList(idList),
+  [kFimidaraResourceType.filePart]: ({idList}) =>
+    kIjxSemantic.filePart().getManyByIdList(idList),
 };
 
 async function fetchTypeChildrenWithDef(props: {

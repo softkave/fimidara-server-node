@@ -60,7 +60,6 @@ describe('shardRunner queue', () => {
       item,
       queueKey,
       agent: sessionAgent,
-      workspaceId: workspace.resourceId,
       timeoutMs: 1000,
     });
 
@@ -100,7 +99,6 @@ describe('shardRunner queue', () => {
         item,
         queueKey,
         agent: sessionAgent,
-        workspaceId: workspace.resourceId,
         timeoutMs: 1000,
       });
     }).rejects.toThrowError('test');
@@ -117,7 +115,6 @@ describe('shardRunner queue', () => {
         item,
         queueKey,
         agent: sessionAgent,
-        workspaceId: workspace.resourceId,
         timeoutMs: 100,
       })
     ).rejects.toThrow(TimeoutError);
@@ -162,7 +159,6 @@ describe('shardRunner queue', () => {
       item,
       queueKey,
       agent: sessionAgent,
-      workspaceId: workspace.resourceId,
       timeoutMs: 1000,
     });
     startMs = Date.now();

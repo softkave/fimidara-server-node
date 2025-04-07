@@ -13,25 +13,29 @@ import {populateMountUnsupportedOpNoteInNotFoundError} from '../fileBackends/mou
 import {kFolderConstants} from '../folders/constants.js';
 import {ExportedHttpEndpoint_HandleErrorFn, kEndpointTag} from '../types.js';
 import {endpointDecodeURIComponent} from '../utils.js';
+import completeMultipartUpload from './completeMultipartUpload/handler.js';
 import {kFileConstants} from './constants.js';
 import deleteFile from './deleteFile/handler.js';
 import {
+  completeMultipartUploadEndpointDefinition,
   deleteFileEndpointDefinition,
   getFileDetailsEndpointDefinition,
-  getPartDetailsEndpointDefinition,
+  listPartsEndpointDefinition,
   readFileGETEndpointDefinition,
   readFilePOSTEndpointDefinition,
+  startMultipartUploadEndpointDefinition,
   updateFileDetailsEndpointDefinition,
   uploadFileEndpointDefinition,
 } from './endpoints.mddoc.js';
 import getFileDetails from './getFileDetails/handler.js';
-import getPartDetails from './listParts/handler.js';
+import listParts from './listParts/handler.js';
 import readFile from './readFile/handler.js';
 import {
   ReadFileEndpoint,
   ReadFileEndpointHttpQuery,
   ReadFileEndpointParams,
 } from './readFile/types.js';
+import startMultipartUpload from './startMultipartUpload/handler.js';
 import {FilesExportedEndpoints} from './types.js';
 import updateFileDetails from './updateFileDetails/handler.js';
 import uploadFile from './uploadFile/handler.js';
@@ -194,7 +198,6 @@ async function extractUploadFileParamsFromReq(
           ? clientMultipartId
           : undefined,
         part: isNumber(part) && !isNaN(part) ? part : undefined,
-        isLastPart: isLastPart === 'true' ? true : false,
       });
     });
 
@@ -222,7 +225,6 @@ async function extractUploadFileParamsFromReq(
         // level
         size: contentLength as unknown as number,
         part: isNumber(part) && !isNaN(part) ? part : undefined,
-        isLastPart: isLastPart === 'true' ? true : false,
         clientMultipartId: isString(clientMultipartId)
           ? clientMultipartId
           : undefined,
@@ -273,11 +275,11 @@ export function getFilesHttpEndpoints() {
       handleError: handleNotFoundError,
       fn: getFileDetails,
     },
-    getPartDetails: {
+    listParts: {
       tag: [kEndpointTag.public],
-      mddocHttpDefinition: getPartDetailsEndpointDefinition,
+      mddocHttpDefinition: listPartsEndpointDefinition,
       handleError: handleNotFoundError,
-      fn: getPartDetails,
+      fn: listParts,
     },
     readFile: [
       {
@@ -315,6 +317,18 @@ export function getFilesHttpEndpoints() {
       handleError: handleNotFoundError,
       cleanup: cleanupUploadFileReq,
       fn: uploadFile,
+    },
+    startMultipartUpload: {
+      tag: [kEndpointTag.public],
+      mddocHttpDefinition: startMultipartUploadEndpointDefinition,
+      handleError: handleNotFoundError,
+      fn: startMultipartUpload,
+    },
+    completeMultipartUpload: {
+      tag: [kEndpointTag.public],
+      mddocHttpDefinition: completeMultipartUploadEndpointDefinition,
+      handleError: handleNotFoundError,
+      fn: completeMultipartUpload,
     },
   };
   return filesExportedEndpoints;

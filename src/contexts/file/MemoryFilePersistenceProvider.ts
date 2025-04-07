@@ -1,5 +1,5 @@
 import {isNumber} from 'lodash-es';
-import {OmitFrom} from 'softkave-js-utils';
+import {isObjectEmpty, OmitFrom} from 'softkave-js-utils';
 import {Readable} from 'stream';
 import {appAssert} from '../../utils/assertion.js';
 import {streamToBuffer} from '../../utils/fns.js';
@@ -146,6 +146,10 @@ export class MemoryFilePersistenceProvider implements FilePersistenceProvider {
     const {part} = params;
     const parts = this.getMemoryFileParts(params);
     delete parts[part];
+
+    if (isObjectEmpty(parts)) {
+      this.internalCleanupMultipartUpload(params);
+    }
   }
 
   readFile = async (

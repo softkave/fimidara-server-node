@@ -22,7 +22,7 @@ import {kFileConstants} from '../constants.js';
 import {
   createNewFileAndEnsureFolders,
   FilepathInfo,
-  getFilepathInfo,
+  getWorkspaceFromFilepath,
 } from '../utils.js';
 import {checkoutFileForUpload} from './checkoutFileForUpload.js';
 import {
@@ -59,24 +59,27 @@ async function createAndInsertNewFile(params: {
 
 async function getAndPrepareExistingFile(params: {
   agent: SessionAgent;
-  workspace: Workspace;
   data: Pick<
     UploadFileEndpointParams,
     'filepath' | 'fileId' | 'clientMultipartId'
   >;
 }) {
-  const {agent, workspace, data} = params;
+  const {agent, data} = params;
   return await kIjxSemantic.utils().withTxn(async opts => {
-    const {file} = await tryGetFile(
-      {workspaceId: workspace.resourceId, ...data},
-      opts
-    );
+    const result = await tryGetFile(data, opts);
+    if (result.file) {
+      let workspace: Workspace | undefined | null = result.workspace;
+      if (!workspace) {
+        workspace = await kIjxSemantic
+          .workspace()
+          .getOneById(result.file.workspaceId);
+      }
 
-    if (file) {
+      appAssert(workspace);
       const preparedFile = await checkoutFileForUpload({
         agent,
         workspace,
-        file,
+        file: result.file,
         data,
         opts,
         skipAuth: false,
@@ -92,24 +95,18 @@ async function getAndPrepareExistingFile(params: {
 
 async function createAndPrepareNewFile(params: {
   agent: SessionAgent;
-  workspace: Workspace;
   data: Pick<
     UploadFileEndpointParams,
     'filepath' | 'clientMultipartId' | 'part' | 'fileId'
   >;
 }) {
-  const {agent, workspace, data} = params;
-
+  const {agent, data} = params;
   appAssert(
     data.filepath,
     new ValidationError('Provide a filepath for new files')
   );
 
-  const pathinfo = getFilepathInfo(data.filepath, {
-    containsRootname: true,
-    allowRootFolder: false,
-  });
-
+  const {workspace, pathinfo} = await getWorkspaceFromFilepath(data.filepath);
   return await kIjxSemantic.utils().withTxn(async opts => {
     // it's safe (but a bit costly and confusing) to create parent folders and
     // file before checking auth. whatsoever queue and handler that's creating the
@@ -146,20 +143,17 @@ async function handlePrepareFileEntry(params: {
   const agent = entry.agent;
   const input = entry.item;
 
-  const filepathOrId = input.data.filepath ?? input.data.fileId;
+  const filepathOrId = input.filepath ?? input.fileId;
   assert.ok(filepathOrId);
   const lockName = kFileConstants.getPrepareFileLockName(filepathOrId);
 
-  const [sessionAgent, workspace] = await Promise.all([
-    kIjxUtils.session().getAgentByAgentTokenId(agent.agentTokenId),
-    kIjxSemantic.workspace().getOneById(input.workspace.resourceId),
-  ]);
-  assert.ok(workspace);
+  const sessionAgent = await kIjxUtils
+    .session()
+    .getAgentByAgentTokenId(agent.agentTokenId);
 
   const existingFile = await getAndPrepareExistingFile({
-    workspace,
     agent: sessionAgent,
-    data: input.data,
+    data: input,
   });
 
   if (existingFile) {
@@ -176,9 +170,8 @@ async function handlePrepareFileEntry(params: {
     });
 
     const existingFile = await getAndPrepareExistingFile({
-      workspace,
       agent: sessionAgent,
-      data: input.data,
+      data: input,
     });
 
     assert.ok(existingFile);
@@ -191,8 +184,7 @@ async function handlePrepareFileEntry(params: {
   return await kIjxUtils.locks().run(lockName, async () => {
     const result = await createAndPrepareNewFile({
       agent: sessionAgent,
-      workspace,
-      data: input.data,
+      data: input,
     });
 
     return {

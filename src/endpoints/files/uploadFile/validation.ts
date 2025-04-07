@@ -12,7 +12,6 @@ export const uploadFileJoiSchema = Joi.object<UploadFileEndpointParams>()
     mimetype: fileValidationSchemas.mimetype.allow(null, ''),
     encoding: fileValidationSchemas.encoding.allow(null),
     clientMultipartId: fileValidationSchemas.clientMultipartId,
-    part: fileValidationSchemas.part.allow(-1),
-    isLastPart: Joi.boolean(),
+    part: fileValidationSchemas.part,
   })
   .required();

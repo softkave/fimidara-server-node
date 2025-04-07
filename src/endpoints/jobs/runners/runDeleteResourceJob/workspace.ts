@@ -117,6 +117,10 @@ const deleteArtifacts: DeleteResourceDeleteArtifactsFns = {
     helpers.withTxn(opts =>
       kIjxSemantic.jobHistory().deleteManyByWorkspaceId(args.workspaceId, opts)
     ),
+  [kFimidaraResourceType.filePart]: ({args, helpers}) =>
+    helpers.withTxn(opts =>
+      kIjxSemantic.filePart().deleteManyByWorkspaceId(args.workspaceId, opts)
+    ),
 };
 
 const deleteResourceFn: DeleteResourceFn = ({args, helpers}) =>

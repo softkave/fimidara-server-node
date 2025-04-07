@@ -108,6 +108,7 @@ export async function initTests(overrides: FimidaraSuppliedConfig = {}) {
       useHandlePrepareFileQueue: true,
     }
   );
+
   await initFimidara();
 }
 
@@ -567,6 +568,7 @@ export async function insertFileForTest(
       : mockExpressRequestForPublicAgent(),
     input
   );
+
   const result = await uploadFile(reqData);
   assertEndpointResultOk(result);
 

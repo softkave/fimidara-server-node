@@ -122,6 +122,7 @@ export class UsageProvider implements IUsageContext {
 
     const usage = Math.max(0, usageL2.usage - input.usage);
     const usageCost = getCostForUsage(input.category, usage);
+
     await this.writeUsageL2({
       usageL2,
       update: {
@@ -796,7 +797,6 @@ export class UsageProvider implements IUsageContext {
 
     this.refreshWorkspaceInterval = setInterval(() => {
       if (this.refreshWorkspaceInterval) {
-        console.log('refreshWorkspaceInterval');
         kIjxUtils
           .promises()
           .callAndForget(() =>

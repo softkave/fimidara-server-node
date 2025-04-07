@@ -77,4 +77,8 @@ export interface SemanticFilePartProvider
     filter: {multipartId: string; part?: number | number[]},
     opts?: SemanticProviderMutationParams
   ): Promise<void>;
+  deleteManyByFileId(
+    id: string,
+    opts?: SemanticProviderMutationParams
+  ): Promise<void>;
 }

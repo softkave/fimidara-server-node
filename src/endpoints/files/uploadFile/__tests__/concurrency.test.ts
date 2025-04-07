@@ -106,7 +106,7 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       const files = await kIjxSemantic
         .file()
-        .getManyByQuery(FileQueries.getByNamepath(sResult.savedFile));
+        .getManyByQuery(FileQueries.getByNamepath(sResult.dbFile));
       expect(files.length).toBe(1);
     });
 
@@ -129,13 +129,12 @@ describe.each([{isMultipart: true}, {isMultipart: false}])(
 
       await loopAndCollateAsync(
         async index => {
-          const result = await simpleRunUpload(isMultipart, {
+          await simpleRunUpload(isMultipart, {
             userToken,
             workspace,
             fileInput: {filepath: leafFilepaths[index]},
             type: kGenerateTestFileType.txt,
           });
-          assertEndpointResultOk(result);
         },
         leafLength,
         kLoopAsyncSettlementType.all

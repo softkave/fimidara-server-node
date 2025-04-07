@@ -189,19 +189,21 @@ export function throwPresignedPathNotFound() {
 
 export async function getWorkspaceFromFilepath(
   filepath: string
-): Promise<Workspace> {
+): Promise<{workspace: Workspace; pathinfo: FilepathInfo}> {
   const workspaceModel = kIjxSemantic.workspace();
   const pathinfo = getFilepathInfo(filepath, {
     allowRootFolder: false,
     containsRootname: true,
   });
+
   assertRootname(pathinfo.rootname);
   const workspace = await workspaceModel.getByRootname(pathinfo.rootname);
   appAssert(
     workspace,
     kReuseableErrors.workspace.withRootnameNotFound(pathinfo.rootname)
   );
-  return workspace;
+
+  return {workspace, pathinfo};
 }
 
 export async function getWorkspaceFromFileOrFilepath(
@@ -209,11 +211,10 @@ export async function getWorkspaceFromFileOrFilepath(
   filepath?: string
 ) {
   let workspace: Workspace | null = null;
-
   if (file) {
     workspace = await kIjxSemantic.workspace().getOneById(file.workspaceId);
   } else if (filepath) {
-    workspace = await getWorkspaceFromFilepath(filepath);
+    ({workspace} = await getWorkspaceFromFilepath(filepath));
   }
 
   assertWorkspace(workspace);
@@ -269,7 +270,6 @@ export function createNewFile(
       description: data.description,
       encoding: data.encoding,
       mimetype: data.mimetype,
-      clientMultipartId: data.clientMultipartId,
       ...seed,
     }
   );
@@ -321,13 +321,17 @@ export async function ingestFileByFilepath(props: {
 }) {
   const {agent, fimidaraFilepath, opts} = props;
   let {workspace, mounts, mountWeights} = props;
-  const pathinfo = getFilepathInfo(fimidaraFilepath, {
-    allowRootFolder: false,
-    containsRootname: true,
-  });
+  let pathinfo: FilepathInfo | undefined;
 
   if (!workspace) {
-    workspace = await getWorkspaceFromFilepath(fimidaraFilepath);
+    ({workspace, pathinfo} = await getWorkspaceFromFilepath(fimidaraFilepath));
+  }
+
+  if (!pathinfo) {
+    pathinfo = getFilepathInfo(fimidaraFilepath, {
+      allowRootFolder: false,
+      containsRootname: true,
+    });
   }
 
   if (mounts) {
@@ -367,6 +371,7 @@ export async function ingestFileByFilepath(props: {
       const mountEntry = mountEntriesMapByMountId[mount.resourceId];
       appAssert(provider);
       appAssert(workspace);
+      appAssert(pathinfo);
 
       return await provider.describeFile({
         mount,
@@ -376,7 +381,10 @@ export async function ingestFileByFilepath(props: {
               namepath: mountEntry.backendNamepath,
               ext: mountEntry.backendExt,
             })
-          : stringifyFilenamepath(pathinfo),
+          : stringifyFilenamepath({
+              namepath: pathinfo.namepath,
+              ext: pathinfo.ext,
+            }),
         fileId: mountEntry?.forId,
       });
     })

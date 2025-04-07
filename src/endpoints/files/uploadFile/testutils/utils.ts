@@ -1,9 +1,6 @@
 import {faker} from '@faker-js/faker';
-import {expect} from 'vitest';
-import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
 import {PublicWorkspace, Workspace} from '../../../../definitions/workspace.js';
 import {addRootnameToPath} from '../../../folders/utils.js';
-import EndpointReusableQueries from '../../../queries.js';
 import RequestData from '../../../RequestData.js';
 import {
   GenerateTestFileType,
@@ -27,7 +24,6 @@ import {
   UpdateFileDetailsEndpointParams,
   UpdateFileDetailsInput,
 } from '../../updateFileDetails/types.js';
-import {fileExtractor} from '../../utils.js';
 import {UploadFileEndpointParams} from '../types.js';
 import {simpleRunUpload} from './testUploadFns.js';
 
@@ -45,27 +41,19 @@ export const uploadFileBaseTest = async (params: {
     params.insertWorkspaceResult ??
     (await insertWorkspaceForTest(insertUserResult.userToken));
 
-  const insertFileResult = await simpleRunUpload(isMultipart, {
+  const {resFile, dbFile, dataBuffer} = await simpleRunUpload(isMultipart, {
     type,
     userToken: insertUserResult.userToken,
     workspace: insertWorkspaceResult.rawWorkspace,
     fileInput: input,
   });
 
-  const {file} = insertFileResult;
-  const savedFile = await kIjxSemantic
-    .file()
-    .assertGetOneByQuery(
-      EndpointReusableQueries.getByResourceId(file.resourceId)
-    );
-
-  expect(file).toMatchObject(fileExtractor(savedFile));
-
   return {
-    savedFile,
+    resFile,
+    dbFile,
     insertUserResult,
     insertWorkspaceResult,
-    ...insertFileResult,
+    dataBuffer,
   };
 };
 

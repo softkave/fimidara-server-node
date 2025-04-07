@@ -20,7 +20,10 @@ export class UsageLimitExceededError extends OperationError {
     super(props);
     this.message = getErrorMessageFromParams(
       props,
-      `Usage limit exceeded for category "${props.blockingCategory}" when trying to increment category "${props.reqCategory}"`
+      `Usage limit exceeded for category "${props.blockingCategory}"` +
+        (props.blockingCategory !== props.reqCategory
+          ? ` when incrementing category "${props.reqCategory}".`
+          : '.')
     );
     this.reqCategory = props.reqCategory;
     this.blockingCategory = props.blockingCategory;

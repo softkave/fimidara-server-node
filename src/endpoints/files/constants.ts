@@ -31,7 +31,9 @@ export const kFileConstants = {
     uploadFile: `${kEndpointConstants.apiv1}/files/uploadFile`,
     // TODO: better implement divide between express paths and mddoc def
     uploadFile_post: `${kEndpointConstants.apiv1}/files/uploadFile/:filepathOrId`,
-    getPartDetails: `${kEndpointConstants.apiv1}/files/getPartDetails`,
+    listParts: `${kEndpointConstants.apiv1}/files/listParts`,
+    startMultipartUpload: `${kEndpointConstants.apiv1}/files/startMultipartUpload`,
+    completeMultipartUpload: `${kEndpointConstants.apiv1}/files/completeMultipartUpload`,
   },
   headers: {
     'x-fimidara-file-encoding': 'x-fimidara-file-encoding',

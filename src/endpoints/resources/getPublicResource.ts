@@ -27,7 +27,7 @@ import {usageRecordExtractor} from '../usageRecords/utils.js';
 import {workspaceExtractor} from '../workspaces/utils.js';
 
 const kResourceTypeToExtractorMap: Record<
-  FimidaraResourceType,
+  Exclude<FimidaraResourceType, typeof kFimidaraResourceType.filePart>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AnyFn<[any, string], PublicResource | PublicCollaborator>
 > = {
@@ -64,7 +64,13 @@ export function getPublicResource(
   resource: ResourceWrapper,
   workspaceId: string
 ) {
-  const extractor = kResourceTypeToExtractorMap[resource.resourceType];
+  const extractor =
+    kResourceTypeToExtractorMap[
+      resource.resourceType as Exclude<
+        FimidaraResourceType,
+        typeof kFimidaraResourceType.filePart
+      >
+    ];
 
   if (extractor) {
     return extractor(resource.resource, workspaceId);

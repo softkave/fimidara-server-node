@@ -59,12 +59,11 @@ function cleanup(vars: IRunArtifacts<any>) {
 
 export async function queueShardRunner<TInputItem, TOutputItem>(params: {
   agent: Agent;
-  workspaceId: string;
   item: TInputItem;
   queueKey: string;
   timeoutMs: number;
 }) {
-  const {agent, workspaceId, item, queueKey, timeoutMs} = params;
+  const {agent, item, queueKey, timeoutMs} = params;
 
   const id = getNewId();
   const wakeupChannel = getShardRunnerPubSubAlertChannel({queueKey});
@@ -75,7 +74,6 @@ export async function queueShardRunner<TInputItem, TOutputItem>(params: {
       agentType: agent.agentType,
       agentTokenId: agent.agentTokenId,
     },
-    workspaceId,
     item,
     id,
     outputChannel: outputChannel,

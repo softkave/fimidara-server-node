@@ -13,20 +13,8 @@ export async function queuePrepareFile(params: {
     IPrepareFileQueueOutput
   >({
     agent,
-    workspaceId: input.workspace.resourceId,
-    item: {
-      data: {
-        clientMultipartId: input.data.clientMultipartId,
-        part: input.data.part,
-        fileId: input.data.fileId,
-        filepath: input.data.filepath,
-      },
-      workspace: {
-        resourceId: input.workspace.resourceId,
-        rootname: input.workspace.rootname,
-      },
-    },
-    queueKey: kFileConstants.getPrepareFileQueueKey(input.workspace.resourceId),
+    item: input,
+    queueKey: kFileConstants.getPrepareFileQueueKey(input.workspaceId),
     timeoutMs: kFileConstants.prepareFileQueueTimeout,
   });
 

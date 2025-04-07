@@ -36,6 +36,7 @@ export async function saveFilePartData(params: {
     agent: params.agent,
     workspaceId: params.workspaceId,
     fileId: params.fileId,
+    multipartId: persistedMountData.multipartId,
     parts: [
       {
         size,

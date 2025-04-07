@@ -33,7 +33,6 @@ const completeMultipartUpload: CompleteMultipartUploadEndpoint =
       fileId: file.resourceId,
       parts: data.parts,
       agent,
-      clientMultipartId: data.clientMultipartId,
       requestId: reqData.requestId,
     });
 

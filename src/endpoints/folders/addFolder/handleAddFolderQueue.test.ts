@@ -79,8 +79,8 @@ function generateInput(workspace: Pick<Workspace, 'resourceId' | 'rootname'>) {
     > => {
       return {
         outputChannel: channel,
-        workspaceId: workspace.resourceId,
         item: {
+          workspaceId: workspace.resourceId,
           folderpath: stringifyFolderpath({
             namepath: generateTestFolderpath({rootname: workspace.rootname}),
           }),
@@ -186,7 +186,7 @@ async function insertInQueue(input: ITestAddFolderQueueInput[]) {
 async function getFoldersFromDB(input: ITestAddFolderQueueInput[]) {
   const folderpaths = uniqBy(
     input.map(inputItem => ({
-      workspaceId: inputItem.workspaceId,
+      workspaceId: inputItem.item.workspaceId,
       ...getFolderpathInfo(inputItem.item.folderpath, {
         allowRootFolder: false,
         containsRootname: true,

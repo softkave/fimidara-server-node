@@ -27,7 +27,6 @@ export type IShardRunnerOutput<TItem> =
 export interface IShardRunnerEntry<TItem> {
   id: string;
   outputChannel: string;
-  workspaceId: string;
   item: TItem;
   agent: Agent;
 }

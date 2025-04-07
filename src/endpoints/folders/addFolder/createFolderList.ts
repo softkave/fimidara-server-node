@@ -26,6 +26,7 @@ export async function createFolderList(
             ...nextInput,
             UNSAFE_skipAuthCheck,
             throwIfFolderExists,
+            workspaceId: workspace.resourceId,
           };
 
           const output = await queueShardRunner<
@@ -33,7 +34,6 @@ export async function createFolderList(
             Folder[]
           >({
             agent,
-            workspaceId: workspace.resourceId,
             item: input,
             queueKey: kFolderConstants.getAddFolderQueueKey(input.folderpath),
             timeoutMs: kFolderConstants.addFolderQueueTimeout,

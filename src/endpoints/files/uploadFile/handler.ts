@@ -44,7 +44,7 @@ async function handleUploadFile(params: {
       );
       appAssert(
         file.internalMultipartId,
-        new InvalidRequestError('File has no pending multipart upload')
+        new InvalidRequestError('File has no pending multipart upload.')
       );
     }
 
@@ -111,9 +111,8 @@ const uploadFile: UploadFileEndpoint = async reqData => {
       kSessionUtils.accessScopes.api
     );
 
-  const {file} = await prepareFileForUpload(data, agent);
+  const {file} = await prepareFileForUpload({data, agent});
   const isMultipart = isString(data.clientMultipartId);
-
   if (isMultipart) {
     appAssert(
       data.part,

@@ -6,4 +6,5 @@ export interface JobHistory extends Resource {
   status: JobStatus;
   runnerId?: string;
   workspaceId?: string;
+  errorMessage?: string;
 }

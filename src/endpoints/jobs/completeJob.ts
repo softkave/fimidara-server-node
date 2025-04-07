@@ -15,7 +15,8 @@ import {newResource} from '../../utils/resource.js';
 export async function completeJob(
   jobId: string,
   inputStatus?: JobStatus,
-  ifStatus?: JobStatus[]
+  ifStatus?: JobStatus[],
+  errorMessage?: string
 ) {
   const job = await kIjxSemantic.utils().withTxn(async opts => {
     const jobsModel = kIjxSemantic.job();
@@ -59,6 +60,7 @@ export async function completeJob(
     const jobHistoryEntry: JobHistory[] = [
       newResource(kFimidaraResourceType.jobHistory, {
         status,
+        errorMessage,
         jobId: job.resourceId,
         runnerId: job.runnerId,
       }),
@@ -75,6 +77,8 @@ export async function completeJob(
         cooldownTill: Date.now() + job.cronInterval,
         runnerId: undefined,
       };
+
+      // Add a new history entry for the cron job indicating that it is pending
       jobHistoryEntry.push(
         newResource(kFimidaraResourceType.jobHistory, {
           status,
@@ -86,11 +90,12 @@ export async function completeJob(
 
     const statusItem: JobStatusHistory = {
       status,
+      errorMessage,
       runnerId: job.runnerId,
       statusLastUpdatedAt: getTimestamp(),
     };
-    jobUpdate = {...jobUpdate, ...statusItem};
 
+    jobUpdate = {...jobUpdate, ...statusItem};
     const [savedJob] = await Promise.all([
       jobsModel.getAndUpdateOneById(jobId, jobUpdate, opts),
       kIjxSemantic.jobHistory().insertItem(jobHistoryEntry, opts),

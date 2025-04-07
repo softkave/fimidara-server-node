@@ -13,24 +13,14 @@ export async function queueCompleteMultipartUploadJob(props: {
   parts: CompleteMultipartUploadInputPart[];
   agent: Agent;
   parentJobId?: string;
-  clientMultipartId: string;
   opts?: SemanticProviderMutationParams;
   requestId: string;
 }) {
-  const {
-    workspaceId,
-    fileId,
-    parts,
-    agent,
-    parentJobId,
-    clientMultipartId,
-    opts,
-    requestId,
-  } = props;
+  const {workspaceId, fileId, parts, agent, parentJobId, opts, requestId} =
+    props;
 
   const completeParams: CompleteMultipartUploadJobParams = {
     fileId,
-    clientMultipartId,
     parts,
     requestId,
   };

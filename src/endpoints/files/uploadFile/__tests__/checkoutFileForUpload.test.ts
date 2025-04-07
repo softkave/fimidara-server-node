@@ -42,7 +42,6 @@ describe('checkoutFileForUpload', () => {
       });
 
       assert(checkedFile);
-      expect(checkedFile.clientMultipartId).toEqual(clientMultipartId);
       expect(checkedFile.isWriteAvailable).toEqual(false);
       expect(file.resourceId).toEqual(checkedFile.resourceId);
 

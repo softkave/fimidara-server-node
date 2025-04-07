@@ -10,6 +10,7 @@ import {
 import {kSystemSessionAgent} from '../../../utils/agent.js';
 import {getTimestamp} from '../../../utils/dateFns.js';
 import {getNewIdForResource} from '../../../utils/resource.js';
+import {getCostForUsage} from '../../usageRecords/constants.js';
 import {isUsageRecordPersistent} from '../../usageRecords/utils.js';
 
 function randomCategory() {
@@ -34,8 +35,9 @@ export function generateUsageRecordList(
   const records: UsageRecord[] = [];
 
   for (let i = 0; i < count; i++) {
-    const category = randomCategory();
     const status = randomFulfillmentStatus();
+    const category = extra.category ?? randomCategory();
+    const usage = extra.usage ?? 0;
     records.push({
       persistent: isUsageRecordPersistent({
         category,
@@ -54,8 +56,8 @@ export function generateUsageRecordList(
       month: random(0, 11),
       isDeleted: false,
       artifacts: [],
-      usageCost: 0,
-      usage: 0,
+      usage,
+      usageCost: getCostForUsage(category, usage),
       ...extra,
     });
   }

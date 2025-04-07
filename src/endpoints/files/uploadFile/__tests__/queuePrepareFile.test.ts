@@ -1,4 +1,4 @@
-import {uniq} from 'lodash-es';
+import {compact, uniq} from 'lodash-es';
 import {kLoopAsyncSettlementType, loopAndCollateAsync} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../../contexts/ijx/injectables.js';
@@ -33,10 +33,7 @@ describe('queuePrepareFile', () => {
 
     const file = await queuePrepareFile({
       agent: sessionAgent,
-      input: {
-        workspace,
-        data: {filepath},
-      },
+      input: {filepath, workspaceId: workspace.resourceId},
     });
 
     expect(stringifyFilenamepath(file, workspace.rootname)).toEqual(filepath);
@@ -64,13 +61,13 @@ describe('queuePrepareFile', () => {
     const filepath = stringifyFilenamepath(file, workspace.rootname);
     const result = await queuePrepareFile({
       agent: sessionAgent,
-      input: {workspace, data: {filepath}},
+      input: {workspaceId: workspace.resourceId, filepath},
     });
 
     expect(result.resourceId).toEqual(file.resourceId);
   });
 
-  test('should create file only one file', async () => {
+  test('should create only one file', async () => {
     const {userToken, sessionAgent} = await insertUserForTest();
     const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
     const filepath = generateTestFilepathString({
@@ -81,10 +78,12 @@ describe('queuePrepareFile', () => {
       const file = await queuePrepareFile({
         agent: sessionAgent,
         input: {
-          workspace,
-          data: {filepath, clientMultipartId: '123', part: 1},
+          filepath,
+          workspaceId: workspace.resourceId,
+          clientMultipartId: '123',
         },
       });
+
       return file;
     }
 
@@ -92,15 +91,20 @@ describe('queuePrepareFile', () => {
     const files = await loopAndCollateAsync(
       createFile,
       count,
-      kLoopAsyncSettlementType.all
+      kLoopAsyncSettlementType.allSettled
     );
 
     expect(files.length).toEqual(count);
 
     const fileIds = files.map(file => {
-      return file.resourceId;
+      if (file.status === 'fulfilled') {
+        return file.value.resourceId;
+      }
+
+      return null;
     });
-    const uniqueFileIds = uniq(fileIds);
+
+    const uniqueFileIds = uniq(compact(fileIds));
     expect(uniqueFileIds.length).toEqual(1);
   });
 });

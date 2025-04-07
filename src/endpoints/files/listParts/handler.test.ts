@@ -3,7 +3,7 @@ import {getRandomInt} from 'softkave-js-utils';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 import {kIjxSemantic} from '../../../contexts/ijx/injectables.js';
 import {AgentToken} from '../../../definitions/agentToken.js';
-import {File} from '../../../definitions/file.js';
+import {File, PublicPart} from '../../../definitions/file.js';
 import {Workspace} from '../../../definitions/workspace.js';
 import RequestData from '../../RequestData.js';
 import {expectContainsEveryItemIn} from '../../testUtils/helpers/assertion.js';
@@ -32,7 +32,7 @@ afterAll(async () => {
 
 describe('listParts', () => {
   test.each([{spotty: true}, {spotty: false}])(
-    'file details returned, params=%s',
+    'file details returned, spotty=$spotty',
     async ({spotty}) => {
       const {userToken, sessionAgent} = await insertUserForTest();
       const {rawWorkspace: workspace} = await insertWorkspaceForTest(userToken);
@@ -49,6 +49,7 @@ describe('listParts', () => {
             txn
           );
       });
+
       const possiblePartNums = Array.from({length: partLength}, (_, i) => i);
       const partNums = spotty
         ? sampleSize(
@@ -60,6 +61,7 @@ describe('listParts', () => {
             )
           )
         : possiblePartNums;
+
       const parts = partNums
         .sort((num1, num2) => num1 - num2)
         .map((part: number): InputFilePart => {
@@ -77,6 +79,7 @@ describe('listParts', () => {
         workspaceId: workspace.resourceId,
         fileId: file.resourceId,
         parts,
+        multipartId: internalMultipartId,
       });
 
       await callGetParts({
@@ -94,9 +97,10 @@ async function callGetParts(params: {
   userToken: AgentToken;
   file: File;
   workspace: Workspace;
-  parts: FilePartMeta[];
+  parts: PublicPart[];
   clientMultipartId: string;
-  continuationToken?: string;
+  page?: number;
+  pageSize?: number;
 }) {
   const {
     userToken,
@@ -104,38 +108,39 @@ async function callGetParts(params: {
     workspace,
     parts,
     clientMultipartId,
-    continuationToken,
+    page = 0,
+    pageSize = 10,
   } = params;
 
-  const page01Req = RequestData.fromExpressRequest<ListPartsEndpointParams>(
+  const req = RequestData.fromExpressRequest<ListPartsEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),
     {
-      continuationToken,
+      page,
+      pageSize,
       filepath: stringifyFilenamepath(file, workspace.rootname),
     }
   );
-  const page01 = await listParts(page01Req);
-  assertEndpointResultOk(page01);
 
-  expect(page01.clientMultipartId).toEqual(clientMultipartId);
+  const result = await listParts(req);
+  assertEndpointResultOk(result);
+  expect(result.clientMultipartId).toEqual(clientMultipartId);
   const pParts = partDetailsListExtractor(parts);
   expectContainsEveryItemIn(
-    page01.details,
     pParts,
+    result.parts,
     part => part.part.toString() + part.size
   );
 
-  if (page01.isDone) {
-    expect(page01.continuationToken).toBeUndefined();
-  } else {
-    expect(page01.continuationToken).toBeDefined();
+  if (result.parts.length === pageSize) {
+    expect(result.parts.length).toBe(pageSize);
     await callGetParts({
       userToken,
       file,
       workspace,
       parts,
       clientMultipartId,
-      continuationToken: page01.continuationToken,
+      page: page + 1,
+      pageSize,
     });
   }
 }

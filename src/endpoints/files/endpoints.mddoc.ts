@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {FileMatcher, PublicFile} from '../../definitions/file.js';
+import {FileMatcher, PublicFile, PublicPart} from '../../definitions/file.js';
 import {
   FieldBinaryType,
   FieldObjectFieldsMap,
@@ -16,6 +16,11 @@ import {
   mddocEndpointHttpResponseItems,
 } from '../endpoints.mddoc.js';
 import {HttpEndpointRequestHeaders_AuthOptional} from '../types.js';
+import {
+  CompleteMultipartUploadEndpointParams,
+  CompleteMultipartUploadEndpointResult,
+  CompleteMultipartUploadInputPart,
+} from './completeMultipartUpload/types.js';
 import {kFileConstants} from './constants.js';
 import {DeleteFileEndpointParams} from './deleteFile/types.js';
 import {
@@ -23,9 +28,8 @@ import {
   GetFileDetailsEndpointResult,
 } from './getFileDetails/types.js';
 import {
-  GetPartDetailsEndpointParams,
-  GetPartDetailsEndpointResult,
-  PublicPart,
+  ListPartsEndpointParams,
+  ListPartsEndpointResult,
 } from './listParts/types.js';
 import {
   ImageFormatEnumMap,
@@ -37,13 +41,19 @@ import {
   ReadFileEndpointParams,
 } from './readFile/types.js';
 import {
+  StartMultipartUploadEndpointParams,
+  StartMultipartUploadEndpointResult,
+} from './startMultipartUpload/types.js';
+import {
+  CompleteMultipartUploadHttpEndpoint,
   DeleteFileHttpEndpoint,
   FileMatcherPathParameters,
   GetFileDetailsHttpEndpoint,
-  GetPartDetailsHttpEndpoint,
+  ListPartsHttpEndpoint,
   ReadFileEndpointHTTPHeaders,
   ReadFileGETHttpEndpoint,
   ReadFilePOSTHttpEndpoint,
+  StartMultipartUploadHttpEndpoint,
   UpdateFileDetailsHttpEndpoint,
   UploadFileEndpointHTTPHeaders,
   UploadFileEndpointSdkParams,
@@ -352,7 +362,6 @@ const uploadFileSdkParamsDef = mddocConstruct
       clientMultipartId
     ),
     part: mddocConstruct.constructFieldObjectField(false, part),
-    isLastPart: mddocConstruct.constructFieldObjectField(false, isLastPart),
   })
   .setName('UploadFileEndpointParams');
 
@@ -386,11 +395,6 @@ const updloadFileSdkParams = mddocConstruct
         return ['header', kFileConstants.headers['x-fimidara-multipart-id']];
       case 'part':
         return ['header', kFileConstants.headers['x-fimidara-multipart-part']];
-      case 'isLastPart':
-        return [
-          'header',
-          kFileConstants.headers['x-fimidara-multipart-is-last-part'],
-        ];
       default:
         throw new Error(`unknown key ${key}`);
     }
@@ -669,42 +673,37 @@ export const deleteFileEndpointDefinition = mddocConstruct
   .setResponseBody(mddocEndpointHttpResponseItems.longRunningJobResponseBody)
   .setName('DeleteFileEndpoint');
 
-export const getPartDetailsEndpointDefinition = mddocConstruct
+export const listPartsEndpointDefinition = mddocConstruct
   .constructHttpEndpointDefinition<
     InferFieldObjectType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+      ListPartsHttpEndpoint['mddocHttpDefinition']['requestHeaders']
     >,
     InferFieldObjectType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+      ListPartsHttpEndpoint['mddocHttpDefinition']['pathParamaters']
     >,
-    InferFieldObjectType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['query']
-    >,
+    InferFieldObjectType<ListPartsHttpEndpoint['mddocHttpDefinition']['query']>,
     InferFieldObjectOrMultipartType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['requestBody']
+      ListPartsHttpEndpoint['mddocHttpDefinition']['requestBody']
     >,
     InferFieldObjectType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+      ListPartsHttpEndpoint['mddocHttpDefinition']['responseHeaders']
     >,
     InferFieldObjectType<
-      GetPartDetailsHttpEndpoint['mddocHttpDefinition']['responseBody']
+      ListPartsHttpEndpoint['mddocHttpDefinition']['responseBody']
     >
   >()
-  .setBasePathname(kFileConstants.routes.getPartDetails)
+  .setBasePathname(kFileConstants.routes.listParts)
   .setMethod(HttpEndpointMethod.Post)
   .setRequestBody(
     mddocConstruct
-      .constructFieldObject<GetPartDetailsEndpointParams>()
-      .setName('GetPartDetailsEndpointParams')
+      .constructFieldObject<ListPartsEndpointParams>()
+      .setName('ListPartsEndpointParams')
       .setFields({
         ...fileMatcherParts,
-        continuationToken: mddocConstruct.constructFieldObjectField(
+        page: mddocConstruct.constructFieldObjectField(false, fReusables.page),
+        pageSize: mddocConstruct.constructFieldObjectField(
           false,
-          mddocConstruct
-            .constructFieldString()
-            .setDescription(
-              'Continuation token to get the next page of results'
-            )
+          fReusables.pageSize
         ),
       })
   )
@@ -716,8 +715,8 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
   )
   .setResponseBody(
     mddocConstruct
-      .constructFieldObject<GetPartDetailsEndpointResult>()
-      .setName('GetPartDetailsEndpointResult')
+      .constructFieldObject<ListPartsEndpointResult>()
+      .setName('ListPartsEndpointResult')
       .setFields({
         clientMultipartId: mddocConstruct.constructFieldObjectField(
           false,
@@ -728,7 +727,7 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
                 'It is used to identify the same multipart upload across multiple requests'
             )
         ),
-        details: mddocConstruct.constructFieldObjectField(
+        parts: mddocConstruct.constructFieldObjectField(
           true,
           mddocConstruct.constructFieldArray<PublicPart>().setType(
             mddocConstruct
@@ -750,20 +749,125 @@ export const getPartDetailsEndpointDefinition = mddocConstruct
               })
           )
         ),
-        continuationToken: mddocConstruct.constructFieldObjectField(
-          false,
-          mddocConstruct
-            .constructFieldString()
-            .setDescription(
-              'Continuation token to get the next page of results'
-            )
-        ),
-        isDone: mddocConstruct.constructFieldObjectField(
-          false,
-          mddocConstruct.constructFieldBoolean()
+        page: mddocConstruct.constructFieldObjectField(true, fReusables.page),
+      })
+  )
+  .setName('ListPartsEndpoint');
+
+export const startMultipartUploadEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      StartMultipartUploadHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(kFileConstants.routes.startMultipartUpload)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(
+    mddocConstruct
+      .constructFieldObject<StartMultipartUploadEndpointParams>()
+      .setName('StartMultipartUploadEndpointParams')
+      .setFields({
+        ...fileMatcherParts,
+        clientMultipartId: mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct.constructFieldString()
         ),
       })
   )
-  .setName('GetPartDetailsEndpoint');
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(
+    mddocConstruct
+      .constructFieldObject<StartMultipartUploadEndpointResult>()
+      .setName('StartMultipartUploadEndpointResult')
+      .setFields({
+        file: mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct.constructFieldObject<PublicFile>().setName('File')
+        ),
+      })
+  )
+  .setName('StartMultipartUploadEndpoint');
+
+export const completeMultipartUploadEndpointDefinition = mddocConstruct
+  .constructHttpEndpointDefinition<
+    InferFieldObjectType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['requestHeaders']
+    >,
+    InferFieldObjectType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['pathParamaters']
+    >,
+    InferFieldObjectType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['query']
+    >,
+    InferFieldObjectOrMultipartType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['requestBody']
+    >,
+    InferFieldObjectType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['responseHeaders']
+    >,
+    InferFieldObjectType<
+      CompleteMultipartUploadHttpEndpoint['mddocHttpDefinition']['responseBody']
+    >
+  >()
+  .setBasePathname(kFileConstants.routes.completeMultipartUpload)
+  .setMethod(HttpEndpointMethod.Post)
+  .setRequestBody(
+    mddocConstruct
+      .constructFieldObject<CompleteMultipartUploadEndpointParams>()
+      .setName('CompleteMultipartUploadEndpointParams')
+      .setFields({
+        ...fileMatcherParts,
+        clientMultipartId: mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct.constructFieldString()
+        ),
+        parts: mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct.constructFieldArray<CompleteMultipartUploadInputPart>()
+        ),
+      })
+  )
+  .setRequestHeaders(
+    mddocEndpointHttpHeaderItems.requestHeaders_AuthRequired_JsonContentType
+  )
+  .setResponseHeaders(
+    mddocEndpointHttpHeaderItems.responseHeaders_JsonContentType
+  )
+  .setResponseBody(
+    mddocConstruct
+      .constructFieldObject<CompleteMultipartUploadEndpointResult>()
+      .setName('CompleteMultipartUploadEndpointResult')
+      .setFields({
+        file: mddocConstruct.constructFieldObjectField(
+          true,
+          mddocConstruct.constructFieldObject<PublicFile>().setName('File')
+        ),
+        jobId: mddocConstruct.constructFieldObjectField(
+          false,
+          mddocConstruct.constructFieldString()
+        ),
+      })
+  )
+  .setName('CompleteMultipartUploadEndpoint');
 
 export const fileEndpointsParts = {file};

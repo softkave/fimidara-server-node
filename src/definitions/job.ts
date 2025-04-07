@@ -53,6 +53,7 @@ export interface JobStatusHistory {
   status: JobStatus;
   statusLastUpdatedAt: number;
   runnerId?: string;
+  errorMessage?: string;
 }
 
 export interface RunAfterJobItem {
@@ -71,6 +72,8 @@ export interface Job<
   workspaceId?: string;
   status: JobStatus;
   statusLastUpdatedAt: number;
+  // TODO: what other error-related fields?
+  errorMessage?: string;
   minRunnerVersion: number;
   runnerId?: string;
   parentJobId?: string;
@@ -144,7 +147,6 @@ export interface INewSignupsOnWaitlistJobMeta {
 
 export interface CompleteMultipartUploadJobParams {
   fileId: string;
-  clientMultipartId: string;
   parts: CompleteMultipartUploadInputPart[];
   requestId: string;
 }

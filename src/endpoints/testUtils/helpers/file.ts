@@ -31,13 +31,14 @@ export async function expectFileBodyEqualById(
     file,
     initPrimaryBackendOnly: true,
   });
+
   const {body} = await primaryBackend.readFile({
     filepath: stringifyFilenamepath(file),
     fileId: file.resourceId,
     mount: primaryMount,
     workspaceId: file.workspaceId,
   });
-  assert(body);
 
+  assert(body);
   await expectFileBodyEqual(body, expectedBody);
 }

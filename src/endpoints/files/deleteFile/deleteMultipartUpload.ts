@@ -41,6 +41,8 @@ export async function deleteMultipartUpload(props: {
 
   const multipartIdToUse = multipartId ?? file.internalMultipartId;
   appAssert(isString(multipartIdToUse));
+
+  // TODO: maybe move to a job runner
   await Promise.all([
     isNumber(part)
       ? primaryBackend.deleteMultipartUploadPart({
