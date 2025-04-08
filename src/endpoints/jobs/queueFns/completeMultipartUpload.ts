@@ -21,7 +21,9 @@ export async function queueCompleteMultipartUploadJob(props: {
 
   const completeParams: CompleteMultipartUploadJobParams = {
     fileId,
-    parts,
+    // Saving it as is causes an error in MongoDB. Parts are too large in some
+    // cases.
+    parts: JSON.stringify(parts),
     requestId,
   };
 

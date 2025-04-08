@@ -2,7 +2,6 @@ import {AnyFn, AnyObject, OmitFrom, PartialRecord} from 'softkave-js-utils';
 import {ValueOf} from 'type-fest';
 import {NewSignupsOnWaitlistEmailProps} from '../emailTemplates/newSignupsOnWaitlist.js';
 import {BaseEmailTemplateProps} from '../emailTemplates/types.js';
-import {CompleteMultipartUploadInputPart} from '../endpoints/files/completeMultipartUpload/types.js';
 import {FimidaraConfigEmailProvider} from '../resources/config.js';
 import {AppShardId} from './app.js';
 import {Agent, FimidaraResourceType, Resource} from './system.js';
@@ -147,7 +146,8 @@ export interface INewSignupsOnWaitlistJobMeta {
 
 export interface CompleteMultipartUploadJobParams {
   fileId: string;
-  parts: CompleteMultipartUploadInputPart[];
+  // parts: CompleteMultipartUploadInputPart[];
+  parts: string;
   requestId: string;
 }
 

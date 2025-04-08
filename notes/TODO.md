@@ -45,6 +45,7 @@
   unassigning a permission group owned by fimidara
 - check that read available works for all file providers, local, s3, etc.
 - add a create empty file endpoint
+- delete local dir and file for completed/deleted parts
 
 ## JS SDK
 

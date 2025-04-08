@@ -7,6 +7,7 @@ import {
 } from '../../../definitions/job.js';
 import {appAssert} from '../../../utils/assertion.js';
 import {resolveBackendsMountsAndConfigs} from '../../fileBackends/mountUtils.js';
+import {CompleteMultipartUploadInputPart} from '../../files/completeMultipartUpload/types.js';
 import {handleLastMultipartUpload} from '../../files/uploadFile/multipart.js';
 import {prepareMountFilepath} from '../../files/utils/prepareMountFilepath.js';
 
@@ -24,12 +25,16 @@ export async function runCompleteMultipartUploadJob(
   });
 
   const mountFilepath = await prepareMountFilepath({primaryMount, file});
+  const parts = JSON.parse(
+    completeParams.parts
+  ) as CompleteMultipartUploadInputPart[];
+
   await handleLastMultipartUpload({
     file,
     primaryBackend,
     primaryMount,
     mountFilepath,
-    partNumsToUse: completeParams.parts.map(part => ({part: part.part})),
+    partNumsToUse: parts.map(part => ({part: part.part})),
     requestId: completeParams.requestId,
   });
 }
