@@ -455,8 +455,6 @@ const uploadFileEndpointHTTPHeaders = mddocConstruct
       false,
       part
     ),
-    'x-fimidara-multipart-is-last-part':
-      mddocConstruct.constructFieldObjectField(false, isLastPart),
   })
 
   .setName('UploadFileEndpointHTTPHeaders');

@@ -49,7 +49,7 @@ interface ReqWithBusboy {
   busboy?: busboy.Busboy;
 }
 
-const kFileStreamWaitTimeoutMS = 10_000; // 10 seconds
+const kFileStreamWaitTimeoutMS = 60_000; // 1 minute
 
 const handleNotFoundError: ExportedHttpEndpoint_HandleErrorFn = (
   res,
@@ -150,8 +150,6 @@ async function extractUploadFileParamsFromReq(
   const part = parseInt(
     req.headers[kFileConstants.headers['x-fimidara-multipart-part']] as string
   );
-  const isLastPart =
-    req.headers[kFileConstants.headers['x-fimidara-multipart-is-last-part']];
 
   const bb = busboy({
     limits: kFileConstants.multipartLimits,
