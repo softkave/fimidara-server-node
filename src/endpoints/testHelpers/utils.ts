@@ -22,10 +22,7 @@ import {getTimestamp} from '../../utils/dateFns.js';
 import {convertToArray, mergeData, pathJoin} from '../../utils/fns.js';
 import {makeUserSessionAgent} from '../../utils/sessionUtils.js';
 import addAgentTokenEndpoint from '../agentTokens/addToken/handler.js';
-import {
-  AddAgentTokenEndpointParams,
-  NewAgentTokenInput,
-} from '../agentTokens/addToken/types.js';
+import {AddAgentTokenEndpointParams} from '../agentTokens/addToken/types.js';
 import {assertAgentToken} from '../agentTokens/utils.js';
 import {populateUserWorkspaces} from '../assignedItems/getAssignedItems.js';
 import sendRequest from '../collaborationRequests/sendRequest/handler.js';
@@ -407,7 +404,7 @@ export async function insertRequestForTest(
 export async function insertAgentTokenForTest(
   userToken: AgentToken,
   workspaceId: string,
-  tokenInput: Partial<NewAgentTokenInput> = {}
+  tokenInput: Partial<AddAgentTokenEndpointParams> = {}
 ) {
   const reqData = RequestData.fromExpressRequest<AddAgentTokenEndpointParams>(
     mockExpressRequestWithAgentToken(userToken),

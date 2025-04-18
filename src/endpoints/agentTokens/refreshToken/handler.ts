@@ -9,7 +9,6 @@ import {refreshAgentTokenJoiSchema} from './validation.js';
 
 const refreshAgentToken: RefreshAgentTokenEndpoint = async reqData => {
   const data = validate(reqData.data, refreshAgentTokenJoiSchema);
-
   const agent = await kIjxUtils
     .session()
     .getAgentFromReq(

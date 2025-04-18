@@ -115,14 +115,6 @@
                 },
                 "__id": "FieldObjectField",
                 "required": false
-            },
-            "x-fimidara-multipart-is-last-part": {
-                "data": {
-                    "__id": "FieldBoolean",
-                    "description": "Whether this is the last part of the multipart upload"
-                },
-                "__id": "FieldObjectField",
-                "required": false
             }
         },
         "name": "UploadFileEndpointHTTPHeaders"

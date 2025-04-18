@@ -35,6 +35,8 @@ export type AgentToken = {
   expiresAt?: number;
   providedResourceId?: string | null;
   jwtTokenExpiresAt?: number;
+  shouldRefresh?: boolean;
+  refreshDuration?: number;
 };
 export type AddAgentTokenEndpointResult = {
   token: AgentToken;

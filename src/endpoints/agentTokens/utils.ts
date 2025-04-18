@@ -25,6 +25,8 @@ const agentTokenFields = getFields<PublicAgentToken>({
   providedResourceId: true,
   refreshToken: true,
   jwtTokenExpiresAt: true,
+  shouldRefresh: true,
+  refreshDuration: true,
   // tags: assignedTagListExtractor,
 });
 

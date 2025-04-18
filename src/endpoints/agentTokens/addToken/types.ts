@@ -7,13 +7,14 @@ export interface NewAgentTokenInput {
   description?: string;
   expiresAt?: number;
   shouldRefresh?: boolean;
-  shouldEncode?: boolean;
   refreshDuration?: number;
 }
 
 export interface AddAgentTokenEndpointParams
   extends EndpointOptionalWorkspaceIDParam,
-    NewAgentTokenInput {}
+    NewAgentTokenInput {
+  shouldEncode?: boolean;
+}
 
 export interface AddAgentTokenEndpointResult {
   token: PublicAgentToken;

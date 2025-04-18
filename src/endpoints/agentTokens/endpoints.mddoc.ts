@@ -80,7 +80,6 @@ const newAgentTokenInput = mddocConstruct
       false,
       fReusables.providedResourceId
     ),
-    shouldEncode: mddocConstruct.constructFieldObjectField(false, shouldEncode),
     shouldRefresh: mddocConstruct.constructFieldObjectField(
       false,
       shouldRefresh
@@ -120,6 +119,14 @@ const agentToken = mddocConstruct
     jwtTokenExpiresAt: mddocConstruct.constructFieldObjectField(
       false,
       fReusables.jwtTokenExpiresAt
+    ),
+    shouldRefresh: mddocConstruct.constructFieldObjectField(
+      false,
+      shouldRefresh
+    ),
+    refreshDuration: mddocConstruct.constructFieldObjectField(
+      false,
+      refreshDurationMs
     ),
   });
 

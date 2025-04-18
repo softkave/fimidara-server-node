@@ -33,7 +33,20 @@
             },
             "parts": {
                 "data": {
-                    "__id": "FieldArray"
+                    "__id": "FieldArray",
+                    "type": {
+                        "__id": "FieldObject",
+                        "name": "CompleteMultipartUploadInputPart",
+                        "fields": {
+                            "part": {
+                                "data": {
+                                    "__id": "FieldNumber"
+                                },
+                                "__id": "FieldObjectField",
+                                "required": true
+                            }
+                        }
+                    }
                 },
                 "__id": "FieldObjectField",
                 "required": true

@@ -29,6 +29,7 @@ const updateAgentToken: UpdateAgentTokenEndpoint = async reqData => {
       kSessionUtils.permittedAgentTypes.api,
       kSessionUtils.accessScopes.api
     );
+
   const {workspace} = await tryGetWorkspaceFromEndpointInput(agent, data);
   const tokenId = tryGetAgentTokenId(agent, data.tokenId, data.onReferenced);
   const {token} = await checkAgentTokenAuthorization02(

@@ -83,6 +83,13 @@
                 },
                 "__id": "FieldObjectField",
                 "required": true
+            },
+            "errorMessage": {
+                "data": {
+                    "__id": "FieldString"
+                },
+                "__id": "FieldObjectField",
+                "required": false
             }
         }
     },

@@ -316,6 +316,22 @@
                             },
                             "__id": "FieldObjectField",
                             "required": false
+                        },
+                        "shouldRefresh": {
+                            "data": {
+                                "__id": "FieldBoolean",
+                                "description": "Whether the token should be refreshed."
+                            },
+                            "__id": "FieldObjectField",
+                            "required": false
+                        },
+                        "refreshDuration": {
+                            "data": {
+                                "__id": "FieldNumber",
+                                "description": "The duration in milliseconds for which a generated JWT token, not the actual agent token, is valid."
+                            },
+                            "__id": "FieldObjectField",
+                            "required": false
                         }
                     }
                 },

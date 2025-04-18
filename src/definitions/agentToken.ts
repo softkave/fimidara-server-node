@@ -43,5 +43,7 @@ export type PublicAgentToken = PublicWorkspaceResource &
     | 'lastUpdatedBy'
     | 'createdBy'
     | 'providedResourceId'
+    | 'shouldRefresh'
+    | 'refreshDuration'
   > &
   Partial<EncodedAgentToken>;
