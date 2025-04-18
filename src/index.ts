@@ -31,7 +31,13 @@ const corsOption: cors.CorsOptions = {
   credentials: true,
 };
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: 'cross-origin',
+    },
+  })
+);
 app.disable('x-powered-by');
 app.use(cors(corsOption));
 app.use(express.json() as express.RequestHandler);
