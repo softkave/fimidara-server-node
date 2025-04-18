@@ -76,6 +76,7 @@ async function handleReadFileResponse(
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#as_a_response_header_for_the_main_body
     // res.setHeader('Content-Disposition', `attachment; filename*="${filename}"`);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   }
 
   const responseHeaders: AnyObject = {
