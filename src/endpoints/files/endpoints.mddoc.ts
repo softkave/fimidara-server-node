@@ -798,10 +798,7 @@ export const startMultipartUploadEndpointDefinition = mddocConstruct
       .constructFieldObject<StartMultipartUploadEndpointResult>()
       .setName('StartMultipartUploadEndpointResult')
       .setFields({
-        file: mddocConstruct.constructFieldObjectField(
-          true,
-          mddocConstruct.constructFieldObject<PublicFile>().setName('File')
-        ),
+        file: mddocConstruct.constructFieldObjectField(true, file),
       })
   )
   .setName('StartMultipartUploadEndpoint');
@@ -868,10 +865,7 @@ export const completeMultipartUploadEndpointDefinition = mddocConstruct
       .constructFieldObject<CompleteMultipartUploadEndpointResult>()
       .setName('CompleteMultipartUploadEndpointResult')
       .setFields({
-        file: mddocConstruct.constructFieldObjectField(
-          true,
-          mddocConstruct.constructFieldObject<PublicFile>().setName('File')
-        ),
+        file: mddocConstruct.constructFieldObjectField(true, file),
         jobId: mddocConstruct.constructFieldObjectField(
           false,
           mddocConstruct.constructFieldString()
