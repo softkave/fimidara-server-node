@@ -1,3 +1,5 @@
+This repo is no longer maintained. Goto https://github.com/softkave/fimidara
+
 # fimidara server node
 
 [fimidara.com](https://fimidara.com)
